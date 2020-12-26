@@ -34,7 +34,8 @@ namespace visilib
     struct DiscreteGeometryDescription;
     class SilhouetteMeshFace;
    
-    /** @brief Store the connectivity information of the meshes of the scene. The connectivity is used for silhouette detection */
+    /** @brief Stores the occluders against which visibility is tested. The occluders are stored under the form of a connected set of faces, that are used for efficient silhouette detection.
+    Connectivity information of the occluders is computed in a lazy way, only when required.*/
 
     class GeometryOccluderSet
     {

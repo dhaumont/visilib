@@ -28,9 +28,9 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 
 namespace visilib
 {
-    /** @brief Represents a scene containing all the occluders using Embree library from Intel to perform ray-tracing.
+    /** @brief Represents a set of silhouettes, using Embree library from Intel to perform ray-tracing against those silhouettes.
     
-    This class is performance oriented, and is intended to provide the fastest possible occluder selection, by using a modern ray tracing engine.
+    This class is performance oriented, and is intended to provide the fastest possible occluder ray intersection, by using a modern ray tracing engine.
     */
 
     class SilhouetteContainerEmbree : public SilhouetteContainer
@@ -87,7 +87,7 @@ namespace visilib
 
 #define HIT_LIST_LENGTH 16
 
-    /* extended ray structure that includes total transparency along the ray */
+    /** @brief Extended ray structure to store all the hits along the ray */
     struct RayMultiHit
     {
         RTCRayHit rayHit;

@@ -35,6 +35,10 @@ namespace visilib
     class PluckerPolytope;
     class SilhouetteMeshFace;
 
+    /** @brief
+   Store a silhouette edge, containing the mesh face and the support hyperplane 
+   */
+
     struct SilhouetteEdge
     {
         SilhouetteEdge(SilhouetteMeshFace* aFace, size_t anEdgeIndex, size_t anHyperplaneIndex)
@@ -52,9 +56,11 @@ namespace visilib
         double mScore;
         bool mIsActive;
     };
-    /** @brief Store a silhouette, under the form of a list of edges
-    
-    The silhouettes are extracted by the silhouette processor, and are attached to the geometry faces of the triangle mesh
+
+
+    /** @brief Store a silhouette, representing an occluder as seen from the sources. The silhouettes are stored under the form of a list of silhouette edges. A s
+    They are extracted by the silhouette processor class. Each face of the occluder mesh belongs to a single silhouette at any time. 
+    In turn, each face of the occluder mesh stores a reference to the silhouette it belongs to.
     */
 
     class Silhouette
@@ -162,6 +168,7 @@ namespace visilib
         const size_t mGeometryId;
         int mAvailableEdgeCount;
     };
+
 
     inline void Silhouette::addEdge(SilhouetteMeshFace* aFace, size_t anEdgeIndex, size_t anHyperplaneIndex)
     {

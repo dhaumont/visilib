@@ -2,7 +2,7 @@
 \label{classvisilib_1_1_silhouette}\index{visilib::Silhouette@{visilib::Silhouette}}
 
 
-Store a silhouette, under the form of a list of edges.  
+Store a silhouette, representing an occluder as seen from the sources. The silhouettes are stored under the form of a list of silhouette edges. A s They are extracted by the silhouette processor class. Each face of the occluder mesh belongs to a single silhouette at any time. In turn, each face of the occluder mesh stores a reference to the silhouette it belongs to.  
 
 
 
@@ -82,9 +82,7 @@ int {\bfseries m\+Available\+Edge\+Count}
 
 
 \subsection{Detailed Description}
-Store a silhouette, under the form of a list of edges. 
-
-The silhouettes are extracted by the silhouette processor, and are attached to the geometry faces of the triangle mesh 
+Store a silhouette, representing an occluder as seen from the sources. The silhouettes are stored under the form of a list of silhouette edges. A s They are extracted by the silhouette processor class. Each face of the occluder mesh belongs to a single silhouette at any time. In turn, each face of the occluder mesh stores a reference to the silhouette it belongs to. 
 
 \subsection{Member Function Documentation}
 \mbox{\Hypertarget{classvisilib_1_1_silhouette_a71ef8585c5f017de2a5af97d870b12c7}\label{classvisilib_1_1_silhouette_a71ef8585c5f017de2a5af97d870b12c7}} 

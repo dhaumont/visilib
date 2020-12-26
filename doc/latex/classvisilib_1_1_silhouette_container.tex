@@ -1,5 +1,14 @@
 \hypertarget{classvisilib_1_1_silhouette_container}{}\section{visilib\+::Silhouette\+Container Class Reference}
 \label{classvisilib_1_1_silhouette_container}\index{visilib::SilhouetteContainer@{visilib::SilhouetteContainer}}
+
+
+Store a set of silhouettes, representing occluder surfaces as seen from the sources. The silhouettes are used to compute ray intersection during visibility computation.  
+
+
+
+
+{\ttfamily \#include $<$silhouette\+\_\+container.\+h$>$}
+
 Inheritance diagram for visilib\+::Silhouette\+Container\+:\begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -34,6 +43,9 @@ virtual void {\bfseries prepare} ()
 std\+::unordered\+\_\+set$<$ \mbox{\hyperlink{classvisilib_1_1_silhouette}{Silhouette}} $\ast$ $>$ {\bfseries m\+Silhouettes}
 \end{DoxyCompactItemize}
 
+
+\subsection{Detailed Description}
+Store a set of silhouettes, representing occluder surfaces as seen from the sources. The silhouettes are used to compute ray intersection during visibility computation. 
 
 The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 

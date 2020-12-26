@@ -50,7 +50,7 @@ namespace visilib
     };
 
 
-    /** @brief Represents a triangle mesh.*/
+    /** @brief Description of a discrete geometry (ie a mesh).*/
 
     struct DiscreteGeometryDescription
     {
@@ -69,6 +69,8 @@ namespace visilib
         const float* normalArray;   /**< @brief Pointer to the normal table (optional)*/
 
     };
+
+    /** @brief Representation of a triangle mesh.*/
 
     struct TriangleMeshDescription : public DiscreteGeometryDescription
     {

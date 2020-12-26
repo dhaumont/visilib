@@ -27,6 +27,10 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 namespace visilib
 {
 
+ /** @brief
+   Store a set of silhouettes, representing occluder surfaces as seen from the sources. The silhouettes are used to compute ray intersection during visibility computation. 
+*/
+
 class SilhouetteContainer
 {
 public:

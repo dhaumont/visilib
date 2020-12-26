@@ -2,7 +2,7 @@
 \label{classvisilib_1_1_geometry_occluder_set}\index{visilib::GeometryOccluderSet@{visilib::GeometryOccluderSet}}
 
 
-Store the connectivity information of the meshes of the scene. The connectivity is used for silhouette detection.  
+Stores the occluders against which visibility is tested. The occluders are stored under the form of a connected set of faces, that are used for efficient silhouette detection. Connectivity information of the occluders is computed in a lazy way, only when required.  
 
 
 
@@ -53,7 +53,7 @@ std\+::vector$<$ \mbox{\hyperlink{classvisilib_1_1_geometry_a_a_b_b}{Geometry\+A
 
 
 \subsection{Detailed Description}
-Store the connectivity information of the meshes of the scene. The connectivity is used for silhouette detection. 
+Stores the occluders against which visibility is tested. The occluders are stored under the form of a connected set of faces, that are used for efficient silhouette detection. Connectivity information of the occluders is computed in a lazy way, only when required. 
 
 \subsection{Member Function Documentation}
 \mbox{\Hypertarget{classvisilib_1_1_geometry_occluder_set_a653a182d2a7f4ac669fe67693574b128}\label{classvisilib_1_1_geometry_occluder_set_a653a182d2a7f4ac669fe67693574b128}} 

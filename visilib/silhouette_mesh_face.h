@@ -26,8 +26,8 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include "math_vector_3.h"
 namespace visilib
 {
-    /** < @brief Storage of the neighbours triangle faces of a triangle face of a triangle mesh. It allows to encode the connectivities of a triangle mesh, in order to 
-    perform silhouette detection
+    /** < @brief Storage of the connectivity between mesh faces of the occluder geometry. Each occluder is stored as a set of SilhouetteMeshFace. 
+    Each SilhouetteMeshFace contains the definition of the vertices of the face as well as a pointer to the neigbour faces.
     */
 
     class SilhouetteMeshFace
