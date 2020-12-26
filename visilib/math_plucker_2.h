@@ -21,6 +21,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #pragma once
 
 #include "math_vector_2.h"
+#include "math_arithmetic.h"
 #include "visilib_core.h"
 
 namespace visilib
