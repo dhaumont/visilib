@@ -4,6 +4,7 @@ var searchData=
   ['setgeometry',['setGeometry',['../classvisilib_1_1_silhouette_mesh_face.html#acb6f95afd112046d3ba4ae5bd9738e25',1,'visilib::SilhouetteMeshFace']]],
   ['setneighbour',['setNeighbour',['../classvisilib_1_1_silhouette_mesh_face.html#a481d2d1b6544e3be14c55842ee37ab0a',1,'visilib::SilhouetteMeshFace']]],
   ['setoccluderconnectedfaces',['setOccluderConnectedFaces',['../classvisilib_1_1_geometry_occluder_set.html#a4700b3241185a0c1064a2a227d771d99',1,'visilib::GeometryOccluderSet']]],
+  ['silhouette',['Silhouette',['../classvisilib_1_1_silhouette.html',1,'visilib']]],
   ['silhouettecontainer',['SilhouetteContainer',['../classvisilib_1_1_silhouette_container.html',1,'visilib']]],
   ['silhouettecontainerembree',['SilhouetteContainerEmbree',['../classvisilib_1_1_silhouette_container_embree.html',1,'visilib']]],
   ['silhouetteedge',['SilhouetteEdge',['../structvisilib_1_1_silhouette_edge.html',1,'visilib']]],

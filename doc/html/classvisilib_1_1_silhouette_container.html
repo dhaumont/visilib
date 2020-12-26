@@ -86,12 +86,12 @@ Inheritance diagram for visilib::SilhouetteContainer:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a38471133888f49fbed4035f8da75f23b"><td class="memItemLeft" align="right" valign="top"><a id="a38471133888f49fbed4035f8da75f23b"></a>
-const std::unordered_set&lt; <a class="el" href="classvisilib_1_1_visibility_silhouette.html">VisibilitySilhouette</a> * &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>getSilhouettes</b> ()</td></tr>
-<tr class="separator:a38471133888f49fbed4035f8da75f23b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aef12600c0735f49a8b4c80bc5d5a2d50"><td class="memItemLeft" align="right" valign="top"><a id="aef12600c0735f49a8b4c80bc5d5a2d50"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>addSilhouette</b> (<a class="el" href="classvisilib_1_1_visibility_silhouette.html">VisibilitySilhouette</a> *aSilhouette)</td></tr>
-<tr class="separator:aef12600c0735f49a8b4c80bc5d5a2d50"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7c42eff193b69bd62532c1b723700901"><td class="memItemLeft" align="right" valign="top"><a id="a7c42eff193b69bd62532c1b723700901"></a>
+const std::unordered_set&lt; <a class="el" href="classvisilib_1_1_silhouette.html">Silhouette</a> * &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>getSilhouettes</b> ()</td></tr>
+<tr class="separator:a7c42eff193b69bd62532c1b723700901"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5a9047d08292878caf0d4cea6107122f"><td class="memItemLeft" align="right" valign="top"><a id="a5a9047d08292878caf0d4cea6107122f"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>addSilhouette</b> (<a class="el" href="classvisilib_1_1_silhouette.html">Silhouette</a> *aSilhouette)</td></tr>
+<tr class="separator:a5a9047d08292878caf0d4cea6107122f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a45fe6f13c65d91a7f500bb47f3a6cb34"><td class="memItemLeft" align="right" valign="top"><a id="a45fe6f13c65d91a7f500bb47f3a6cb34"></a>
 virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>intersect</b> (<a class="el" href="structvisilib_1_1_ray.html">Ray</a> *aRay)</td></tr>
 <tr class="separator:a45fe6f13c65d91a7f500bb47f3a6cb34"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -101,16 +101,16 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>prepare</b> (
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:ae1c087d735def786ab9a01267150f634"><td class="memTemplParams" colspan="2"><a id="ae1c087d735def786ab9a01267150f634"></a>
+<tr class="memitem:a84194087a8fd4c5d1dfa04067efa3b72"><td class="memTemplParams" colspan="2"><a id="a84194087a8fd4c5d1dfa04067efa3b72"></a>
 template&lt;class P , class S &gt; </td></tr>
-<tr class="memitem:ae1c087d735def786ab9a01267150f634"><td class="memTemplItemLeft" align="right" valign="top">static bool&#160;</td><td class="memTemplItemRight" valign="bottom"><b>isOccluded</b> (<a class="el" href="classvisilib_1_1_plucker_polytope.html">PluckerPolytope</a>&lt; P &gt; *polytope, <a class="el" href="classvisilib_1_1_plucker_polyhedron.html">PluckerPolyhedron</a>&lt; P &gt; *polyhedron, const std::vector&lt; <a class="el" href="classvisilib_1_1_visibility_silhouette.html">VisibilitySilhouette</a> * &gt; &amp;aSilhouettes, const std::vector&lt; P &gt; &amp;polytopeLines, S myTolerance)</td></tr>
-<tr class="separator:ae1c087d735def786ab9a01267150f634"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a84194087a8fd4c5d1dfa04067efa3b72"><td class="memTemplItemLeft" align="right" valign="top">static bool&#160;</td><td class="memTemplItemRight" valign="bottom"><b>isOccluded</b> (<a class="el" href="classvisilib_1_1_plucker_polytope.html">PluckerPolytope</a>&lt; P &gt; *polytope, <a class="el" href="classvisilib_1_1_plucker_polyhedron.html">PluckerPolyhedron</a>&lt; P &gt; *polyhedron, const std::vector&lt; <a class="el" href="classvisilib_1_1_silhouette.html">Silhouette</a> * &gt; &amp;aSilhouettes, const std::vector&lt; P &gt; &amp;polytopeLines, S myTolerance)</td></tr>
+<tr class="separator:a84194087a8fd4c5d1dfa04067efa3b72"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
-<tr class="memitem:af846a05b61355bc74b6ddd2710173ebd"><td class="memItemLeft" align="right" valign="top"><a id="af846a05b61355bc74b6ddd2710173ebd"></a>
-std::unordered_set&lt; <a class="el" href="classvisilib_1_1_visibility_silhouette.html">VisibilitySilhouette</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>mSilhouettes</b></td></tr>
-<tr class="separator:af846a05b61355bc74b6ddd2710173ebd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5a230bee3e0736d3c21080a632989d52"><td class="memItemLeft" align="right" valign="top"><a id="a5a230bee3e0736d3c21080a632989d52"></a>
+std::unordered_set&lt; <a class="el" href="classvisilib_1_1_silhouette.html">Silhouette</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>mSilhouettes</b></td></tr>
+<tr class="separator:a5a230bee3e0736d3c21080a632989d52"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li>C:/code/github/visilib/visilib/<a class="el" href="silhouette__container_8h_source.html">silhouette_container.h</a></li>

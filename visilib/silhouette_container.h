@@ -40,12 +40,12 @@ public:
             delete s;
     }
 
-    const std::unordered_set<VisibilitySilhouette*>& getSilhouettes()
+    const std::unordered_set<Silhouette*>& getSilhouettes()
     {
         return mSilhouettes;
     }
 
-    void addSilhouette(VisibilitySilhouette* aSilhouette)
+    void addSilhouette(Silhouette* aSilhouette)
     {
         if (mSilhouettes.find(aSilhouette) == mSilhouettes.end())
             mSilhouettes.insert(aSilhouette);
@@ -77,11 +77,11 @@ public:
     }
 
     template<class P, class S>
-    static bool isOccluded(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron, const std::vector <VisibilitySilhouette*>& aSilhouettes, const std::vector<P>& polytopeLines, S myTolerance)
+    static bool isOccluded(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron, const std::vector <Silhouette*>& aSilhouettes, const std::vector<P>& polytopeLines, S myTolerance)
     {
         for (auto iter = aSilhouettes.begin(); iter != aSilhouettes.end(); iter++)
         {
-            VisibilitySilhouette* s = (*iter);
+            Silhouette* s = (*iter);
             const auto& edgesProcessed = s->getEdgesProcessed();
 
             if (s->getAvailableEdgeCount() == 0)
@@ -118,7 +118,7 @@ public:
 
     virtual void prepare() {};
 private:
-    std::unordered_set<VisibilitySilhouette*> mSilhouettes;
+    std::unordered_set<Silhouette*> mSilhouettes;
 };
 }
 

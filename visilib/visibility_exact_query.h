@@ -51,7 +51,7 @@ namespace visilib
     class SilhouetteMeshFace;
     class GeometryOccluderSet;
     struct Ray;
-    class VisibilitySilhouette;
+    class Silhouette;
     class SilhouetteProcessor;
 
     template <class S>
@@ -111,7 +111,7 @@ namespace visilib
         The occluder finding is done using a ray-tracing operation, the ray(s) direction used to perform the sampling beeing either a "representative line" of the polytope,
         or the extremal stabbing line of the polytope.
         */
-        bool collectAllOccluders(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron, std::vector<VisibilitySilhouette*>& occluders, std::vector<P>& polytopeLines);
+        bool collectAllOccluders(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron, std::vector<Silhouette*>& occluders, std::vector<P>& polytopeLines);
 
         /**@brief Attach a debugger to the query for visual inspection */
         void attachVisualisationDebugger(VisualDebugger* aDebugger);
@@ -133,7 +133,7 @@ namespace visilib
         
         /**@brief Find the next edge to be processed by the query
         */
-        bool findNextEdge(size_t& aSilhouetteEdgeIndex, VisibilitySilhouette * &aSilhouette, PluckerPolytope<P> * polytope, const std::string & occlusionTreeNodeSymbol);
+        bool findNextEdge(size_t& aSilhouetteEdgeIndex, Silhouette * &aSilhouette, PluckerPolytope<P> * polytope, const std::string & occlusionTreeNodeSymbol);
 
 
         void setApproximateNormal(const MathVector3d & a)
@@ -145,7 +145,7 @@ namespace visilib
         {
             return mApproximateNormal;
         }
-        bool isOccluded(PluckerPolytope<P> * polytope, PluckerPolyhedron<P>* polyhedron, const std::vector <VisibilitySilhouette*> & silhouettes, const std::vector<P> & polytopeLines);
+        bool isOccluded(PluckerPolytope<P> * polytope, PluckerPolyhedron<P>* polyhedron, const std::vector <Silhouette*> & silhouettes, const std::vector<P> & polytopeLines);
 
         /**@brief Return the statistic collector */
         HelperStatisticCollector* getStatistic()
@@ -357,7 +357,7 @@ namespace visilib
     }
 
     template<class P, class S>
-    bool VisibilityExactQuery<P, S>::findNextEdge(size_t& aSilhouetteEdgeIndex, VisibilitySilhouette * &aSilhouette, PluckerPolytope<P> * aPolytope, const std::string & occlusionTreeNodeSymbol)
+    bool VisibilityExactQuery<P, S>::findNextEdge(size_t& aSilhouetteEdgeIndex, Silhouette * &aSilhouette, PluckerPolytope<P> * aPolytope, const std::string & occlusionTreeNodeSymbol)
     {
         HelperScopedTimer timer(getStatistic(), OCCLUDER_TREATMENT);
         std::ofstream& debugOutput = mDebugger->get()->getDebugOutput();
@@ -365,19 +365,19 @@ namespace visilib
 
         V_LOG(debugOutput, "VisibilityExactQuery<P, S>::findTheBestValidEdge BEGIN", occlusionTreeNodeSymbol);
 
-        const std::unordered_set<VisibilitySilhouette*>& mySilhouettes = mSilhouetteContainer->getSilhouettes();
+        const std::unordered_set<Silhouette*>& mySilhouettes = mSilhouetteContainer->getSilhouettes();
 
         double myScore = 1e32;
         bool found = false;
         
-        VisibilitySilhouette* mySilhouette = nullptr;
+        Silhouette* mySilhouette = nullptr;
 
         MathPlane3d aPlane0 = getQueryPolygon(0)->getPlane();
    
         const MathPlane3d& myPlane = getQueryPolygon(0)->getPlane();
         for (auto iter = mySilhouettes.begin(); iter != mySilhouettes.end(); iter++)
         {
-            VisibilitySilhouette* s = (*iter);
+            Silhouette* s = (*iter);
 
             auto& edges = s->getEdges();
 
@@ -428,7 +428,7 @@ namespace visilib
     }
 
     template<class P, class S>
-    bool VisibilityExactQuery<P, S>::isOccluded(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron, const std::vector <VisibilitySilhouette*> & aSilhouettes, const std::vector<P> & polytopeLines)
+    bool VisibilityExactQuery<P, S>::isOccluded(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron, const std::vector <Silhouette*> & aSilhouettes, const std::vector<P> & polytopeLines)
     {   
         return SilhouetteContainer::isOccluded(polytope, polyhedron, aSilhouettes,polytopeLines,mTolerance);
     }
@@ -492,7 +492,7 @@ namespace visilib
     {
         for (size_t geometryId = 0; geometryId < mScene->getOccluderCount(); geometryId++)
         {
-            std::vector<VisibilitySilhouette*> silhouettes;
+            std::vector<Silhouette*> silhouettes;
             std::vector<SilhouetteMeshFace>* myFaces = mScene->getOccluderConnectedFaces(geometryId);
 
             mSilhouetteProcessor->extractSilhouette(geometryId, *myFaces, mConfiguration.silhouetteOptimization, silhouettes);
@@ -506,7 +506,7 @@ namespace visilib
     }
 
     template<class P, class S>
-    bool VisibilityExactQuery<P, S>::collectAllOccluders(PluckerPolytope<P> * aPolytope, PluckerPolyhedron<P> * polyhedron, std::vector<VisibilitySilhouette*> & occluders, std::vector<P> & polytopeLines)
+    bool VisibilityExactQuery<P, S>::collectAllOccluders(PluckerPolytope<P> * aPolytope, PluckerPolyhedron<P> * polyhedron, std::vector<Silhouette*> & occluders, std::vector<P> & polytopeLines)
     {
         {   
             if (mConfiguration.representativeLineSampling)
@@ -555,7 +555,7 @@ namespace visilib
 
             for (auto myFace : intersectedFaces)
             {
-                VisibilitySilhouette* s = mSilhouetteProcessor->findSilhouette(myFace);
+                Silhouette* s = mSilhouetteProcessor->findSilhouette(myFace);
                 //   V_ASSERT(s);
                 if (s)
                     occluders.push_back(s);

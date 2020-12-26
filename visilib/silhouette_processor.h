@@ -65,13 +65,13 @@ namespace visilib
 
         The computed silhouette are attached to all the visited faces during silhouette extraction.
         */
-        void extractSilhouette(size_t geometryId, const std::vector<SilhouetteMeshFace>& faces, bool silhouetteOptimization, std::vector< VisibilitySilhouette*>& silhouettes);
+        void extractSilhouette(size_t geometryId, const std::vector<SilhouetteMeshFace>& faces, bool silhouetteOptimization, std::vector< Silhouette*>& silhouettes);
 
         /** @brief Find the silhouette associated to a given face
         @param face: the index of the face we are looking for a silhouette
         @return: the silhouette if it exists, nullptr otherwise
         */
-        VisibilitySilhouette* findSilhouette(SilhouetteMeshFace* face)
+        Silhouette* findSilhouette(SilhouetteMeshFace* face)
         {
             auto iter = mSilhouetteCache.find(face);
 
@@ -93,13 +93,13 @@ namespace visilib
         void initConvexHull();
 
         /** @brief Add a silhouette to a face*/
-        void addSilhouette(SilhouetteMeshFace* face, VisibilitySilhouette* silhouette)
+        void addSilhouette(SilhouetteMeshFace* face, Silhouette* silhouette)
         {
-            mSilhouetteCache.insert(std::pair<SilhouetteMeshFace*, VisibilitySilhouette*>(face, silhouette));
+            mSilhouetteCache.insert(std::pair<SilhouetteMeshFace*, Silhouette*>(face, silhouette));
         }
 
         const GeometryConvexPolygon* mSource[2];                                       /**< @brief The two source polygons*/
-        std::unordered_map<SilhouetteMeshFace*, VisibilitySilhouette*>mSilhouetteCache;  /**< @brief A silhouette cache associating a silhouette to a face of an occluder*/
+        std::unordered_map<SilhouetteMeshFace*, Silhouette*>mSilhouetteCache;  /**< @brief A silhouette cache associating a silhouette to a face of an occluder*/
         std::unordered_map<SilhouetteMeshFace*, bool> mPolygonBetweenSourcePlanesCache;  /**< @brief A cache storing if a polygon is between the source polygons*/
         std::unordered_map<size_t, bool> mPotentialSilhouetteEdgeCache;                /**< @brief A cache storing if an edge is a potential silhouette edge*/
 
@@ -215,7 +215,7 @@ namespace visilib
         return false;
     }
 
-    inline void SilhouetteProcessor::extractSilhouette(size_t geometryId, const std::vector<SilhouetteMeshFace> & meshFaces, bool silhouetteOptimization, std::vector<VisibilitySilhouette*> & silhouettes)
+    inline void SilhouetteProcessor::extractSilhouette(size_t geometryId, const std::vector<SilhouetteMeshFace> & meshFaces, bool silhouetteOptimization, std::vector<Silhouette*> & silhouettes)
     {
         std::vector<bool> processed;
         processed.resize(meshFaces.size());
@@ -228,7 +228,7 @@ namespace visilib
             std::stack<int> stack;
             stack.push((int)faceIndex);
 
-            VisibilitySilhouette* s = new VisibilitySilhouette(meshFaces, geometryId);
+            Silhouette* s = new Silhouette(meshFaces, geometryId);
             silhouettes.push_back(s);
             
             while (!stack.empty())

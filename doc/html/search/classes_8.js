@@ -1,5 +1,6 @@
 var searchData=
 [
+  ['silhouette',['Silhouette',['../classvisilib_1_1_silhouette.html',1,'visilib']]],
   ['silhouettecontainer',['SilhouetteContainer',['../classvisilib_1_1_silhouette_container.html',1,'visilib']]],
   ['silhouettecontainerembree',['SilhouetteContainerEmbree',['../classvisilib_1_1_silhouette_container_embree.html',1,'visilib']]],
   ['silhouetteedge',['SilhouetteEdge',['../structvisilib_1_1_silhouette_edge.html',1,'visilib']]],

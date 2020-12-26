@@ -3,7 +3,7 @@ var searchData=
   ['checkfacetsdescription',['checkFacetsDescription',['../classvisilib_1_1_plucker_polyhedron.html#ad2cc2148a11d7b63f999fc25f1a13489',1,'visilib::PluckerPolyhedron']]],
   ['clear',['clear',['../classvisilib_1_1_helper_debug_visualisation.html#afead108c9e413720b0cd2e6ed54f91bb',1,'visilib::HelperDebugVisualisation']]],
   ['clipwithgardband',['clipWithGardBand',['../classvisilib_1_1_math_geometry.html#a6b3430d7013a6d749d613c4b95bd071c',1,'visilib::MathGeometry']]],
-  ['collectalloccluders',['collectAllOccluders',['../classvisilib_1_1_visibility_exact_query.html#a013a388f21afbca791e367454a39306f',1,'visilib::VisibilityExactQuery']]],
+  ['collectalloccluders',['collectAllOccluders',['../classvisilib_1_1_visibility_exact_query.html#a02b8c88c6a99a82a3e791f6263dba570',1,'visilib::VisibilityExactQuery']]],
   ['computeedgesintersectingquadric',['computeEdgesIntersectingQuadric',['../classvisilib_1_1_plucker_polytope.html#a3137c0414f0cfb604cd4dd06c1dbaeaf',1,'visilib::PluckerPolytope']]],
   ['computeextremalstabbinglines',['computeExtremalStabbingLines',['../classvisilib_1_1_plucker_polytope.html#a0ec26e8b054116d8f4a5031589dde6ae',1,'visilib::PluckerPolytope']]],
   ['computenormal',['computeNormal',['../classvisilib_1_1_helper_triangle_mesh.html#a30b254ee3c7690c88c80aa671b4f00fa',1,'visilib::HelperTriangleMesh']]],

@@ -60,7 +60,7 @@ namespace visilib
 
         VisibilityResult resolve();
     private:
-        VisibilityResult resolveInternal(PluckerPolytope<P>* aPolytope, const std::string& occlusionTreeNodeSymbol, const std::vector<VisibilitySilhouette*>& anOccluders, const std::vector<P>& aPolytopeLines, int depth);
+        VisibilityResult resolveInternal(PluckerPolytope<P>* aPolytope, const std::string& occlusionTreeNodeSymbol, const std::vector<Silhouette*>& anOccluders, const std::vector<P>& aPolytopeLines, int depth);
         void resize(size_t myInitiaLineCount, PluckerPolyhedron<P>* myPolyhedron, PluckerPolytope<P>* aPolytope);
         void extractStabbingLines(PluckerPolyhedron<P>* myPolyhedron, PluckerPolytope<P>* aPolytope);
             
@@ -84,11 +84,11 @@ namespace visilib
     template <class P, class S>
     VisibilityResult VisibilityApertureFinder<P, S>::resolve()
     {
-        return resolveInternal(reinterpret_cast<PluckerPolytope<P>*>(VisibilitySolver<P, S>::mQuery->getComplex()->getFirstPolytope()), "*", std::vector<VisibilitySilhouette*>(), std::vector<P>(), 0);
+        return resolveInternal(reinterpret_cast<PluckerPolytope<P>*>(VisibilitySolver<P, S>::mQuery->getComplex()->getFirstPolytope()), "*", std::vector<Silhouette*>(), std::vector<P>(), 0);
     }
 
     template<class P, class S>
-    VisibilityResult VisibilityApertureFinder<P, S>::resolveInternal(PluckerPolytope<P>* aPolytope, const std::string& occlusionTreeNodeSymbol, const std::vector<VisibilitySilhouette*>& anOccluders, const std::vector<P>& aPolytopeLines, int aDepth)
+    VisibilityResult VisibilityApertureFinder<P, S>::resolveInternal(PluckerPolytope<P>* aPolytope, const std::string& occlusionTreeNodeSymbol, const std::vector<Silhouette*>& anOccluders, const std::vector<P>& aPolytopeLines, int aDepth)
     {
         PluckerPolyhedron<P>* myPolyhedron = reinterpret_cast<PluckerPolyhedron<P>*> (VisibilitySolver<P, S>::mQuery->getComplex()->getPolyhedron());
         size_t myInitiaLineCount = myPolyhedron->getLinesCount();
@@ -119,7 +119,7 @@ namespace visilib
         V_ASSERT(aPolytope->isValid(myPolyhedron, mNormalization, mTolerance));
 
         bool hasRay = false;
-        std::vector<VisibilitySilhouette*> myOccluders = anOccluders;
+        std::vector<Silhouette*> myOccluders = anOccluders;
         std::vector<P> polytopeLines = aPolytopeLines;
         if (myOccluders.empty())
         {
@@ -154,7 +154,7 @@ namespace visilib
 
             }
         }
-        VisibilitySilhouette* mySilhouette = nullptr;
+        Silhouette* mySilhouette = nullptr;
         size_t mySilhouetteEdgeIndex = 0;
 
         bool hasEdge = false;
@@ -277,7 +277,7 @@ namespace visilib
                     }
                     else
                     {
-                        result = resolveInternal(myPolytopes[i], ss.str(), std::vector<VisibilitySilhouette*>(), std::vector<P>(), aDepth + 1);
+                        result = resolveInternal(myPolytopes[i], ss.str(), std::vector<Silhouette*>(), std::vector<P>(), aDepth + 1);
                     }
                     if (result == FAILURE)
                         return result;

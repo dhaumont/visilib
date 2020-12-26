@@ -57,7 +57,7 @@ namespace visilib
     The silhouettes are extracted by the silhouette processor, and are attached to the geometry faces of the triangle mesh
     */
 
-    class VisibilitySilhouette
+    class Silhouette
     {
         /**@brief A hash associated to a silhouette edge for storage in the silhouette */
         struct Hash
@@ -76,7 +76,7 @@ namespace visilib
 
     public:
 
-        VisibilitySilhouette(const std::vector<SilhouetteMeshFace>& aFaces, const size_t aGeometryId)
+        Silhouette(const std::vector<SilhouetteMeshFace>& aFaces, const size_t aGeometryId)
             : mMeshFaces(aFaces),
             mGeometryId(aGeometryId),
             mAvailableEdgeCount(0)
@@ -84,7 +84,7 @@ namespace visilib
            
         }
 
-        ~VisibilitySilhouette()
+        ~Silhouette()
         {
         }
 
@@ -163,7 +163,7 @@ namespace visilib
         int mAvailableEdgeCount;
     };
 
-    inline void VisibilitySilhouette::addEdge(SilhouetteMeshFace* aFace, size_t anEdgeIndex, size_t anHyperplaneIndex)
+    inline void Silhouette::addEdge(SilhouetteMeshFace* aFace, size_t anEdgeIndex, size_t anHyperplaneIndex)
     {
         mEdges.push_back(SilhouetteEdge(aFace, anEdgeIndex,anHyperplaneIndex));
         mAvailableEdgeCount++;

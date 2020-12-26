@@ -2,7 +2,7 @@ var searchData=
 [
   ['hasalledgescollapsed',['hasAllEdgesCollapsed',['../classvisilib_1_1_plucker_polytope.html#ac5f9ad5e1bd02b000b77c1360a2d1f67',1,'visilib::PluckerPolytope']]],
   ['hasfacet',['hasFacet',['../classvisilib_1_1_math_combinatorial.html#a7b63205c6b27719a20d8ffdb1e7ef7c5',1,'visilib::MathCombinatorial']]],
-  ['hash',['Hash',['../structvisilib_1_1_visibility_silhouette_1_1_hash.html',1,'visilib::VisibilitySilhouette::Hash'],['../structvisilib_1_1_math_vector2___1_1_hash.html',1,'visilib::MathVector2_&lt; S &gt;::Hash']]],
+  ['hash',['Hash',['../structvisilib_1_1_silhouette_1_1_hash.html',1,'visilib::Silhouette::Hash'],['../structvisilib_1_1_math_vector2___1_1_hash.html',1,'visilib::MathVector2_&lt; S &gt;::Hash']]],
   ['haspluckeredgewithquadricintersection',['hasPluckerEdgeWithQuadricIntersection',['../classvisilib_1_1_math_geometry.html#a29d14c13f99b5a47942062dd82487b89',1,'visilib::MathGeometry']]],
   ['haveatleastncommonfacets',['haveAtLeastNCommonFacets',['../classvisilib_1_1_math_combinatorial.html#add385e8d5b8bfb586e3d16dee08c5cd1',1,'visilib::MathCombinatorial']]],
   ['helperdebugvisualisation',['HelperDebugVisualisation',['../classvisilib_1_1_helper_debug_visualisation.html',1,'visilib']]],

@@ -1,0 +1,104 @@
+\hypertarget{classvisilib_1_1_silhouette}{}\section{visilib\+::Silhouette Class Reference}
+\label{classvisilib_1_1_silhouette}\index{visilib::Silhouette@{visilib::Silhouette}}
+
+
+Store a silhouette, under the form of a list of edges.  
+
+
+
+
+{\ttfamily \#include $<$silhouette.\+h$>$}
+
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structvisilib_1_1_silhouette_1_1_hash}{Hash}}
+\begin{DoxyCompactList}\small\item\em A hash associated to a silhouette edge for storage in the silhouette. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_a878bc29cd61c6356be1988f8ee2cb2f4}\label{classvisilib_1_1_silhouette_a878bc29cd61c6356be1988f8ee2cb2f4}} 
+{\bfseries Silhouette} (const std\+::vector$<$ \mbox{\hyperlink{classvisilib_1_1_silhouette_mesh_face}{Silhouette\+Mesh\+Face}} $>$ \&a\+Faces, const size\+\_\+t a\+Geometry\+Id)
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_abf0ef623ba45072e7dfd804d481ff91e}\label{classvisilib_1_1_silhouette_abf0ef623ba45072e7dfd804d481ff91e}} 
+int \mbox{\hyperlink{classvisilib_1_1_silhouette_abf0ef623ba45072e7dfd804d481ff91e}{get\+Available\+Edge\+Count}} () const
+\begin{DoxyCompactList}\small\item\em Return the number of edges of the silhouette. \end{DoxyCompactList}\item 
+const std\+::vector$<$ \mbox{\hyperlink{structvisilib_1_1_silhouette_edge}{Silhouette\+Edge}} $>$ \& \mbox{\hyperlink{classvisilib_1_1_silhouette_a71ef8585c5f017de2a5af97d870b12c7}{get\+Edges}} () const
+\begin{DoxyCompactList}\small\item\em Return if the given edge of a given faces belongs to the silhouette. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_a720f0bf03ab4668111475e1260231958}\label{classvisilib_1_1_silhouette_a720f0bf03ab4668111475e1260231958}} 
+std\+::vector$<$ \mbox{\hyperlink{structvisilib_1_1_silhouette_edge}{Silhouette\+Edge}} $>$ \& {\bfseries get\+Edges} ()
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_a64735427a7ab9ae48d9d2b4f16230868}\label{classvisilib_1_1_silhouette_a64735427a7ab9ae48d9d2b4f16230868}} 
+void \mbox{\hyperlink{classvisilib_1_1_silhouette_a64735427a7ab9ae48d9d2b4f16230868}{add\+Edge}} (\mbox{\hyperlink{classvisilib_1_1_silhouette_mesh_face}{Silhouette\+Mesh\+Face}} $\ast$a\+Face, size\+\_\+t an\+Edge\+Index, size\+\_\+t an\+Hyperplane\+Index)
+\begin{DoxyCompactList}\small\item\em Add an edge to the silhouette. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_a164f9078080fda66bc0582cbc50f2ce5}\label{classvisilib_1_1_silhouette_a164f9078080fda66bc0582cbc50f2ce5}} 
+void {\bfseries add\+Face} (const \mbox{\hyperlink{classvisilib_1_1_silhouette_mesh_face}{Silhouette\+Mesh\+Face}} \&face)
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_a9d3c9deb6cdb57c2419967fe3d71b65d}\label{classvisilib_1_1_silhouette_a9d3c9deb6cdb57c2419967fe3d71b65d}} 
+\mbox{\hyperlink{structvisilib_1_1_silhouette_edge}{Silhouette\+Edge}} \& {\bfseries get\+Edge} (size\+\_\+t edge\+Index)
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_ab6f83a6ed55054da0f1f9402ad98be50}\label{classvisilib_1_1_silhouette_ab6f83a6ed55054da0f1f9402ad98be50}} 
+const std\+::vector$<$ size\+\_\+t $>$ \& {\bfseries get\+Edges\+Processed} ()
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_ae2336b4ca01212d73381a7669517742f}\label{classvisilib_1_1_silhouette_ae2336b4ca01212d73381a7669517742f}} 
+void {\bfseries set\+Edge\+Active} (size\+\_\+t edge\+Index, bool is\+Active)
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_a704dfe9979ebcbe60941864ed2b48eaf}\label{classvisilib_1_1_silhouette_a704dfe9979ebcbe60941864ed2b48eaf}} 
+void {\bfseries push\+Edge\+Processed} (size\+\_\+t edge\+Index)
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_a97e2f1d0e2df11811a231b38a9b4da36}\label{classvisilib_1_1_silhouette_a97e2f1d0e2df11811a231b38a9b4da36}} 
+void {\bfseries pop\+Edge\+Processed} (size\+\_\+t edge\+Index)
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_a0c28adbad4f1a3ab7bb4c38aa50119fc}\label{classvisilib_1_1_silhouette_a0c28adbad4f1a3ab7bb4c38aa50119fc}} 
+const std\+::vector$<$ size\+\_\+t $>$ \& {\bfseries get\+Silhouette\+Faces} () const
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_ac1bc22e6d6236705b73e410cf05ea1a6}\label{classvisilib_1_1_silhouette_ac1bc22e6d6236705b73e410cf05ea1a6}} 
+const std\+::vector$<$ \mbox{\hyperlink{classvisilib_1_1_silhouette_mesh_face}{Silhouette\+Mesh\+Face}} $>$ \& {\bfseries get\+Mesh\+Faces} () const
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_a23e2f736daa7f10bcd20ba00fbedfc1c}\label{classvisilib_1_1_silhouette_a23e2f736daa7f10bcd20ba00fbedfc1c}} 
+size\+\_\+t {\bfseries get\+Geometry\+Id} () const
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_aa22b9c394c4ba8574cc1ac963b21e7e4}\label{classvisilib_1_1_silhouette_aa22b9c394c4ba8574cc1ac963b21e7e4}} 
+std\+::vector$<$ \mbox{\hyperlink{structvisilib_1_1_silhouette_edge}{Silhouette\+Edge}} $>$ \mbox{\hyperlink{classvisilib_1_1_silhouette_aa22b9c394c4ba8574cc1ac963b21e7e4}{m\+Edges}}
+\begin{DoxyCompactList}\small\item\em The list of edges of the silhouette, encoded as pointer to a face and an edge index in the face. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_a35303f7e0d03e82cc1d956041434fd2b}\label{classvisilib_1_1_silhouette_a35303f7e0d03e82cc1d956041434fd2b}} 
+std\+::vector$<$ size\+\_\+t $>$ {\bfseries m\+Edges\+Processed}
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_a2ae7ada30bb33142bdb1f72274e69d65}\label{classvisilib_1_1_silhouette_a2ae7ada30bb33142bdb1f72274e69d65}} 
+std\+::vector$<$ size\+\_\+t $>$ {\bfseries m\+Silhouette\+Faces}
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_af76d6b4b352e9c6a6e3a5bce7bc2c404}\label{classvisilib_1_1_silhouette_af76d6b4b352e9c6a6e3a5bce7bc2c404}} 
+const std\+::vector$<$ \mbox{\hyperlink{classvisilib_1_1_silhouette_mesh_face}{Silhouette\+Mesh\+Face}} $>$ \& {\bfseries m\+Mesh\+Faces}
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_aff4fbf8a8c0bebd0487361b86002c4c2}\label{classvisilib_1_1_silhouette_aff4fbf8a8c0bebd0487361b86002c4c2}} 
+const size\+\_\+t {\bfseries m\+Geometry\+Id}
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_a2f7534ae12c9330404adfc1a8a713f6a}\label{classvisilib_1_1_silhouette_a2f7534ae12c9330404adfc1a8a713f6a}} 
+int {\bfseries m\+Available\+Edge\+Count}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Store a silhouette, under the form of a list of edges. 
+
+The silhouettes are extracted by the silhouette processor, and are attached to the geometry faces of the triangle mesh 
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_a71ef8585c5f017de2a5af97d870b12c7}\label{classvisilib_1_1_silhouette_a71ef8585c5f017de2a5af97d870b12c7}} 
+\index{visilib::Silhouette@{visilib::Silhouette}!getEdges@{getEdges}}
+\index{getEdges@{getEdges}!visilib::Silhouette@{visilib::Silhouette}}
+\subsubsection{\texorpdfstring{getEdges()}{getEdges()}}
+{\footnotesize\ttfamily const std\+::vector$<$\mbox{\hyperlink{structvisilib_1_1_silhouette_edge}{Silhouette\+Edge}}$>$\& visilib\+::\+Silhouette\+::get\+Edges (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Return if the given edge of a given faces belongs to the silhouette. 
+
+Get the edges of the silhouette 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/code/github/visilib/visilib/silhouette.\+h\end{DoxyCompactItemize}

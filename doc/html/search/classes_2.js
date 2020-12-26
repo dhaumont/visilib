@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['hash',['Hash',['../structvisilib_1_1_visibility_silhouette_1_1_hash.html',1,'visilib::VisibilitySilhouette::Hash'],['../structvisilib_1_1_math_vector2___1_1_hash.html',1,'visilib::MathVector2_&lt; S &gt;::Hash']]],
+  ['hash',['Hash',['../structvisilib_1_1_silhouette_1_1_hash.html',1,'visilib::Silhouette::Hash'],['../structvisilib_1_1_math_vector2___1_1_hash.html',1,'visilib::MathVector2_&lt; S &gt;::Hash']]],
   ['helperdebugvisualisation',['HelperDebugVisualisation',['../classvisilib_1_1_helper_debug_visualisation.html',1,'visilib']]],
   ['helpergeometryscenereader',['HelperGeometrySceneReader',['../classvisilib_1_1_helper_geometry_scene_reader.html',1,'visilib']]],
   ['helperscopedtimer',['HelperScopedTimer',['../classvisilib_1_1_helper_scoped_timer.html',1,'visilib']]],

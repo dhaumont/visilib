@@ -33,7 +33,7 @@ namespace visilib
     template<class P>
     class PluckerPolyhedron;
 
-    class VisibilitySilhouette;
+    class Silhouette;
 
     /** @brief Store a polytope in Plucker space.
 
@@ -158,7 +158,7 @@ namespace visilib
         void getFacets(std::set<size_t>& facets, PluckerPolyhedron<P>* polyhedron);
 
         /** @brief Add a silhouette to the polyptope */
-        void addSilhouette(VisibilitySilhouette* silhouette)
+        void addSilhouette(Silhouette* silhouette)
         {
             if (mSilhouettes.find(silhouette) == mSilhouettes.end())
             {
@@ -188,7 +188,7 @@ namespace visilib
         std::set<std::pair<size_t, size_t>> mEdgesProcessed;
         std::vector<P> mExtremalStabbingLines;                           /** < @brief The ESL of the polytope, at the intersection of an edge and the Plucker Quadric*/
         std::set<std::pair<size_t, size_t>> mEdgesIntersectingQuadric;   /** < @brief The edges containing an intersection with the Plucker Quadric.*/
-        std::unordered_set<VisibilitySilhouette*> mSilhouettes;          /** < @brief The set of silhouettes associated to the polytope*/
+        std::unordered_set<Silhouette*> mSilhouettes;          /** < @brief The set of silhouettes associated to the polytope*/
         std::unordered_set<size_t> mVertices;                            /** < @brief The indices of the vertices of the polytope*/
         std::vector<std::vector<size_t>> mExtremalStabbingLinesFacets;
         double mRadius;
