@@ -74,13 +74,37 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
-<p>Represents a container to store visual debugging information collected during a visibility query.  
+<p>Container for debugging information collected during visibility determination operations.  
  <a href="classvisilib_1_1_helper_visual_debugger.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="helper__visual__debugger_8h_source.html">helper_visual_debugger.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:a1e1fdc98ebf978b83785e508ddaed3f4"><td class="memItemLeft" align="right" valign="top"><a id="a1e1fdc98ebf978b83785e508ddaed3f4"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_helper_visual_debugger.html#a1e1fdc98ebf978b83785e508ddaed3f4">clear</a> ()</td></tr>
+<tr class="memdesc:a1e1fdc98ebf978b83785e508ddaed3f4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clear the container. <br /></td></tr>
+<tr class="separator:a1e1fdc98ebf978b83785e508ddaed3f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aff3c8cf06f92da983c9de380e58817c4"><td class="memItemLeft" align="right" valign="top"><a id="aff3c8cf06f92da983c9de380e58817c4"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_helper_visual_debugger.html#aff3c8cf06f92da983c9de380e58817c4">addRemovedEdge</a> (const <a class="el" href="classvisilib_1_1_math_vector3__.html">MathVector3f</a> &amp;aBegin, const <a class="el" href="classvisilib_1_1_math_vector3__.html">MathVector3f</a> &amp;anEnd)</td></tr>
+<tr class="memdesc:aff3c8cf06f92da983c9de380e58817c4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add an occluder edge that has been processed. <br /></td></tr>
+<tr class="separator:aff3c8cf06f92da983c9de380e58817c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a60c0d6368a506b0a352b0ca5bc2e1255"><td class="memItemLeft" align="right" valign="top"><a id="a60c0d6368a506b0a352b0ca5bc2e1255"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_helper_visual_debugger.html#a60c0d6368a506b0a352b0ca5bc2e1255">addStabbingLine</a> (const <a class="el" href="classvisilib_1_1_math_vector3__.html">MathVector3f</a> &amp;aBegin, const <a class="el" href="classvisilib_1_1_math_vector3__.html">MathVector3f</a> &amp;anEnd)</td></tr>
+<tr class="memdesc:a60c0d6368a506b0a352b0ca5bc2e1255"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add a stabbing line in 3D space. <br /></td></tr>
+<tr class="separator:a60c0d6368a506b0a352b0ca5bc2e1255"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a829462582410bd53ecebfa0ee7bc609a"><td class="memItemLeft" align="right" valign="top"><a id="a829462582410bd53ecebfa0ee7bc609a"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_helper_visual_debugger.html#a829462582410bd53ecebfa0ee7bc609a">addSamplingLine</a> (const <a class="el" href="classvisilib_1_1_math_vector3__.html">MathVector3f</a> &amp;aBegin, const <a class="el" href="classvisilib_1_1_math_vector3__.html">MathVector3f</a> &amp;anEnd)</td></tr>
+<tr class="memdesc:a829462582410bd53ecebfa0ee7bc609a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add a sampling line, used to collect occluders, in 3D space. <br /></td></tr>
+<tr class="separator:a829462582410bd53ecebfa0ee7bc609a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:accd7a72ba6f9efc0078f22ec9eb53312"><td class="memItemLeft" align="right" valign="top"><a id="accd7a72ba6f9efc0078f22ec9eb53312"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_helper_visual_debugger.html#accd7a72ba6f9efc0078f22ec9eb53312">addExtremalStabbingLine</a> (const <a class="el" href="classvisilib_1_1_math_vector3__.html">MathVector3f</a> &amp;aBegin, const <a class="el" href="classvisilib_1_1_math_vector3__.html">MathVector3f</a> &amp;anEnd)</td></tr>
+<tr class="memdesc:accd7a72ba6f9efc0078f22ec9eb53312"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add extreaml stabbing line of a polytope, in 3D space. <br /></td></tr>
+<tr class="separator:accd7a72ba6f9efc0078f22ec9eb53312"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a69bc1d302d408341e1443acd0655f939"><td class="memItemLeft" align="right" valign="top"><a id="a69bc1d302d408341e1443acd0655f939"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_helper_visual_debugger.html#a69bc1d302d408341e1443acd0655f939">addRemovedTriangle</a> (const <a class="el" href="classvisilib_1_1_math_vector3__.html">MathVector3f</a> &amp;a1, const <a class="el" href="classvisilib_1_1_math_vector3__.html">MathVector3f</a> &amp;a2, const <a class="el" href="classvisilib_1_1_math_vector3__.html">MathVector3f</a> &amp;a3)</td></tr>
+<tr class="memdesc:a69bc1d302d408341e1443acd0655f939"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add an occluder triangle that has been processed. <br /></td></tr>
+<tr class="separator:a69bc1d302d408341e1443acd0655f939"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a93e8bb815b4b7cc2e6816c26664d431a"><td class="memItemLeft" align="right" valign="top"><a id="a93e8bb815b4b7cc2e6816c26664d431a"></a>
 const <a class="el" href="structvisilib_1_1_geometry_triangle_mesh_description.html">GeometryTriangleMeshDescription</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_helper_visual_debugger.html#a93e8bb815b4b7cc2e6816c26664d431a">getRemovedTriangles</a> () const</td></tr>
 <tr class="memdesc:a93e8bb815b4b7cc2e6816c26664d431a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return a mesh containing the removed triangles for visualization purposes. <br /></td></tr>
@@ -101,22 +125,304 @@ const <a class="el" href="structvisilib_1_1_geometry_triangle_mesh_description.h
 const <a class="el" href="structvisilib_1_1_geometry_triangle_mesh_description.html">GeometryTriangleMeshDescription</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_helper_visual_debugger.html#a40f4cad545c59df00d0ad3c7e4ad5565">getRemovedEdges</a> () const</td></tr>
 <tr class="memdesc:a40f4cad545c59df00d0ad3c7e4ad5565"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return a mesh containing the removed edges for visualization purposes. <br /></td></tr>
 <tr class="separator:a40f4cad545c59df00d0ad3c7e4ad5565"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afd8630bb83bd0b6ae4664e6d06de1391"><td class="memItemLeft" align="right" valign="top"><a id="afd8630bb83bd0b6ae4664e6d06de1391"></a>
-<a class="el" href="classvisilib_1_1_helper_debug_visualisation.html">HelperDebugVisualisation</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>get</b> ()</td></tr>
-<tr class="separator:afd8630bb83bd0b6ae4664e6d06de1391"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a31e01e642fb2898714d45d3abbb426d6"><td class="memItemLeft" align="right" valign="top"><a id="a31e01e642fb2898714d45d3abbb426d6"></a>
-const <a class="el" href="classvisilib_1_1_helper_debug_visualisation.html">HelperDebugVisualisation</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>get</b> () const</td></tr>
-<tr class="separator:a31e01e642fb2898714d45d3abbb426d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6ec70cd2b81a389f32ab6ee0feb66095"><td class="memItemLeft" align="right" valign="top"><a id="a6ec70cd2b81a389f32ab6ee0feb66095"></a>
+std::ofstream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>getDebugOutput</b> ()</td></tr>
+<tr class="separator:a6ec70cd2b81a389f32ab6ee0feb66095"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7f9cdd8b04bbbcb9385a376f792a2ac2"><td class="memItemLeft" align="right" valign="top"><a id="a7f9cdd8b04bbbcb9385a376f792a2ac2"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>hasDebugOutput</b> () const</td></tr>
+<tr class="separator:a7f9cdd8b04bbbcb9385a376f792a2ac2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
-<tr class="memitem:ab8984f9d49af7c99033b6197c99a36b9"><td class="memItemLeft" align="right" valign="top"><a id="ab8984f9d49af7c99033b6197c99a36b9"></a>
-<a class="el" href="classvisilib_1_1_helper_debug_visualisation.html">HelperDebugVisualisation</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>mInternalDebugger</b></td></tr>
-<tr class="separator:ab8984f9d49af7c99033b6197c99a36b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a111e274dcc692b5a208ab913953121e7"><td class="memItemLeft" align="right" valign="top"><a id="a111e274dcc692b5a208ab913953121e7"></a>
+std::vector&lt; <a class="el" href="classvisilib_1_1_math_vector3__.html">MathVector3f</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>mSplittingEdgeArray</b></td></tr>
+<tr class="separator:a111e274dcc692b5a208ab913953121e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7b0b03408531be35d083c6150c8e3d63"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="classvisilib_1_1_math_vector3__.html">MathVector3f</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_helper_visual_debugger.html#a7b0b03408531be35d083c6150c8e3d63">mRemovedTriangleArray</a></td></tr>
+<tr class="memdesc:a7b0b03408531be35d083c6150c8e3d63"><td class="mdescLeft">&#160;</td><td class="mdescRight">The array of edges that have been processed.  <a href="#a7b0b03408531be35d083c6150c8e3d63">More...</a><br /></td></tr>
+<tr class="separator:a7b0b03408531be35d083c6150c8e3d63"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a642e381b6e255a1ca570114fc4433a95"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="classvisilib_1_1_math_vector3__.html">MathVector3f</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_helper_visual_debugger.html#a642e381b6e255a1ca570114fc4433a95">mStabbingLineArray</a></td></tr>
+<tr class="memdesc:a642e381b6e255a1ca570114fc4433a95"><td class="mdescLeft">&#160;</td><td class="mdescRight">The array of triangles that have been processed.  <a href="#a642e381b6e255a1ca570114fc4433a95">More...</a><br /></td></tr>
+<tr class="separator:a642e381b6e255a1ca570114fc4433a95"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9a39394f148771bb6aa197efceef971d"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="classvisilib_1_1_math_vector3__.html">MathVector3f</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_helper_visual_debugger.html#a9a39394f148771bb6aa197efceef971d">mSamplingLineArray</a></td></tr>
+<tr class="memdesc:a9a39394f148771bb6aa197efceef971d"><td class="mdescLeft">&#160;</td><td class="mdescRight">The array of stabbing lines that have been processed.  <a href="#a9a39394f148771bb6aa197efceef971d">More...</a><br /></td></tr>
+<tr class="separator:a9a39394f148771bb6aa197efceef971d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab2d63d17fe8ef31d0798c2a42551a672"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="classvisilib_1_1_math_vector3__.html">MathVector3f</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_helper_visual_debugger.html#ab2d63d17fe8ef31d0798c2a42551a672">mExtremalStabbingLineArray</a></td></tr>
+<tr class="memdesc:ab2d63d17fe8ef31d0798c2a42551a672"><td class="mdescLeft">&#160;</td><td class="mdescRight">The array of sampling lines that have been processed.  <a href="#ab2d63d17fe8ef31d0798c2a42551a672">More...</a><br /></td></tr>
+<tr class="separator:ab2d63d17fe8ef31d0798c2a42551a672"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad728baaee2934cbade4b9f987a19de36"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structvisilib_1_1_geometry_triangle_mesh_description.html">GeometryTriangleMeshDescription</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_helper_visual_debugger.html#ad728baaee2934cbade4b9f987a19de36">mSplittingEdgeInformation</a></td></tr>
+<tr class="memdesc:ad728baaee2934cbade4b9f987a19de36"><td class="mdescLeft">&#160;</td><td class="mdescRight">The array of extremal stabbbing lines that have been processed.  <a href="#ad728baaee2934cbade4b9f987a19de36">More...</a><br /></td></tr>
+<tr class="separator:ad728baaee2934cbade4b9f987a19de36"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac9be4c9101138a3133835729a7226428"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structvisilib_1_1_geometry_triangle_mesh_description.html">GeometryTriangleMeshDescription</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_helper_visual_debugger.html#ac9be4c9101138a3133835729a7226428">mRemovedTriangleInformation</a></td></tr>
+<tr class="memdesc:ac9be4c9101138a3133835729a7226428"><td class="mdescLeft">&#160;</td><td class="mdescRight">The mesh containing the removed edges for visualization purposes.  <a href="#ac9be4c9101138a3133835729a7226428">More...</a><br /></td></tr>
+<tr class="separator:ac9be4c9101138a3133835729a7226428"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac5bc178cf799f6b894b26fe2cc9e20a2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structvisilib_1_1_geometry_triangle_mesh_description.html">GeometryTriangleMeshDescription</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_helper_visual_debugger.html#ac5bc178cf799f6b894b26fe2cc9e20a2">mStabbingLineInformation</a></td></tr>
+<tr class="memdesc:ac5bc178cf799f6b894b26fe2cc9e20a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">The mesh containing the removed triangles for visualization purposes.  <a href="#ac5bc178cf799f6b894b26fe2cc9e20a2">More...</a><br /></td></tr>
+<tr class="separator:ac5bc178cf799f6b894b26fe2cc9e20a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad4d6c94e916f2cceb8fb0534dad8b07f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structvisilib_1_1_geometry_triangle_mesh_description.html">GeometryTriangleMeshDescription</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_helper_visual_debugger.html#ad4d6c94e916f2cceb8fb0534dad8b07f">mSamplingLineInformation</a></td></tr>
+<tr class="memdesc:ad4d6c94e916f2cceb8fb0534dad8b07f"><td class="mdescLeft">&#160;</td><td class="mdescRight">The mesh containing the removed stabbing lines for visualization purposes.  <a href="#ad4d6c94e916f2cceb8fb0534dad8b07f">More...</a><br /></td></tr>
+<tr class="separator:ad4d6c94e916f2cceb8fb0534dad8b07f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7bc0c408a8a6da48b78bb203c1f0bb27"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structvisilib_1_1_geometry_triangle_mesh_description.html">GeometryTriangleMeshDescription</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_helper_visual_debugger.html#a7bc0c408a8a6da48b78bb203c1f0bb27">mExtremalStabbingLineInformation</a></td></tr>
+<tr class="memdesc:a7bc0c408a8a6da48b78bb203c1f0bb27"><td class="mdescLeft">&#160;</td><td class="mdescRight">The mesh containing the removed sampling lines for visualization purposes.  <a href="#a7bc0c408a8a6da48b78bb203c1f0bb27">More...</a><br /></td></tr>
+<tr class="separator:a7bc0c408a8a6da48b78bb203c1f0bb27"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4c455f1401a41401c583e699128c833f"><td class="memItemLeft" align="right" valign="top">std::ofstream&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_helper_visual_debugger.html#a4c455f1401a41401c583e699128c833f">mDebugOutput</a></td></tr>
+<tr class="memdesc:a4c455f1401a41401c583e699128c833f"><td class="mdescLeft">&#160;</td><td class="mdescRight">The mesh containing the extremal stabbing lines for visualization purposes.  <a href="#a4c455f1401a41401c583e699128c833f">More...</a><br /></td></tr>
+<tr class="separator:a4c455f1401a41401c583e699128c833f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Represents a container to store visual debugging information collected during a visibility query. </p>
-</div><hr/>The documentation for this class was generated from the following file:<ul>
+<div class="textblock"><p>Container for debugging information collected during visibility determination operations. </p>
+<p>The container allows to store the stabbing lines, the edges processed and the occluder triangle processed. The usage of this container is optional. An helperDebugVisualization instance must be attached to the different classes such that they can store debugging information </p>
+</div><h2 class="groupheader">Member Data Documentation</h2>
+<a id="a4c455f1401a41401c583e699128c833f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4c455f1401a41401c583e699128c833f">&#9670;&nbsp;</a></span>mDebugOutput</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::ofstream visilib::HelperVisualDebugger::mDebugOutput</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>The mesh containing the extremal stabbing lines for visualization purposes. </p>
+<p>&lt; </p>
+
+</div>
+</div>
+<a id="ab2d63d17fe8ef31d0798c2a42551a672"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab2d63d17fe8ef31d0798c2a42551a672">&#9670;&nbsp;</a></span>mExtremalStabbingLineArray</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;<a class="el" href="classvisilib_1_1_math_vector3__.html">MathVector3f</a>&gt; visilib::HelperVisualDebugger::mExtremalStabbingLineArray</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>The array of sampling lines that have been processed. </p>
+<p>&lt; </p>
+
+</div>
+</div>
+<a id="a7bc0c408a8a6da48b78bb203c1f0bb27"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7bc0c408a8a6da48b78bb203c1f0bb27">&#9670;&nbsp;</a></span>mExtremalStabbingLineInformation</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structvisilib_1_1_geometry_triangle_mesh_description.html">GeometryTriangleMeshDescription</a> visilib::HelperVisualDebugger::mExtremalStabbingLineInformation</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>The mesh containing the removed sampling lines for visualization purposes. </p>
+<p>&lt; </p>
+
+</div>
+</div>
+<a id="a7b0b03408531be35d083c6150c8e3d63"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7b0b03408531be35d083c6150c8e3d63">&#9670;&nbsp;</a></span>mRemovedTriangleArray</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;<a class="el" href="classvisilib_1_1_math_vector3__.html">MathVector3f</a>&gt; visilib::HelperVisualDebugger::mRemovedTriangleArray</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>The array of edges that have been processed. </p>
+<p>&lt; </p>
+
+</div>
+</div>
+<a id="ac9be4c9101138a3133835729a7226428"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac9be4c9101138a3133835729a7226428">&#9670;&nbsp;</a></span>mRemovedTriangleInformation</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structvisilib_1_1_geometry_triangle_mesh_description.html">GeometryTriangleMeshDescription</a> visilib::HelperVisualDebugger::mRemovedTriangleInformation</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>The mesh containing the removed edges for visualization purposes. </p>
+<p>&lt; </p>
+
+</div>
+</div>
+<a id="a9a39394f148771bb6aa197efceef971d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9a39394f148771bb6aa197efceef971d">&#9670;&nbsp;</a></span>mSamplingLineArray</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;<a class="el" href="classvisilib_1_1_math_vector3__.html">MathVector3f</a>&gt; visilib::HelperVisualDebugger::mSamplingLineArray</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>The array of stabbing lines that have been processed. </p>
+<p>&lt; </p>
+
+</div>
+</div>
+<a id="ad4d6c94e916f2cceb8fb0534dad8b07f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad4d6c94e916f2cceb8fb0534dad8b07f">&#9670;&nbsp;</a></span>mSamplingLineInformation</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structvisilib_1_1_geometry_triangle_mesh_description.html">GeometryTriangleMeshDescription</a> visilib::HelperVisualDebugger::mSamplingLineInformation</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>The mesh containing the removed stabbing lines for visualization purposes. </p>
+<p>&lt; </p>
+
+</div>
+</div>
+<a id="ad728baaee2934cbade4b9f987a19de36"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad728baaee2934cbade4b9f987a19de36">&#9670;&nbsp;</a></span>mSplittingEdgeInformation</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structvisilib_1_1_geometry_triangle_mesh_description.html">GeometryTriangleMeshDescription</a> visilib::HelperVisualDebugger::mSplittingEdgeInformation</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>The array of extremal stabbbing lines that have been processed. </p>
+<p>&lt; </p>
+
+</div>
+</div>
+<a id="a642e381b6e255a1ca570114fc4433a95"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a642e381b6e255a1ca570114fc4433a95">&#9670;&nbsp;</a></span>mStabbingLineArray</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;<a class="el" href="classvisilib_1_1_math_vector3__.html">MathVector3f</a>&gt; visilib::HelperVisualDebugger::mStabbingLineArray</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>The array of triangles that have been processed. </p>
+<p>&lt; </p>
+
+</div>
+</div>
+<a id="ac5bc178cf799f6b894b26fe2cc9e20a2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac5bc178cf799f6b894b26fe2cc9e20a2">&#9670;&nbsp;</a></span>mStabbingLineInformation</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structvisilib_1_1_geometry_triangle_mesh_description.html">GeometryTriangleMeshDescription</a> visilib::HelperVisualDebugger::mStabbingLineInformation</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>The mesh containing the removed triangles for visualization purposes. </p>
+<p>&lt; </p>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following file:<ul>
 <li>C:/code/github/visilib/visilib/<a class="el" href="helper__visual__debugger_8h_source.html">helper_visual_debugger.h</a></li>
 </ul>
 </div><!-- contents -->

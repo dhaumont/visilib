@@ -1,7 +1,7 @@
 var searchData=
 [
   ['checkfacetsdescription',['checkFacetsDescription',['../classvisilib_1_1_plucker_polyhedron.html#ad2cc2148a11d7b63f999fc25f1a13489',1,'visilib::PluckerPolyhedron']]],
-  ['clear',['clear',['../classvisilib_1_1_helper_debug_visualisation.html#afead108c9e413720b0cd2e6ed54f91bb',1,'visilib::HelperDebugVisualisation']]],
+  ['clear',['clear',['../classvisilib_1_1_helper_visual_debugger.html#a1e1fdc98ebf978b83785e508ddaed3f4',1,'visilib::HelperVisualDebugger']]],
   ['clipwithgardband',['clipWithGardBand',['../classvisilib_1_1_math_geometry.html#a6b3430d7013a6d749d613c4b95bd071c',1,'visilib::MathGeometry']]],
   ['collectalloccluders',['collectAllOccluders',['../classvisilib_1_1_visibility_exact_query__.html#a37d430f305c3024cc8ab9efb7dbaf534',1,'visilib::VisibilityExactQuery_']]],
   ['computeedgesintersectingquadric',['computeEdgesIntersectingQuadric',['../classvisilib_1_1_plucker_polytope.html#a3137c0414f0cfb604cd4dd06c1dbaeaf',1,'visilib::PluckerPolytope']]],
