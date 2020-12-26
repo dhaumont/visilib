@@ -66,7 +66,7 @@ HelperTriangleMeshContainer* DemoHelper::createScene(int s, float globalScalingF
     if (s == 0)
     {
         if (!DemoHelper::load(myMeshContainer, "..//..//demo//data//sphereWithHoles.obj"))
-            return false;
+            return nullptr;
         rescale = true;
     }
     else if (s == 1)
