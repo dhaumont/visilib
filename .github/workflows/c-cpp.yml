@@ -14,7 +14,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: configure
-      run: ./generateProject.sh
+      run: cmake
     - name: make
       run: make
 
