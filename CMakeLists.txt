@@ -52,9 +52,10 @@ add_definitions(-DINTEGRITY_CHECK)
 #uncomment the following line to output log information into a debug file during computation (debug and release mode) (default: output is not activated)
 #add_definitions(-DOUTPUT_DEBUG_FILE)
 
-#GLUT library used for the demo only
+#GLUT library (used for the demo part only)
 find_package(GLUT REQUIRED)
 if (GLUT_FOUND)
+    add_definitions(-DUSE_GLUT)
     include_directories(${GLUT_INCLUDE_DIRS})
     link_directories(${GLUT_LIBRARY_DIRS})
     add_definitions(${GLUT_DEFINITIONS})

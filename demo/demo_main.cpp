@@ -21,10 +21,10 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #ifdef _WIN32
 #include <windows.h>
 #endif
-
+#ifdef USE_GLUT
 #include <GL/gl.h>
 #include <GL/glut.h>
-
+#endif
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -66,11 +66,11 @@ namespace visilibDemo
             _MM_SET_DENORMALS_ZERO_MODE(_MM_DENORMALS_ZERO_ON);
             readConfig("config.txt");
             forceDisplay = true;
-
+#ifdef USE_GLUT
             gluLookAt(1, 1, 1,
                 0, 0, 0,
                 1, 0, 0);
-
+#endif
             return initScene(sceneIndex);
         }
         bool initScene(int s)
@@ -134,8 +134,9 @@ namespace visilibDemo
 
                 forceDisplay = false;
             }
-
+#ifdef USE_GLUT
             glutPostRedisplay();
+#endif
         }
 
         void writeConfig(const std::string & filename)
@@ -412,7 +413,9 @@ static VisilibDemoMain* demo = nullptr;
 void display()
 {
     demo->display();
+#ifdef USE_GLUT
     glutSwapBuffers();
+#endif
 }
 
 void keyboard(unsigned char key, int x, int y)
@@ -431,6 +434,7 @@ int main(int argc, char** argv)
 
     demo->writeHelp();
 
+#ifdef USE_GLUT
     glutInit(&argc, argv);
 
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
@@ -452,14 +456,17 @@ int main(int argc, char** argv)
     glutMouseFunc(zprMouse);
 
     glutMotionFunc(zprMotion);
-
+#endif
     if (!demo->init())
     {
         std::cout << "Error reading geometry files. Exit" << std::endl;
         return 1;
     }
+#ifdef USE_GLUT
     glutMainLoop();
-
+#else
+    animate();
+#endif
     delete demo;
 
     return 0;

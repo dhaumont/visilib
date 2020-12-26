@@ -22,8 +22,9 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include <windows.h>
 #endif
 
+#ifdef USE_GLUT
 #include "GL/gl.h"
-
+#endif
 #include "demo_debug_visualisation_gl.h"
 #include <iostream>
 
@@ -32,6 +33,7 @@ using namespace visilibDemo;
 
 size_t DemoDebugVisualisationGl::drawPolygon(const std::vector<float>& vertices)
 {
+#ifdef USE_GLUT
     glBegin(GL_POLYGON);
 
     for (size_t i = 0; i < vertices.size(); i += 3)
@@ -39,13 +41,14 @@ size_t DemoDebugVisualisationGl::drawPolygon(const std::vector<float>& vertices)
         glVertex3f(vertices[i], vertices[i + 1], vertices[i + 2]);
     }
     glEnd();
-
+#endif
     return vertices.size() / 3;
 }
 
 size_t DemoDebugVisualisationGl::drawPolygonEdges(const std::vector<float> & vertices)
 {
     const size_t n = vertices.size();
+#ifdef USE_GLUT
 
     glBegin(GL_POLYGON);
 
@@ -55,13 +58,14 @@ size_t DemoDebugVisualisationGl::drawPolygonEdges(const std::vector<float> & ver
         glVertex3f(vertices[(i + 3) % n], vertices[(i + 4) % n], vertices[(i + 5) % n]);
     }
     glEnd();
-
+#endif
     return vertices.size() / 3;
 }
 
 size_t DemoDebugVisualisationGl::drawPolygonPoints(const std::vector<float> & vertices)
 {
     const size_t n = vertices.size();
+#ifdef USE_GLUT
 
     glBegin(GL_POINTS);
 
@@ -70,12 +74,14 @@ size_t DemoDebugVisualisationGl::drawPolygonPoints(const std::vector<float> & ve
         glVertex3f(vertices[i], vertices[i + 1], vertices[i + 2]);
     }
     glEnd();
-
+#endif
     return vertices.size() / 3;
 }
 
 size_t DemoDebugVisualisationGl::drawTriangles(const GeometryTriangleMeshDescription & aMesh)
 {
+#ifdef USE_GLUT
+
     glBegin(GL_TRIANGLES);
 
     for (size_t i = 0; i < aMesh.vertexCount * 3; i += 3)
@@ -84,12 +90,14 @@ size_t DemoDebugVisualisationGl::drawTriangles(const GeometryTriangleMeshDescrip
     }
 
     glEnd();
-
+#endif
     return aMesh.vertexCount / 3;
 }
 
 size_t DemoDebugVisualisationGl::drawLines(const GeometryTriangleMeshDescription & aMesh)
 {
+#ifdef USE_GLUT
+
     glBegin(GL_LINES);
 
     for (size_t i = 0; i < aMesh.vertexCount * 3; i += 3)
@@ -98,7 +106,7 @@ size_t DemoDebugVisualisationGl::drawLines(const GeometryTriangleMeshDescription
     }
 
     glEnd();
-
+#endif
     return aMesh.vertexCount / 2;
 }
 
@@ -121,6 +129,8 @@ size_t DemoDebugVisualisationGl::drawScene(const HelperTriangleMeshContainer & a
 
 size_t DemoDebugVisualisationGl::drawMesh(const GeometryTriangleMeshDescription & aMesh)
 {
+#ifdef USE_GLUT
+
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_NORMAL_ARRAY);
 
@@ -135,12 +145,14 @@ size_t DemoDebugVisualisationGl::drawMesh(const GeometryTriangleMeshDescription 
 
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_NORMAL_ARRAY);
-
+#endif
     return aMesh.faceCount;
 }
 
 size_t DemoDebugVisualisationGl::display(HelperVisualDebugger * debugger, const visilib::HelperTriangleMeshContainer & scene, const std::vector<float> & v0, const std::vector<float> & v1, VisibilityResult result, int drawGeometryType)
 {
+#ifdef USE_GLUT
+
     glEnable(GL_LIGHTING);
 
     glEnable(GL_LIGHT0);
@@ -238,5 +250,6 @@ size_t DemoDebugVisualisationGl::display(HelperVisualDebugger * debugger, const 
     {
         DemoDebugVisualisationGl::drawLines(debugger->getSamplingLines());
     }
+#endif
     return 0;
 }

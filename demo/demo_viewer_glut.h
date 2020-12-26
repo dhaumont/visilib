@@ -38,12 +38,16 @@ static double _dragPosY = 0.0;
 static double _dragPosZ = 0.0;
 
 static double vlen(double x, double y, double z);
+#ifdef USE_GLUT
 GLfloat zprReferencePoint[4] = { 0, 0, 0, 0 };
+#endif
 static double _matrix[16];
 static double _matrixInverse[16];
 
 static void setViewPortScaling(double s);
 static void   pos(double *px, double *py, double *pz, int x, int y, int *viewport);
+
+#ifdef USE_GLUT
 static void
 invertMatrix(const GLdouble *m, GLdouble *out)
 {
@@ -301,13 +305,16 @@ zprReshape(int w, int h)
 
     glMatrixMode(GL_MODELVIEW);
 }
-
+#endif
 
 static void setViewPortScaling(double s)
 {
     _scaling = s;
+ #ifdef USE_GLUT
     GLint viewport[4];
     glGetIntegerv(GL_VIEWPORT, viewport);
 
     zprReshape(viewport[2], viewport[3]);
+#endif
 }
+
