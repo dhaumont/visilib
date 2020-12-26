@@ -384,11 +384,11 @@ namespace ch
     inline int convex_hull::are_collinear(convex_hull_vertex *v1, convex_hull_vertex *v2, convex_hull_vertex *v3)
     {
         return
-            (fabs((v3->pt[2] - v1->pt[2]) * (v2->pt[1] - v1->pt[1]) -
+            (std::fabs((v3->pt[2] - v1->pt[2]) * (v2->pt[1] - v1->pt[1]) -
             (v2->pt[2] - v1->pt[2]) * (v3->pt[1] - v1->pt[1])) < 1e-9
-            &&fabs((v2->pt[2] - v1->pt[2]) * (v3->pt[0] - v1->pt[0]) -
+            &&std::fabs((v2->pt[2] - v1->pt[2]) * (v3->pt[0] - v1->pt[0]) -
             (v2->pt[0] - v1->pt[0]) * (v3->pt[2] - v1->pt[2])) < 1e-9
-            && fabs((v2->pt[0] - v1->pt[0]) * (v3->pt[1] - v1->pt[1]) -
+            && std::fabs((v2->pt[0] - v1->pt[0]) * (v3->pt[1] - v1->pt[1]) -
             (v2->pt[1] - v1->pt[1]) * (v3->pt[0] - v1->pt[0])) < 1e-9);
     }
 

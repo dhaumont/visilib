@@ -929,39 +929,39 @@ namespace visilib
         MathVector3f kDiff = aRay.getStart() - myBoxCenter;
 
         fWdU[0] = aRay.getDirection().x;
-        fAWdU[0] = fabs(fWdU[0]);
+        fAWdU[0] = std::fabs(fWdU[0]);
         fDdU[0] = kDiff.x;
-        fADdU[0] = fabs(fDdU[0]);
+        fADdU[0] = std::fabs(fDdU[0]);
         if (fADdU[0] > myBoxHalfSize.x && fDdU[0] * fWdU[0] >= 0.0f)
             return false;
 
         fWdU[1] = aRay.getDirection().y;
-        fAWdU[1] = fabs(fWdU[1]);
+        fAWdU[1] = std::fabs(fWdU[1]);
         fDdU[1] = kDiff.y;
-        fADdU[1] = fabs(fDdU[1]);
+        fADdU[1] = std::fabs(fDdU[1]);
         if (fADdU[1] > myBoxHalfSize.y && fDdU[1] * fWdU[1] >= 0.0f)
             return false;
 
         fWdU[2] = aRay.getDirection().z;
-        fAWdU[2] = fabs(fWdU[2]);
+        fAWdU[2] = std::fabs(fWdU[2]);
         fDdU[2] = kDiff.z;
-        fADdU[2] = fabs(fDdU[2]);
+        fADdU[2] = std::fabs(fDdU[2]);
         if (fADdU[2] > myBoxHalfSize.z && fDdU[2] * fWdU[2] >= 0.0f)
             return false;
 
         MathVector3f kWxD = MathVector3f::cross(aRay.getDirection(), kDiff);
 
-        fAWxDdU[0] = fabs(kWxD.x);
+        fAWxDdU[0] = std::fabs(kWxD.x);
         fRhs = myBoxHalfSize.y * fAWdU[2] + myBoxHalfSize.z * fAWdU[1];
         if (fAWxDdU[0] > fRhs)
             return false;
 
-        fAWxDdU[1] = fabs(kWxD.y);
+        fAWxDdU[1] = std::fabs(kWxD.y);
         fRhs = myBoxHalfSize.x * fAWdU[2] + myBoxHalfSize.z * fAWdU[0];
         if (fAWxDdU[1] > fRhs)
             return false;
 
-        fAWxDdU[2] = fabs(kWxD.z);
+        fAWxDdU[2] = std::fabs(kWxD.z);
         fRhs = myBoxHalfSize.x * fAWdU[1] + myBoxHalfSize.y * fAWdU[0];
         if (fAWxDdU[2] > fRhs)
             return false;
@@ -981,7 +981,7 @@ namespace visilib
     {
         for (int i = 0; i < face->getVertexCount(); i++)
         {
-            if (fabs(plane.dot(convert<MathVector3d>(face->getVertex(i)))) >= MathArithmetic<double>::Tolerance())
+            if (std::fabs(plane.dot(convert<MathVector3d>(face->getVertex(i)))) >= MathArithmetic<double>::Tolerance())
             {
                 return true;
             }

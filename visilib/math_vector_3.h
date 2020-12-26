@@ -160,7 +160,7 @@ namespace visilib
         S d = getNorm();
 
 #ifdef _DEBUG
-        // V_ASSERT (fabs(d)>MathArithmetic::Tolerance());
+        // V_ASSERT (std::fabs(d)>MathArithmetic::Tolerance());
 #endif
 
         if (MathArithmetic<S>::getAbs(d) > MathArithmetic<S>::Tolerance())

@@ -102,13 +102,13 @@ namespace visilib
     template<>
     inline double MathArithmetic<double>::getAbs(double s)
     {
-        return fabs(s);
+        return std::fabs(s);
     }
 
     template<>
     inline float MathArithmetic<float>::getAbs(float s)
     {
-        return fabs(s);
+        return std::fabs(s);
     }
 
 #ifdef EXACT_ARITHMETIC

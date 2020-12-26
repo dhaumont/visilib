@@ -143,7 +143,7 @@ namespace visilib
         {
             MathPlucker2 result(*this);
             S myDiv = mDirection.getNorm();
-            V_ASSERT(fabs(myDiv) > MathArithmetic<S>::Tolerance());
+            V_ASSERT(std::fabs(myDiv) > MathArithmetic<S>::Tolerance());
 
             result.mDirection /= myDiv;
             result.mLocation /= myDiv;

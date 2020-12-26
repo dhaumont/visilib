@@ -78,7 +78,7 @@ namespace visilib
 
         bool isZero(S anEps)const
         {
-            return (fabs(x) <= anEps && fabs(y) <= anEps);
+            return (std::fabs(x) <= anEps && std::fabs(y) <= anEps);
         }
 
         S getSquaredNorm()const { return (dot(*this)); }
@@ -97,10 +97,10 @@ namespace visilib
             S d = getNorm();
 
 #ifdef _DEBUG
-            // V_ASSERT (fabs(d)>MathArithmetic::Tolerance());
+            // V_ASSERT (std::fabs(d)>MathArithmetic::Tolerance());
 #endif
 
-            if (fabs(d) > MathArithmetic<S>::Tolerance())
+            if (std::fabs(d) > MathArithmetic<S>::Tolerance())
             {
                 S inv = (S)1.0 / d;
                 x *= inv;
