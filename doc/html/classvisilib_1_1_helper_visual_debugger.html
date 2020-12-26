@@ -125,12 +125,6 @@ const <a class="el" href="structvisilib_1_1_geometry_triangle_mesh_description.h
 const <a class="el" href="structvisilib_1_1_geometry_triangle_mesh_description.html">GeometryTriangleMeshDescription</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_helper_visual_debugger.html#a40f4cad545c59df00d0ad3c7e4ad5565">getRemovedEdges</a> () const</td></tr>
 <tr class="memdesc:a40f4cad545c59df00d0ad3c7e4ad5565"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return a mesh containing the removed edges for visualization purposes. <br /></td></tr>
 <tr class="separator:a40f4cad545c59df00d0ad3c7e4ad5565"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6ec70cd2b81a389f32ab6ee0feb66095"><td class="memItemLeft" align="right" valign="top"><a id="a6ec70cd2b81a389f32ab6ee0feb66095"></a>
-std::ofstream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>getDebugOutput</b> ()</td></tr>
-<tr class="separator:a6ec70cd2b81a389f32ab6ee0feb66095"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7f9cdd8b04bbbcb9385a376f792a2ac2"><td class="memItemLeft" align="right" valign="top"><a id="a7f9cdd8b04bbbcb9385a376f792a2ac2"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>hasDebugOutput</b> () const</td></tr>
-<tr class="separator:a7f9cdd8b04bbbcb9385a376f792a2ac2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
@@ -164,39 +158,11 @@ std::vector&lt; <a class="el" href="classvisilib_1_1_math_vector3__.html">MathVe
 <tr class="memitem:a7bc0c408a8a6da48b78bb203c1f0bb27"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structvisilib_1_1_geometry_triangle_mesh_description.html">GeometryTriangleMeshDescription</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_helper_visual_debugger.html#a7bc0c408a8a6da48b78bb203c1f0bb27">mExtremalStabbingLineInformation</a></td></tr>
 <tr class="memdesc:a7bc0c408a8a6da48b78bb203c1f0bb27"><td class="mdescLeft">&#160;</td><td class="mdescRight">The mesh containing the removed sampling lines for visualization purposes.  <a href="#a7bc0c408a8a6da48b78bb203c1f0bb27">More...</a><br /></td></tr>
 <tr class="separator:a7bc0c408a8a6da48b78bb203c1f0bb27"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4c455f1401a41401c583e699128c833f"><td class="memItemLeft" align="right" valign="top">std::ofstream&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_helper_visual_debugger.html#a4c455f1401a41401c583e699128c833f">mDebugOutput</a></td></tr>
-<tr class="memdesc:a4c455f1401a41401c583e699128c833f"><td class="mdescLeft">&#160;</td><td class="mdescRight">The mesh containing the extremal stabbing lines for visualization purposes.  <a href="#a4c455f1401a41401c583e699128c833f">More...</a><br /></td></tr>
-<tr class="separator:a4c455f1401a41401c583e699128c833f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Container for debugging information collected during visibility determination operations. </p>
 <p>The container allows to store the stabbing lines, the edges processed and the occluder triangle processed. The usage of this container is optional. An helperDebugVisualization instance must be attached to the different classes such that they can store debugging information </p>
 </div><h2 class="groupheader">Member Data Documentation</h2>
-<a id="a4c455f1401a41401c583e699128c833f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4c455f1401a41401c583e699128c833f">&#9670;&nbsp;</a></span>mDebugOutput</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::ofstream visilib::HelperVisualDebugger::mDebugOutput</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>The mesh containing the extremal stabbing lines for visualization purposes. </p>
-<p>&lt; </p>
-
-</div>
-</div>
 <a id="ab2d63d17fe8ef31d0798c2a42551a672"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ab2d63d17fe8ef31d0798c2a42551a672">&#9670;&nbsp;</a></span>mExtremalStabbingLineArray</h2>
 

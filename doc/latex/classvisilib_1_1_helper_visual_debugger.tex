@@ -44,13 +44,7 @@ const \mbox{\hyperlink{structvisilib_1_1_geometry_triangle_mesh_description}{Geo
 \begin{DoxyCompactList}\small\item\em Return a mesh containing the sampling lines for visualization purposes. \end{DoxyCompactList}\item 
 \mbox{\Hypertarget{classvisilib_1_1_helper_visual_debugger_a40f4cad545c59df00d0ad3c7e4ad5565}\label{classvisilib_1_1_helper_visual_debugger_a40f4cad545c59df00d0ad3c7e4ad5565}} 
 const \mbox{\hyperlink{structvisilib_1_1_geometry_triangle_mesh_description}{Geometry\+Triangle\+Mesh\+Description}} \& \mbox{\hyperlink{classvisilib_1_1_helper_visual_debugger_a40f4cad545c59df00d0ad3c7e4ad5565}{get\+Removed\+Edges}} () const
-\begin{DoxyCompactList}\small\item\em Return a mesh containing the removed edges for visualization purposes. \end{DoxyCompactList}\item 
-\mbox{\Hypertarget{classvisilib_1_1_helper_visual_debugger_a6ec70cd2b81a389f32ab6ee0feb66095}\label{classvisilib_1_1_helper_visual_debugger_a6ec70cd2b81a389f32ab6ee0feb66095}} 
-std\+::ofstream \& {\bfseries get\+Debug\+Output} ()
-\item 
-\mbox{\Hypertarget{classvisilib_1_1_helper_visual_debugger_a7f9cdd8b04bbbcb9385a376f792a2ac2}\label{classvisilib_1_1_helper_visual_debugger_a7f9cdd8b04bbbcb9385a376f792a2ac2}} 
-bool {\bfseries has\+Debug\+Output} () const
-\end{DoxyCompactItemize}
+\begin{DoxyCompactList}\small\item\em Return a mesh containing the removed edges for visualization purposes. \end{DoxyCompactList}\end{DoxyCompactItemize}
 \subsection*{Private Attributes}
 \begin{DoxyCompactItemize}
 \item 
@@ -74,9 +68,7 @@ std\+::vector$<$ \mbox{\hyperlink{classvisilib_1_1_math_vector3__}{Math\+Vector3
 \mbox{\hyperlink{structvisilib_1_1_geometry_triangle_mesh_description}{Geometry\+Triangle\+Mesh\+Description}} \mbox{\hyperlink{classvisilib_1_1_helper_visual_debugger_ad4d6c94e916f2cceb8fb0534dad8b07f}{m\+Sampling\+Line\+Information}}
 \begin{DoxyCompactList}\small\item\em The mesh containing the removed stabbing lines for visualization purposes. \end{DoxyCompactList}\item 
 \mbox{\hyperlink{structvisilib_1_1_geometry_triangle_mesh_description}{Geometry\+Triangle\+Mesh\+Description}} \mbox{\hyperlink{classvisilib_1_1_helper_visual_debugger_a7bc0c408a8a6da48b78bb203c1f0bb27}{m\+Extremal\+Stabbing\+Line\+Information}}
-\begin{DoxyCompactList}\small\item\em The mesh containing the removed sampling lines for visualization purposes. \end{DoxyCompactList}\item 
-std\+::ofstream \mbox{\hyperlink{classvisilib_1_1_helper_visual_debugger_a4c455f1401a41401c583e699128c833f}{m\+Debug\+Output}}
-\begin{DoxyCompactList}\small\item\em The mesh containing the extremal stabbing lines for visualization purposes. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\begin{DoxyCompactList}\small\item\em The mesh containing the removed sampling lines for visualization purposes. \end{DoxyCompactList}\end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
@@ -85,17 +77,7 @@ Container for debugging information collected during visibility determination op
 The container allows to store the stabbing lines, the edges processed and the occluder triangle processed. The usage of this container is optional. An helper\+Debug\+Visualization instance must be attached to the different classes such that they can store debugging information 
 
 \subsection{Member Data Documentation}
-\mbox{\Hypertarget{classvisilib_1_1_helper_visual_debugger_a4c455f1401a41401c583e699128c833f}\label{classvisilib_1_1_helper_visual_debugger_a4c455f1401a41401c583e699128c833f}} 
-\index{visilib::HelperVisualDebugger@{visilib::HelperVisualDebugger}!mDebugOutput@{mDebugOutput}}
-\index{mDebugOutput@{mDebugOutput}!visilib::HelperVisualDebugger@{visilib::HelperVisualDebugger}}
-\subsubsection{\texorpdfstring{mDebugOutput}{mDebugOutput}}
-{\footnotesize\ttfamily std\+::ofstream visilib\+::\+Helper\+Visual\+Debugger\+::m\+Debug\+Output\hspace{0.3cm}{\ttfamily [private]}}
-
-
-
-The mesh containing the extremal stabbing lines for visualization purposes. 
-
-$<$ \mbox{\Hypertarget{classvisilib_1_1_helper_visual_debugger_ab2d63d17fe8ef31d0798c2a42551a672}\label{classvisilib_1_1_helper_visual_debugger_ab2d63d17fe8ef31d0798c2a42551a672}} 
+\mbox{\Hypertarget{classvisilib_1_1_helper_visual_debugger_ab2d63d17fe8ef31d0798c2a42551a672}\label{classvisilib_1_1_helper_visual_debugger_ab2d63d17fe8ef31d0798c2a42551a672}} 
 \index{visilib::HelperVisualDebugger@{visilib::HelperVisualDebugger}!mExtremalStabbingLineArray@{mExtremalStabbingLineArray}}
 \index{mExtremalStabbingLineArray@{mExtremalStabbingLineArray}!visilib::HelperVisualDebugger@{visilib::HelperVisualDebugger}}
 \subsubsection{\texorpdfstring{mExtremalStabbingLineArray}{mExtremalStabbingLineArray}}
