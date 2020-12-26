@@ -27,7 +27,6 @@ set(GeometrySrc
    )
 
 set(HelperSrc
-    helper_debug_visualisation.h
     helper_statistic_collector.h
     helper_geometry_scene_reader.h
     helper_synthetic_mesh_builder.h

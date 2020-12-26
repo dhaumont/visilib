@@ -34,7 +34,6 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include "geometry_convex_polygon.h"
 #include "silhouette_mesh_face.h"
 #include "geometry_convex_hull.h"
-#include "helper_debug_visualisation.h"
 #include "helper_statistic_collector.h"
 #include "silhouette.h"
 #include "visilib_core.h"
@@ -275,7 +274,7 @@ namespace visilib
 
                         if (mDebugger != nullptr)
                         {
-                            mDebugger->get()->addRemovedTriangle(face->getVertex(0), face->getVertex(1), face->getVertex(2));
+                            mDebugger->addRemovedTriangle(face->getVertex(0), face->getVertex(1), face->getVertex(2));
                         }
                         
                         s->addFace(*face);

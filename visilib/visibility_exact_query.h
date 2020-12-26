@@ -26,7 +26,6 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include "geometry_convex_polygon.h"
 #include "silhouette_mesh_face.h"
 #include "geometry_occluder_set.h"
-#include "helper_debug_visualisation.h"
 #include "helper_statistic_collector.h"
 #include "math_geometry.h"
 #include "math_predicates.h"
@@ -295,7 +294,7 @@ namespace visilib
 
         if (mDebugger != nullptr)
         {
-            mDebugger->get()->clear();
+            mDebugger->clear();
             mSilhouetteProcessor->attachVisualisationDebugger(mDebugger);
         }
 
@@ -360,8 +359,8 @@ namespace visilib
     bool VisibilityExactQuery_<P, S>::findNextEdge(size_t& aSilhouetteEdgeIndex, Silhouette * &aSilhouette, PluckerPolytope<P> * aPolytope, const std::string & occlusionTreeNodeSymbol)
     {
         HelperScopedTimer timer(getStatistic(), OCCLUDER_TREATMENT);
-        std::ofstream& debugOutput = mDebugger->get()->getDebugOutput();
-        bool hasDebugOutput = mDebugger->get()->hasDebugOutput();
+        std::ofstream& debugOutput = mDebugger->getDebugOutput();
+        bool hasDebugOutput = mDebugger->hasDebugOutput();
 
         V_LOG(debugOutput, "VisibilityExactQuery<P, S>::findTheBestValidEdge BEGIN", occlusionTreeNodeSymbol);
 
@@ -452,7 +451,7 @@ namespace visilib
 
         if (mDebugger != nullptr)
         {
-            mDebugger->get()->addSamplingLine(convert<MathVector3f>(aBegin), convert<MathVector3f>(anEnd));
+            mDebugger->addSamplingLine(convert<MathVector3f>(aBegin), convert<MathVector3f>(anEnd));
         }
 
         bool intersect = false;
@@ -481,7 +480,7 @@ namespace visilib
 
         if (mDebugger != nullptr)
         {
-            mDebugger->get()->addStabbingLine(convert<MathVector3f>(aBegin), convert<MathVector3f>(anEnd));
+            mDebugger->addStabbingLine(convert<MathVector3f>(aBegin), convert<MathVector3f>(anEnd));
         }
 
         return false;

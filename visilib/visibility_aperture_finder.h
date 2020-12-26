@@ -33,7 +33,6 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include "plucker_polytope_splitter.h"
 #include "visibility_exact_query.h"
 #include "silhouette.h"
-#include "helper_debug_visualisation.h"
 #include <fstream>
 #include <sstream>
 #include <map>
@@ -92,8 +91,8 @@ namespace visilib
     {
         PluckerPolyhedron<P>* myPolyhedron = reinterpret_cast<PluckerPolyhedron<P>*> (VisibilitySolver<P, S>::mQuery->getComplex()->getPolyhedron());
         size_t myInitiaLineCount = myPolyhedron->getLinesCount();
-        std::ofstream& debugOutput = VisibilitySolver<P, S>::mDebugger->get()->getDebugOutput();
-        bool hasDebugOutput = VisibilitySolver<P, S>::mDebugger->get()->hasDebugOutput();
+        std::ofstream& debugOutput = VisibilitySolver<P, S>::mDebugger->getDebugOutput();
+        bool hasDebugOutput = VisibilitySolver<P, S>::mDebugger->hasDebugOutput();
 
         V_LOG(debugOutput, "Resolve internal ", occlusionTreeNodeSymbol);
         aPolytope->outputProperties(debugOutput, myPolyhedron);
@@ -187,7 +186,7 @@ namespace visilib
             {
                 if (VisibilitySolver<P, S>::mDebugger != nullptr)
                 {
-                    VisibilitySolver<P, S>::mDebugger->get()->addRemovedEdge(face->getVertex(edge.x), face->getVertex(edge.y));
+                    VisibilitySolver<P, S>::mDebugger->addRemovedEdge(face->getVertex(edge.x), face->getVertex(edge.y));
                 }
 
                 size_t myPolyhedronFace = myVisibilitySilhouetteEdge.mHyperPlaneIndex;
@@ -384,7 +383,7 @@ namespace visilib
         aPolytope->getExtremalStabbingLinesBackTo3D(lines, aPlane0, aPlane1);
         for (auto line : lines)
         {
-            VisibilitySolver<P, S>::mDebugger->get()->addExtremalStabbingLine(convert<MathVector3f>(line.first), convert<MathVector3f>(line.second));
+            VisibilitySolver<P, S>::mDebugger->addExtremalStabbingLine(convert<MathVector3f>(line.first), convert<MathVector3f>(line.second));
         }
     }
 
