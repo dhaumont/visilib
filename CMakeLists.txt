@@ -25,8 +25,8 @@ cmake_minimum_required (VERSION 2.4.0 FATAL_ERROR)
 set( VISILIB_LIB_NAME "visilib" )
 set( VISILIB_DEMO_NAME "visilibDemo" )
 
-set( VERSION_MAJOR 0 )
-set( VERSION_MINOR 1 )
+set( VERSION_MAJOR 1 )
+set( VERSION_MINOR 0 )
 set( VERSION_REVISION 0 )
 
 project( ${VISILIB_LIB_NAME} )
