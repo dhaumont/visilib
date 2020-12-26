@@ -20,7 +20,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 
 #pragma once
 
-#include "math_arithmetic.h"
+#include <cmath>
 #include <functional>
 #include <iostream>
 
