@@ -22,104 +22,12 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 
 #include <sys/types.h>
 #include <vector>
+#include "geometry_mesh_description.h"
+#include "geometry_occluder_set.h"
+#include "helper_visual_debugger.h"
+
 namespace visilib
-{
-    class HelperVisualDebugger;
-    class HelperDebugVisualisation;
-    class GeometryOccluderSet;
-
-    /** @brief Represents a 3D ray, and contains the list of intersected geometries.*/
-
-    struct VisibilityRay
-    {
-        float org[3];          /**< @brief Ray origin*/
-        float dir[3];          /**< @brief Ray direction*/
-        float tnear;           /**< @brief Start of ray segment*/
-        float tfar;            /**< @brief End of ray segment (set to hit distance)*/
-
-        void addIntersection(size_t geometryId, size_t primitiveId, double t)
-        {
-            mGeometryIds.push_back(geometryId);
-            mPrimitiveIds.push_back(primitiveId);
-            mTs.push_back(t);
-        }
-
-        std::vector<size_t> mGeometryIds;     /**< @brief Intersected geometry mesh*/
-        std::vector<size_t> mPrimitiveIds;    /**< @brief Intersected primitve of the mesh*/
-        std::vector<double> mTs;    /**< @brief Intersected primitve of the mesh*/
-    };
-
-
-    /** @brief Description of a discrete geometry (ie a mesh).*/
-
-    struct GeometryDiscreteMeshDescription
-    {
-        GeometryDiscreteMeshDescription();
-        
-        virtual ~GeometryDiscreteMeshDescription()
-        {
-        }
-
-        virtual std::vector<int> getIndices(size_t aFace) const = 0;
-        virtual size_t getIndexCount() const = 0;
-
-        size_t vertexCount;         /**< @brief Number of vertices*/
-        size_t faceCount;           /**< @brief Number of faces*/
-        const float* vertexArray;   /**< @brief Pointer to the vertex table*/
-        const float* normalArray;   /**< @brief Pointer to the normal table (optional)*/
-
-    };
-
-    /** @brief Representation of a triangle mesh.*/
-
-    struct GeometryTriangleMeshDescription : public GeometryDiscreteMeshDescription
-    {
-        GeometryTriangleMeshDescription();
-
-        virtual std::vector<int> getIndices(size_t aFace) const override
-        {
-            return std::vector<int>{indexArray[aFace * 3], indexArray[aFace * 3 + 1], indexArray[aFace * 3 + 2] };
-        }
-
-        virtual size_t getIndexCount() const override
-        {
-            return faceCount * 3;
-        }
-
-        const int* indexArray;      /**< @brief Pointer to the index table*/
-    };
-
-    /** @brief Represents a container to store visual debugging information collected during a visibility query.*/
-
-    class HelperVisualDebugger
-    {
-    public:
-        HelperVisualDebugger();
-        ~HelperVisualDebugger();
-
-        /** @brief Return a mesh containing the removed triangles for visualization purposes*/
-        const GeometryTriangleMeshDescription& getRemovedTriangles() const;
-
-        /** @brief Return a mesh containing the stabbing lines for visualization purposes*/
-        const GeometryTriangleMeshDescription& getStabbingLines() const;
-
-        /** @brief Return a mesh containing the extremal stabbing lines for visualization purposes*/
-        const GeometryTriangleMeshDescription& getExtremalStabbingLines() const;
-        
-        /** @brief Return a mesh containing the sampling lines for visualization purposes*/
-        const GeometryTriangleMeshDescription& getSamplingLines() const;
-
-        /** @brief Return a mesh containing the removed edges for visualization purposes*/
-        const GeometryTriangleMeshDescription& getRemovedEdges() const;
-
-
-        HelperDebugVisualisation* get()  { return mInternalDebugger; }
-        const HelperDebugVisualisation* get() const { return mInternalDebugger; }
-    private:
-        HelperDebugVisualisation* mInternalDebugger;
-    };
-
-
+{  
     /** @brief Configuration of a visibility query.*/
 
     struct VisibilityExactQueryConfiguration

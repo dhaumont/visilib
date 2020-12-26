@@ -22,6 +22,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 
 #include "math_vector_3.h"
 #include "visilib.h"
+#include "visibility_ray.h"
 
 namespace visilib
 {

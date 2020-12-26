@@ -22,6 +22,7 @@ set(GeometrySrc
    geometry_ray.h
    geometry_convex_hull.h
    geometry_position_type.h
+   geometry_mesh_description.h
    geometry_occluder_set.h
    )
 
@@ -32,6 +33,7 @@ set(HelperSrc
     helper_synthetic_mesh_builder.h
     helper_triangle_mesh.h
     helper_triangle_mesh_container.h
+	helper_visual_debugger.h
     )
 
 set(MathSrc
@@ -59,6 +61,7 @@ set(VisibilitySrc
     visibility_solver.h
     visibility_aperture_finder.h
     visibility_exact_query.h
+	visibility_ray.h
     )
 
 set(SilhouetteSrc

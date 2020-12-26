@@ -19,61 +19,11 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 */
 
 #include "visilib.h"
-#include "helper_debug_visualisation.h"
 #include "visibility_exact_query.h"
 #include "geometry_convex_polygon.h"
 #include "geometry_occluder_set.h"
 
 using namespace visilib;
-
-inline const GeometryTriangleMeshDescription& HelperVisualDebugger::getRemovedTriangles() const
-{
-    return get()->getRemovedTriangles();
-}
-
-inline const GeometryTriangleMeshDescription& HelperVisualDebugger::getStabbingLines() const
-{
-    return get()->getStabbingLines();
-}
-
-inline const GeometryTriangleMeshDescription& HelperVisualDebugger::getExtremalStabbingLines() const
-{
-    return get()->getExtremalStabbingLines();
-}
-
-inline const GeometryTriangleMeshDescription& HelperVisualDebugger::getSamplingLines() const
-{
-    return get()->getSamplingLines();
-}
-
-inline const GeometryTriangleMeshDescription& HelperVisualDebugger::getRemovedEdges() const
-{
-    return get()->getRemovedEdges();
-}
-
-inline GeometryDiscreteMeshDescription::GeometryDiscreteMeshDescription()
-:  vertexCount(0),
-   faceCount(0),
-   vertexArray(nullptr),
-   normalArray(nullptr)
-{
-}
-
-inline GeometryTriangleMeshDescription::GeometryTriangleMeshDescription()
-: GeometryDiscreteMeshDescription(),
-    indexArray(nullptr)
-{
-}
-
-inline HelperVisualDebugger::HelperVisualDebugger()
-{
-    mInternalDebugger = new HelperDebugVisualisation();
-}
-
-inline HelperVisualDebugger::~HelperVisualDebugger()
-{
-    delete mInternalDebugger;
-}
 
 inline VisibilityResult visilib::areVisible(GeometryOccluderSet* scene, const float* vertices0, size_t numVertices0, const float* vertices1, size_t numVertices1,
     const VisibilityExactQueryConfiguration& configuration, HelperVisualDebugger* debugger)
