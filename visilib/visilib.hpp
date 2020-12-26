@@ -54,7 +54,6 @@ inline VisibilityResult visilib::areVisible(GeometryOccluderSet* scene, const fl
         query = new VisibilityExactQuery<MathPlucker6<exact>, exact>(scene, configuration, MathArithmetic<exact>::Tolerance());
         break;
 #endif
-        extern double _scaling;
     case VisibilityExactQueryConfiguration::DOUBLE:
         query = new VisibilityExactQuery_<MathPlucker6<double>, double>(scene, configuration, MathArithmetic<double>::Tolerance());
         break;

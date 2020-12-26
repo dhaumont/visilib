@@ -359,10 +359,10 @@ namespace visilib
     bool VisibilityExactQuery_<P, S>::findNextEdge(size_t& aSilhouetteEdgeIndex, Silhouette * &aSilhouette, PluckerPolytope<P> * aPolytope, const std::string & occlusionTreeNodeSymbol)
     {
         HelperScopedTimer timer(getStatistic(), OCCLUDER_TREATMENT);
+#ifdef OUTPUT_DEBUG_FILE
         std::ofstream& debugOutput = mDebugger->getDebugOutput();
-        bool hasDebugOutput = mDebugger->hasDebugOutput();
-
         V_LOG(debugOutput, "VisibilityExactQuery<P, S>::findTheBestValidEdge BEGIN", occlusionTreeNodeSymbol);
+#endif
 
         const std::unordered_set<Silhouette*>& mySilhouettes = mSilhouetteContainer->getSilhouettes();
 
@@ -412,16 +412,19 @@ namespace visilib
 
         if (found)
         {
+#ifdef OUTPUT_DEBUG_FILE
             std::stringstream ss;
-            if (hasDebugOutput)
-                ss << "VisibilityExactQuery<P, S>::findTheBestValidEdge END return True (Edge found)";
+            ss << "VisibilityExactQuery<P, S>::findTheBestValidEdge END return True (Edge found)";
             V_LOG(debugOutput, ss.str(), occlusionTreeNodeSymbol);
+#endif
             aSilhouette = mySilhouette;
 
         }
         else
         {
+#ifdef OUTPUT_DEBUG_FILE
             V_LOG(debugOutput, "VisibilityExactQuery<P, S>::findTheBestValidEdge END return False (No edge found)", occlusionTreeNodeSymbol);
+#endif  
         }
         return found;
     }

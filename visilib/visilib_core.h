@@ -32,21 +32,16 @@ typedef CGAL::Lazy_exact_nt<leda_real> exact;
 
 namespace visilib
 {
-#define V_ASSERT(X) assert(X)
-
-#ifdef LOG_INFORMATION
-    inline void V_LOG(const std::string& message, int aDeep = 0)
-    {
-        for (int i = 0; i < aDeep; i++)
-        {
-            std::cout << "  ";
-        }
-        std::cout << message << std::endl;
-    }
+#ifdef INTEGRITY_CHECK
+    #define V_ASSERT(X) assert(X)
 #else
+    #define V_ASSERT(X) ((void)0)
+#endif
+
+#ifdef  OUTPUT_DEBUG_FILE
     inline void V_LOG(std::ostream& out, const std::string& message, std::string prefix = "")
     {
-//        out << "["<<prefix<<"] " << message << std::endl;
+               out << "["<<prefix<<"] " << message << std::endl;
     }
 #endif    
 }

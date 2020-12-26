@@ -74,9 +74,9 @@ namespace visilib
         /** @brief Return a mesh containing the removed edges for visualization purposes*/
         const GeometryTriangleMeshDescription& getRemovedEdges() const;
 
-
+#ifdef OUTPUT_DEBUG_FILE
         std::ofstream& getDebugOutput() { return mDebugOutput; };
-        bool  hasDebugOutput() const { return false; }
+#endif       
     private:
         std::vector<MathVector3f> mSplittingEdgeArray;   /** <@brief The array of edges that have been processed*/
         std::vector<MathVector3f> mRemovedTriangleArray; /** <@brief The array of triangles that have been processed*/
@@ -89,18 +89,26 @@ namespace visilib
         GeometryTriangleMeshDescription mStabbingLineInformation;      /** <@brief The mesh containing the removed stabbing lines for visualization purposes*/
         GeometryTriangleMeshDescription mSamplingLineInformation;      /** <@brief The mesh containing the removed sampling lines for visualization purposes*/
         GeometryTriangleMeshDescription mExtremalStabbingLineInformation;   /** <@brief The mesh containing the extremal stabbing lines for visualization purposes*/
+
+#ifdef OUTPUT_DEBUG_FILE
         std::ofstream mDebugOutput;
+#endif
     };
 
     inline HelperVisualDebugger::HelperVisualDebugger()
     {
+
+#ifdef OUTPUT_DEBUG_FILE
         mDebugOutput.open("debug.txt");
+#endif
         clear();
     }
 
     inline HelperVisualDebugger::~HelperVisualDebugger()
     {
+#ifdef OUTPUT_DEBUG_FILE
         mDebugOutput.close();
+#endif
     }
 
     inline void HelperVisualDebugger::addRemovedEdge(const MathVector3f& aBegin, const MathVector3f& anEnd)
@@ -150,10 +158,12 @@ namespace visilib
 
     inline void HelperVisualDebugger::clear()
     {
+
+#ifdef OUTPUT_DEBUG_FILE
         mDebugOutput.close();
         mDebugOutput.open("debug.txt");
-
         mDebugOutput.clear();
+#endif
         mSplittingEdgeArray.clear();
         mRemovedTriangleArray.clear();
         mStabbingLineArray.clear();

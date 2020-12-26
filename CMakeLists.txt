@@ -36,13 +36,23 @@ if(WIN32)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/")
 endif()
 
-#option(USE_EMBREE "Use embree library from Intel for Ray-Tracing" ON)
-#option(USE_EXACT_ARITHMETIC "Use CGAL and LEDA libraries for exact arithmetic computation" OFF)
 
+#Set USE_EMBREE flag to True to enable fast raytracing using Intel Embree library (default: false)
 set (USE_EMBREE False)
+
+#Set USE_EXACT_ARITHMETIC flag to True to enable exact arithmetic computation with CGAL library (default:false) 
 set (USE_EXACT_ARITHMETIC False)
+
+#Comment the following line to disable the sanity integrity checks performed during computations in debug mode (default: checks are activated)
+add_definitions(-DINTEGRITY_CHECK)
+
+#Uncomment the following line to perform full validity checks during computations in debug mode (default: checks are not activated)
 #add_definitions(-DFULL_VALIDITY_CHECK)
-#GLUT library
+
+#uncomment the following line to output log information into a debug file during computation (debug and release mode) (default: output is not activated)
+#add_definitions(-DOUTPUT_DEBUG_FILE)
+
+#GLUT library used for the demo only
 find_package(GLUT REQUIRED)
 if (GLUT_FOUND)
     include_directories(${GLUT_INCLUDE_DIRS})
@@ -53,7 +63,7 @@ else()
     message(ERROR " GLUT not found!")
 endif()
 
-
+#optional usage of CGAL library
 if (USE_EXACT_ARITHMETIC)
     #CGAL library
     find_package(CGAL)
@@ -83,7 +93,7 @@ if (USE_EXACT_ARITHMETIC)
     endif()
 endif()
 
-#EMBREE library
+# optional usage of EMBREE library
 if (USE_EMBREE)
     find_package(embree 3.0 REQUIRED)
     if (embree_FOUND)
