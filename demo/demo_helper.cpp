@@ -56,3 +56,143 @@ bool DemoHelper::load(HelperTriangleMeshContainer* scene, const std::string& fil
     }
     return result;
 }
+
+
+HelperTriangleMeshContainer* DemoHelper::createScene(int s, float globalScalingFactor)
+{
+    HelperTriangleMeshContainer* myMeshContainer = new HelperTriangleMeshContainer();
+
+    bool rescale = false;
+    if (s == 0)
+    {
+        if (!DemoHelper::load(myMeshContainer, "..//..//demo//data//sphereWithHoles.obj"))
+            return false;
+        rescale = true;
+    }
+    else if (s == 1)
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            HelperTriangleMesh* mesh = HelperSyntheticMeshBuilder::generateSlot(0.2f, 0.2f, 0.5f, 0.01f);
+            HelperSyntheticMeshBuilder::scale(mesh, 2.0);
+            HelperSyntheticMeshBuilder::rotate(mesh, 0, 3.14f / 2, 3.14f);
+            HelperSyntheticMeshBuilder::translate(mesh, MathVector3f((float)i / 3.0f, 0.0f, 0.0f));
+            myMeshContainer->add(mesh);
+            rescale = false;
+        }
+    }
+    else if (s == 2)
+    {
+        const size_t count = 2;
+        for (int i = 0; i < count; i++)
+        {
+            HelperTriangleMesh* mesh = HelperSyntheticMeshBuilder::generateSlot(0.0f, 0.0f, 0.03f, 0.03f);
+            HelperSyntheticMeshBuilder::scale(mesh, 2.0);
+            HelperSyntheticMeshBuilder::rotate(mesh, 0.0, 3.14f / 2, 3.14f);
+
+            if (count > 1)
+                HelperSyntheticMeshBuilder::translate(mesh, MathVector3f(-0.5f + (float)i / (float)(count + 1), 0, 0));
+            myMeshContainer->add(mesh);
+            rescale = false;
+        }
+    }
+    else if (s == 3)
+    {
+        const size_t count = 1;
+        for (int i = 0; i < count; i++)
+        {
+            //   GeometryMesh* mesh = HelperSyntheticMeshBuilder::generateSlot(0.0,0.0,0.8,0.02);
+            HelperTriangleMesh* mesh = HelperSyntheticMeshBuilder::generateRegularGrid(0);
+
+            HelperSyntheticMeshBuilder::rotate(mesh, 0.0, 3.14f / 2, 3.14f);
+            HelperSyntheticMeshBuilder::rotate(mesh, (float)i * 3.14f / (5 * (float)count), 0.0, 0.0);
+            HelperSyntheticMeshBuilder::scale(mesh, 2.0);
+
+            HelperSyntheticMeshBuilder::translate(mesh, MathVector3f(0.0f, 0.0f, -1.0f));
+            if (count > 1)
+                HelperSyntheticMeshBuilder::translate(mesh, MathVector3f(-0.5f + (float)i / (float)(count + 1), 0.0f, 0.0f));
+            myMeshContainer->add(mesh);
+            rescale = false;
+        }
+    }
+    else if (s == 4)
+    {
+        HelperTriangleMesh* mesh = HelperSyntheticMeshBuilder::generateSphere(4);
+        HelperSyntheticMeshBuilder::scale(mesh, 0.3f);
+        HelperSyntheticMeshBuilder::removeFaces(mesh, 100);
+
+        myMeshContainer->add(mesh);
+        rescale = true;
+    }
+    else if (s == 5)
+    {
+        HelperTriangleMesh* mesh = HelperSyntheticMeshBuilder::generateSphere(4);
+        HelperSyntheticMeshBuilder::addRandomness(mesh, 0.03f);
+        HelperSyntheticMeshBuilder::scale(mesh, 0.05f);
+        HelperSyntheticMeshBuilder::removeFaces(mesh, 100);
+
+        myMeshContainer->add(mesh);
+        rescale = true;
+    }
+    else if (s == 6)
+    {
+        HelperTriangleMesh* mesh = HelperSyntheticMeshBuilder::generateCube(4);
+        HelperSyntheticMeshBuilder::scale(mesh, 0.3f);
+        HelperSyntheticMeshBuilder::removeFaces(mesh, 100);
+
+        myMeshContainer->add(mesh);
+        rescale = true;
+    }
+    else if (s == 7)
+    {
+        HelperTriangleMesh* mesh = HelperSyntheticMeshBuilder::generateCube(4);
+        HelperSyntheticMeshBuilder::addRandomness(mesh, 0.03f);
+        HelperSyntheticMeshBuilder::removeFaces(mesh, 100);
+
+        HelperSyntheticMeshBuilder::scale(mesh, 0.05f);
+
+        myMeshContainer->add(mesh);
+        rescale = true;
+    }
+    else if (s == 8 || s == 9)
+    {
+        const size_t count = s == 8 ? 0 : 100;
+
+        for (int i = 0; i < count; i++)
+        {
+            //   GeometryMesh* mesh = HelperSyntheticMeshBuilder::generateSlot(0.0,0.0,0.8,0.02);
+            HelperTriangleMesh* mesh = HelperSyntheticMeshBuilder::generateCube(2);
+            HelperSyntheticMeshBuilder::scale(mesh, 0.1f);
+
+            HelperSyntheticMeshBuilder::addRandomness(mesh, 0.012f);
+            //         HelperSyntheticMeshBuilder::removeFaces(mesh, 100);
+
+            HelperSyntheticMeshBuilder::rotate(mesh, 0.0, 3.14f / 2, 3.14f);
+            MathVector3f random(-0.5f + (float)rand() / (float)(RAND_MAX), -0.5f + (float)rand() / (float)(RAND_MAX), -0.5f + (float)rand() / (float)(RAND_MAX));
+            //   random *= 0.3;
+            HelperSyntheticMeshBuilder::translate(mesh, random);
+
+            myMeshContainer->add(mesh);
+
+        }
+        HelperTriangleMesh* mesh = HelperSyntheticMeshBuilder::generateRegularGrid(6);
+
+        HelperSyntheticMeshBuilder::rotate(mesh, 0.0, 3.14f / 2, 3.14f);
+        //         HelperSyntheticMeshBuilder::addRandomness(mesh, 0.02);
+     //   HelperSyntheticMeshBuilder::removeFaces(mesh, 100);
+        HelperSyntheticMeshBuilder::removeFaces(mesh, 100);
+
+        myMeshContainer->add(mesh);
+
+
+        rescale = false;
+    }
+
+    if (rescale)
+    {
+        HelperSyntheticMeshBuilder::rescaleToUnitBox(myMeshContainer);
+    }
+    HelperSyntheticMeshBuilder::scale(myMeshContainer, globalScalingFactor);
+
+    return myMeshContainer;
+}

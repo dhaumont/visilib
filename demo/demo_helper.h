@@ -30,5 +30,6 @@ namespace visilibDemo
     public:
         static void generatePolygon(std::vector<float>& v, size_t vertexCount, float size, float phi, float scaling);
         static bool load(visilib::HelperTriangleMeshContainer* scene, const std::string& fileName, bool rempveDegeneratedTriangles = false);
+        static HelperTriangleMeshContainer* createScene(int s, float globalScalingFactor);
     };
 }
