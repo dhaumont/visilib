@@ -84,7 +84,7 @@ namespace visilib
     template <class P, class S>
     VisibilityResult VisibilityApertureFinder<P, S>::resolve()
     {
-        return resolveInternal(reinterpret_cast<PluckerPolytope<P>*>(VisibilitySolver<P, S>::mQuery->getComplex()->getFirstPolytope()), "*", std::vector<Silhouette*>(), std::vector<P>(), 0);
+        return resolveInternal(reinterpret_cast<PluckerPolytope<P>*>(VisibilitySolver<P, S>::mQuery->getComplex()->getRoot()), "*", std::vector<Silhouette*>(), std::vector<P>(), 0);
     }
 
     template<class P, class S>

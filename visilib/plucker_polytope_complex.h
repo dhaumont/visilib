@@ -34,53 +34,10 @@ namespace visilib
     class VisibilityExactQuery;
     class GeometryConvexPolygon;
 
-    /** @brief Represents one node of a BSP tree, the complete tree encodes an occlusion tree in Plucker Space 
-    
-    Each node stores a polytope, a splitting plane and a pointer to a left and a right polytope
-    */
-    template<class P>
-    class PluckerTreeNode
-    {
-    public:
-        PluckerTreeNode(PluckerPolytope<P>* aPolytope, int aSplittingPlane)
-            : mPolytope(aPolytope),
-            mSplittingPlane(aSplittingPlane),
-            mLeft(nullptr),
-            mRight(nullptr),
-            mIsComputed(false)
-        {
-        }
-
-        ~PluckerTreeNode()
-        {
-            delete mPolytope;
-        }
-        void setChildren(PluckerTreeNode* aLeft, PluckerTreeNode* aRight, int aSplitting)
-        {
-            mLeft = aLeft;
-            mRight = aRight;
-            mSplittingPlane = aSplitting;
-        }
-
-        PluckerPolytope<P>* getPolytope() { return mPolytope; }
-        PluckerTreeNode<P>* getLeft() { return mLeft; }
-        PluckerTreeNode<P>* getRight() { return mRight; }
-        int getSplittingPlane()const { return mSplittingPlane; }
-        bool isLeaf() const { return mLeft == nullptr && mRight == nullptr; }
-        bool getIsComputed()const { return mIsComputed; }
-        void setIsComputed(bool value) { mIsComputed = value; }
-
-    private:
-        PluckerPolytope<P>* mPolytope;
-        int mSplittingPlane;
-        PluckerTreeNode* mLeft;
-        PluckerTreeNode* mRight;
-        bool mIsComputed;
-    };
-
+   
     /** @brief Represents a complex of polytopes in Plucker space.
 
-    The polytope complex is encoded as a BSP tree in Plucker space
+    Currently only the initial polytope and the polyhedron in Pluker space are stored explicitely
     */
 
     template<class P>
@@ -99,40 +56,15 @@ namespace visilib
         void setRoot(PluckerPolytope<P>* polytope)
         {
             V_ASSERT(!hasPolytope());
-            mRoot = new PluckerTreeNode<P>(polytope, -1);
-        }
-
-        void clear(PluckerTreeNode<P> * node);
-
-        void computeExtremalStabbingLines(std::vector<MathVector3d> & aList, const MathPlane3d & aPlane1, const MathPlane3d & aPlane2);
-
-        PluckerPolytope<P>* getFirstPolytope();
-
-        void getPolytopes(std::vector<PluckerPolytope<P>*> & list)
-        {
-            list.clear();
-            std::stack<PluckerTreeNode<P>*> s;
-            s.push(mRoot);
-
-            while (!s.empty())
-            {
-                PluckerTreeNode<P>* current = s.top();
-                s.pop();
-                if (current != nullptr)
-                {
-                    list.push_back(current->getPolytope());
-                    s.push(current->getLeft());
-                    s.push(current->getRight());
-                }
-            }
+            mRoot = polytope;
         }
 
         PluckerPolyhedron<P>* getPolyhedron() { return mPolyhedron; }
-        PluckerTreeNode<P>* getRoot() { return mRoot; }
+        PluckerPolytope<P>* getRoot() { return mRoot; }
     private:
 
         PluckerPolyhedron<P>* mPolyhedron;
-        PluckerTreeNode<P>* mRoot;
+        PluckerPolytope<P>* mRoot;
     };
 
     template<class P>
@@ -147,50 +79,5 @@ namespace visilib
     {
         delete mRoot;
         delete mPolyhedron;
-    }
-
-    template<class P>
-    inline PluckerPolytope<P>* PluckerPolytopeComplex<P>::getFirstPolytope()
-    {
-        return mRoot->getPolytope();
-    }
-
-    template<class P>
-    inline void PluckerPolytopeComplex<P>::clear(PluckerTreeNode<P>* node)
-    {
-        std::stack<PluckerTreeNode<P>*> s;
-        s.push(node);
-
-        while (!s.empty())
-        {
-            PluckerTreeNode<P>* current = s.top();
-            s.pop();
-            if (current != nullptr)
-            {
-                delete current->getPolytope();
-                s.push(current->getLeft());
-                s.push(current->getRight());
-            }
-            delete current;
-        }
-    }
-
-    template<class P>
-    inline void PluckerPolytopeComplex<P>::computeExtremalStabbingLines(std::vector<MathVector3d>& aList, const MathPlane3d& aPlane1, const MathPlane3d& aPlane2)
-    {
-        std::stack<PluckerTreeNode<P>*> s;
-        s.push(mRoot);
-
-        while (!s.empty())
-        {
-            PluckerTreeNode<P>* current = s.top();
-            s.pop();
-            if (current != nullptr)
-            {
-                current->getPolytope()->computeExtremalStabbingLines(aList, aPlane1, aPlane2);
-                s.push(current->getLeft());
-                s.push(current->getRight());
-            }
-        }
     }
 }
