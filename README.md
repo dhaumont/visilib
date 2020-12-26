@@ -4,9 +4,9 @@ This README would normally document whatever steps are necessary to get your app
 
 ### What is this repository for? ###
 
-The visilib project aims to provide an efficient C++ library for exact visibility computation in 3D.
+The visilib project aims to provide an efficient and robust C++ library for exact visibility computation in 3D.
 
-The main feature of the current version is exact occlusion query between two polygons, a polygon and a segment, or between two segments, and allows to answer the fundamental question "Are these two polygons mutually visible?". The principal application is from-region occlusion culling and exact Potentially Visible Set computation (PVS). The visibility determination is exact and make no simplification, in opposition to conservative or aggressive visibility methods: visilib performs the complete penumbra fusion of the occluders, by the mean of CSG operations in Plücker space. All the technical details are described in the companion paper "A Low Dimensional Framework for Exact Polygon-to-Polygon Occlusion Queries", presented at EGSR 2005 (cf. download section)
+The main feature of the current version is exact occlusion query between two polygons, a polygon and a segment, or between two segments, and allows to answer the fundamental question "Are these two polygons mutually visible?". The principal application is from-region occlusion culling and exact Potentially Visible Set computation (PVS). The visibility determination is exact and make no simplification, in opposition to conservative or aggressive visibility methods: visilib performs the complete penumbra fusion of the occluders, by the mean of CSG operations in PlÃ¼cker space. All the technical details are described in the companion paper "A Low Dimensional Framework for Exact Polygon-to-Polygon Occlusion Queries", presented at EGSR 2005 (cf. download section)
 
 ###Features###
 
