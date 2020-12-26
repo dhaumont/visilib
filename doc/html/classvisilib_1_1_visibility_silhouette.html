@@ -78,7 +78,7 @@ $(function() {
 <p>Store a silhouette, under the form of a list of edges.  
  <a href="classvisilib_1_1_visibility_silhouette.html#details">More...</a></p>
 
-<p><code>#include &lt;<a class="el" href="visibility__silhouette_8h_source.html">visibility_silhouette.h</a>&gt;</code></p>
+<p><code>#include &lt;<a class="el" href="silhouette_8h_source.html">silhouette.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Classes</h2></td></tr>
@@ -88,39 +88,107 @@ Classes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a3868e0f6442f5cf6a05108d72e2a3153"><td class="memItemLeft" align="right" valign="top"><a id="a3868e0f6442f5cf6a05108d72e2a3153"></a>
-size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_visibility_silhouette.html#a3868e0f6442f5cf6a05108d72e2a3153">getEdgeCount</a> () const</td></tr>
-<tr class="memdesc:a3868e0f6442f5cf6a05108d72e2a3153"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the number of edges of the silhouette. <br /></td></tr>
-<tr class="separator:a3868e0f6442f5cf6a05108d72e2a3153"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab1c25afae13b192cdf2d8bd4e85ae8d5"><td class="memItemLeft" align="right" valign="top"><a id="ab1c25afae13b192cdf2d8bd4e85ae8d5"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_visibility_silhouette.html#ab1c25afae13b192cdf2d8bd4e85ae8d5">hasEdge</a> (<a class="el" href="classvisilib_1_1_geometry_mesh_face.html">GeometryMeshFace</a> *face, size_t edgeIndex) const</td></tr>
-<tr class="memdesc:ab1c25afae13b192cdf2d8bd4e85ae8d5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return if the given edge of a given faces belongs to the silhouette. <br /></td></tr>
-<tr class="separator:ab1c25afae13b192cdf2d8bd4e85ae8d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a38e872a5ab523a27b8ff3a8979e0969b"><td class="memItemLeft" align="right" valign="top"><a id="a38e872a5ab523a27b8ff3a8979e0969b"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_visibility_silhouette.html#a38e872a5ab523a27b8ff3a8979e0969b">findEdge</a> (<a class="el" href="classvisilib_1_1_geometry_mesh_face.html">GeometryMeshFace</a> *&amp;face, size_t &amp;edgeIndex)</td></tr>
-<tr class="memdesc:a38e872a5ab523a27b8ff3a8979e0969b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find an edge of the silhouette. <br /></td></tr>
-<tr class="separator:a38e872a5ab523a27b8ff3a8979e0969b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac10f2b49331d2849deaced0b3d8cd3e5"><td class="memItemLeft" align="right" valign="top"><a id="ac10f2b49331d2849deaced0b3d8cd3e5"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_visibility_silhouette.html#ac10f2b49331d2849deaced0b3d8cd3e5">remove</a> (<a class="el" href="classvisilib_1_1_geometry_mesh_face.html">GeometryMeshFace</a> *face, size_t edgeIndex)</td></tr>
-<tr class="memdesc:ac10f2b49331d2849deaced0b3d8cd3e5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove an edge from the silhouette. <br /></td></tr>
-<tr class="separator:ac10f2b49331d2849deaced0b3d8cd3e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aeae59db2f03508300395c65dbb2156f0"><td class="memItemLeft" align="right" valign="top"><a id="aeae59db2f03508300395c65dbb2156f0"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_visibility_silhouette.html#aeae59db2f03508300395c65dbb2156f0">add</a> (<a class="el" href="classvisilib_1_1_geometry_mesh_face.html">GeometryMeshFace</a> *face, size_t edgeIndex)</td></tr>
-<tr class="memdesc:aeae59db2f03508300395c65dbb2156f0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add an edge to the silhouette. <br /></td></tr>
-<tr class="separator:aeae59db2f03508300395c65dbb2156f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ade951d253a753b94bc89323724019b7b"><td class="memItemLeft" align="right" valign="top"><a id="ade951d253a753b94bc89323724019b7b"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>VisibilitySilhouette</b> (const std::vector&lt; <a class="el" href="classvisilib_1_1_silhouette_mesh_face.html">SilhouetteMeshFace</a> &gt; &amp;aFaces, const size_t aGeometryId)</td></tr>
+<tr class="separator:ade951d253a753b94bc89323724019b7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2788f5b8b32c857aa0bf7fc7e6976f16"><td class="memItemLeft" align="right" valign="top"><a id="a2788f5b8b32c857aa0bf7fc7e6976f16"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_visibility_silhouette.html#a2788f5b8b32c857aa0bf7fc7e6976f16">getAvailableEdgeCount</a> () const</td></tr>
+<tr class="memdesc:a2788f5b8b32c857aa0bf7fc7e6976f16"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the number of edges of the silhouette. <br /></td></tr>
+<tr class="separator:a2788f5b8b32c857aa0bf7fc7e6976f16"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aace590fe0b96d9411b97977a3a2d6f01"><td class="memItemLeft" align="right" valign="top">const std::vector&lt; <a class="el" href="structvisilib_1_1_silhouette_edge.html">SilhouetteEdge</a> &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_visibility_silhouette.html#aace590fe0b96d9411b97977a3a2d6f01">getEdges</a> () const</td></tr>
+<tr class="memdesc:aace590fe0b96d9411b97977a3a2d6f01"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return if the given edge of a given faces belongs to the silhouette.  <a href="#aace590fe0b96d9411b97977a3a2d6f01">More...</a><br /></td></tr>
+<tr class="separator:aace590fe0b96d9411b97977a3a2d6f01"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac3bc8f79bce1aa5a57516751810f0912"><td class="memItemLeft" align="right" valign="top"><a id="ac3bc8f79bce1aa5a57516751810f0912"></a>
+std::vector&lt; <a class="el" href="structvisilib_1_1_silhouette_edge.html">SilhouetteEdge</a> &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>getEdges</b> ()</td></tr>
+<tr class="separator:ac3bc8f79bce1aa5a57516751810f0912"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acec3b4e8e92bddf52e9d27f85666e6a5"><td class="memItemLeft" align="right" valign="top"><a id="acec3b4e8e92bddf52e9d27f85666e6a5"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_visibility_silhouette.html#acec3b4e8e92bddf52e9d27f85666e6a5">addEdge</a> (<a class="el" href="classvisilib_1_1_silhouette_mesh_face.html">SilhouetteMeshFace</a> *aFace, size_t anEdgeIndex, size_t anHyperplaneIndex)</td></tr>
+<tr class="memdesc:acec3b4e8e92bddf52e9d27f85666e6a5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add an edge to the silhouette. <br /></td></tr>
+<tr class="separator:acec3b4e8e92bddf52e9d27f85666e6a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afabf1c60dbc019c6ec023bde7822bb0e"><td class="memItemLeft" align="right" valign="top"><a id="afabf1c60dbc019c6ec023bde7822bb0e"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>addFace</b> (const <a class="el" href="classvisilib_1_1_silhouette_mesh_face.html">SilhouetteMeshFace</a> &amp;face)</td></tr>
+<tr class="separator:afabf1c60dbc019c6ec023bde7822bb0e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6f81f3b6d92e9bee4ba079e0736953d3"><td class="memItemLeft" align="right" valign="top"><a id="a6f81f3b6d92e9bee4ba079e0736953d3"></a>
+<a class="el" href="structvisilib_1_1_silhouette_edge.html">SilhouetteEdge</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>getEdge</b> (size_t edgeIndex)</td></tr>
+<tr class="separator:a6f81f3b6d92e9bee4ba079e0736953d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0fe38f01b6ca2387ce6d154b41cd6f72"><td class="memItemLeft" align="right" valign="top"><a id="a0fe38f01b6ca2387ce6d154b41cd6f72"></a>
+const std::vector&lt; size_t &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>getEdgesProcessed</b> ()</td></tr>
+<tr class="separator:a0fe38f01b6ca2387ce6d154b41cd6f72"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac73a6e0796eab63e253447af5c0d2b92"><td class="memItemLeft" align="right" valign="top"><a id="ac73a6e0796eab63e253447af5c0d2b92"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setEdgeActive</b> (size_t edgeIndex, bool isActive)</td></tr>
+<tr class="separator:ac73a6e0796eab63e253447af5c0d2b92"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aec75f365767181262b2d2f5130708dbe"><td class="memItemLeft" align="right" valign="top"><a id="aec75f365767181262b2d2f5130708dbe"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>pushEdgeProcessed</b> (size_t edgeIndex)</td></tr>
+<tr class="separator:aec75f365767181262b2d2f5130708dbe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab2c5d0dd30b8b0f06a7f7cd06e1db1e6"><td class="memItemLeft" align="right" valign="top"><a id="ab2c5d0dd30b8b0f06a7f7cd06e1db1e6"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>popEdgeProcessed</b> (size_t edgeIndex)</td></tr>
+<tr class="separator:ab2c5d0dd30b8b0f06a7f7cd06e1db1e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a845e7193e0f4300737791f76fdf2f3b2"><td class="memItemLeft" align="right" valign="top"><a id="a845e7193e0f4300737791f76fdf2f3b2"></a>
+const std::vector&lt; size_t &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>getSilhouetteFaces</b> () const</td></tr>
+<tr class="separator:a845e7193e0f4300737791f76fdf2f3b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a20d59edd6792376ea7edec4242bd0585"><td class="memItemLeft" align="right" valign="top"><a id="a20d59edd6792376ea7edec4242bd0585"></a>
+const std::vector&lt; <a class="el" href="classvisilib_1_1_silhouette_mesh_face.html">SilhouetteMeshFace</a> &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>getMeshFaces</b> () const</td></tr>
+<tr class="separator:a20d59edd6792376ea7edec4242bd0585"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4ae79df6aada1fe21f1c31db68fb6d9e"><td class="memItemLeft" align="right" valign="top"><a id="a4ae79df6aada1fe21f1c31db68fb6d9e"></a>
+size_t&#160;</td><td class="memItemRight" valign="bottom"><b>getGeometryId</b> () const</td></tr>
+<tr class="separator:a4ae79df6aada1fe21f1c31db68fb6d9e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
-<tr class="memitem:a218710d0637c32339fdfbd6ba4ccb996"><td class="memItemLeft" align="right" valign="top"><a id="a218710d0637c32339fdfbd6ba4ccb996"></a>
-std::unordered_set&lt; std::pair&lt; <a class="el" href="classvisilib_1_1_geometry_mesh_face.html">GeometryMeshFace</a> *, size_t &gt;, <a class="el" href="structvisilib_1_1_visibility_silhouette_1_1_hash.html">Hash</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_visibility_silhouette.html#a218710d0637c32339fdfbd6ba4ccb996">mEdges</a></td></tr>
-<tr class="memdesc:a218710d0637c32339fdfbd6ba4ccb996"><td class="mdescLeft">&#160;</td><td class="mdescRight">The list of edges of the silhouette, encoded as pointer to a face and an edge index in the face. <br /></td></tr>
-<tr class="separator:a218710d0637c32339fdfbd6ba4ccb996"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8e7832602aeb02332e5d6f71e5732123"><td class="memItemLeft" align="right" valign="top"><a id="a8e7832602aeb02332e5d6f71e5732123"></a>
+std::vector&lt; <a class="el" href="structvisilib_1_1_silhouette_edge.html">SilhouetteEdge</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_visibility_silhouette.html#a8e7832602aeb02332e5d6f71e5732123">mEdges</a></td></tr>
+<tr class="memdesc:a8e7832602aeb02332e5d6f71e5732123"><td class="mdescLeft">&#160;</td><td class="mdescRight">The list of edges of the silhouette, encoded as pointer to a face and an edge index in the face. <br /></td></tr>
+<tr class="separator:a8e7832602aeb02332e5d6f71e5732123"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad587983a68cac961ce6097a79b32c244"><td class="memItemLeft" align="right" valign="top"><a id="ad587983a68cac961ce6097a79b32c244"></a>
+std::vector&lt; size_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>mEdgesProcessed</b></td></tr>
+<tr class="separator:ad587983a68cac961ce6097a79b32c244"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8449f5558476b8015338e0c305ab2a65"><td class="memItemLeft" align="right" valign="top"><a id="a8449f5558476b8015338e0c305ab2a65"></a>
+std::vector&lt; size_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>mSilhouetteFaces</b></td></tr>
+<tr class="separator:a8449f5558476b8015338e0c305ab2a65"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8cdbfe35c2695b2757be9709709b9d5c"><td class="memItemLeft" align="right" valign="top"><a id="a8cdbfe35c2695b2757be9709709b9d5c"></a>
+const std::vector&lt; <a class="el" href="classvisilib_1_1_silhouette_mesh_face.html">SilhouetteMeshFace</a> &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>mMeshFaces</b></td></tr>
+<tr class="separator:a8cdbfe35c2695b2757be9709709b9d5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af04cfed59b69a60e4561b1bfa6890df9"><td class="memItemLeft" align="right" valign="top"><a id="af04cfed59b69a60e4561b1bfa6890df9"></a>
+const size_t&#160;</td><td class="memItemRight" valign="bottom"><b>mGeometryId</b></td></tr>
+<tr class="separator:af04cfed59b69a60e4561b1bfa6890df9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2520267cbfc91686e61b247c345ae46f"><td class="memItemLeft" align="right" valign="top"><a id="a2520267cbfc91686e61b247c345ae46f"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>mAvailableEdgeCount</b></td></tr>
+<tr class="separator:a2520267cbfc91686e61b247c345ae46f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Store a silhouette, under the form of a list of edges. </p>
 <p>The silhouettes are extracted by the silhouette processor, and are attached to the geometry faces of the triangle mesh </p>
-</div><hr/>The documentation for this class was generated from the following file:<ul>
-<li>C:/code/visilib/visilib/visilib/<a class="el" href="visibility__silhouette_8h_source.html">visibility_silhouette.h</a></li>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="aace590fe0b96d9411b97977a3a2d6f01"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aace590fe0b96d9411b97977a3a2d6f01">&#9670;&nbsp;</a></span>getEdges()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const std::vector&lt;<a class="el" href="structvisilib_1_1_silhouette_edge.html">SilhouetteEdge</a>&gt;&amp; visilib::VisibilitySilhouette::getEdges </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return if the given edge of a given faces belongs to the silhouette. </p>
+<p>Get the edges of the silhouette </p>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following file:<ul>
+<li>C:/code/github/visilib/visilib/<a class="el" href="silhouette_8h_source.html">silhouette.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

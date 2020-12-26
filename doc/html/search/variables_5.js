@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['normalarray',['normalArray',['../structvisilib_1_1_triangle_mesh_information.html#acee6a75d4086dcfddd586b4f7726ac67',1,'visilib::TriangleMeshInformation']]]
+  ['normalarray',['normalArray',['../structvisilib_1_1_discrete_geometry_description.html#acfd5e09da7d73d29b54380455db56e37',1,'visilib::DiscreteGeometryDescription']]]
 ];

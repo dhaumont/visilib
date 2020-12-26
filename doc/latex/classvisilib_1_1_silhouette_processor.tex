@@ -1,0 +1,110 @@
+\hypertarget{classvisilib_1_1_silhouette_processor}{}\section{visilib\+::Silhouette\+Processor Class Reference}
+\label{classvisilib_1_1_silhouette_processor}\index{visilib::SilhouetteProcessor@{visilib::SilhouetteProcessor}}
+
+
+Provides the implemention of the silhouette optimization heuristics.  
+
+
+
+
+{\ttfamily \#include $<$silhouette\+\_\+processor.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_processor_a860d9b677347b969cb305265e94c7bf8}\label{classvisilib_1_1_silhouette_processor_a860d9b677347b969cb305265e94c7bf8}} 
+{\bfseries Silhouette\+Processor} (\mbox{\hyperlink{classvisilib_1_1_helper_statistic_collector}{Helper\+Statistic\+Collector}} $\ast$a\+Statistic\+Collector)
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_processor_a9b38305bfb50372badb231710dbd8c41}\label{classvisilib_1_1_silhouette_processor_a9b38305bfb50372badb231710dbd8c41}} 
+void \mbox{\hyperlink{classvisilib_1_1_silhouette_processor_a9b38305bfb50372badb231710dbd8c41}{attach\+Visualisation\+Debugger}} (\mbox{\hyperlink{classvisilib_1_1_visual_debugger}{Visual\+Debugger}} $\ast$a\+Debugger)
+\begin{DoxyCompactList}\small\item\em Attach a debbuger to store debugging information of the silhouette computations. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_processor_a8225d6744e57ae62d2f649e50fd4b0a2}\label{classvisilib_1_1_silhouette_processor_a8225d6744e57ae62d2f649e50fd4b0a2}} 
+void \mbox{\hyperlink{classvisilib_1_1_silhouette_processor_a8225d6744e57ae62d2f649e50fd4b0a2}{init}} (const \mbox{\hyperlink{classvisilib_1_1_geometry_convex_polygon}{Geometry\+Convex\+Polygon}} \&a\+Source1, const \mbox{\hyperlink{classvisilib_1_1_geometry_convex_polygon}{Geometry\+Convex\+Polygon}} \&a\+Source2)
+\begin{DoxyCompactList}\small\item\em Initialize the silhouette processor for the two source polygons. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvisilib_1_1_silhouette_processor_aecbc9e229dac1bb760f03d889aebd80a}{extract\+Silhouette}} (size\+\_\+t geometry\+Id, const std\+::vector$<$ \mbox{\hyperlink{classvisilib_1_1_silhouette_mesh_face}{Silhouette\+Mesh\+Face}} $>$ \&faces, bool silhouette\+Optimization, std\+::vector$<$ \mbox{\hyperlink{classvisilib_1_1_visibility_silhouette}{Visibility\+Silhouette}} $\ast$ $>$ \&silhouettes)
+\begin{DoxyCompactList}\small\item\em Extract all the silhouettes with respect to the two source polygons. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classvisilib_1_1_visibility_silhouette}{Visibility\+Silhouette}} $\ast$ \mbox{\hyperlink{classvisilib_1_1_silhouette_processor_abe945efce3df48005a6927940d16773a}{find\+Silhouette}} (\mbox{\hyperlink{classvisilib_1_1_silhouette_mesh_face}{Silhouette\+Mesh\+Face}} $\ast$face)
+\begin{DoxyCompactList}\small\item\em Find the silhouette associated to a given face. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_processor_a860d7b7a18d3b97ff8a87234dc13fb53}\label{classvisilib_1_1_silhouette_processor_a860d7b7a18d3b97ff8a87234dc13fb53}} 
+bool \mbox{\hyperlink{classvisilib_1_1_silhouette_processor_a860d7b7a18d3b97ff8a87234dc13fb53}{is\+Potential\+Silhouette\+Edge}} (\mbox{\hyperlink{classvisilib_1_1_silhouette_mesh_face}{Silhouette\+Mesh\+Face}} $\ast$face0, \mbox{\hyperlink{classvisilib_1_1_silhouette_mesh_face}{Silhouette\+Mesh\+Face}} $\ast$face1)
+\begin{DoxyCompactList}\small\item\em Test if the edge joining two faces is potentially a silhouette edge with respect to the two source polygons. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_processor_a802ca9581c1496e8904ea4dc81ea12e4}\label{classvisilib_1_1_silhouette_processor_a802ca9581c1496e8904ea4dc81ea12e4}} 
+bool \mbox{\hyperlink{classvisilib_1_1_silhouette_processor_a802ca9581c1496e8904ea4dc81ea12e4}{is\+Potential\+Silhouette\+Edge\+Internal}} (\mbox{\hyperlink{classvisilib_1_1_silhouette_mesh_face}{Silhouette\+Mesh\+Face}} $\ast$face0, \mbox{\hyperlink{classvisilib_1_1_silhouette_mesh_face}{Silhouette\+Mesh\+Face}} $\ast$face1)
+\begin{DoxyCompactList}\small\item\em Actual implementation of the Test if the edge joining two faces is potentially a silhouette edge with respect to the two source polygons. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_processor_a0b85bda058a2412f2abfab105af75a64}\label{classvisilib_1_1_silhouette_processor_a0b85bda058a2412f2abfab105af75a64}} 
+bool \mbox{\hyperlink{classvisilib_1_1_silhouette_processor_a0b85bda058a2412f2abfab105af75a64}{is\+Polygon\+Between\+Source\+Planes}} (\mbox{\hyperlink{classvisilib_1_1_silhouette_mesh_face}{Silhouette\+Mesh\+Face}} $\ast$face)
+\begin{DoxyCompactList}\small\item\em Test if the provided face lies between the two source polygons. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_processor_a75124a633d2221e1fa7218b5eefb09bb}\label{classvisilib_1_1_silhouette_processor_a75124a633d2221e1fa7218b5eefb09bb}} 
+void \mbox{\hyperlink{classvisilib_1_1_silhouette_processor_a75124a633d2221e1fa7218b5eefb09bb}{init\+Convex\+Hull}} ()
+\begin{DoxyCompactList}\small\item\em Compute the convex hull between the two souce polygons. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_processor_a66010aa7b2824edcf3ca0a1704255148}\label{classvisilib_1_1_silhouette_processor_a66010aa7b2824edcf3ca0a1704255148}} 
+void \mbox{\hyperlink{classvisilib_1_1_silhouette_processor_a66010aa7b2824edcf3ca0a1704255148}{add\+Silhouette}} (\mbox{\hyperlink{classvisilib_1_1_silhouette_mesh_face}{Silhouette\+Mesh\+Face}} $\ast$face, \mbox{\hyperlink{classvisilib_1_1_visibility_silhouette}{Visibility\+Silhouette}} $\ast$silhouette)
+\begin{DoxyCompactList}\small\item\em Add a silhouette to a face. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_processor_a62decd2e0655912ba3b3e7c60c055efb}\label{classvisilib_1_1_silhouette_processor_a62decd2e0655912ba3b3e7c60c055efb}} 
+const \mbox{\hyperlink{classvisilib_1_1_geometry_convex_polygon}{Geometry\+Convex\+Polygon}} $\ast$ \mbox{\hyperlink{classvisilib_1_1_silhouette_processor_a62decd2e0655912ba3b3e7c60c055efb}{m\+Source}} \mbox{[}2\mbox{]}
+\begin{DoxyCompactList}\small\item\em The two source polygons. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_processor_a6ff0fa522e3b445f72c1783f3f9618d2}\label{classvisilib_1_1_silhouette_processor_a6ff0fa522e3b445f72c1783f3f9618d2}} 
+std\+::unordered\+\_\+map$<$ \mbox{\hyperlink{classvisilib_1_1_silhouette_mesh_face}{Silhouette\+Mesh\+Face}} $\ast$, \mbox{\hyperlink{classvisilib_1_1_visibility_silhouette}{Visibility\+Silhouette}} $\ast$ $>$ \mbox{\hyperlink{classvisilib_1_1_silhouette_processor_a6ff0fa522e3b445f72c1783f3f9618d2}{m\+Silhouette\+Cache}}
+\begin{DoxyCompactList}\small\item\em A silhouette cache associating a silhouette to a face of an occluder. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_processor_a8dca97de4e431858335a89e236f3b33b}\label{classvisilib_1_1_silhouette_processor_a8dca97de4e431858335a89e236f3b33b}} 
+std\+::unordered\+\_\+map$<$ \mbox{\hyperlink{classvisilib_1_1_silhouette_mesh_face}{Silhouette\+Mesh\+Face}} $\ast$, bool $>$ \mbox{\hyperlink{classvisilib_1_1_silhouette_processor_a8dca97de4e431858335a89e236f3b33b}{m\+Polygon\+Between\+Source\+Planes\+Cache}}
+\begin{DoxyCompactList}\small\item\em A cache storing if a polygon is between the source polygons. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_processor_ae30799e77e708b67a60f8a7da98c8acf}\label{classvisilib_1_1_silhouette_processor_ae30799e77e708b67a60f8a7da98c8acf}} 
+std\+::unordered\+\_\+map$<$ size\+\_\+t, bool $>$ \mbox{\hyperlink{classvisilib_1_1_silhouette_processor_ae30799e77e708b67a60f8a7da98c8acf}{m\+Potential\+Silhouette\+Edge\+Cache}}
+\begin{DoxyCompactList}\small\item\em A cache storing if an edge is a potential silhouette edge. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_processor_ad773286df9b2d57c7ab53cb6fda1729d}\label{classvisilib_1_1_silhouette_processor_ad773286df9b2d57c7ab53cb6fda1729d}} 
+\mbox{\hyperlink{classvisilib_1_1_geometry_convex_hull}{Geometry\+Convex\+Hull}} $\ast$ \mbox{\hyperlink{classvisilib_1_1_silhouette_processor_ad773286df9b2d57c7ab53cb6fda1729d}{m\+Convex\+Hull}}
+\begin{DoxyCompactList}\small\item\em The convex hull of the source polygons. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_processor_a39e3a419e3a8eaa1754ce3b0c8fce3a0}\label{classvisilib_1_1_silhouette_processor_a39e3a419e3a8eaa1754ce3b0c8fce3a0}} 
+\mbox{\hyperlink{classvisilib_1_1_visual_debugger}{Visual\+Debugger}} $\ast$ \mbox{\hyperlink{classvisilib_1_1_silhouette_processor_a39e3a419e3a8eaa1754ce3b0c8fce3a0}{m\+Debugger}}
+\begin{DoxyCompactList}\small\item\em A debugger collecting debugging information during silhouette extraction. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_processor_a2695d1a08aa11a3fa5308a7cb29f305f}\label{classvisilib_1_1_silhouette_processor_a2695d1a08aa11a3fa5308a7cb29f305f}} 
+\mbox{\hyperlink{classvisilib_1_1_helper_statistic_collector}{Helper\+Statistic\+Collector}} $\ast$ \mbox{\hyperlink{classvisilib_1_1_silhouette_processor_a2695d1a08aa11a3fa5308a7cb29f305f}{m\+Helper\+Statistic\+Collector}}
+\begin{DoxyCompactList}\small\item\em A statistic collector collecting statistics during silhouette extraction. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Provides the implemention of the silhouette optimization heuristics. 
+
+Instead of splitting the polytopes by all the edges of the occluders, the silhouette optimization heuristic detects and discards all the internal edges, that do not participate to the visibility between the source polygons. This is performed by extracting the silhouette edges of a triangle mesh occluder with respect to the source polygons. The silhouette detection starts from a face of the mesh. All the faces of the triangle mesh are visited successively by using the adjacency information between the faces. During the visit, the potential silhouette edges are detected and added to the silhouette. The resulting silhouette is attached to all the visited faces for later use. 
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_processor_aecbc9e229dac1bb760f03d889aebd80a}\label{classvisilib_1_1_silhouette_processor_aecbc9e229dac1bb760f03d889aebd80a}} 
+\index{visilib::SilhouetteProcessor@{visilib::SilhouetteProcessor}!extractSilhouette@{extractSilhouette}}
+\index{extractSilhouette@{extractSilhouette}!visilib::SilhouetteProcessor@{visilib::SilhouetteProcessor}}
+\subsubsection{\texorpdfstring{extractSilhouette()}{extractSilhouette()}}
+{\footnotesize\ttfamily void visilib\+::\+Silhouette\+Processor\+::extract\+Silhouette (\begin{DoxyParamCaption}\item[{size\+\_\+t}]{geometry\+Id,  }\item[{const std\+::vector$<$ \mbox{\hyperlink{classvisilib_1_1_silhouette_mesh_face}{Silhouette\+Mesh\+Face}} $>$ \&}]{faces,  }\item[{bool}]{silhouette\+Optimization,  }\item[{std\+::vector$<$ \mbox{\hyperlink{classvisilib_1_1_visibility_silhouette}{Visibility\+Silhouette}} $\ast$ $>$ \&}]{silhouettes }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Extract all the silhouettes with respect to the two source polygons. 
+
+The computed silhouette are attached to all the visited faces during silhouette extraction. \mbox{\Hypertarget{classvisilib_1_1_silhouette_processor_abe945efce3df48005a6927940d16773a}\label{classvisilib_1_1_silhouette_processor_abe945efce3df48005a6927940d16773a}} 
+\index{visilib::SilhouetteProcessor@{visilib::SilhouetteProcessor}!findSilhouette@{findSilhouette}}
+\index{findSilhouette@{findSilhouette}!visilib::SilhouetteProcessor@{visilib::SilhouetteProcessor}}
+\subsubsection{\texorpdfstring{findSilhouette()}{findSilhouette()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classvisilib_1_1_visibility_silhouette}{Visibility\+Silhouette}}$\ast$ visilib\+::\+Silhouette\+Processor\+::find\+Silhouette (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classvisilib_1_1_silhouette_mesh_face}{Silhouette\+Mesh\+Face}} $\ast$}]{face }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Find the silhouette associated to a given face. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em face} & the index of the face we are looking for a silhouette \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\+: the silhouette if it exists, nullptr otherwise 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/code/github/visilib/visilib/silhouette\+\_\+processor.\+h\end{DoxyCompactItemize}

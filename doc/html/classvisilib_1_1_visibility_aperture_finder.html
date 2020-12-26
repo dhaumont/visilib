@@ -91,9 +91,9 @@ Inheritance diagram for visilib::VisibilityApertureFinder&lt; P, S &gt;:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a5a9f152c24e246d51ca2176b5fc839fc"><td class="memItemLeft" align="right" valign="top"><a id="a5a9f152c24e246d51ca2176b5fc839fc"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>VisibilityApertureFinder</b> (<a class="el" href="classvisilib_1_1_visibility_exact_query.html">VisibilityExactQuery</a>&lt; P, S &gt; *aSolver, bool normalization, S tolerance, bool performFastTest)</td></tr>
-<tr class="separator:a5a9f152c24e246d51ca2176b5fc839fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a29643ef2261f1778cd7dd781e75bf781"><td class="memItemLeft" align="right" valign="top"><a id="a29643ef2261f1778cd7dd781e75bf781"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>VisibilityApertureFinder</b> (<a class="el" href="classvisilib_1_1_visibility_exact_query.html">VisibilityExactQuery</a>&lt; P, S &gt; *aSolver, bool normalization, S tolerance, bool performSilhouetteOptimization, bool detectApertureOnly)</td></tr>
+<tr class="separator:a29643ef2261f1778cd7dd781e75bf781"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afb888beaa002c0d1a2d2a42793e68932"><td class="memItemLeft" align="right" valign="top"><a id="afb888beaa002c0d1a2d2a42793e68932"></a>
 VisibilityResult&#160;</td><td class="memItemRight" valign="bottom"><b>resolve</b> ()</td></tr>
 <tr class="separator:afb888beaa002c0d1a2d2a42793e68932"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -107,18 +107,27 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>attachVisualisationDe
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-methods"></a>
 Private Member Functions</h2></td></tr>
-<tr class="memitem:ad6b1f3660451c0e73c0a69dd32015be4"><td class="memItemLeft" align="right" valign="top"><a id="ad6b1f3660451c0e73c0a69dd32015be4"></a>
-VisibilityResult&#160;</td><td class="memItemRight" valign="bottom"><b>resolveInternal</b> (<a class="el" href="classvisilib_1_1_plucker_polytope.html">PluckerPolytope</a>&lt; P &gt; *aPolytope, int aDeep)</td></tr>
-<tr class="separator:ad6b1f3660451c0e73c0a69dd32015be4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a89d5235f71d5f0890e1cb76073ce07be"><td class="memItemLeft" align="right" valign="top"><a id="a89d5235f71d5f0890e1cb76073ce07be"></a>
+VisibilityResult&#160;</td><td class="memItemRight" valign="bottom"><b>resolveInternal</b> (<a class="el" href="classvisilib_1_1_plucker_polytope.html">PluckerPolytope</a>&lt; P &gt; *aPolytope, const std::string &amp;occlusionTreeNodeSymbol, const std::vector&lt; <a class="el" href="classvisilib_1_1_visibility_silhouette.html">VisibilitySilhouette</a> * &gt; &amp;anOccluders, const std::vector&lt; P &gt; &amp;aPolytopeLines, int depth)</td></tr>
+<tr class="separator:a89d5235f71d5f0890e1cb76073ce07be"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a340e1704e608f42ffc05e9c18af3dfcf"><td class="memItemLeft" align="right" valign="top"><a id="a340e1704e608f42ffc05e9c18af3dfcf"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>resize</b> (size_t myInitiaLineCount, <a class="el" href="classvisilib_1_1_plucker_polyhedron.html">PluckerPolyhedron</a>&lt; P &gt; *myPolyhedron, <a class="el" href="classvisilib_1_1_plucker_polytope.html">PluckerPolytope</a>&lt; P &gt; *aPolytope)</td></tr>
+<tr class="separator:a340e1704e608f42ffc05e9c18af3dfcf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6cc6c9a6a9c53e16512e22a7048c3cf1"><td class="memItemLeft" align="right" valign="top"><a id="a6cc6c9a6a9c53e16512e22a7048c3cf1"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>extractStabbingLines</b> (<a class="el" href="classvisilib_1_1_plucker_polyhedron.html">PluckerPolyhedron</a>&lt; P &gt; *myPolyhedron, <a class="el" href="classvisilib_1_1_plucker_polytope.html">PluckerPolytope</a>&lt; P &gt; *aPolytope)</td></tr>
+<tr class="separator:a6cc6c9a6a9c53e16512e22a7048c3cf1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
 <tr class="memitem:a9c2fa56b2da066377887c3d6a6dc012b"><td class="memItemLeft" align="right" valign="top"><a id="a9c2fa56b2da066377887c3d6a6dc012b"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>mNormalization</b></td></tr>
 <tr class="separator:a9c2fa56b2da066377887c3d6a6dc012b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8f8ae44a29d5c410c11e38430368d900"><td class="memItemLeft" align="right" valign="top"><a id="a8f8ae44a29d5c410c11e38430368d900"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>mPerformFastTest</b></td></tr>
-<tr class="separator:a8f8ae44a29d5c410c11e38430368d900"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a200abad272083dc4419c37991adf287c"><td class="memItemLeft" align="right" valign="top"><a id="a200abad272083dc4419c37991adf287c"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>mPerformSilhouetteOptimization</b></td></tr>
+<tr class="separator:a200abad272083dc4419c37991adf287c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad0d821ffd1f136247b0bfb3f92163e22"><td class="memItemLeft" align="right" valign="top"><a id="ad0d821ffd1f136247b0bfb3f92163e22"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>mDetectApertureOnly</b></td></tr>
+<tr class="separator:ad0d821ffd1f136247b0bfb3f92163e22"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae746870348d1ef9de017c68262a0e6f4"><td class="memItemLeft" align="right" valign="top"><a id="ae746870348d1ef9de017c68262a0e6f4"></a>
 S&#160;</td><td class="memItemRight" valign="bottom"><b>mTolerance</b></td></tr>
 <tr class="separator:ae746870348d1ef9de017c68262a0e6f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -140,7 +149,7 @@ class visilib::VisibilityApertureFinder&lt; P, S &gt;</h3>
 <p>Exact visibility determination algorithm based on an aperture finder heuristic. The algorithm stops as soon as an aperture was detected. </p>
 <p>This class manage the CSG operations sheduling in Plucker space. It implements an algorithm that searches if at least on aperture exist between the two source polygons, such that at least one line that is intersecting the two source polygons is not blocked by any occluder. </p>
 </div><hr/>The documentation for this class was generated from the following file:<ul>
-<li>C:/code/visilib/visilib/visilib/<a class="el" href="visibility__aperture__finder_8h_source.html">visibility_aperture_finder.h</a></li>
+<li>C:/code/github/visilib/visilib/<a class="el" href="visibility__aperture__finder_8h_source.html">visibility_aperture_finder.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

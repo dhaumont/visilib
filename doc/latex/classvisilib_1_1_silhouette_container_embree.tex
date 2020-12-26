@@ -1,0 +1,82 @@
+\hypertarget{classvisilib_1_1_silhouette_container_embree}{}\section{visilib\+::Silhouette\+Container\+Embree Class Reference}
+\label{classvisilib_1_1_silhouette_container_embree}\index{visilib::SilhouetteContainerEmbree@{visilib::SilhouetteContainerEmbree}}
+
+
+Represents a scene containing all the occluders using Embree library from Intel to perform ray-\/tracing.  
+
+
+
+
+{\ttfamily \#include $<$silhouette\+\_\+container\+\_\+embree.\+h$>$}
+
+Inheritance diagram for visilib\+::Silhouette\+Container\+Embree\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classvisilib_1_1_silhouette_container_embree}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+virtual bool \mbox{\hyperlink{classvisilib_1_1_silhouette_container_embree_a3a7290096b31163d775b11a356b7d3e0}{intersect}} (\mbox{\hyperlink{structvisilib_1_1_ray}{Ray}} $\ast$a\+Ray) override
+\begin{DoxyCompactList}\small\item\em Intersect the ray with the geometry. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classvisilib_1_1_silhouette_container_embree_ad3d6193f5484b3fb56096efd8a1230a8}{prepare}} ()
+\begin{DoxyCompactList}\small\item\em Prepare the scene before ray tracing. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_container_embree_af4054861fb6b0bea527689b4cec1d59a}\label{classvisilib_1_1_silhouette_container_embree_af4054861fb6b0bea527689b4cec1d59a}} 
+R\+T\+C\+Scene \mbox{\hyperlink{classvisilib_1_1_silhouette_container_embree_af4054861fb6b0bea527689b4cec1d59a}{m\+Scene}}
+\begin{DoxyCompactList}\small\item\em The Embree scene. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_container_embree_a79d334ebeeb331eb3268a0da8cdd006d}\label{classvisilib_1_1_silhouette_container_embree_a79d334ebeeb331eb3268a0da8cdd006d}} 
+std\+::unordered\+\_\+map$<$ unsigned int, std\+::pair$<$ size\+\_\+t, size\+\_\+t $>$ $>$ {\bfseries ids}
+\end{DoxyCompactItemize}
+\subsection*{Static Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_container_embree_a5be6b858528a5207948fe5bdb9a72072}\label{classvisilib_1_1_silhouette_container_embree_a5be6b858528a5207948fe5bdb9a72072}} 
+static R\+T\+C\+Device \mbox{\hyperlink{classvisilib_1_1_silhouette_container_embree_a5be6b858528a5207948fe5bdb9a72072}{m\+Device}} = nullptr
+\begin{DoxyCompactList}\small\item\em The Embree device. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+Represents a scene containing all the occluders using Embree library from Intel to perform ray-\/tracing. 
+
+This class is performance oriented, and is intended to provide the fastest possible occluder selection, by using a modern ray tracing engine. 
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_container_embree_a3a7290096b31163d775b11a356b7d3e0}\label{classvisilib_1_1_silhouette_container_embree_a3a7290096b31163d775b11a356b7d3e0}} 
+\index{visilib::SilhouetteContainerEmbree@{visilib::SilhouetteContainerEmbree}!intersect@{intersect}}
+\index{intersect@{intersect}!visilib::SilhouetteContainerEmbree@{visilib::SilhouetteContainerEmbree}}
+\subsubsection{\texorpdfstring{intersect()}{intersect()}}
+{\footnotesize\ttfamily bool visilib\+::\+Silhouette\+Container\+Embree\+::intersect (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structvisilib_1_1_ray}{Ray}} $\ast$}]{a\+Ray }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Intersect the ray with the geometry. 
+
+The function calls embree to perform the intersection 
+
+Reimplemented from \mbox{\hyperlink{classvisilib_1_1_silhouette_container}{visilib\+::\+Silhouette\+Container}}.
+
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_container_embree_ad3d6193f5484b3fb56096efd8a1230a8}\label{classvisilib_1_1_silhouette_container_embree_ad3d6193f5484b3fb56096efd8a1230a8}} 
+\index{visilib::SilhouetteContainerEmbree@{visilib::SilhouetteContainerEmbree}!prepare@{prepare}}
+\index{prepare@{prepare}!visilib::SilhouetteContainerEmbree@{visilib::SilhouetteContainerEmbree}}
+\subsubsection{\texorpdfstring{prepare()}{prepare()}}
+{\footnotesize\ttfamily void visilib\+::\+Silhouette\+Container\+Embree\+::prepare (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Prepare the scene before ray tracing. 
+
+The function commits the scene geometry to embree 
+
+Reimplemented from \mbox{\hyperlink{classvisilib_1_1_silhouette_container}{visilib\+::\+Silhouette\+Container}}.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/code/github/visilib/visilib/silhouette\+\_\+container\+\_\+embree.\+h\item 
+C\+:/code/github/visilib/demo/demo\+\_\+main.\+cpp\end{DoxyCompactItemize}

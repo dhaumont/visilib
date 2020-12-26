@@ -1,6 +1,6 @@
 var searchData=
 [
   ['exact',['EXACT',['../structvisilib_1_1_query_configuration.html#af7a636401aa89fd99c31acab7f0ecbc5a1a08a2aca75f6d4a20aa3a3e94c89da2',1,'visilib::QueryConfiguration']]],
-  ['extractfaces',['extractFaces',['../classvisilib_1_1_geometry_scene_data.html#a19e40aa7e5c19758f9b5205a0916fb97',1,'visilib::GeometrySceneData']]],
-  ['extractsilhouette',['extractSilhouette',['../classvisilib_1_1_visibility_silhouette_processor.html#ab5ca5246b6df44bbed05b6b66fc12140',1,'visilib::VisibilitySilhouetteProcessor']]]
+  ['extractconnectedmeshfaces',['extractConnectedMeshFaces',['../classvisilib_1_1_geometry_occluder_set.html#a653a182d2a7f4ac669fe67693574b128',1,'visilib::GeometryOccluderSet']]],
+  ['extractsilhouette',['extractSilhouette',['../classvisilib_1_1_silhouette_processor.html#aecbc9e229dac1bb760f03d889aebd80a',1,'visilib::SilhouetteProcessor']]]
 ];

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['geometryid',['geometryId',['../structvisilib_1_1_ray.html#a7df3292b502fd7cf186c012777e6db6d',1,'visilib::Ray']]]
+  ['facecount',['faceCount',['../structvisilib_1_1_discrete_geometry_description.html#ad3e0036614577235871af289b06e9153',1,'visilib::DiscreteGeometryDescription']]]
 ];

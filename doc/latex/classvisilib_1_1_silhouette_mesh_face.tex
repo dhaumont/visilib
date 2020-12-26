@@ -1,0 +1,63 @@
+\hypertarget{classvisilib_1_1_silhouette_mesh_face}{}\section{visilib\+::Silhouette\+Mesh\+Face Class Reference}
+\label{classvisilib_1_1_silhouette_mesh_face}\index{visilib::SilhouetteMeshFace@{visilib::SilhouetteMeshFace}}
+
+
+Storage of the neighbours triangle faces of a triangle face of a triangle mesh. It allows to encode the connectivities of a triangle mesh, in order to perform silhouette detection.  
+
+
+
+
+{\ttfamily \#include $<$silhouette\+\_\+mesh\+\_\+face.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_mesh_face_a3964d6c8e62c17c8372fa69e9084889f}\label{classvisilib_1_1_silhouette_mesh_face_a3964d6c8e62c17c8372fa69e9084889f}} 
+{\bfseries Silhouette\+Mesh\+Face} (size\+\_\+t n=3)
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_mesh_face_a7dc0c8bc6b150ecca7307eb3f0c85bcd}\label{classvisilib_1_1_silhouette_mesh_face_a7dc0c8bc6b150ecca7307eb3f0c85bcd}} 
+{\bfseries Silhouette\+Mesh\+Face} (const \mbox{\hyperlink{classvisilib_1_1_silhouette_mesh_face}{Silhouette\+Mesh\+Face}} \&other)
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_mesh_face_acb6f95afd112046d3ba4ae5bd9738e25}\label{classvisilib_1_1_silhouette_mesh_face_acb6f95afd112046d3ba4ae5bd9738e25}} 
+void \mbox{\hyperlink{classvisilib_1_1_silhouette_mesh_face_acb6f95afd112046d3ba4ae5bd9738e25}{set\+Geometry}} (\mbox{\hyperlink{structvisilib_1_1_discrete_geometry_description}{Discrete\+Geometry\+Description}} $\ast$a\+Mesh, size\+\_\+t a\+Face)
+\begin{DoxyCompactList}\small\item\em Initialize a face from a triangle mesh. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_mesh_face_a481d2d1b6544e3be14c55842ee37ab0a}\label{classvisilib_1_1_silhouette_mesh_face_a481d2d1b6544e3be14c55842ee37ab0a}} 
+void \mbox{\hyperlink{classvisilib_1_1_silhouette_mesh_face_a481d2d1b6544e3be14c55842ee37ab0a}{set\+Neighbour}} (size\+\_\+t i, int neighbour)
+\begin{DoxyCompactList}\small\item\em Store the neigbour of a face, sharing the edge i. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_mesh_face_aaaab9df89dcf72e9a039b1556762f0c3}\label{classvisilib_1_1_silhouette_mesh_face_aaaab9df89dcf72e9a039b1556762f0c3}} 
+int \mbox{\hyperlink{classvisilib_1_1_silhouette_mesh_face_aaaab9df89dcf72e9a039b1556762f0c3}{get\+Neighbours}} (size\+\_\+t i) const
+\begin{DoxyCompactList}\small\item\em Return the neigbour of the face sharing the edge i. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_mesh_face_aa5d81a90731f6b9e96c2881f969890a9}\label{classvisilib_1_1_silhouette_mesh_face_aa5d81a90731f6b9e96c2881f969890a9}} 
+const \mbox{\hyperlink{classvisilib_1_1_math_vector3__}{Math\+Vector3f}} \& \mbox{\hyperlink{classvisilib_1_1_silhouette_mesh_face_aa5d81a90731f6b9e96c2881f969890a9}{get\+Vertex}} (size\+\_\+t i) const
+\begin{DoxyCompactList}\small\item\em Return a vertex of the face. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_mesh_face_a4d7ad0e77adbb4d432eb5710da4f9113}\label{classvisilib_1_1_silhouette_mesh_face_a4d7ad0e77adbb4d432eb5710da4f9113}} 
+size\+\_\+t {\bfseries get\+Vertex\+Count} () const
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_mesh_face_a252c5ee227b95f3de5895e354be5c3f1}\label{classvisilib_1_1_silhouette_mesh_face_a252c5ee227b95f3de5895e354be5c3f1}} 
+size\+\_\+t {\bfseries get\+Face\+Index} () const
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_mesh_face_ab1271ac98b966843331415892e9bce89}\label{classvisilib_1_1_silhouette_mesh_face_ab1271ac98b966843331415892e9bce89}} 
+\mbox{\hyperlink{classvisilib_1_1_math_vector2__}{Math\+Vector2i}} \mbox{\hyperlink{classvisilib_1_1_silhouette_mesh_face_ab1271ac98b966843331415892e9bce89}{get\+Edge}} (size\+\_\+t i) const
+\begin{DoxyCompactList}\small\item\em Return a 2D segment joining the two vertices of an edge. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_mesh_face_a6c75c0a9bf6324f74d04d97ad1fdba25}\label{classvisilib_1_1_silhouette_mesh_face_a6c75c0a9bf6324f74d04d97ad1fdba25}} 
+std\+::vector$<$ \mbox{\hyperlink{classvisilib_1_1_math_vector3__}{Math\+Vector3f}} $\ast$ $>$ {\bfseries m\+Vertices}
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_mesh_face_a427e90a6b16744ab6a619c0345436f60}\label{classvisilib_1_1_silhouette_mesh_face_a427e90a6b16744ab6a619c0345436f60}} 
+std\+::vector$<$ int $>$ {\bfseries m\+Neighbours}
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_mesh_face_ac0343e85f9bfda26f25020aa7cc36cec}\label{classvisilib_1_1_silhouette_mesh_face_ac0343e85f9bfda26f25020aa7cc36cec}} 
+size\+\_\+t {\bfseries m\+Face\+Index}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Storage of the neighbours triangle faces of a triangle face of a triangle mesh. It allows to encode the connectivities of a triangle mesh, in order to perform silhouette detection. 
+
+$<$ 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/code/github/visilib/visilib/silhouette\+\_\+mesh\+\_\+face.\+h\end{DoxyCompactItemize}

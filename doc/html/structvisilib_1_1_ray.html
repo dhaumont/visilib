@@ -66,6 +66,7 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="structvisilib_1_1_ray-members.html">List of all members</a>  </div>
   <div class="headertitle">
@@ -78,6 +79,12 @@ $(function() {
 
 <p><code>#include &lt;<a class="el" href="visilib_8h_source.html">visilib.h</a>&gt;</code></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:a2cb2b2bc357a5bbd71e94c1e35379c9e"><td class="memItemLeft" align="right" valign="top"><a id="a2cb2b2bc357a5bbd71e94c1e35379c9e"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>addIntersection</b> (size_t geometryId, size_t primitiveId, double t)</td></tr>
+<tr class="separator:a2cb2b2bc357a5bbd71e94c1e35379c9e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:a13149d8f8f4b9e75451bf9480614e94c"><td class="memItemLeft" align="right" valign="top"><a id="a13149d8f8f4b9e75451bf9480614e94c"></a>
@@ -96,19 +103,23 @@ float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="str
 float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structvisilib_1_1_ray.html#a797db14f6c35e6ca04943e2278a78b07">tfar</a></td></tr>
 <tr class="memdesc:a797db14f6c35e6ca04943e2278a78b07"><td class="mdescLeft">&#160;</td><td class="mdescRight">End of ray segment (set to hit distance) <br /></td></tr>
 <tr class="separator:a797db14f6c35e6ca04943e2278a78b07"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7df3292b502fd7cf186c012777e6db6d"><td class="memItemLeft" align="right" valign="top"><a id="a7df3292b502fd7cf186c012777e6db6d"></a>
-size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structvisilib_1_1_ray.html#a7df3292b502fd7cf186c012777e6db6d">geometryId</a></td></tr>
-<tr class="memdesc:a7df3292b502fd7cf186c012777e6db6d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Intersected geometry mesh. <br /></td></tr>
-<tr class="separator:a7df3292b502fd7cf186c012777e6db6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad7833b20fa3f55c6e5fc1015db20b4e9"><td class="memItemLeft" align="right" valign="top"><a id="ad7833b20fa3f55c6e5fc1015db20b4e9"></a>
-size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structvisilib_1_1_ray.html#ad7833b20fa3f55c6e5fc1015db20b4e9">primitiveId</a></td></tr>
-<tr class="memdesc:ad7833b20fa3f55c6e5fc1015db20b4e9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Intersected primitve of the mesh. <br /></td></tr>
-<tr class="separator:ad7833b20fa3f55c6e5fc1015db20b4e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7e2aa592fa8be8fba98655e5994ef411"><td class="memItemLeft" align="right" valign="top"><a id="a7e2aa592fa8be8fba98655e5994ef411"></a>
+std::vector&lt; size_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structvisilib_1_1_ray.html#a7e2aa592fa8be8fba98655e5994ef411">mGeometryIds</a></td></tr>
+<tr class="memdesc:a7e2aa592fa8be8fba98655e5994ef411"><td class="mdescLeft">&#160;</td><td class="mdescRight">Intersected geometry mesh. <br /></td></tr>
+<tr class="separator:a7e2aa592fa8be8fba98655e5994ef411"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a489e293afbacba695e0a277f335eb917"><td class="memItemLeft" align="right" valign="top"><a id="a489e293afbacba695e0a277f335eb917"></a>
+std::vector&lt; size_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structvisilib_1_1_ray.html#a489e293afbacba695e0a277f335eb917">mPrimitiveIds</a></td></tr>
+<tr class="memdesc:a489e293afbacba695e0a277f335eb917"><td class="mdescLeft">&#160;</td><td class="mdescRight">Intersected primitve of the mesh. <br /></td></tr>
+<tr class="separator:a489e293afbacba695e0a277f335eb917"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afd2ae4dafbd3b89cc1b8473183df5c16"><td class="memItemLeft" align="right" valign="top"><a id="afd2ae4dafbd3b89cc1b8473183df5c16"></a>
+std::vector&lt; double &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structvisilib_1_1_ray.html#afd2ae4dafbd3b89cc1b8473183df5c16">mTs</a></td></tr>
+<tr class="memdesc:afd2ae4dafbd3b89cc1b8473183df5c16"><td class="mdescLeft">&#160;</td><td class="mdescRight">Intersected primitve of the mesh. <br /></td></tr>
+<tr class="separator:afd2ae4dafbd3b89cc1b8473183df5c16"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Represents a 3D ray. </p>
 </div><hr/>The documentation for this struct was generated from the following file:<ul>
-<li>C:/code/visilib/visilib/visilib/<a class="el" href="visilib_8h_source.html">visilib.h</a></li>
+<li>C:/code/github/visilib/visilib/<a class="el" href="visilib_8h_source.html">visilib.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

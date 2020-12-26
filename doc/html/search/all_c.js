@@ -1,13 +1,13 @@
 var searchData=
 [
-  ['operator_20_2a',['operator *',['../classvisilib_1_1_math_plucker6.html#a7baac947859134038cbdb95041df8ed9',1,'visilib::MathPlucker6']]],
-  ['operator_20_2a_3d',['operator *=',['../classvisilib_1_1_math_plucker6.html#a931ae6c785e06bb03e4ed9672b9daaf8',1,'visilib::MathPlucker6']]],
-  ['operator_20_2d',['operator -',['../classvisilib_1_1_math_plucker6.html#abfb2c670cce66bc7948e5090894c24f0',1,'visilib::MathPlucker6']]],
-  ['operator_20_2d_3d',['operator -=',['../classvisilib_1_1_math_plucker6.html#aef3614cb1647d92081ce1cbeb4c261e7',1,'visilib::MathPlucker6']]],
-  ['operator_28_29',['operator()',['../structvisilib_1_1_math_vector2___1_1_hash.html#afe07898b568380f66b6771d1b4a84c7e',1,'visilib::MathVector2_::Hash::operator()()'],['../structvisilib_1_1_visibility_silhouette_1_1_hash.html#ab28a8997cd9e1f878e873de78dbfdb15',1,'visilib::VisibilitySilhouette::Hash::operator()()']]],
-  ['operator_2b',['operator+',['../classvisilib_1_1_math_plucker6.html#ad14b7bfd7a176bd87b1cd50bbeca6e9a',1,'visilib::MathPlucker6']]],
-  ['operator_2b_3d',['operator+=',['../classvisilib_1_1_math_plucker6.html#ad0d6dd0d97dd00c7a98405c1e6717392',1,'visilib::MathPlucker6']]],
-  ['operator_2f',['operator/',['../classvisilib_1_1_math_plucker6.html#ab6eb523f483a0e4452ee9573a14dea5d',1,'visilib::MathPlucker6']]],
-  ['org',['org',['../structvisilib_1_1_ray.html#a13149d8f8f4b9e75451bf9480614e94c',1,'visilib::Ray']]],
-  ['outputproperties',['outputProperties',['../classvisilib_1_1_plucker_polytope.html#a93ea12434a51f75ebffe3521dbb267af',1,'visilib::PluckerPolytope']]]
+  ['performfasttest',['performFastTest',['../structvisilib_1_1_query_configuration.html#ab45239f2e17e37fd38c74ca41f33753d',1,'visilib::QueryConfiguration']]],
+  ['pluckerpolyhedron',['PluckerPolyhedron',['../classvisilib_1_1_plucker_polyhedron.html',1,'visilib']]],
+  ['pluckerpolytope',['PluckerPolytope',['../classvisilib_1_1_plucker_polytope.html',1,'visilib']]],
+  ['pluckerpolytopebuilder',['PluckerPolytopeBuilder',['../classvisilib_1_1_plucker_polytope_builder.html',1,'visilib']]],
+  ['pluckerpolytopecomplex',['PluckerPolytopeComplex',['../classvisilib_1_1_plucker_polytope_complex.html',1,'visilib']]],
+  ['pluckerpolytopesplitter',['PluckerPolytopeSplitter',['../classvisilib_1_1_plucker_polytope_splitter.html',1,'visilib']]],
+  ['pluckertreenode',['PluckerTreeNode',['../classvisilib_1_1_plucker_tree_node.html',1,'visilib']]],
+  ['precision',['precision',['../structvisilib_1_1_query_configuration.html#a5109ade072b2337828b996410926b40e',1,'visilib::QueryConfiguration']]],
+  ['precisiontype',['PrecisionType',['../structvisilib_1_1_query_configuration.html#af7a636401aa89fd99c31acab7f0ecbc5',1,'visilib::QueryConfiguration']]],
+  ['prepare',['prepare',['../classvisilib_1_1_geometry_occluder_set.html#a9ad0f12014c07ed08cdd6be981faf704',1,'visilib::GeometryOccluderSet::prepare()'],['../classvisilib_1_1_helper_triangle_mesh.html#a075a6a388607a78ec69f21562b43e4c2',1,'visilib::HelperTriangleMesh::prepare()'],['../classvisilib_1_1_silhouette_container_embree.html#ad3d6193f5484b3fb56096efd8a1230a8',1,'visilib::SilhouetteContainerEmbree::prepare()']]]
 ];

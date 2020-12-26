@@ -1,0 +1,132 @@
+\hypertarget{classvisilib_1_1_geometry_occluder_set}{}\section{visilib\+::Geometry\+Occluder\+Set Class Reference}
+\label{classvisilib_1_1_geometry_occluder_set}\index{visilib::GeometryOccluderSet@{visilib::GeometryOccluderSet}}
+
+
+Store the connectivity information of the meshes of the scene. The connectivity is used for silhouette detection.  
+
+
+
+
+{\ttfamily \#include $<$geometry\+\_\+occluder\+\_\+set.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_geometry_occluder_set_a0d3103cdce2ceff0f68949f64ec5607f}\label{classvisilib_1_1_geometry_occluder_set_a0d3103cdce2ceff0f68949f64ec5607f}} 
+void {\bfseries add\+Occluder} (\mbox{\hyperlink{structvisilib_1_1_discrete_geometry_description}{Discrete\+Geometry\+Description}} $\ast$info)
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_geometry_occluder_set_a9ad0f12014c07ed08cdd6be981faf704}\label{classvisilib_1_1_geometry_occluder_set_a9ad0f12014c07ed08cdd6be981faf704}} 
+void \mbox{\hyperlink{classvisilib_1_1_geometry_occluder_set_a9ad0f12014c07ed08cdd6be981faf704}{prepare}} ()
+\begin{DoxyCompactList}\small\item\em Prepare the scene before ray tracing. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classvisilib_1_1_geometry_occluder_set_a6b4c7066a4ef012501748501f3d2febc}\label{classvisilib_1_1_geometry_occluder_set_a6b4c7066a4ef012501748501f3d2febc}} 
+size\+\_\+t {\bfseries get\+Occluder\+Count} () const
+\item 
+std\+::vector$<$ \mbox{\hyperlink{classvisilib_1_1_silhouette_mesh_face}{Silhouette\+Mesh\+Face}} $>$ $\ast$ \mbox{\hyperlink{classvisilib_1_1_geometry_occluder_set_a48bcbc4a98511777faf8fa006343d6a3}{get\+Occluder\+Connected\+Faces}} (size\+\_\+t geometry\+Id)
+\begin{DoxyCompactList}\small\item\em Return the list of connected faces of a mesh. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classvisilib_1_1_geometry_occluder_set_a01d2de1cfec62e4000ca3b5b262ae4bb}\label{classvisilib_1_1_geometry_occluder_set_a01d2de1cfec62e4000ca3b5b262ae4bb}} 
+void \mbox{\hyperlink{classvisilib_1_1_geometry_occluder_set_a01d2de1cfec62e4000ca3b5b262ae4bb}{restore\+Occluder\+Connected\+Faces}} ()
+\begin{DoxyCompactList}\small\item\em Restore the faces of the scene to their initial state, discarding any clipping if it has been performed. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvisilib_1_1_geometry_occluder_set_a4700b3241185a0c1064a2a227d771d99}{set\+Occluder\+Connected\+Faces}} (\mbox{\hyperlink{structvisilib_1_1_discrete_geometry_description}{Discrete\+Geometry\+Description}} $\ast$mesh, std\+::vector$<$ \mbox{\hyperlink{classvisilib_1_1_silhouette_mesh_face}{Silhouette\+Mesh\+Face}} $>$ \&a\+Faces)
+\begin{DoxyCompactList}\small\item\em Store the list of faces of a mesh. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_geometry_occluder_set_aadda8bb194352673b9fac4750655d786}\label{classvisilib_1_1_geometry_occluder_set_aadda8bb194352673b9fac4750655d786}} 
+size\+\_\+t \mbox{\hyperlink{classvisilib_1_1_geometry_occluder_set_aadda8bb194352673b9fac4750655d786}{get\+Key}} (size\+\_\+t v0, size\+\_\+t v1, size\+\_\+t my\+Face\+Number)
+\begin{DoxyCompactList}\small\item\em Provides a unique key for each edge of the triangle mesh. The edge is ordered. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classvisilib_1_1_geometry_occluder_set_a653a182d2a7f4ac669fe67693574b128}{extract\+Connected\+Mesh\+Faces}} (\mbox{\hyperlink{structvisilib_1_1_discrete_geometry_description}{Discrete\+Geometry\+Description}} $\ast$mesh, std\+::vector$<$ \mbox{\hyperlink{classvisilib_1_1_silhouette_mesh_face}{Silhouette\+Mesh\+Face}} $>$ \&a\+Faces)
+\begin{DoxyCompactList}\small\item\em Compute the list of faces of a triangle mesh, containing the adjacency information. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::vector$<$ std\+::vector$<$ \mbox{\hyperlink{classvisilib_1_1_silhouette_mesh_face}{Silhouette\+Mesh\+Face}} $>$ $\ast$ $>$ \mbox{\hyperlink{classvisilib_1_1_geometry_occluder_set_a96611893ad5c36867c415cf68cd320c4}{m\+Connected\+Faces\+Cache}}
+\begin{DoxyCompactList}\small\item\em The list of faces of the triangle meshes. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classvisilib_1_1_geometry_occluder_set_aac4816a11b1e4edc9193696c906ab206}\label{classvisilib_1_1_geometry_occluder_set_aac4816a11b1e4edc9193696c906ab206}} 
+std\+::unordered\+\_\+map$<$ size\+\_\+t, size\+\_\+t $>$ {\bfseries m\+Last\+Hit}
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_geometry_occluder_set_a0564f625a9de859d38231bf28dbbdd92}\label{classvisilib_1_1_geometry_occluder_set_a0564f625a9de859d38231bf28dbbdd92}} 
+std\+::vector$<$ \mbox{\hyperlink{structvisilib_1_1_discrete_geometry_description}{Discrete\+Geometry\+Description}} $\ast$ $>$ {\bfseries m\+Occluders}
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_geometry_occluder_set_a61e7f53997ce8a65ed8bda96773ec406}\label{classvisilib_1_1_geometry_occluder_set_a61e7f53997ce8a65ed8bda96773ec406}} 
+std\+::vector$<$ \mbox{\hyperlink{classvisilib_1_1_geometry_a_a_b_b}{Geometry\+A\+A\+BB}} $>$ {\bfseries m\+Bounding\+Boxes}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Store the connectivity information of the meshes of the scene. The connectivity is used for silhouette detection. 
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{classvisilib_1_1_geometry_occluder_set_a653a182d2a7f4ac669fe67693574b128}\label{classvisilib_1_1_geometry_occluder_set_a653a182d2a7f4ac669fe67693574b128}} 
+\index{visilib::GeometryOccluderSet@{visilib::GeometryOccluderSet}!extractConnectedMeshFaces@{extractConnectedMeshFaces}}
+\index{extractConnectedMeshFaces@{extractConnectedMeshFaces}!visilib::GeometryOccluderSet@{visilib::GeometryOccluderSet}}
+\subsubsection{\texorpdfstring{extractConnectedMeshFaces()}{extractConnectedMeshFaces()}}
+{\footnotesize\ttfamily void visilib\+::\+Geometry\+Occluder\+Set\+::extract\+Connected\+Mesh\+Faces (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structvisilib_1_1_discrete_geometry_description}{Discrete\+Geometry\+Description}} $\ast$}]{mesh,  }\item[{std\+::vector$<$ \mbox{\hyperlink{classvisilib_1_1_silhouette_mesh_face}{Silhouette\+Mesh\+Face}} $>$ \&}]{a\+Faces }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [private]}}
+
+
+
+Compute the list of faces of a triangle mesh, containing the adjacency information. 
+
+The adjacency is computed in a single pass over the triangle mesh, by constructing on the fly the edge connectivity information
+
+
+\begin{DoxyParams}{Parameters}
+{\em mesh} & the triangle mesh \\
+\hline
+{\em } & the list of faces \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classvisilib_1_1_geometry_occluder_set_a48bcbc4a98511777faf8fa006343d6a3}\label{classvisilib_1_1_geometry_occluder_set_a48bcbc4a98511777faf8fa006343d6a3}} 
+\index{visilib::GeometryOccluderSet@{visilib::GeometryOccluderSet}!getOccluderConnectedFaces@{getOccluderConnectedFaces}}
+\index{getOccluderConnectedFaces@{getOccluderConnectedFaces}!visilib::GeometryOccluderSet@{visilib::GeometryOccluderSet}}
+\subsubsection{\texorpdfstring{getOccluderConnectedFaces()}{getOccluderConnectedFaces()}}
+{\footnotesize\ttfamily std\+::vector$<$ \mbox{\hyperlink{classvisilib_1_1_silhouette_mesh_face}{Silhouette\+Mesh\+Face}} $>$ $\ast$ visilib\+::\+Geometry\+Occluder\+Set\+::get\+Occluder\+Connected\+Faces (\begin{DoxyParamCaption}\item[{size\+\_\+t}]{geometry\+Id }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Return the list of connected faces of a mesh. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em scene} & the scene containing the triangle mesh \\
+\hline
+{\em geometry\+Id} & the index of the triangle mesh \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\+: the list of faces of the mesh, each facces contains a links to its neighbour faces 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classvisilib_1_1_geometry_occluder_set_a4700b3241185a0c1064a2a227d771d99}\label{classvisilib_1_1_geometry_occluder_set_a4700b3241185a0c1064a2a227d771d99}} 
+\index{visilib::GeometryOccluderSet@{visilib::GeometryOccluderSet}!setOccluderConnectedFaces@{setOccluderConnectedFaces}}
+\index{setOccluderConnectedFaces@{setOccluderConnectedFaces}!visilib::GeometryOccluderSet@{visilib::GeometryOccluderSet}}
+\subsubsection{\texorpdfstring{setOccluderConnectedFaces()}{setOccluderConnectedFaces()}}
+{\footnotesize\ttfamily void visilib\+::\+Geometry\+Occluder\+Set\+::set\+Occluder\+Connected\+Faces (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structvisilib_1_1_discrete_geometry_description}{Discrete\+Geometry\+Description}} $\ast$}]{mesh,  }\item[{std\+::vector$<$ \mbox{\hyperlink{classvisilib_1_1_silhouette_mesh_face}{Silhouette\+Mesh\+Face}} $>$ \&}]{a\+Faces }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Store the list of faces of a mesh. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em mesh} & the triangle mesh \\
+\hline
+{\em } & the list of faces \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Member Data Documentation}
+\mbox{\Hypertarget{classvisilib_1_1_geometry_occluder_set_a96611893ad5c36867c415cf68cd320c4}\label{classvisilib_1_1_geometry_occluder_set_a96611893ad5c36867c415cf68cd320c4}} 
+\index{visilib::GeometryOccluderSet@{visilib::GeometryOccluderSet}!mConnectedFacesCache@{mConnectedFacesCache}}
+\index{mConnectedFacesCache@{mConnectedFacesCache}!visilib::GeometryOccluderSet@{visilib::GeometryOccluderSet}}
+\subsubsection{\texorpdfstring{mConnectedFacesCache}{mConnectedFacesCache}}
+{\footnotesize\ttfamily std\+::vector$<$std\+::vector$<$\mbox{\hyperlink{classvisilib_1_1_silhouette_mesh_face}{Silhouette\+Mesh\+Face}}$>$$\ast$$>$ visilib\+::\+Geometry\+Occluder\+Set\+::m\+Connected\+Faces\+Cache\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+The list of faces of the triangle meshes. 
+
+The faces are stored in a map indexed by the id of the mesh 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/code/github/visilib/visilib/geometry\+\_\+occluder\+\_\+set.\+h\end{DoxyCompactItemize}

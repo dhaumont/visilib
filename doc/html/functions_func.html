@@ -65,25 +65,25 @@ $(function() {
 
 <h3><a id="index_a"></a>- a -</h3><ul>
 <li>add()
-: <a class="el" href="classvisilib_1_1_geometry_embree_scene.html#ac370c844832cb8b5ba9ced5838350b33">visilib::GeometryEmbreeScene</a>
-, <a class="el" href="classvisilib_1_1_geometry_scene.html#a26f1083e95b4d0b00fec6a9fc8479e7f">visilib::GeometryScene</a>
+: <a class="el" href="classvisilib_1_1_helper_triangle_mesh_container.html#ab29cb0e681a4cc58ad6a31c08ba371e5">visilib::HelperTriangleMeshContainer</a>
 , <a class="el" href="classvisilib_1_1_plucker_polyhedron.html#a6c9fa6964a332bd0bf42b69835088223">visilib::PluckerPolyhedron&lt; P &gt;</a>
-, <a class="el" href="classvisilib_1_1_visibility_silhouette.html#aeae59db2f03508300395c65dbb2156f0">visilib::VisibilitySilhouette</a>
 </li>
 <li>addEdge()
 : <a class="el" href="classvisilib_1_1_plucker_polytope.html#af3cfb4c40c20fe5eff92efaf2f1820a0">visilib::PluckerPolytope&lt; P &gt;</a>
+, <a class="el" href="classvisilib_1_1_visibility_silhouette.html#acec3b4e8e92bddf52e9d27f85666e6a5">visilib::VisibilitySilhouette</a>
 </li>
 <li>addEdges()
 : <a class="el" href="classvisilib_1_1_plucker_polytope_builder.html#a7af3c78c82093b0b1cebff631edc1387">visilib::PluckerPolytopeBuilder&lt; P, S &gt;</a>
 </li>
 <li>addExtremalStabbingLine()
-: <a class="el" href="classvisilib_1_1_plucker_polytope.html#a1fa9e55e2b8058ab39d94c3b5ff87c53">visilib::PluckerPolytope&lt; P &gt;</a>
+: <a class="el" href="classvisilib_1_1_helper_debug_visualisation.html#a6177d34e17ee78b8694cd00374a175b3">visilib::HelperDebugVisualisation</a>
+, <a class="el" href="classvisilib_1_1_plucker_polytope.html#a1fa9e55e2b8058ab39d94c3b5ff87c53">visilib::PluckerPolytope&lt; P &gt;</a>
 </li>
 <li>addExtremalStabbingLines()
 : <a class="el" href="classvisilib_1_1_plucker_polytope_builder.html#adc471ddde614669033182397d6be20d7">visilib::PluckerPolytopeBuilder&lt; P, S &gt;</a>
 </li>
 <li>addRandomness()
-: <a class="el" href="classvisilib_1_1_helper_synthetic_mesh_builder.html#a73e433c3af95e335141583aa15ba28f9">visilib::HelperSyntheticMeshBuilder</a>
+: <a class="el" href="classvisilib_1_1_helper_synthetic_mesh_builder.html#a180737b641ccd8da503b6416559d3153">visilib::HelperSyntheticMeshBuilder</a>
 </li>
 <li>addRemovedEdge()
 : <a class="el" href="classvisilib_1_1_helper_debug_visualisation.html#a824bac789c745a4313f8b1376687e4d4">visilib::HelperDebugVisualisation</a>
@@ -96,7 +96,7 @@ $(function() {
 </li>
 <li>addSilhouette()
 : <a class="el" href="classvisilib_1_1_plucker_polytope.html#a9f986ac5e09caf2ea0cbec01077b5ade">visilib::PluckerPolytope&lt; P &gt;</a>
-, <a class="el" href="classvisilib_1_1_visibility_silhouette_processor.html#a0b32c8d8de6a12f0168acf1f0306e970">visilib::VisibilitySilhouetteProcessor</a>
+, <a class="el" href="classvisilib_1_1_silhouette_processor.html#a66010aa7b2824edcf3ca0a1704255148">visilib::SilhouetteProcessor</a>
 </li>
 <li>addSourcePolygonEdgesAsHyperplanes()
 : <a class="el" href="classvisilib_1_1_plucker_polytope_builder.html#a5074ddd2e6fd2a48cb5770cd6af067f9">visilib::PluckerPolytopeBuilder&lt; P, S &gt;</a>
@@ -111,8 +111,8 @@ $(function() {
 : <a class="el" href="classvisilib_1_1_visibility_exact_query.html#a73bb1b22a81c37aecc961770d3a0791c">visilib::VisibilityExactQuery&lt; P, S &gt;</a>
 </li>
 <li>attachVisualisationDebugger()
-: <a class="el" href="classvisilib_1_1_visibility_exact_query.html#a60f74fec10fe0ecd6637b5d7a6da270e">visilib::VisibilityExactQuery&lt; P, S &gt;</a>
-, <a class="el" href="classvisilib_1_1_visibility_silhouette_processor.html#ac12153dd4ed31184b1dc010d3da8f262">visilib::VisibilitySilhouetteProcessor</a>
+: <a class="el" href="classvisilib_1_1_silhouette_processor.html#a9b38305bfb50372badb231710dbd8c41">visilib::SilhouetteProcessor</a>
+, <a class="el" href="classvisilib_1_1_visibility_exact_query.html#a60f74fec10fe0ecd6637b5d7a6da270e">visilib::VisibilityExactQuery&lt; P, S &gt;</a>
 </li>
 </ul>
 
@@ -135,10 +135,7 @@ $(function() {
 : <a class="el" href="classvisilib_1_1_math_geometry.html#a6b3430d7013a6d749d613c4b95bd071c">visilib::MathGeometry</a>
 </li>
 <li>collectAllOccluders()
-: <a class="el" href="classvisilib_1_1_visibility_exact_query.html#ac8311b57043efee1231fc9b1a1601d44">visilib::VisibilityExactQuery&lt; P, S &gt;</a>
-</li>
-<li>computeBoundingBox()
-: <a class="el" href="classvisilib_1_1_geometry_mesh.html#a89b747e3b9757b34309df7c14a7e9438">visilib::GeometryMesh</a>
+: <a class="el" href="classvisilib_1_1_visibility_exact_query.html#a013a388f21afbca791e367454a39306f">visilib::VisibilityExactQuery&lt; P, S &gt;</a>
 </li>
 <li>computeEdgesIntersectingQuadric()
 : <a class="el" href="classvisilib_1_1_plucker_polytope.html#a3137c0414f0cfb604cd4dd06c1dbaeaf">visilib::PluckerPolytope&lt; P &gt;</a>
@@ -147,7 +144,7 @@ $(function() {
 : <a class="el" href="classvisilib_1_1_plucker_polytope.html#a0ec26e8b054116d8f4a5031589dde6ae">visilib::PluckerPolytope&lt; P &gt;</a>
 </li>
 <li>computeNormal()
-: <a class="el" href="classvisilib_1_1_geometry_mesh.html#af082db958ecf6f8827a61807538fd51b">visilib::GeometryMesh</a>
+: <a class="el" href="classvisilib_1_1_helper_triangle_mesh.html#a30b254ee3c7690c88c80aa671b4f00fa">visilib::HelperTriangleMesh</a>
 </li>
 <li>computePlane()
 : <a class="el" href="classvisilib_1_1_math_geometry.html#a8ebbe0b6e95a1335f9067d7b8b01016d">visilib::MathGeometry</a>
@@ -159,13 +156,19 @@ $(function() {
 : <a class="el" href="classvisilib_1_1_math_geometry.html#a73f9ca6d8b008ced426ce0c1388b5fa0">visilib::MathGeometry</a>
 </li>
 <li>computeRepresentativeLine()
-: <a class="el" href="classvisilib_1_1_math_geometry.html#a0d3d9e4e8cddf9ae96743351de61225f">visilib::MathGeometry</a>
+: <a class="el" href="classvisilib_1_1_math_geometry.html#ad6d2f79eb23fdfd9ce23bca5d36fc403">visilib::MathGeometry</a>
 </li>
 <li>containsOtherLinesWithSameFacetsDescription()
 : <a class="el" href="classvisilib_1_1_plucker_polyhedron.html#ae9e79e8652ffe2b28040e6cb0650933b">visilib::PluckerPolyhedron&lt; P &gt;</a>
 </li>
+<li>containsRealLines()
+: <a class="el" href="classvisilib_1_1_plucker_polytope.html#a54c6bf6d962cd35f9220e9ca447cbb3a">visilib::PluckerPolytope&lt; P &gt;</a>
+</li>
 <li>createInitialPolygons()
 : <a class="el" href="classvisilib_1_1_visibility_exact_query.html#ab48ca4625d838cde2aaa06ffd0c125a9">visilib::VisibilityExactQuery&lt; P, S &gt;</a>
+</li>
+<li>createTriangleMeshDescription()
+: <a class="el" href="classvisilib_1_1_helper_triangle_mesh_container.html#ab9b46c3ef0ab846392fb53c5641add36">visilib::HelperTriangleMeshContainer</a>
 </li>
 </ul>
 
@@ -181,54 +184,53 @@ $(function() {
 
 
 <h3><a id="index_e"></a>- e -</h3><ul>
-<li>extractFaces()
-: <a class="el" href="classvisilib_1_1_geometry_scene_data.html#a19e40aa7e5c19758f9b5205a0916fb97">visilib::GeometrySceneData</a>
+<li>extractConnectedMeshFaces()
+: <a class="el" href="classvisilib_1_1_geometry_occluder_set.html#a653a182d2a7f4ac669fe67693574b128">visilib::GeometryOccluderSet</a>
 </li>
 <li>extractSilhouette()
-: <a class="el" href="classvisilib_1_1_visibility_silhouette_processor.html#ab5ca5246b6df44bbed05b6b66fc12140">visilib::VisibilitySilhouetteProcessor</a>
+: <a class="el" href="classvisilib_1_1_silhouette_processor.html#aecbc9e229dac1bb760f03d889aebd80a">visilib::SilhouetteProcessor</a>
 </li>
 </ul>
 
 
 <h3><a id="index_f"></a>- f -</h3><ul>
-<li>findEdge()
-: <a class="el" href="classvisilib_1_1_visibility_silhouette.html#a38e872a5ab523a27b8ff3a8979e0969b">visilib::VisibilitySilhouette</a>
+<li>findNextEdge()
+: <a class="el" href="classvisilib_1_1_visibility_exact_query.html#a11c925f0719d4c4edb3cdcd1537a261a">visilib::VisibilityExactQuery&lt; P, S &gt;</a>
 </li>
 <li>findPluckerEdgeWithQuadricIntersection()
 : <a class="el" href="classvisilib_1_1_math_geometry.html#a0b130b390ddefe87d092eabb11bbcc09">visilib::MathGeometry</a>
 </li>
 <li>findSceneIntersection()
-: <a class="el" href="classvisilib_1_1_visibility_exact_query.html#ac34696965f2d5d884873ef5695cfa501">visilib::VisibilityExactQuery&lt; P, S &gt;</a>
+: <a class="el" href="classvisilib_1_1_visibility_exact_query.html#ab156ba532def9fee26157cbd6391d379">visilib::VisibilityExactQuery&lt; P, S &gt;</a>
 </li>
 <li>findSilhouette()
-: <a class="el" href="classvisilib_1_1_visibility_silhouette_processor.html#ac0a0aeed8d29f69fbe67bad8845b7315">visilib::VisibilitySilhouetteProcessor</a>
-</li>
-<li>findTheBestValidEdge()
-: <a class="el" href="classvisilib_1_1_visibility_exact_query.html#aa8f267a1b7cea288eaa42cd073212f19">visilib::VisibilityExactQuery&lt; P, S &gt;</a>
+: <a class="el" href="classvisilib_1_1_silhouette_processor.html#abe945efce3df48005a6927940d16773a">visilib::SilhouetteProcessor</a>
 </li>
 </ul>
 
 
 <h3><a id="index_g"></a>- g -</h3><ul>
 <li>generateCheckBoard()
-: <a class="el" href="classvisilib_1_1_helper_synthetic_mesh_builder.html#a1ec15a4753b6ae62393fd11530deb9c9">visilib::HelperSyntheticMeshBuilder</a>
+: <a class="el" href="classvisilib_1_1_helper_synthetic_mesh_builder.html#a63a57581bdcb7b3d593511321f0f2548">visilib::HelperSyntheticMeshBuilder</a>
 </li>
 <li>generateCube()
-: <a class="el" href="classvisilib_1_1_helper_synthetic_mesh_builder.html#a2c064dc52b17654ec86891c4128a380c">visilib::HelperSyntheticMeshBuilder</a>
+: <a class="el" href="classvisilib_1_1_helper_synthetic_mesh_builder.html#a302959ab04fdb90c2e1c6d0c157b7721">visilib::HelperSyntheticMeshBuilder</a>
 </li>
 <li>generateRegularGrid()
-: <a class="el" href="classvisilib_1_1_helper_synthetic_mesh_builder.html#aecf66cb9bab28b956071d3a2a5031901">visilib::HelperSyntheticMeshBuilder</a>
+: <a class="el" href="classvisilib_1_1_helper_synthetic_mesh_builder.html#aa232622af286d93ec17df7ff71c5f2f9">visilib::HelperSyntheticMeshBuilder</a>
 </li>
 <li>generateRegularPolygon()
 : <a class="el" href="classvisilib_1_1_helper_synthetic_mesh_builder.html#a4781fa48f2c2b4b8c5ef186943bf4d30">visilib::HelperSyntheticMeshBuilder</a>
 </li>
+<li>generateSlot()
+: <a class="el" href="classvisilib_1_1_helper_synthetic_mesh_builder.html#ae858a160ccfe307830a73e1edfd7b17f">visilib::HelperSyntheticMeshBuilder</a>
+</li>
 <li>generateSphere()
-: <a class="el" href="classvisilib_1_1_helper_synthetic_mesh_builder.html#af3d125361dcf35ddc97fdad3ed031b8f">visilib::HelperSyntheticMeshBuilder</a>
+: <a class="el" href="classvisilib_1_1_helper_synthetic_mesh_builder.html#a1c71d582856b74691db9238bf24e7f62">visilib::HelperSyntheticMeshBuilder</a>
 </li>
 <li>get()
 : <a class="el" href="classvisilib_1_1_geometry_ray.html#a634b177e5dc2ef7f97d62d1fecc6dac0">visilib::GeometryRay</a>
 , <a class="el" href="classvisilib_1_1_plucker_polyhedron.html#ac0442b80487e5740483a9549ae1674cf">visilib::PluckerPolyhedron&lt; P &gt;</a>
-, <a class="el" href="classvisilib_1_1_scene.html#a2abd4e33ff693d14e30615e74179e9f1">visilib::Scene</a>
 </li>
 <li>getAbs()
 : <a class="el" href="classvisilib_1_1_math_arithmetic.html#a49d461fc744a29e6f418541da95fb772">visilib::MathArithmetic&lt; S &gt;</a>
@@ -236,11 +238,11 @@ $(function() {
 <li>getAnchorPoint()
 : <a class="el" href="classvisilib_1_1_math_geometry.html#a15d002043e880ed6cb2539797e344785">visilib::MathGeometry</a>
 </li>
+<li>getAvailableEdgeCount()
+: <a class="el" href="classvisilib_1_1_visibility_silhouette.html#a2788f5b8b32c857aa0bf7fc7e6976f16">visilib::VisibilitySilhouette</a>
+</li>
 <li>getBackTo3D()
 : <a class="el" href="classvisilib_1_1_math_geometry.html#a7467476b382c75e9f5d9e43e84bb0e6f">visilib::MathGeometry</a>
-</li>
-<li>getBoundingBox()
-: <a class="el" href="classvisilib_1_1_geometry_scene.html#ad575229d2393a53b5bd59c349a77609f">visilib::GeometryScene</a>
 </li>
 <li>getComplex()
 : <a class="el" href="classvisilib_1_1_visibility_exact_query.html#aaa548ab1d64f715594f7da57691a7662">visilib::VisibilityExactQuery&lt; P, S &gt;</a>
@@ -250,26 +252,30 @@ $(function() {
 , <a class="el" href="classvisilib_1_1_math_plucker6.html#afdd889e6d04220978e4fcb95eec2aaef">visilib::MathPlucker6&lt; S &gt;</a>
 </li>
 <li>getEdge()
-: <a class="el" href="classvisilib_1_1_geometry_mesh_face.html#aaeb96a9f7ffa77c2e3bcab04f4d2df0f">visilib::GeometryMeshFace</a>
+: <a class="el" href="classvisilib_1_1_silhouette_mesh_face.html#ab1271ac98b966843331415892e9bce89">visilib::SilhouetteMeshFace</a>
 </li>
 <li>getEdgeCount()
 : <a class="el" href="classvisilib_1_1_plucker_polytope.html#a8e2edde9a2168838192ec6c32a7955a3">visilib::PluckerPolytope&lt; P &gt;</a>
-, <a class="el" href="classvisilib_1_1_visibility_silhouette.html#a3868e0f6442f5cf6a05108d72e2a3153">visilib::VisibilitySilhouette</a>
 </li>
 <li>getEdges()
 : <a class="el" href="classvisilib_1_1_plucker_polytope.html#a14944385f5c26590ef871904f17f42a0">visilib::PluckerPolytope&lt; P &gt;</a>
+, <a class="el" href="classvisilib_1_1_visibility_silhouette.html#aace590fe0b96d9411b97977a3a2d6f01">visilib::VisibilitySilhouette</a>
+</li>
+<li>getEdgesIntersectingQuadric()
+: <a class="el" href="classvisilib_1_1_plucker_polytope.html#a208a0872212517629a91e4154daa2e62">visilib::PluckerPolytope&lt; P &gt;</a>
 </li>
 <li>getExtremalStabbingLine()
 : <a class="el" href="classvisilib_1_1_plucker_polytope.html#ad3c4052274f34dfa4c7082432bb375b8">visilib::PluckerPolytope&lt; P &gt;</a>
+</li>
+<li>getExtremalStabbingLines()
+: <a class="el" href="classvisilib_1_1_helper_debug_visualisation.html#a43618a67dae6a3438b23f40a30751f7c">visilib::HelperDebugVisualisation</a>
+, <a class="el" href="classvisilib_1_1_visual_debugger.html#a3ee593c8b2b318f3220bc565f0f11d92">visilib::VisualDebugger</a>
 </li>
 <li>getExtremalStabbingLinesBackTo3D()
 : <a class="el" href="classvisilib_1_1_plucker_polytope.html#aa4fc2b33fb7248202d0f9b5822583c78">visilib::PluckerPolytope&lt; P &gt;</a>
 </li>
 <li>getExtremalStabbingLinesCount()
 : <a class="el" href="classvisilib_1_1_plucker_polytope.html#aa16073fa47fc615d8709e86d831bd5ca">visilib::PluckerPolytope&lt; P &gt;</a>
-</li>
-<li>getFaces()
-: <a class="el" href="classvisilib_1_1_geometry_scene_data.html#a3a60c91a2db20b4d35b97d6ca26240f5">visilib::GeometrySceneData</a>
 </li>
 <li>getFacets()
 : <a class="el" href="classvisilib_1_1_plucker_polytope.html#a1dad10c5612cf043fcf40d3b3012a14b">visilib::PluckerPolytope&lt; P &gt;</a>
@@ -278,13 +284,13 @@ $(function() {
 : <a class="el" href="classvisilib_1_1_plucker_polyhedron.html#a46c0d8ccf2360bd49cfa93d4fa152d35">visilib::PluckerPolyhedron&lt; P &gt;</a>
 </li>
 <li>getGeometryIds()
-: <a class="el" href="classvisilib_1_1_geometry_scene.html#af478c5ed64c2f93401f76898853fb08c">visilib::GeometryScene</a>
+: <a class="el" href="classvisilib_1_1_helper_triangle_mesh_container.html#a63ca99e5f2dcb90f0066ffe38e071879">visilib::HelperTriangleMeshContainer</a>
 </li>
 <li>getGravityCenter()
 : <a class="el" href="classvisilib_1_1_math_geometry.html#a7ae619c8f6cea8df0ee3216ca2be3cea">visilib::MathGeometry</a>
 </li>
 <li>getKey()
-: <a class="el" href="classvisilib_1_1_geometry_scene_data.html#a7a156da11e50e73dc971869559ebd028">visilib::GeometrySceneData</a>
+: <a class="el" href="classvisilib_1_1_geometry_occluder_set.html#aadda8bb194352673b9fac4750655d786">visilib::GeometryOccluderSet</a>
 </li>
 <li>getLinesCount()
 : <a class="el" href="classvisilib_1_1_plucker_polyhedron.html#a7b40cfeac1b1954b32866b5bffac3588">visilib::PluckerPolyhedron&lt; P &gt;</a>
@@ -293,28 +299,25 @@ $(function() {
 : <a class="el" href="classvisilib_1_1_math_plucker6.html#a5d696244bf3d071fdbcb1823b827df80">visilib::MathPlucker6&lt; S &gt;</a>
 </li>
 <li>getMeshArray()
-: <a class="el" href="classvisilib_1_1_geometry_scene.html#a2ff817c65dd599085f70efb934fd555e">visilib::GeometryScene</a>
+: <a class="el" href="classvisilib_1_1_helper_triangle_mesh_container.html#a4c7a04386c117be925199448104a2b9f">visilib::HelperTriangleMeshContainer</a>
 </li>
 <li>getMinMax()
-: <a class="el" href="classvisilib_1_1_math_arithmetic.html#a39d05f98dca7e06dc35abe9b5f7fc867">visilib::MathArithmetic&lt; S &gt;</a>
+: <a class="el" href="classvisilib_1_1_math_arithmetic.html#aea4e26c6dc7a2f339387f638e97673dd">visilib::MathArithmetic&lt; S &gt;</a>
 </li>
 <li>getNeighbours()
-: <a class="el" href="classvisilib_1_1_geometry_mesh_face.html#a15dbc8f7eb0bfbc1c72918077e2d0914">visilib::GeometryMeshFace</a>
+: <a class="el" href="classvisilib_1_1_silhouette_mesh_face.html#aaaab9df89dcf72e9a039b1556762f0c3">visilib::SilhouetteMeshFace</a>
 </li>
 <li>getNormalized()
 : <a class="el" href="classvisilib_1_1_math_plucker6.html#ad7a70710b1ed1f7cada7355d7938924b">visilib::MathPlucker6&lt; S &gt;</a>
+</li>
+<li>getOccluderConnectedFaces()
+: <a class="el" href="classvisilib_1_1_geometry_occluder_set.html#a48bcbc4a98511777faf8fa006343d6a3">visilib::GeometryOccluderSet</a>
 </li>
 <li>getPlaneIntersection()
 : <a class="el" href="classvisilib_1_1_math_geometry.html#ad2ba51f89b23e91d29aa0ccfeaf49833">visilib::MathGeometry</a>
 </li>
 <li>getPlaneIntersectionWithEdge()
 : <a class="el" href="classvisilib_1_1_math_geometry.html#abf551f08e5b219198b159e41b06aae48">visilib::MathGeometry</a>
-</li>
-<li>getPolytopeCount()
-: <a class="el" href="classvisilib_1_1_visibility_exact_query.html#a8f4a539f93eb90a246d8d36b47f0aa3f">visilib::VisibilityExactQuery&lt; P, S &gt;</a>
-</li>
-<li>getPolytopes()
-: <a class="el" href="classvisilib_1_1_visibility_exact_query.html#a0f0685404cc98e82fe947b593d038da5">visilib::VisibilityExactQuery&lt; P, S &gt;</a>
 </li>
 <li>getQuadricRelativePosition()
 : <a class="el" href="classvisilib_1_1_plucker_polyhedron.html#a2e0a70cef3ea5955aabd0bdfad1a3cbe">visilib::PluckerPolyhedron&lt; P &gt;</a>
@@ -323,29 +326,23 @@ $(function() {
 : <a class="el" href="classvisilib_1_1_visibility_exact_query.html#a6db74bffb635300add6bab0a2f5037e7">visilib::VisibilityExactQuery&lt; P, S &gt;</a>
 </li>
 <li>getRemovedEdges()
-: <a class="el" href="classvisilib_1_1_helper_debug_visualisation.html#a750f8c0489236b6fe925ce4cfb223da3">visilib::HelperDebugVisualisation</a>
-, <a class="el" href="classvisilib_1_1_visual_debugger.html#a3964f3fd281058ef64bfbf13cf703a1b">visilib::VisualDebugger</a>
+: <a class="el" href="classvisilib_1_1_helper_debug_visualisation.html#aad4ea2abcf1ca7e98d2da31f211320dd">visilib::HelperDebugVisualisation</a>
+, <a class="el" href="classvisilib_1_1_visual_debugger.html#aa97e516fdb725eb861c753850f76a6a1">visilib::VisualDebugger</a>
 </li>
 <li>getRemovedTriangles()
-: <a class="el" href="classvisilib_1_1_helper_debug_visualisation.html#a846581563106e46f3c4bebeacb41f259">visilib::HelperDebugVisualisation</a>
-, <a class="el" href="classvisilib_1_1_visual_debugger.html#ad3e6298e9b25bdf7614adb16fded68de">visilib::VisualDebugger</a>
+: <a class="el" href="classvisilib_1_1_helper_debug_visualisation.html#a1903481d200a48516f9c45476071b68d">visilib::HelperDebugVisualisation</a>
+, <a class="el" href="classvisilib_1_1_visual_debugger.html#a5e5cc34cd110e1af70b39cf746193d5a">visilib::VisualDebugger</a>
 </li>
 <li>getSamplingLines()
-: <a class="el" href="classvisilib_1_1_helper_debug_visualisation.html#acec097f36c099400ca206d79c4acb813">visilib::HelperDebugVisualisation</a>
-, <a class="el" href="classvisilib_1_1_visual_debugger.html#acd5394b4c58aea76cf58ac345a9ed15f">visilib::VisualDebugger</a>
-</li>
-<li>getSilhouetteCount()
-: <a class="el" href="classvisilib_1_1_visibility_exact_query.html#ad8ac07213bd371091ff208d062fb189c">visilib::VisibilityExactQuery&lt; P, S &gt;</a>
-</li>
-<li>getSilhouettes()
-: <a class="el" href="classvisilib_1_1_visibility_exact_query.html#a655dfa468b6bbe96b63dd145c5d28ebe">visilib::VisibilityExactQuery&lt; P, S &gt;</a>
+: <a class="el" href="classvisilib_1_1_helper_debug_visualisation.html#abeb1cebbf4dfbf800c75ff86c9dd5742">visilib::HelperDebugVisualisation</a>
+, <a class="el" href="classvisilib_1_1_visual_debugger.html#a5d9157e60de0532f8cb9c89b53cacc9c">visilib::VisualDebugger</a>
 </li>
 <li>getSqrt()
 : <a class="el" href="classvisilib_1_1_math_arithmetic.html#a6c4b62a5088df9be7476d931d64fece5">visilib::MathArithmetic&lt; S &gt;</a>
 </li>
 <li>getStabbingLines()
-: <a class="el" href="classvisilib_1_1_helper_debug_visualisation.html#a181cbc530095062843a4d2d1477abb87">visilib::HelperDebugVisualisation</a>
-, <a class="el" href="classvisilib_1_1_visual_debugger.html#ad3e3e913970cb1e2b70566f213dd099e">visilib::VisualDebugger</a>
+: <a class="el" href="classvisilib_1_1_helper_debug_visualisation.html#a938fe03b046f63866b946d16c39079bd">visilib::HelperDebugVisualisation</a>
+, <a class="el" href="classvisilib_1_1_visual_debugger.html#a2bb678c35ba7fee87e5653f26fc34c08">visilib::VisualDebugger</a>
 </li>
 <li>getStart()
 : <a class="el" href="classvisilib_1_1_geometry_ray.html#a950f04c9f1690cb5e77c2de7b7ad92dc">visilib::GeometryRay</a>
@@ -354,14 +351,10 @@ $(function() {
 : <a class="el" href="classvisilib_1_1_visibility_exact_query.html#a6c4186afcdf74f9302dfe5441e5057ba">visilib::VisibilityExactQuery&lt; P, S &gt;</a>
 </li>
 <li>getTriangleCount()
-: <a class="el" href="classvisilib_1_1_geometry_mesh.html#ac9e639a1b68624ebd8481cfbd1f2b8fc">visilib::GeometryMesh</a>
-</li>
-<li>getTriangleMeshInformation()
-: <a class="el" href="classvisilib_1_1_geometry_scene.html#a7c860dfebd56b0fccaf6942d403d5142">visilib::GeometryScene</a>
-, <a class="el" href="classvisilib_1_1_scene.html#a3df2df18add4f2d1c87d5f446197d94d">visilib::Scene</a>
+: <a class="el" href="classvisilib_1_1_helper_triangle_mesh.html#ab503786c1185cd0c9709759cb6905c1a">visilib::HelperTriangleMesh</a>
 </li>
 <li>getVertex()
-: <a class="el" href="classvisilib_1_1_geometry_mesh_face.html#a497d2ea216d59f210ccfc65419c93ba9">visilib::GeometryMeshFace</a>
+: <a class="el" href="classvisilib_1_1_silhouette_mesh_face.html#aa5d81a90731f6b9e96c2881f969890a9">visilib::SilhouetteMeshFace</a>
 </li>
 <li>getVertices()
 : <a class="el" href="classvisilib_1_1_plucker_polytope.html#a69632f3396ac98e59e9783d6762a0566">visilib::PluckerPolytope&lt; P &gt;</a>
@@ -376,17 +369,11 @@ $(function() {
 <li>hasAllEdgesCollapsed()
 : <a class="el" href="classvisilib_1_1_plucker_polytope.html#ac5f9ad5e1bd02b000b77c1360a2d1f67">visilib::PluckerPolytope&lt; P &gt;</a>
 </li>
-<li>hasEdge()
-: <a class="el" href="classvisilib_1_1_visibility_silhouette.html#ab1c25afae13b192cdf2d8bd4e85ae8d5">visilib::VisibilitySilhouette</a>
-</li>
 <li>hasFacet()
 : <a class="el" href="classvisilib_1_1_math_combinatorial.html#a7b63205c6b27719a20d8ffdb1e7ef7c5">visilib::MathCombinatorial</a>
 </li>
 <li>hasPluckerEdgeWithQuadricIntersection()
 : <a class="el" href="classvisilib_1_1_math_geometry.html#a29d14c13f99b5a47942062dd82487b89">visilib::MathGeometry</a>
-</li>
-<li>hasSilhouette()
-: <a class="el" href="classvisilib_1_1_visibility_exact_query.html#aee8154a630582ef4ff63158fa398cbe0">visilib::VisibilityExactQuery&lt; P, S &gt;</a>
 </li>
 <li>haveAtLeastNCommonFacets()
 : <a class="el" href="classvisilib_1_1_math_combinatorial.html#add385e8d5b8bfb586e3d16dee08c5cd1">visilib::MathCombinatorial</a>
@@ -402,10 +389,10 @@ $(function() {
 
 <h3><a id="index_i"></a>- i -</h3><ul>
 <li>init()
-: <a class="el" href="classvisilib_1_1_visibility_silhouette_processor.html#a3c322672f861c30e12c04050fe8fe384">visilib::VisibilitySilhouetteProcessor</a>
+: <a class="el" href="classvisilib_1_1_silhouette_processor.html#a8225d6744e57ae62d2f649e50fd4b0a2">visilib::SilhouetteProcessor</a>
 </li>
 <li>initConvexHull()
-: <a class="el" href="classvisilib_1_1_visibility_silhouette_processor.html#a56d7a8562f86cc8c3803efdca793ebc1">visilib::VisibilitySilhouetteProcessor</a>
+: <a class="el" href="classvisilib_1_1_silhouette_processor.html#a75124a633d2221e1fa7218b5eefb09bb">visilib::SilhouetteProcessor</a>
 </li>
 <li>initFacets()
 : <a class="el" href="classvisilib_1_1_math_combinatorial.html#ae4b0f9e26c345cde34d7a6b1924e9f04">visilib::MathCombinatorial</a>
@@ -417,10 +404,8 @@ $(function() {
 : <a class="el" href="classvisilib_1_1_math_geometry.html#ab6a7122ce9ad4d17b406e12ad1bd125f">visilib::MathGeometry</a>
 </li>
 <li>intersect()
-: <a class="el" href="classvisilib_1_1_geometry_embree_scene.html#ada395e5905eb21b69c272aa78d1527bf">visilib::GeometryEmbreeScene</a>
-, <a class="el" href="classvisilib_1_1_geometry_scene.html#a433c67371c1d2d73fcba8fb1e9a9fc37">visilib::GeometryScene</a>
-, <a class="el" href="classvisilib_1_1_math_geometry.html#ad92f7fd332aca0943d17f622327a67c3">visilib::MathGeometry</a>
-, <a class="el" href="classvisilib_1_1_scene.html#a6407f8cd9c41121acb93baa3bd996e30">visilib::Scene</a>
+: <a class="el" href="classvisilib_1_1_math_geometry.html#ad92f7fd332aca0943d17f622327a67c3">visilib::MathGeometry</a>
+, <a class="el" href="classvisilib_1_1_silhouette_container_embree.html#a3a7290096b31163d775b11a356b7d3e0">visilib::SilhouetteContainerEmbree</a>
 </li>
 <li>isEdgePotentiallyInsideShaft()
 : <a class="el" href="classvisilib_1_1_math_geometry.html#adac5d1f80cdb58ce8a53901e6e142a87">visilib::MathGeometry</a>
@@ -435,27 +420,20 @@ $(function() {
 : <a class="el" href="classvisilib_1_1_math_geometry.html#ad65e69745c8a1f786d279ebf0a8c7fb7">visilib::MathGeometry</a>
 </li>
 <li>isPolygonBetweenSourcePlanes()
-: <a class="el" href="classvisilib_1_1_visibility_silhouette_processor.html#a27c1f680d36916f80b124c7ffefc7c31">visilib::VisibilitySilhouetteProcessor</a>
+: <a class="el" href="classvisilib_1_1_silhouette_processor.html#a0b85bda058a2412f2abfab105af75a64">visilib::SilhouetteProcessor</a>
 </li>
 <li>isPotentialSilhouetteEdge()
-: <a class="el" href="classvisilib_1_1_visibility_silhouette_processor.html#af69ceaeb21352ec2d61a9864ef1aa2d5">visilib::VisibilitySilhouetteProcessor</a>
+: <a class="el" href="classvisilib_1_1_silhouette_processor.html#a860d7b7a18d3b97ff8a87234dc13fb53">visilib::SilhouetteProcessor</a>
 </li>
 <li>isPotentialSilhouetteEdgeInternal()
-: <a class="el" href="classvisilib_1_1_visibility_silhouette_processor.html#af80e7b08bfe1fb628713bcaaaf97a768">visilib::VisibilitySilhouetteProcessor</a>
+: <a class="el" href="classvisilib_1_1_silhouette_processor.html#a802ca9581c1496e8904ea4dc81ea12e4">visilib::SilhouetteProcessor</a>
 </li>
 <li>isSameSign()
 : <a class="el" href="classvisilib_1_1_math_arithmetic.html#a8266820603880540bcc75d4985cbeb99">visilib::MathArithmetic&lt; S &gt;</a>
 </li>
 <li>isValid()
 : <a class="el" href="classvisilib_1_1_plucker_polyhedron.html#aab25f8beb468ef198b0d1667722e9687">visilib::PluckerPolyhedron&lt; P &gt;</a>
-, <a class="el" href="classvisilib_1_1_plucker_polytope.html#a8b694f833d2a1ebb9d5bf4edbc7dae2e">visilib::PluckerPolytope&lt; P &gt;</a>
-</li>
-</ul>
-
-
-<h3><a id="index_l"></a>- l -</h3><ul>
-<li>link()
-: <a class="el" href="classvisilib_1_1_visibility_exact_query.html#a459eaa6da585731e3a9c6bfd2b737bb2">visilib::VisibilityExactQuery&lt; P, S &gt;</a>
+, <a class="el" href="classvisilib_1_1_plucker_polytope.html#a8a766bb84150935065deee93b472de85">visilib::PluckerPolytope&lt; P &gt;</a>
 </li>
 </ul>
 
@@ -482,7 +460,7 @@ $(function() {
 </li>
 <li>operator()()
 : <a class="el" href="structvisilib_1_1_math_vector2___1_1_hash.html#afe07898b568380f66b6771d1b4a84c7e">visilib::MathVector2_&lt; S &gt;::Hash</a>
-, <a class="el" href="structvisilib_1_1_visibility_silhouette_1_1_hash.html#ab28a8997cd9e1f878e873de78dbfdb15">visilib::VisibilitySilhouette::Hash</a>
+, <a class="el" href="structvisilib_1_1_visibility_silhouette_1_1_hash.html#a481401e0bf8cbe0c674e13140ff38796">visilib::VisibilitySilhouette::Hash</a>
 </li>
 <li>operator+()
 : <a class="el" href="classvisilib_1_1_math_plucker6.html#ad14b7bfd7a176bd87b1cd50bbeca6e9a">visilib::MathPlucker6&lt; S &gt;</a>
@@ -501,49 +479,45 @@ $(function() {
 
 <h3><a id="index_p"></a>- p -</h3><ul>
 <li>prepare()
-: <a class="el" href="classvisilib_1_1_geometry_embree_scene.html#a530d6724d35058302ec037de6fb73315">visilib::GeometryEmbreeScene</a>
-, <a class="el" href="classvisilib_1_1_geometry_mesh.html#a3f60dd8ebfd8f615d20eb58c70d42efd">visilib::GeometryMesh</a>
-, <a class="el" href="classvisilib_1_1_geometry_scene.html#a8c9b2e500af069539571a4eadab4557a">visilib::GeometryScene</a>
-, <a class="el" href="classvisilib_1_1_scene.html#a7222f8572d157e36ce9b44bb5db5af4a">visilib::Scene</a>
+: <a class="el" href="classvisilib_1_1_geometry_occluder_set.html#a9ad0f12014c07ed08cdd6be981faf704">visilib::GeometryOccluderSet</a>
+, <a class="el" href="classvisilib_1_1_helper_triangle_mesh.html#a075a6a388607a78ec69f21562b43e4c2">visilib::HelperTriangleMesh</a>
+, <a class="el" href="classvisilib_1_1_silhouette_container_embree.html#ad3d6193f5484b3fb56096efd8a1230a8">visilib::SilhouetteContainerEmbree</a>
 </li>
 </ul>
 
 
 <h3><a id="index_r"></a>- r -</h3><ul>
-<li>remove()
-: <a class="el" href="classvisilib_1_1_visibility_silhouette.html#ac10f2b49331d2849deaced0b3d8cd3e5">visilib::VisibilitySilhouette</a>
-</li>
 <li>removeDegeneratedTriangles()
-: <a class="el" href="classvisilib_1_1_geometry_mesh.html#ab9302d42643129fdf93681ed0cb6db8d">visilib::GeometryMesh</a>
-, <a class="el" href="classvisilib_1_1_geometry_scene.html#a2a74e1875983a7c6d7db4925f4751e06">visilib::GeometryScene</a>
+: <a class="el" href="classvisilib_1_1_helper_triangle_mesh.html#a8e1d36896b60a29eded64c1cc28c00cc">visilib::HelperTriangleMesh</a>
+, <a class="el" href="classvisilib_1_1_helper_triangle_mesh_container.html#ac7b69c0fc33554617cda85f0f8a107f5">visilib::HelperTriangleMeshContainer</a>
 </li>
 <li>removeFaces()
-: <a class="el" href="classvisilib_1_1_helper_synthetic_mesh_builder.html#a9c2dc7c8965d161ec0712531fee586b2">visilib::HelperSyntheticMeshBuilder</a>
+: <a class="el" href="classvisilib_1_1_helper_synthetic_mesh_builder.html#a23adb9695595040ccf8782bd29f364c4">visilib::HelperSyntheticMeshBuilder</a>
 </li>
 <li>rescaleToUnitBox()
-: <a class="el" href="classvisilib_1_1_helper_synthetic_mesh_builder.html#a36566f61a47f6cb1db6bd83907e4179c">visilib::HelperSyntheticMeshBuilder</a>
+: <a class="el" href="classvisilib_1_1_helper_synthetic_mesh_builder.html#a408cd0c312a1053f6a479fc2fbea847f">visilib::HelperSyntheticMeshBuilder</a>
 </li>
-<li>restoreFacesGeometry()
-: <a class="el" href="classvisilib_1_1_geometry_scene_data.html#ad23b184f5d8514d3cfb5cb14bf7d91c1">visilib::GeometrySceneData</a>
+<li>restoreOccluderConnectedFaces()
+: <a class="el" href="classvisilib_1_1_geometry_occluder_set.html#a01d2de1cfec62e4000ca3b5b262ae4bb">visilib::GeometryOccluderSet</a>
 </li>
 <li>rotate()
-: <a class="el" href="classvisilib_1_1_helper_synthetic_mesh_builder.html#ae5882a8acf82672aa1a5287fce1bbedf">visilib::HelperSyntheticMeshBuilder</a>
+: <a class="el" href="classvisilib_1_1_helper_synthetic_mesh_builder.html#a47c189c29ad2889310e1667a30eb2ad7">visilib::HelperSyntheticMeshBuilder</a>
 </li>
 </ul>
 
 
 <h3><a id="index_s"></a>- s -</h3><ul>
 <li>scale()
-: <a class="el" href="classvisilib_1_1_helper_synthetic_mesh_builder.html#acac5c27f3dbbd2177af61483d5da8bd3">visilib::HelperSyntheticMeshBuilder</a>
-</li>
-<li>setFacesGeometry()
-: <a class="el" href="classvisilib_1_1_geometry_scene_data.html#a3f7e0579a5aa0e5942c133f58d7d1215">visilib::GeometrySceneData</a>
+: <a class="el" href="classvisilib_1_1_helper_synthetic_mesh_builder.html#a3ad2d53409b8fd3335e5acec7dd62e7a">visilib::HelperSyntheticMeshBuilder</a>
 </li>
 <li>setGeometry()
-: <a class="el" href="classvisilib_1_1_geometry_mesh_face.html#a0e0b0e27eff19dec3ec33230a203a63e">visilib::GeometryMeshFace</a>
+: <a class="el" href="classvisilib_1_1_silhouette_mesh_face.html#acb6f95afd112046d3ba4ae5bd9738e25">visilib::SilhouetteMeshFace</a>
 </li>
 <li>setNeighbour()
-: <a class="el" href="classvisilib_1_1_geometry_mesh_face.html#a7b33dbd12ec60652464ec6af9477c029">visilib::GeometryMeshFace</a>
+: <a class="el" href="classvisilib_1_1_silhouette_mesh_face.html#a481d2d1b6544e3be14c55842ee37ab0a">visilib::SilhouetteMeshFace</a>
+</li>
+<li>setOccluderConnectedFaces()
+: <a class="el" href="classvisilib_1_1_geometry_occluder_set.html#a4700b3241185a0c1064a2a227d771d99">visilib::GeometryOccluderSet</a>
 </li>
 <li>split()
 : <a class="el" href="classvisilib_1_1_plucker_polytope_splitter.html#a50150fef5b24618c067c14c5e5fdb438">visilib::PluckerPolytopeSplitter&lt; P, S &gt;</a>
@@ -559,14 +533,7 @@ $(function() {
 : <a class="el" href="classvisilib_1_1_math_arithmetic.html#a402058efef79b2039522f78fda6ffddb">visilib::MathArithmetic&lt; S &gt;</a>
 </li>
 <li>translate()
-: <a class="el" href="classvisilib_1_1_helper_synthetic_mesh_builder.html#a09e0c47f408107fe87741eb3326026b7">visilib::HelperSyntheticMeshBuilder</a>
-</li>
-</ul>
-
-
-<h3><a id="index_u"></a>- u -</h3><ul>
-<li>unlink()
-: <a class="el" href="classvisilib_1_1_visibility_exact_query.html#a82c1014312c5c91cecb7678f0086b9a9">visilib::VisibilityExactQuery&lt; P, S &gt;</a>
+: <a class="el" href="classvisilib_1_1_helper_synthetic_mesh_builder.html#a31c66cba420f7938e7f246bea7057e54">visilib::HelperSyntheticMeshBuilder</a>
 </li>
 </ul>
 

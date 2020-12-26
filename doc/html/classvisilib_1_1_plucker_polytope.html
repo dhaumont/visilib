@@ -99,12 +99,15 @@ size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cl
 const std::unordered_set&lt; size_t &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_plucker_polytope.html#a69632f3396ac98e59e9783d6762a0566">getVertices</a> ()</td></tr>
 <tr class="memdesc:a69632f3396ac98e59e9783d6762a0566"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the number of vertices of the polytope. <br /></td></tr>
 <tr class="separator:a69632f3396ac98e59e9783d6762a0566"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a208a0872212517629a91e4154daa2e62"><td class="memItemLeft" align="right" valign="top">const std::set&lt; std::pair&lt; size_t, size_t &gt; &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_plucker_polytope.html#a208a0872212517629a91e4154daa2e62">getEdgesIntersectingQuadric</a> ()</td></tr>
+<tr class="memdesc:a208a0872212517629a91e4154daa2e62"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the subset of edges of the polytope that have an intersection with the Plucker Quadric (ie reprsents real line)  <a href="#a208a0872212517629a91e4154daa2e62">More...</a><br /></td></tr>
+<tr class="separator:a208a0872212517629a91e4154daa2e62"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af3cfb4c40c20fe5eff92efaf2f1820a0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_plucker_polytope.html#af3cfb4c40c20fe5eff92efaf2f1820a0">addEdge</a> (size_t aVertex0, size_t aVertex1, <a class="el" href="classvisilib_1_1_plucker_polyhedron.html">PluckerPolyhedron</a>&lt; P &gt; *aPolyhedron)</td></tr>
 <tr class="memdesc:af3cfb4c40c20fe5eff92efaf2f1820a0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add an edge to the polytope.  <a href="#af3cfb4c40c20fe5eff92efaf2f1820a0">More...</a><br /></td></tr>
 <tr class="separator:af3cfb4c40c20fe5eff92efaf2f1820a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8b694f833d2a1ebb9d5bf4edbc7dae2e"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_plucker_polytope.html#a8b694f833d2a1ebb9d5bf4edbc7dae2e">isValid</a> () const</td></tr>
-<tr class="memdesc:a8b694f833d2a1ebb9d5bf4edbc7dae2e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Test if the polytope is valid (fast check)  <a href="#a8b694f833d2a1ebb9d5bf4edbc7dae2e">More...</a><br /></td></tr>
-<tr class="separator:a8b694f833d2a1ebb9d5bf4edbc7dae2e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a54c6bf6d962cd35f9220e9ca447cbb3a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_plucker_polytope.html#a54c6bf6d962cd35f9220e9ca447cbb3a">containsRealLines</a> () const</td></tr>
+<tr class="memdesc:a54c6bf6d962cd35f9220e9ca447cbb3a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Test if the polytope is valid (fast check)  <a href="#a54c6bf6d962cd35f9220e9ca447cbb3a">More...</a><br /></td></tr>
+<tr class="separator:a54c6bf6d962cd35f9220e9ca447cbb3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac5f9ad5e1bd02b000b77c1360a2d1f67"><td class="memTemplParams" colspan="2">template&lt;class S &gt; </td></tr>
 <tr class="memitem:ac5f9ad5e1bd02b000b77c1360a2d1f67"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_plucker_polytope.html#ac5f9ad5e1bd02b000b77c1360a2d1f67">hasAllEdgesCollapsed</a> (<a class="el" href="classvisilib_1_1_plucker_polyhedron.html">PluckerPolyhedron</a>&lt; P &gt; *polyhedron, S Tolerance)</td></tr>
 <tr class="memdesc:ac5f9ad5e1bd02b000b77c1360a2d1f67"><td class="mdescLeft">&#160;</td><td class="mdescRight">Test if the polytope is degenerated (the length of all edges are below the given tolerance).  <a href="#ac5f9ad5e1bd02b000b77c1360a2d1f67">More...</a><br /></td></tr>
@@ -136,6 +139,12 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_plucker_polytope.html#a9f986ac5e09caf2ea0cbec01077b5ade">addSilhouette</a> (<a class="el" href="classvisilib_1_1_visibility_silhouette.html">VisibilitySilhouette</a> *silhouette)</td></tr>
 <tr class="memdesc:a9f986ac5e09caf2ea0cbec01077b5ade"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add a silhouette to the polyptope. <br /></td></tr>
 <tr class="separator:a9f986ac5e09caf2ea0cbec01077b5ade"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a01d6f7eadbdd5978fd7401e1a047a739"><td class="memItemLeft" align="right" valign="top"><a id="a01d6f7eadbdd5978fd7401e1a047a739"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setRepresentativeLine</b> (P line)</td></tr>
+<tr class="separator:a01d6f7eadbdd5978fd7401e1a047a739"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad85b09d4e32bcd99c543e9c5e5897923"><td class="memItemLeft" align="right" valign="top"><a id="ad85b09d4e32bcd99c543e9c5e5897923"></a>
+P&#160;</td><td class="memItemRight" valign="bottom"><b>getRepresentativeLine</b> () const</td></tr>
+<tr class="separator:ad85b09d4e32bcd99c543e9c5e5897923"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8a766bb84150935065deee93b472de85"><td class="memTemplParams" colspan="2">template&lt;class S &gt; </td></tr>
 <tr class="memitem:a8a766bb84150935065deee93b472de85"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_plucker_polytope.html#a8a766bb84150935065deee93b472de85">isValid</a> (<a class="el" href="classvisilib_1_1_plucker_polyhedron.html">PluckerPolyhedron</a>&lt; P &gt; *polyhedron, bool normalization, S tolerance)</td></tr>
 <tr class="memdesc:a8a766bb84150935065deee93b472de85"><td class="mdescLeft">&#160;</td><td class="mdescRight">Test if the polytope is valid (complete check)  <a href="#a8a766bb84150935065deee93b472de85">More...</a><br /></td></tr>
@@ -146,8 +155,11 @@ Private Attributes</h2></td></tr>
 <tr class="memitem:a06773264d65675e5a03f9b4187f70fae"><td class="memItemLeft" align="right" valign="top"><a id="a06773264d65675e5a03f9b4187f70fae"></a>
 std::set&lt; std::pair&lt; size_t, size_t &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>mEdges</b></td></tr>
 <tr class="separator:a06773264d65675e5a03f9b4187f70fae"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a47b14653f6b608798458b361977f9293"><td class="memItemLeft" align="right" valign="top">std::vector&lt; P &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_plucker_polytope.html#a47b14653f6b608798458b361977f9293">mExtremalStabbingLines</a></td></tr>
-<tr class="memdesc:a47b14653f6b608798458b361977f9293"><td class="mdescLeft">&#160;</td><td class="mdescRight">The edges of the polytope, each edge is defined by the indices of the two vertices supporting it.  <a href="#a47b14653f6b608798458b361977f9293">More...</a><br /></td></tr>
+<tr class="memitem:ad62fe4fcb7b122a2148052c272bc3f91"><td class="memItemLeft" align="right" valign="top">std::set&lt; std::pair&lt; size_t, size_t &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_plucker_polytope.html#ad62fe4fcb7b122a2148052c272bc3f91">mEdgesProcessed</a></td></tr>
+<tr class="memdesc:ad62fe4fcb7b122a2148052c272bc3f91"><td class="mdescLeft">&#160;</td><td class="mdescRight">The edges of the polytope, each edge is defined by the indices of the two vertices supporting it.  <a href="#ad62fe4fcb7b122a2148052c272bc3f91">More...</a><br /></td></tr>
+<tr class="separator:ad62fe4fcb7b122a2148052c272bc3f91"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a47b14653f6b608798458b361977f9293"><td class="memItemLeft" align="right" valign="top"><a id="a47b14653f6b608798458b361977f9293"></a>
+std::vector&lt; P &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>mExtremalStabbingLines</b></td></tr>
 <tr class="separator:a47b14653f6b608798458b361977f9293"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8c55dd5e7feb75e047bbff680b8c42c4"><td class="memItemLeft" align="right" valign="top">std::set&lt; std::pair&lt; size_t, size_t &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_plucker_polytope.html#a8c55dd5e7feb75e047bbff680b8c42c4">mEdgesIntersectingQuadric</a></td></tr>
 <tr class="memdesc:a8c55dd5e7feb75e047bbff680b8c42c4"><td class="mdescLeft">&#160;</td><td class="mdescRight">The ESL of the polytope, at the intersection of an edge and the Plucker Quadric.  <a href="#a8c55dd5e7feb75e047bbff680b8c42c4">More...</a><br /></td></tr>
@@ -158,6 +170,15 @@ std::set&lt; std::pair&lt; size_t, size_t &gt; &gt;&#160;</td><td class="memItem
 <tr class="memitem:a326446f06ed4f22da0f704c07c22c96e"><td class="memItemLeft" align="right" valign="top">std::unordered_set&lt; size_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_plucker_polytope.html#a326446f06ed4f22da0f704c07c22c96e">mVertices</a></td></tr>
 <tr class="memdesc:a326446f06ed4f22da0f704c07c22c96e"><td class="mdescLeft">&#160;</td><td class="mdescRight">The set of silhouettes associated to the polytope.  <a href="#a326446f06ed4f22da0f704c07c22c96e">More...</a><br /></td></tr>
 <tr class="separator:a326446f06ed4f22da0f704c07c22c96e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a64674d4acb4cbf7f210ec33b60d9bc62"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::vector&lt; size_t &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_plucker_polytope.html#a64674d4acb4cbf7f210ec33b60d9bc62">mExtremalStabbingLinesFacets</a></td></tr>
+<tr class="memdesc:a64674d4acb4cbf7f210ec33b60d9bc62"><td class="mdescLeft">&#160;</td><td class="mdescRight">The indices of the vertices of the polytope.  <a href="#a64674d4acb4cbf7f210ec33b60d9bc62">More...</a><br /></td></tr>
+<tr class="separator:a64674d4acb4cbf7f210ec33b60d9bc62"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5f53bb0c925ee484df67e24483ca2f7e"><td class="memItemLeft" align="right" valign="top"><a id="a5f53bb0c925ee484df67e24483ca2f7e"></a>
+double&#160;</td><td class="memItemRight" valign="bottom"><b>mRadius</b></td></tr>
+<tr class="separator:a5f53bb0c925ee484df67e24483ca2f7e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa0f02c86d62275d93bda6e986a95a432"><td class="memItemLeft" align="right" valign="top"><a id="aa0f02c86d62275d93bda6e986a95a432"></a>
+P&#160;</td><td class="memItemRight" valign="bottom"><b>mRepresentativeLine</b></td></tr>
+<tr class="separator:aa0f02c86d62275d93bda6e986a95a432"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><h3>template&lt;class P&gt;<br />
@@ -243,6 +264,28 @@ template&lt;class P&gt; </div>
 
 </div>
 </div>
+<a id="a54c6bf6d962cd35f9220e9ca447cbb3a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a54c6bf6d962cd35f9220e9ca447cbb3a">&#9670;&nbsp;</a></span>containsRealLines()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class P &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="classvisilib_1_1_plucker_polytope.html">visilib::PluckerPolytope</a>&lt; P &gt;::containsRealLines </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Test if the polytope is valid (fast check) </p>
+<p>A polytope is containsRealLines if it has edges, if the number of edges is not too high and if at least one edge crosses the Plucker Quadric </p>
+
+</div>
+</div>
 <a id="a14944385f5c26590ef871904f17f42a0"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a14944385f5c26590ef871904f17f42a0">&#9670;&nbsp;</a></span>getEdges()</h2>
 
@@ -270,6 +313,36 @@ template&lt;class P&gt; </div>
 
 <p>Return the edges of the polytope, wich are hyperlines joining two vertices. </p>
 <dl class="section return"><dt>Returns</dt><dd>: a set containing all the edges &lt;i,j&gt; joining the vertices i and j </dd></dl>
+
+</div>
+</div>
+<a id="a208a0872212517629a91e4154daa2e62"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a208a0872212517629a91e4154daa2e62">&#9670;&nbsp;</a></span>getEdgesIntersectingQuadric()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class P&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const std::set&lt;std::pair&lt;size_t, size_t&gt; &gt;&amp; <a class="el" href="classvisilib_1_1_plucker_polytope.html">visilib::PluckerPolytope</a>&lt; P &gt;::getEdgesIntersectingQuadric </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return the subset of edges of the polytope that have an intersection with the Plucker Quadric (ie reprsents real line) </p>
+<dl class="section return"><dt>Returns</dt><dd>: a set containing all the edges &lt;i,j&gt; joining the vertices i and j with an intersection with the Plucker Quadric </dd></dl>
 
 </div>
 </div>
@@ -430,30 +503,8 @@ template&lt;class S &gt; </div>
 
 </div>
 </div>
-<a id="a8b694f833d2a1ebb9d5bf4edbc7dae2e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8b694f833d2a1ebb9d5bf4edbc7dae2e">&#9670;&nbsp;</a></span>isValid() <span class="overload">[1/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class P &gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">bool <a class="el" href="classvisilib_1_1_plucker_polytope.html">visilib::PluckerPolytope</a>&lt; P &gt;::isValid </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Test if the polytope is valid (fast check) </p>
-<p>A polytope is valid if it has edges, if the number of edges is not too high and if at least one edge crosses the Plucker Quadric </p>
-
-</div>
-</div>
 <a id="a8a766bb84150935065deee93b472de85"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8a766bb84150935065deee93b472de85">&#9670;&nbsp;</a></span>isValid() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a8a766bb84150935065deee93b472de85">&#9670;&nbsp;</a></span>isValid()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -521,8 +572,8 @@ template&lt;class P&gt; </div>
 
 </div>
 </div>
-<a id="a47b14653f6b608798458b361977f9293"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a47b14653f6b608798458b361977f9293">&#9670;&nbsp;</a></span>mExtremalStabbingLines</h2>
+<a id="ad62fe4fcb7b122a2148052c272bc3f91"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad62fe4fcb7b122a2148052c272bc3f91">&#9670;&nbsp;</a></span>mEdgesProcessed</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -533,7 +584,7 @@ template&lt;class P&gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">std::vector&lt;P&gt; <a class="el" href="classvisilib_1_1_plucker_polytope.html">visilib::PluckerPolytope</a>&lt; P &gt;::mExtremalStabbingLines</td>
+          <td class="memname">std::set&lt;std::pair&lt;size_t, size_t&gt; &gt; <a class="el" href="classvisilib_1_1_plucker_polytope.html">visilib::PluckerPolytope</a>&lt; P &gt;::mEdgesProcessed</td>
         </tr>
       </table>
   </td>
@@ -544,6 +595,33 @@ template&lt;class P&gt; </div>
 </div><div class="memdoc">
 
 <p>The edges of the polytope, each edge is defined by the indices of the two vertices supporting it. </p>
+<p>&lt; </p>
+
+</div>
+</div>
+<a id="a64674d4acb4cbf7f210ec33b60d9bc62"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a64674d4acb4cbf7f210ec33b60d9bc62">&#9670;&nbsp;</a></span>mExtremalStabbingLinesFacets</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class P&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;std::vector&lt;size_t&gt; &gt; <a class="el" href="classvisilib_1_1_plucker_polytope.html">visilib::PluckerPolytope</a>&lt; P &gt;::mExtremalStabbingLinesFacets</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>The indices of the vertices of the polytope. </p>
 <p>&lt; </p>
 
 </div>
@@ -603,8 +681,8 @@ template&lt;class P&gt; </div>
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>C:/code/visilib/visilib/visilib/<a class="el" href="math__geometry_8h_source.html">math_geometry.h</a></li>
-<li>C:/code/visilib/visilib/visilib/<a class="el" href="plucker__polytope_8h_source.html">plucker_polytope.h</a></li>
+<li>C:/code/github/visilib/visilib/<a class="el" href="math__geometry_8h_source.html">math_geometry.h</a></li>
+<li>C:/code/github/visilib/visilib/<a class="el" href="plucker__polytope_8h_source.html">plucker_polytope.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

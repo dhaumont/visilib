@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['trianglemeshinformation',['TriangleMeshInformation',['../structvisilib_1_1_triangle_mesh_information.html',1,'visilib']]]
+  ['trianglemeshdescription',['TriangleMeshDescription',['../structvisilib_1_1_triangle_mesh_description.html',1,'visilib']]]
 ];

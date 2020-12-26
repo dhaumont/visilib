@@ -1,0 +1,129 @@
+\hypertarget{classvisilib_1_1_helper_triangle_mesh}{}\section{visilib\+::Helper\+Triangle\+Mesh Class Reference}
+\label{classvisilib_1_1_helper_triangle_mesh}\index{visilib::HelperTriangleMesh@{visilib::HelperTriangleMesh}}
+
+
+Store an indexed triangle mesh in 3D space.  
+
+
+
+
+{\ttfamily \#include $<$helper\+\_\+triangle\+\_\+mesh.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_helper_triangle_mesh_af3d85f5b9db0f7da8a4c7e56f27d1994}\label{classvisilib_1_1_helper_triangle_mesh_af3d85f5b9db0f7da8a4c7e56f27d1994}} 
+{\bfseries Helper\+Triangle\+Mesh} (const std\+::vector$<$ float $>$ \&vertices, const std\+::vector$<$ int $>$ \&triangles)
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_helper_triangle_mesh_afb5452ae562c39ee3b56dfd2d774b270}\label{classvisilib_1_1_helper_triangle_mesh_afb5452ae562c39ee3b56dfd2d774b270}} 
+{\bfseries Helper\+Triangle\+Mesh} (const std\+::vector$<$ \mbox{\hyperlink{classvisilib_1_1_math_vector3__}{Math\+Vector3f}} $>$ \&vertices, const std\+::vector$<$ int $>$ \&triangles)
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_helper_triangle_mesh_a075a6a388607a78ec69f21562b43e4c2}\label{classvisilib_1_1_helper_triangle_mesh_a075a6a388607a78ec69f21562b43e4c2}} 
+void \mbox{\hyperlink{classvisilib_1_1_helper_triangle_mesh_a075a6a388607a78ec69f21562b43e4c2}{prepare}} ()
+\begin{DoxyCompactList}\small\item\em Compute additional information (bounding box and normals) \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classvisilib_1_1_helper_triangle_mesh_a187c48eb8aec67ff7aac9f3d7aceaa8c}\label{classvisilib_1_1_helper_triangle_mesh_a187c48eb8aec67ff7aac9f3d7aceaa8c}} 
+size\+\_\+t {\bfseries get\+Vertex\+Count} () const
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_helper_triangle_mesh_a44733fc657f2b6e5f8bfd50e214c8424}\label{classvisilib_1_1_helper_triangle_mesh_a44733fc657f2b6e5f8bfd50e214c8424}} 
+size\+\_\+t {\bfseries get\+Indice\+Count} () const
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_helper_triangle_mesh_a844573f90ac6a5e9736b35e0f4c6557a}\label{classvisilib_1_1_helper_triangle_mesh_a844573f90ac6a5e9736b35e0f4c6557a}} 
+const std\+::vector$<$ \mbox{\hyperlink{classvisilib_1_1_math_vector3__}{Math\+Vector3f}} $>$ \& {\bfseries get\+Vertices} () const
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_helper_triangle_mesh_a538dbc1f6eecc2bcf3f9cd97b8250c38}\label{classvisilib_1_1_helper_triangle_mesh_a538dbc1f6eecc2bcf3f9cd97b8250c38}} 
+std\+::vector$<$ \mbox{\hyperlink{classvisilib_1_1_math_vector3__}{Math\+Vector3f}} $>$ \& {\bfseries get\+Vertices} ()
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_helper_triangle_mesh_af266f76c4ae064fd4bfb4ad47c625be1}\label{classvisilib_1_1_helper_triangle_mesh_af266f76c4ae064fd4bfb4ad47c625be1}} 
+const std\+::vector$<$ int $>$ \& {\bfseries get\+Indices} () const
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_helper_triangle_mesh_a79b146ef5b498cf060be2c8e41f378a9}\label{classvisilib_1_1_helper_triangle_mesh_a79b146ef5b498cf060be2c8e41f378a9}} 
+std\+::vector$<$ int $>$ \& {\bfseries get\+Indices} ()
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_helper_triangle_mesh_afe4ecc25499230d0e913675c56e84524}\label{classvisilib_1_1_helper_triangle_mesh_afe4ecc25499230d0e913675c56e84524}} 
+const std\+::vector$<$ \mbox{\hyperlink{classvisilib_1_1_math_vector3__}{Math\+Vector3f}} $>$ \& {\bfseries get\+Normals} () const
+\item 
+void \mbox{\hyperlink{classvisilib_1_1_helper_triangle_mesh_a8e1d36896b60a29eded64c1cc28c00cc}{remove\+Degenerated\+Triangles}} (float threshold)
+\begin{DoxyCompactList}\small\item\em Remove the degenerated triangles of the mesh. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_helper_triangle_mesh_ab503786c1185cd0c9709759cb6905c1a}\label{classvisilib_1_1_helper_triangle_mesh_ab503786c1185cd0c9709759cb6905c1a}} 
+size\+\_\+t \mbox{\hyperlink{classvisilib_1_1_helper_triangle_mesh_ab503786c1185cd0c9709759cb6905c1a}{get\+Triangle\+Count}} ()
+\begin{DoxyCompactList}\small\item\em Return the number of triangles of the triangle mesh. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classvisilib_1_1_helper_triangle_mesh_a30b254ee3c7690c88c80aa671b4f00fa}\label{classvisilib_1_1_helper_triangle_mesh_a30b254ee3c7690c88c80aa671b4f00fa}} 
+void \mbox{\hyperlink{classvisilib_1_1_helper_triangle_mesh_a30b254ee3c7690c88c80aa671b4f00fa}{compute\+Normal}} ()
+\begin{DoxyCompactList}\small\item\em Compute and store the vertex normals of the triangle mesh. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classvisilib_1_1_helper_triangle_mesh_ad98c96daaa0e4fb471fafe263a68c448}\label{classvisilib_1_1_helper_triangle_mesh_ad98c96daaa0e4fb471fafe263a68c448}} 
+void {\bfseries swap\+Last\+Indice} (size\+\_\+t i)
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_helper_triangle_mesh_abbf3556700865e8e84c43f9d3bc4ab06}\label{classvisilib_1_1_helper_triangle_mesh_abbf3556700865e8e84c43f9d3bc4ab06}} 
+std\+::vector$<$ int $>$ {\bfseries m\+Indices}
+\item 
+\mbox{\hyperlink{classvisilib_1_1_geometry_a_a_b_b}{Geometry\+A\+A\+BB}} \mbox{\hyperlink{classvisilib_1_1_helper_triangle_mesh_a6e648db3f9ca746b4a0f5ebd67113662}{m\+Box}}
+\begin{DoxyCompactList}\small\item\em The index table of the mesh. \end{DoxyCompactList}\item 
+std\+::vector$<$ \mbox{\hyperlink{classvisilib_1_1_math_vector3__}{Math\+Vector3f}} $>$ \mbox{\hyperlink{classvisilib_1_1_helper_triangle_mesh_a90a6fc1de5c582c0bf0ab0002459ff56}{m\+Vertices}}
+\begin{DoxyCompactList}\small\item\em The axis aligned bounding box of the mesh. \end{DoxyCompactList}\item 
+std\+::vector$<$ \mbox{\hyperlink{classvisilib_1_1_math_vector3__}{Math\+Vector3f}} $>$ \mbox{\hyperlink{classvisilib_1_1_helper_triangle_mesh_aceac95ff741e999a29dc8eae52735c70}{m\+Normals}}
+\begin{DoxyCompactList}\small\item\em The list of vertices of the mesh in 3D space. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Store an indexed triangle mesh in 3D space. 
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{classvisilib_1_1_helper_triangle_mesh_a8e1d36896b60a29eded64c1cc28c00cc}\label{classvisilib_1_1_helper_triangle_mesh_a8e1d36896b60a29eded64c1cc28c00cc}} 
+\index{visilib::HelperTriangleMesh@{visilib::HelperTriangleMesh}!removeDegeneratedTriangles@{removeDegeneratedTriangles}}
+\index{removeDegeneratedTriangles@{removeDegeneratedTriangles}!visilib::HelperTriangleMesh@{visilib::HelperTriangleMesh}}
+\subsubsection{\texorpdfstring{removeDegeneratedTriangles()}{removeDegeneratedTriangles()}}
+{\footnotesize\ttfamily void visilib\+::\+Helper\+Triangle\+Mesh\+::remove\+Degenerated\+Triangles (\begin{DoxyParamCaption}\item[{float}]{threshold }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Remove the degenerated triangles of the mesh. 
+
+A triangle is degenerated if one of its edge is smaller than the provided threshold 
+\begin{DoxyParams}{Parameters}
+{\em threshold} & the threshold used to test the edges length \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Member Data Documentation}
+\mbox{\Hypertarget{classvisilib_1_1_helper_triangle_mesh_a6e648db3f9ca746b4a0f5ebd67113662}\label{classvisilib_1_1_helper_triangle_mesh_a6e648db3f9ca746b4a0f5ebd67113662}} 
+\index{visilib::HelperTriangleMesh@{visilib::HelperTriangleMesh}!mBox@{mBox}}
+\index{mBox@{mBox}!visilib::HelperTriangleMesh@{visilib::HelperTriangleMesh}}
+\subsubsection{\texorpdfstring{mBox}{mBox}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classvisilib_1_1_geometry_a_a_b_b}{Geometry\+A\+A\+BB}} visilib\+::\+Helper\+Triangle\+Mesh\+::m\+Box\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+The index table of the mesh. 
+
+$<$ \mbox{\Hypertarget{classvisilib_1_1_helper_triangle_mesh_aceac95ff741e999a29dc8eae52735c70}\label{classvisilib_1_1_helper_triangle_mesh_aceac95ff741e999a29dc8eae52735c70}} 
+\index{visilib::HelperTriangleMesh@{visilib::HelperTriangleMesh}!mNormals@{mNormals}}
+\index{mNormals@{mNormals}!visilib::HelperTriangleMesh@{visilib::HelperTriangleMesh}}
+\subsubsection{\texorpdfstring{mNormals}{mNormals}}
+{\footnotesize\ttfamily std\+::vector$<$\mbox{\hyperlink{classvisilib_1_1_math_vector3__}{Math\+Vector3f}}$>$ visilib\+::\+Helper\+Triangle\+Mesh\+::m\+Normals\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+The list of vertices of the mesh in 3D space. 
+
+$<$ \mbox{\Hypertarget{classvisilib_1_1_helper_triangle_mesh_a90a6fc1de5c582c0bf0ab0002459ff56}\label{classvisilib_1_1_helper_triangle_mesh_a90a6fc1de5c582c0bf0ab0002459ff56}} 
+\index{visilib::HelperTriangleMesh@{visilib::HelperTriangleMesh}!mVertices@{mVertices}}
+\index{mVertices@{mVertices}!visilib::HelperTriangleMesh@{visilib::HelperTriangleMesh}}
+\subsubsection{\texorpdfstring{mVertices}{mVertices}}
+{\footnotesize\ttfamily std\+::vector$<$\mbox{\hyperlink{classvisilib_1_1_math_vector3__}{Math\+Vector3f}}$>$ visilib\+::\+Helper\+Triangle\+Mesh\+::m\+Vertices\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+The axis aligned bounding box of the mesh. 
+
+$<$ 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/code/github/visilib/visilib/helper\+\_\+triangle\+\_\+mesh.\+h\end{DoxyCompactItemize}

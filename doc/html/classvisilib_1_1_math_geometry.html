@@ -149,10 +149,11 @@ static <a class="el" href="classvisilib_1_1_math_plane3__.html">MathPlane3d</a>&
 static <a class="el" href="classvisilib_1_1_math_plane3__.html">MathPlane3d</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_math_geometry.html#af1319565cb7ce7ab64ffc79a2c60a35b">computePlaneFromApproximateNormal</a> (const <a class="el" href="classvisilib_1_1_geometry_convex_polygon.html">GeometryConvexPolygon</a> &amp;polygon, const <a class="el" href="classvisilib_1_1_math_vector3__.html">MathVector3d</a> &amp;approximateNormal)</td></tr>
 <tr class="memdesc:af1319565cb7ce7ab64ffc79a2c60a35b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the supporting plane of a convex polygon using an approximate normal heuristic. <br /></td></tr>
 <tr class="separator:af1319565cb7ce7ab64ffc79a2c60a35b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af7bc019cacc97a5059f17dcc72fff936"><td class="memItemLeft" align="right" valign="top"><a id="af7bc019cacc97a5059f17dcc72fff936"></a>
-static <a class="el" href="classvisilib_1_1_math_plane3__.html">MathPlane3d</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_math_geometry.html#af7bc019cacc97a5059f17dcc72fff936">computePlane</a> (const <a class="el" href="classvisilib_1_1_math_vector3__.html">MathVector3f</a> &amp;v0, const <a class="el" href="classvisilib_1_1_math_vector3__.html">MathVector3f</a> &amp;v1, const <a class="el" href="classvisilib_1_1_math_vector3__.html">MathVector3f</a> &amp;v2)</td></tr>
-<tr class="memdesc:af7bc019cacc97a5059f17dcc72fff936"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the supporting plane of a triangle. <br /></td></tr>
-<tr class="separator:af7bc019cacc97a5059f17dcc72fff936"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2a0a78fe422814f59109cda4885af760"><td class="memTemplParams" colspan="2"><a id="a2a0a78fe422814f59109cda4885af760"></a>
+template&lt;class S &gt; </td></tr>
+<tr class="memitem:a2a0a78fe422814f59109cda4885af760"><td class="memTemplItemLeft" align="right" valign="top">static <a class="el" href="classvisilib_1_1_math_plane3__.html">MathPlane3_</a>&lt; S &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_math_geometry.html#a2a0a78fe422814f59109cda4885af760">computePlane</a> (const <a class="el" href="classvisilib_1_1_math_vector3__.html">MathVector3_</a>&lt; S &gt; &amp;v0, const <a class="el" href="classvisilib_1_1_math_vector3__.html">MathVector3_</a>&lt; S &gt; &amp;v1, const <a class="el" href="classvisilib_1_1_math_vector3__.html">MathVector3_</a>&lt; S &gt; &amp;v2)</td></tr>
+<tr class="memdesc:a2a0a78fe422814f59109cda4885af760"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the supporting plane of a triangle. <br /></td></tr>
+<tr class="separator:a2a0a78fe422814f59109cda4885af760"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6b3430d7013a6d749d613c4b95bd071c"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_math_geometry.html#a6b3430d7013a6d749d613c4b95bd071c">clipWithGardBand</a> (<a class="el" href="classvisilib_1_1_geometry_convex_polygon.html">GeometryConvexPolygon</a> &amp;polygon, const <a class="el" href="classvisilib_1_1_math_plane3__.html">MathPlane3d</a> &amp;aPlane, double anEpsilon)</td></tr>
 <tr class="memdesc:a6b3430d7013a6d749d613c4b95bd071c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clip a polygon following a plane equation, with an epsilon guard band.  <a href="#a6b3430d7013a6d749d613c4b95bd071c">More...</a><br /></td></tr>
 <tr class="separator:a6b3430d7013a6d749d613c4b95bd071c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -176,20 +177,32 @@ static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hre
 static <a class="el" href="classvisilib_1_1_math_vector3__.html">MathVector3d</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_math_geometry.html#a7ae619c8f6cea8df0ee3216ca2be3cea">getGravityCenter</a> (const <a class="el" href="classvisilib_1_1_geometry_convex_polygon.html">GeometryConvexPolygon</a> &amp;polygon)</td></tr>
 <tr class="memdesc:a7ae619c8f6cea8df0ee3216ca2be3cea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the gravity center of a polygon. <br /></td></tr>
 <tr class="separator:a7ae619c8f6cea8df0ee3216ca2be3cea"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a12191f95df27c2ff214d5229fd37a02a"><td class="memItemLeft" align="right" valign="top"><a id="a12191f95df27c2ff214d5229fd37a02a"></a>
-static bool&#160;</td><td class="memItemRight" valign="bottom"><b>hasVertexOnFrontSide</b> (const <a class="el" href="classvisilib_1_1_math_plane3__.html">MathPlane3d</a> &amp;plane, <a class="el" href="classvisilib_1_1_geometry_mesh_face.html">GeometryMeshFace</a> *face)</td></tr>
-<tr class="separator:a12191f95df27c2ff214d5229fd37a02a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9a0732f7636faedd7dbe95164be5737e"><td class="memItemLeft" align="right" valign="top"><a id="a9a0732f7636faedd7dbe95164be5737e"></a>
-static bool&#160;</td><td class="memItemRight" valign="bottom"><b>hasVertexOutsidePlane</b> (const <a class="el" href="classvisilib_1_1_math_plane3__.html">MathPlane3d</a> &amp;plane, <a class="el" href="classvisilib_1_1_geometry_mesh_face.html">GeometryMeshFace</a> *face)</td></tr>
-<tr class="separator:a9a0732f7636faedd7dbe95164be5737e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0d3d9e4e8cddf9ae96743351de61225f"><td class="memTemplParams" colspan="2">template&lt;class P &gt; </td></tr>
-<tr class="memitem:a0d3d9e4e8cddf9ae96743351de61225f"><td class="memTemplItemLeft" align="right" valign="top">static std::pair&lt; <a class="el" href="classvisilib_1_1_math_vector3__.html">MathVector3d</a>, <a class="el" href="classvisilib_1_1_math_vector3__.html">MathVector3d</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_math_geometry.html#a0d3d9e4e8cddf9ae96743351de61225f">computeRepresentativeLine</a> (<a class="el" href="classvisilib_1_1_plucker_polytope.html">PluckerPolytope</a>&lt; P &gt; *polytope, <a class="el" href="classvisilib_1_1_plucker_polyhedron.html">PluckerPolyhedron</a>&lt; P &gt; *polyhedron, const <a class="el" href="classvisilib_1_1_math_plane3__.html">MathPlane3d</a> &amp;aPlane1, const <a class="el" href="classvisilib_1_1_math_plane3__.html">MathPlane3d</a> &amp;aPlane2)</td></tr>
-<tr class="memdesc:a0d3d9e4e8cddf9ae96743351de61225f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute a Plucker line that is representative of a polytope.  <a href="#a0d3d9e4e8cddf9ae96743351de61225f">More...</a><br /></td></tr>
-<tr class="separator:a0d3d9e4e8cddf9ae96743351de61225f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7635b9f152135de3782b361752826567"><td class="memItemLeft" align="right" valign="top"><a id="a7635b9f152135de3782b361752826567"></a>
+static bool&#160;</td><td class="memItemRight" valign="bottom"><b>hasVertexOnFrontSide</b> (const <a class="el" href="classvisilib_1_1_math_plane3__.html">MathPlane3d</a> &amp;plane, <a class="el" href="classvisilib_1_1_silhouette_mesh_face.html">SilhouetteMeshFace</a> *face)</td></tr>
+<tr class="separator:a7635b9f152135de3782b361752826567"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aab15ed823a527c5b3915acece6bfb673"><td class="memItemLeft" align="right" valign="top"><a id="aab15ed823a527c5b3915acece6bfb673"></a>
+static bool&#160;</td><td class="memItemRight" valign="bottom"><b>hasVertexOutsidePlane</b> (const <a class="el" href="classvisilib_1_1_math_plane3__.html">MathPlane3d</a> &amp;plane, <a class="el" href="classvisilib_1_1_silhouette_mesh_face.html">SilhouetteMeshFace</a> *face)</td></tr>
+<tr class="separator:aab15ed823a527c5b3915acece6bfb673"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad6d2f79eb23fdfd9ce23bca5d36fc403"><td class="memTemplParams" colspan="2">template&lt;class P , class S &gt; </td></tr>
+<tr class="memitem:ad6d2f79eb23fdfd9ce23bca5d36fc403"><td class="memTemplItemLeft" align="right" valign="top">static P&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_math_geometry.html#ad6d2f79eb23fdfd9ce23bca5d36fc403">computeRepresentativeLine</a> (<a class="el" href="classvisilib_1_1_plucker_polytope.html">PluckerPolytope</a>&lt; P &gt; *polytope, <a class="el" href="classvisilib_1_1_plucker_polyhedron.html">PluckerPolyhedron</a>&lt; P &gt; *polyhedron, S tolerance)</td></tr>
+<tr class="memdesc:ad6d2f79eb23fdfd9ce23bca5d36fc403"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute a Plucker line that is representative of a polytope.  <a href="#ad6d2f79eb23fdfd9ce23bca5d36fc403">More...</a><br /></td></tr>
+<tr class="separator:ad6d2f79eb23fdfd9ce23bca5d36fc403"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abf551f08e5b219198b159e41b06aae48"><td class="memItemLeft" align="right" valign="top"><a id="abf551f08e5b219198b159e41b06aae48"></a>
 static <a class="el" href="classvisilib_1_1_math_vector3__.html">MathVector3_</a>&lt; double &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_math_geometry.html#abf551f08e5b219198b159e41b06aae48">getPlaneIntersectionWithEdge</a> (const <a class="el" href="classvisilib_1_1_math_vector3__.html">MathVector3_</a>&lt; double &gt; &amp;myV1, const <a class="el" href="classvisilib_1_1_math_vector3__.html">MathVector3_</a>&lt; double &gt; &amp;myV2, const <a class="el" href="classvisilib_1_1_math_plane3__.html">MathPlane3_</a>&lt; double &gt; &amp;aPlane)</td></tr>
 <tr class="memdesc:abf551f08e5b219198b159e41b06aae48"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the intersection of an edge with a plane. <br /></td></tr>
 <tr class="separator:abf551f08e5b219198b159e41b06aae48"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7cdd0a8e35045aa736c90167b65bc0ac"><td class="memTemplParams" colspan="2"><a id="a7cdd0a8e35045aa736c90167b65bc0ac"></a>
+template&lt;class P , class S &gt; </td></tr>
+<tr class="memitem:a7cdd0a8e35045aa736c90167b65bc0ac"><td class="memTemplItemLeft" align="right" valign="top">static P&#160;</td><td class="memTemplItemRight" valign="bottom"><b>getProjectionOnQuadric</b> (const P &amp;line)</td></tr>
+<tr class="separator:a7cdd0a8e35045aa736c90167b65bc0ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae4e9c588692bfefa291a66b92f4adebe"><td class="memTemplParams" colspan="2"><a id="ae4e9c588692bfefa291a66b92f4adebe"></a>
+template&lt;class P , class S &gt; </td></tr>
+<tr class="memitem:ae4e9c588692bfefa291a66b92f4adebe"><td class="memTemplItemLeft" align="right" valign="top">static bool&#160;</td><td class="memTemplItemRight" valign="bottom"><b>isEdgeInsidePolytope</b> (const <a class="el" href="classvisilib_1_1_math_vector3__.html">MathVector3d</a> &amp;a, const <a class="el" href="classvisilib_1_1_math_vector3__.html">MathVector3d</a> &amp;b, <a class="el" href="classvisilib_1_1_plucker_polytope.html">PluckerPolytope</a>&lt; P &gt; *aPolytope, const <a class="el" href="classvisilib_1_1_math_vector3__.html">MathVector3d</a> &amp;approximateNormal, <a class="el" href="classvisilib_1_1_plucker_polyhedron.html">PluckerPolyhedron</a>&lt; P &gt; *polyhedron, S tolerance)</td></tr>
+<tr class="separator:ae4e9c588692bfefa291a66b92f4adebe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae7aa8afd871776b774de2d24635fce9c"><td class="memTemplParams" colspan="2"><a id="ae7aa8afd871776b774de2d24635fce9c"></a>
+template&lt;class S &gt; </td></tr>
+<tr class="memitem:ae7aa8afd871776b774de2d24635fce9c"><td class="memTemplItemLeft" align="right" valign="top">static bool&#160;</td><td class="memTemplItemRight" valign="bottom"><b>isBoxInsideConvexHull</b> (const <a class="el" href="classvisilib_1_1_math_vector3__.html">MathVector3_</a>&lt; S &gt; &amp;AABBMin, const <a class="el" href="classvisilib_1_1_math_vector3__.html">MathVector3_</a>&lt; S &gt; &amp;AABBMax, const std::vector&lt; <a class="el" href="classvisilib_1_1_math_plane3__.html">MathPlane3_</a>&lt; S &gt;&gt; &amp;convexHullPlanes)</td></tr>
+<tr class="separator:ae7aa8afd871776b774de2d24635fce9c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Provides geometrical functions. </p>
@@ -239,19 +252,19 @@ static <a class="el" href="classvisilib_1_1_math_vector3__.html">MathVector3_</a
 
 </div>
 </div>
-<a id="a0d3d9e4e8cddf9ae96743351de61225f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0d3d9e4e8cddf9ae96743351de61225f">&#9670;&nbsp;</a></span>computeRepresentativeLine()</h2>
+<a id="ad6d2f79eb23fdfd9ce23bca5d36fc403"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad6d2f79eb23fdfd9ce23bca5d36fc403">&#9670;&nbsp;</a></span>computeRepresentativeLine()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class P &gt; </div>
+template&lt;class P , class S &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">std::pair&lt; <a class="el" href="classvisilib_1_1_math_vector3__.html">MathVector3d</a>, <a class="el" href="classvisilib_1_1_math_vector3__.html">MathVector3d</a> &gt; visilib::MathGeometry::computeRepresentativeLine </td>
+          <td class="memname">P visilib::MathGeometry::computeRepresentativeLine </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classvisilib_1_1_plucker_polytope.html">PluckerPolytope</a>&lt; P &gt; *&#160;</td>
           <td class="paramname"><em>polytope</em>, </td>
@@ -265,14 +278,8 @@ template&lt;class P &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="classvisilib_1_1_math_plane3__.html">MathPlane3d</a> &amp;&#160;</td>
-          <td class="paramname"><em>aPlane1</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const <a class="el" href="classvisilib_1_1_math_plane3__.html">MathPlane3d</a> &amp;&#160;</td>
-          <td class="paramname"><em>aPlane2</em>&#160;</td>
+          <td class="paramtype">S&#160;</td>
+          <td class="paramname"><em>tolerance</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -670,7 +677,7 @@ template&lt;class P , class S &gt; </div>
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li>C:/code/visilib/visilib/visilib/<a class="el" href="math__geometry_8h_source.html">math_geometry.h</a></li>
+<li>C:/code/github/visilib/visilib/<a class="el" href="math__geometry_8h_source.html">math_geometry.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

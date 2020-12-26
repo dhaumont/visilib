@@ -1,0 +1,52 @@
+\hypertarget{classvisilib_1_1_helper_triangle_mesh_container}{}\section{visilib\+::Helper\+Triangle\+Mesh\+Container Class Reference}
+\label{classvisilib_1_1_helper_triangle_mesh_container}\index{visilib::HelperTriangleMeshContainer@{visilib::HelperTriangleMeshContainer}}
+
+
+Represents a scene containing all the geometry represented as Geometery\+Mesh.  
+
+
+
+
+{\ttfamily \#include $<$helper\+\_\+triangle\+\_\+mesh\+\_\+container.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_helper_triangle_mesh_container_a63ca99e5f2dcb90f0066ffe38e071879}\label{classvisilib_1_1_helper_triangle_mesh_container_a63ca99e5f2dcb90f0066ffe38e071879}} 
+const std\+::vector$<$ size\+\_\+t $>$ \& \mbox{\hyperlink{classvisilib_1_1_helper_triangle_mesh_container_a63ca99e5f2dcb90f0066ffe38e071879}{get\+Geometry\+Ids}} () const
+\begin{DoxyCompactList}\small\item\em Return the list of ids of the triangle meshes stored in the scene. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classvisilib_1_1_helper_triangle_mesh_container_accd8d513939ca4f856b6292fbd94344e}\label{classvisilib_1_1_helper_triangle_mesh_container_accd8d513939ca4f856b6292fbd94344e}} 
+size\+\_\+t {\bfseries get\+Geometry\+Id} (size\+\_\+t index) const
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_helper_triangle_mesh_container_a08d242a0481429d98a0a23aac8305ea8}\label{classvisilib_1_1_helper_triangle_mesh_container_a08d242a0481429d98a0a23aac8305ea8}} 
+size\+\_\+t {\bfseries get\+Geometry\+Count} () const
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_helper_triangle_mesh_container_ab29cb0e681a4cc58ad6a31c08ba371e5}\label{classvisilib_1_1_helper_triangle_mesh_container_ab29cb0e681a4cc58ad6a31c08ba371e5}} 
+virtual size\+\_\+t \mbox{\hyperlink{classvisilib_1_1_helper_triangle_mesh_container_ab29cb0e681a4cc58ad6a31c08ba371e5}{add}} (\mbox{\hyperlink{classvisilib_1_1_helper_triangle_mesh}{Helper\+Triangle\+Mesh}} $\ast$mesh)
+\begin{DoxyCompactList}\small\item\em Add a mesh to the scene. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classvisilib_1_1_helper_triangle_mesh_container_ab9b46c3ef0ab846392fb53c5641add36}\label{classvisilib_1_1_helper_triangle_mesh_container_ab9b46c3ef0ab846392fb53c5641add36}} 
+\mbox{\hyperlink{structvisilib_1_1_discrete_geometry_description}{Discrete\+Geometry\+Description}} $\ast$ \mbox{\hyperlink{classvisilib_1_1_helper_triangle_mesh_container_ab9b46c3ef0ab846392fb53c5641add36}{create\+Triangle\+Mesh\+Description}} (size\+\_\+t geometry\+Id) const
+\begin{DoxyCompactList}\small\item\em Return triangle mesh data information of a geometry stored in the scene. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classvisilib_1_1_helper_triangle_mesh_container_ac7b69c0fc33554617cda85f0f8a107f5}\label{classvisilib_1_1_helper_triangle_mesh_container_ac7b69c0fc33554617cda85f0f8a107f5}} 
+virtual void \mbox{\hyperlink{classvisilib_1_1_helper_triangle_mesh_container_ac7b69c0fc33554617cda85f0f8a107f5}{remove\+Degenerated\+Triangles}} (float threshold)
+\begin{DoxyCompactList}\small\item\em Remove the degnerated triangles. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classvisilib_1_1_helper_triangle_mesh_container_a4c7a04386c117be925199448104a2b9f}\label{classvisilib_1_1_helper_triangle_mesh_container_a4c7a04386c117be925199448104a2b9f}} 
+std\+::vector$<$ \mbox{\hyperlink{classvisilib_1_1_helper_triangle_mesh}{Helper\+Triangle\+Mesh}} $\ast$ $>$ \& \mbox{\hyperlink{classvisilib_1_1_helper_triangle_mesh_container_a4c7a04386c117be925199448104a2b9f}{get\+Mesh\+Array}} ()
+\begin{DoxyCompactList}\small\item\em Return the list of tirangle meshes of the scene. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_helper_triangle_mesh_container_a5d498ba9b3fd39fd6c775a4fb192938d}\label{classvisilib_1_1_helper_triangle_mesh_container_a5d498ba9b3fd39fd6c775a4fb192938d}} 
+std\+::vector$<$ \mbox{\hyperlink{classvisilib_1_1_helper_triangle_mesh}{Helper\+Triangle\+Mesh}} $\ast$ $>$ \mbox{\hyperlink{classvisilib_1_1_helper_triangle_mesh_container_a5d498ba9b3fd39fd6c775a4fb192938d}{m\+Mesh\+Array}}
+\begin{DoxyCompactList}\small\item\em The list of triangle meshes representing the occluders set. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classvisilib_1_1_helper_triangle_mesh_container_af83c4c4673e39e3322af2d44c6728710}\label{classvisilib_1_1_helper_triangle_mesh_container_af83c4c4673e39e3322af2d44c6728710}} 
+std\+::vector$<$ size\+\_\+t $>$ \mbox{\hyperlink{classvisilib_1_1_helper_triangle_mesh_container_af83c4c4673e39e3322af2d44c6728710}{m\+Geometry\+Ids}}
+\begin{DoxyCompactList}\small\item\em The ids of the triangle meshes. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Represents a scene containing all the geometry represented as Geometery\+Mesh. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/code/github/visilib/visilib/helper\+\_\+triangle\+\_\+mesh\+\_\+container.\+h\end{DoxyCompactItemize}

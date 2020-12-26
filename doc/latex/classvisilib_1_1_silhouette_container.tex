@@ -1,0 +1,40 @@
+\hypertarget{classvisilib_1_1_silhouette_container}{}\section{visilib\+::Silhouette\+Container Class Reference}
+\label{classvisilib_1_1_silhouette_container}\index{visilib::SilhouetteContainer@{visilib::SilhouetteContainer}}
+Inheritance diagram for visilib\+::Silhouette\+Container\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classvisilib_1_1_silhouette_container}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_container_a38471133888f49fbed4035f8da75f23b}\label{classvisilib_1_1_silhouette_container_a38471133888f49fbed4035f8da75f23b}} 
+const std\+::unordered\+\_\+set$<$ \mbox{\hyperlink{classvisilib_1_1_visibility_silhouette}{Visibility\+Silhouette}} $\ast$ $>$ \& {\bfseries get\+Silhouettes} ()
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_container_aef12600c0735f49a8b4c80bc5d5a2d50}\label{classvisilib_1_1_silhouette_container_aef12600c0735f49a8b4c80bc5d5a2d50}} 
+void {\bfseries add\+Silhouette} (\mbox{\hyperlink{classvisilib_1_1_visibility_silhouette}{Visibility\+Silhouette}} $\ast$a\+Silhouette)
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_container_a45fe6f13c65d91a7f500bb47f3a6cb34}\label{classvisilib_1_1_silhouette_container_a45fe6f13c65d91a7f500bb47f3a6cb34}} 
+virtual bool {\bfseries intersect} (\mbox{\hyperlink{structvisilib_1_1_ray}{Ray}} $\ast$a\+Ray)
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_container_a83c0a6a3517e09446d8f145a3f58eda7}\label{classvisilib_1_1_silhouette_container_a83c0a6a3517e09446d8f145a3f58eda7}} 
+virtual void {\bfseries prepare} ()
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_container_ae1c087d735def786ab9a01267150f634}\label{classvisilib_1_1_silhouette_container_ae1c087d735def786ab9a01267150f634}} 
+{\footnotesize template$<$class P , class S $>$ }\\static bool {\bfseries is\+Occluded} (\mbox{\hyperlink{classvisilib_1_1_plucker_polytope}{Plucker\+Polytope}}$<$ P $>$ $\ast$polytope, \mbox{\hyperlink{classvisilib_1_1_plucker_polyhedron}{Plucker\+Polyhedron}}$<$ P $>$ $\ast$polyhedron, const std\+::vector$<$ \mbox{\hyperlink{classvisilib_1_1_visibility_silhouette}{Visibility\+Silhouette}} $\ast$ $>$ \&a\+Silhouettes, const std\+::vector$<$ P $>$ \&polytope\+Lines, S my\+Tolerance)
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_silhouette_container_af846a05b61355bc74b6ddd2710173ebd}\label{classvisilib_1_1_silhouette_container_af846a05b61355bc74b6ddd2710173ebd}} 
+std\+::unordered\+\_\+set$<$ \mbox{\hyperlink{classvisilib_1_1_visibility_silhouette}{Visibility\+Silhouette}} $\ast$ $>$ {\bfseries m\+Silhouettes}
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/code/github/visilib/visilib/silhouette\+\_\+container.\+h\end{DoxyCompactItemize}
