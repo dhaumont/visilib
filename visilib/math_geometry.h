@@ -893,16 +893,16 @@ namespace visilib
         const MathVector3f& myDirection = aRay.getDirection();
 
         kz = 0;
-        double absDir = std::fabs(myDirection[0]);
-        if (absDir < std::fabs(myDirection[1]))
+        double absDir = fabs(myDirection[0]);
+        if (absDir < fabs(myDirection[1]))
         {
             kz = 1;
-            absDir = std::fabs(myDirection[1]);
+            absDir = fabs(myDirection[1]);
         }
-        if (absDir < std::fabs(myDirection[2]))
+        if (absDir < fabs(myDirection[2]))
         {
             kz = 2;
-            absDir = std::fabs(myDirection[2]);
+            absDir = fabs(myDirection[2]);
         }
 
         kx = kz + 1;
