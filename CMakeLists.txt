@@ -53,7 +53,7 @@ add_definitions(-DINTEGRITY_CHECK)
 #add_definitions(-DOUTPUT_DEBUG_FILE)
 
 #GLUT library (used for the demo part only)
-find_package(GLUT REQUIRED)
+find_package(GLUT)
 if (GLUT_FOUND)
     add_definitions(-DUSE_GLUT)
     include_directories(${GLUT_INCLUDE_DIRS})
