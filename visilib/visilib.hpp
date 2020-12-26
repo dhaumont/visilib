@@ -26,32 +26,32 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 
 using namespace visilib;
 
-inline const TriangleMeshDescription& VisualDebugger::getRemovedTriangles() const
+inline const GeometryTriangleMeshDescription& HelperVisualDebugger::getRemovedTriangles() const
 {
     return get()->getRemovedTriangles();
 }
 
-inline const TriangleMeshDescription& VisualDebugger::getStabbingLines() const
+inline const GeometryTriangleMeshDescription& HelperVisualDebugger::getStabbingLines() const
 {
     return get()->getStabbingLines();
 }
 
-inline const TriangleMeshDescription& VisualDebugger::getExtremalStabbingLines() const
+inline const GeometryTriangleMeshDescription& HelperVisualDebugger::getExtremalStabbingLines() const
 {
     return get()->getExtremalStabbingLines();
 }
 
-inline const TriangleMeshDescription& VisualDebugger::getSamplingLines() const
+inline const GeometryTriangleMeshDescription& HelperVisualDebugger::getSamplingLines() const
 {
     return get()->getSamplingLines();
 }
 
-inline const TriangleMeshDescription& VisualDebugger::getRemovedEdges() const
+inline const GeometryTriangleMeshDescription& HelperVisualDebugger::getRemovedEdges() const
 {
     return get()->getRemovedEdges();
 }
 
-inline DiscreteGeometryDescription::DiscreteGeometryDescription()
+inline GeometryDiscreteMeshDescription::GeometryDiscreteMeshDescription()
 :  vertexCount(0),
    faceCount(0),
    vertexArray(nullptr),
@@ -59,24 +59,24 @@ inline DiscreteGeometryDescription::DiscreteGeometryDescription()
 {
 }
 
-inline TriangleMeshDescription::TriangleMeshDescription()
-: DiscreteGeometryDescription(),
+inline GeometryTriangleMeshDescription::GeometryTriangleMeshDescription()
+: GeometryDiscreteMeshDescription(),
     indexArray(nullptr)
 {
 }
 
-inline VisualDebugger::VisualDebugger()
+inline HelperVisualDebugger::HelperVisualDebugger()
 {
     mInternalDebugger = new HelperDebugVisualisation();
 }
 
-inline VisualDebugger::~VisualDebugger()
+inline HelperVisualDebugger::~HelperVisualDebugger()
 {
     delete mInternalDebugger;
 }
 
 inline VisibilityResult visilib::areVisible(GeometryOccluderSet* scene, const float* vertices0, size_t numVertices0, const float* vertices1, size_t numVertices1,
-    const QueryConfiguration& configuration, VisualDebugger* debugger)
+    const VisibilityExactQueryConfiguration& configuration, HelperVisualDebugger* debugger)
 {
     if (vertices0 == 0 || vertices1 == 0)
     {
@@ -95,7 +95,7 @@ inline VisibilityResult visilib::areVisible(GeometryOccluderSet* scene, const fl
         return FAILURE;
     }
 
-    IVisibilityExactQuery* query = nullptr;
+    VisibilityExactQuery* query = nullptr;
 
     switch (configuration.precision)
     {
@@ -105,13 +105,13 @@ inline VisibilityResult visilib::areVisible(GeometryOccluderSet* scene, const fl
         break;
 #endif
         extern double _scaling;
-    case QueryConfiguration::DOUBLE:
-        query = new VisibilityExactQuery<MathPlucker6<double>, double>(scene, configuration, MathArithmetic<double>::Tolerance());
+    case VisibilityExactQueryConfiguration::DOUBLE:
+        query = new VisibilityExactQuery_<MathPlucker6<double>, double>(scene, configuration, MathArithmetic<double>::Tolerance());
         break;
 
     default:
 
-        query = new VisibilityExactQuery<MathPlucker6<float>, float>(scene, configuration, MathArithmetic<float>::Tolerance());
+        query = new VisibilityExactQuery_<MathPlucker6<float>, float>(scene, configuration, MathArithmetic<float>::Tolerance());
         break;
     }
 

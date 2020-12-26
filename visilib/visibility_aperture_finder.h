@@ -52,7 +52,7 @@ namespace visilib
     class VisibilityApertureFinder : public VisibilitySolver<P, S>
     {
     public:
-        VisibilityApertureFinder(VisibilityExactQuery<P, S>* aSolver,
+        VisibilityApertureFinder(VisibilityExactQuery_<P, S>* aSolver,
             bool normalization,
             S tolerance,
             bool performSilhouetteOptimization,
@@ -72,7 +72,7 @@ namespace visilib
     };
 
     template<class P, class S>
-    VisibilityApertureFinder<P, S>::VisibilityApertureFinder(VisibilityExactQuery<P, S>* mQuery, bool normalization, S tolerance, bool performSilhouetteOptimization, bool detectApertureOnly)
+    VisibilityApertureFinder<P, S>::VisibilityApertureFinder(VisibilityExactQuery_<P, S>* mQuery, bool normalization, S tolerance, bool performSilhouetteOptimization, bool detectApertureOnly)
         : VisibilitySolver<P, S>(mQuery),
         mNormalization(normalization),
         mPerformSilhouetteOptimization(performSilhouetteOptimization),

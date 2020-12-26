@@ -31,7 +31,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 
 namespace visilib
 {
-    struct DiscreteGeometryDescription;
+    struct GeometryDiscreteMeshDescription;
     class SilhouetteMeshFace;
    
     /** @brief Stores the occluders against which visibility is tested. The occluders are stored under the form of a connected set of faces, that are used for efficient silhouette detection.
@@ -40,7 +40,7 @@ namespace visilib
     class GeometryOccluderSet
     {
     public:
-        void addOccluder(DiscreteGeometryDescription* info);
+        void addOccluder(GeometryDiscreteMeshDescription* info);
 
         /** @brief Prepare the scene before ray tracing */
         void prepare();
@@ -68,7 +68,7 @@ namespace visilib
         @param mesh: the triangle mesh
         @param: the list of faces
         */
-        void setOccluderConnectedFaces(DiscreteGeometryDescription* mesh, std::vector<SilhouetteMeshFace>& aFaces);
+        void setOccluderConnectedFaces(GeometryDiscreteMeshDescription* mesh, std::vector<SilhouetteMeshFace>& aFaces);
 
         ~GeometryOccluderSet()
         {
@@ -99,7 +99,7 @@ namespace visilib
         @param mesh: the triangle mesh
         @param: the list of faces
         */
-        void extractConnectedMeshFaces(DiscreteGeometryDescription* mesh, std::vector<SilhouetteMeshFace>& aFaces);
+        void extractConnectedMeshFaces(GeometryDiscreteMeshDescription* mesh, std::vector<SilhouetteMeshFace>& aFaces);
 
 
         /**@brief The list of faces of the triangle meshes.
@@ -108,7 +108,7 @@ namespace visilib
         */
         std::vector<std::vector<SilhouetteMeshFace>*> mConnectedFacesCache;
         std::unordered_map<size_t, size_t> mLastHit;
-        std::vector<DiscreteGeometryDescription*> mOccluders;
+        std::vector<GeometryDiscreteMeshDescription*> mOccluders;
         std::vector<GeometryAABB> mBoundingBoxes;
     };
 
@@ -118,7 +118,7 @@ namespace visilib
       
         if (mConnectedFacesCache[geometryId] == nullptr)
         {  
-            DiscreteGeometryDescription* mesh = mOccluders[geometryId];
+            GeometryDiscreteMeshDescription* mesh = mOccluders[geometryId];
      
             myFaces = new std::vector<SilhouetteMeshFace>();
             extractConnectedMeshFaces(mesh, *myFaces);
@@ -132,13 +132,13 @@ namespace visilib
         //remove the clipping performed if any
         for (size_t geometryId = 0; geometryId < mConnectedFacesCache.size(); geometryId++)
         {
-            DiscreteGeometryDescription* mesh = mOccluders[geometryId];
+            GeometryDiscreteMeshDescription* mesh = mOccluders[geometryId];
           
             setOccluderConnectedFaces(mesh, *mConnectedFacesCache[geometryId]);
         }
     }
 
-    inline void GeometryOccluderSet::extractConnectedMeshFaces(DiscreteGeometryDescription* mesh, std::vector<SilhouetteMeshFace>& aFaces)
+    inline void GeometryOccluderSet::extractConnectedMeshFaces(GeometryDiscreteMeshDescription* mesh, std::vector<SilhouetteMeshFace>& aFaces)
     {
         size_t myFaceNumber = mesh->faceCount;
 
@@ -181,7 +181,7 @@ namespace visilib
         }
     }
 
-    inline void GeometryOccluderSet::setOccluderConnectedFaces(DiscreteGeometryDescription* mesh, std::vector<SilhouetteMeshFace> & aFaces)
+    inline void GeometryOccluderSet::setOccluderConnectedFaces(GeometryDiscreteMeshDescription* mesh, std::vector<SilhouetteMeshFace> & aFaces)
     {
         size_t myFaceNumber = mesh->faceCount;
 
@@ -191,7 +191,7 @@ namespace visilib
         }
     }
 
-    inline void GeometryOccluderSet::addOccluder(DiscreteGeometryDescription* info)
+    inline void GeometryOccluderSet::addOccluder(GeometryDiscreteMeshDescription* info)
     {
         mOccluders.push_back(info);
         mConnectedFacesCache.push_back(nullptr);
@@ -202,7 +202,7 @@ namespace visilib
     {
         for (size_t i = 0; i < mOccluders.size(); i++)
         {
-            DiscreteGeometryDescription* myTriangleMesh = mOccluders[i];
+            GeometryDiscreteMeshDescription* myTriangleMesh = mOccluders[i];
             MathVector3f myMin, myMax;
             MathArithmetic<float>::getMinMax(myTriangleMesh->vertexArray, myTriangleMesh->vertexCount, myMin, myMax);
             mBoundingBoxes.push_back(GeometryAABB(myMin, myMax));

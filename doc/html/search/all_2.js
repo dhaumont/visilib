@@ -3,7 +3,7 @@ var searchData=
   ['checkfacetsdescription',['checkFacetsDescription',['../classvisilib_1_1_plucker_polyhedron.html#ad2cc2148a11d7b63f999fc25f1a13489',1,'visilib::PluckerPolyhedron']]],
   ['clear',['clear',['../classvisilib_1_1_helper_debug_visualisation.html#afead108c9e413720b0cd2e6ed54f91bb',1,'visilib::HelperDebugVisualisation']]],
   ['clipwithgardband',['clipWithGardBand',['../classvisilib_1_1_math_geometry.html#a6b3430d7013a6d749d613c4b95bd071c',1,'visilib::MathGeometry']]],
-  ['collectalloccluders',['collectAllOccluders',['../classvisilib_1_1_visibility_exact_query.html#a02b8c88c6a99a82a3e791f6263dba570',1,'visilib::VisibilityExactQuery']]],
+  ['collectalloccluders',['collectAllOccluders',['../classvisilib_1_1_visibility_exact_query__.html#a37d430f305c3024cc8ab9efb7dbaf534',1,'visilib::VisibilityExactQuery_']]],
   ['computeedgesintersectingquadric',['computeEdgesIntersectingQuadric',['../classvisilib_1_1_plucker_polytope.html#a3137c0414f0cfb604cd4dd06c1dbaeaf',1,'visilib::PluckerPolytope']]],
   ['computeextremalstabbinglines',['computeExtremalStabbingLines',['../classvisilib_1_1_plucker_polytope.html#a0ec26e8b054116d8f4a5031589dde6ae',1,'visilib::PluckerPolytope']]],
   ['computenormal',['computeNormal',['../classvisilib_1_1_helper_triangle_mesh.html#a30b254ee3c7690c88c80aa671b4f00fa',1,'visilib::HelperTriangleMesh']]],
@@ -13,6 +13,6 @@ var searchData=
   ['computerepresentativeline',['computeRepresentativeLine',['../classvisilib_1_1_math_geometry.html#ad6d2f79eb23fdfd9ce23bca5d36fc403',1,'visilib::MathGeometry']]],
   ['containsotherlineswithsamefacetsdescription',['containsOtherLinesWithSameFacetsDescription',['../classvisilib_1_1_plucker_polyhedron.html#ae9e79e8652ffe2b28040e6cb0650933b',1,'visilib::PluckerPolyhedron']]],
   ['containsreallines',['containsRealLines',['../classvisilib_1_1_plucker_polytope.html#a54c6bf6d962cd35f9220e9ca447cbb3a',1,'visilib::PluckerPolytope']]],
-  ['createinitialpolygons',['createInitialPolygons',['../classvisilib_1_1_visibility_exact_query.html#ab48ca4625d838cde2aaa06ffd0c125a9',1,'visilib::VisibilityExactQuery']]],
-  ['createtrianglemeshdescription',['createTriangleMeshDescription',['../classvisilib_1_1_helper_triangle_mesh_container.html#ab9b46c3ef0ab846392fb53c5641add36',1,'visilib::HelperTriangleMeshContainer']]]
+  ['createinitialpolygons',['createInitialPolygons',['../classvisilib_1_1_visibility_exact_query__.html#a8f1759e155f8d6e1880d725ecc74bde3',1,'visilib::VisibilityExactQuery_']]],
+  ['createtrianglemeshdescription',['createTriangleMeshDescription',['../classvisilib_1_1_helper_triangle_mesh_container.html#adef9e75e930431227494fdcd5de664da',1,'visilib::HelperTriangleMeshContainer']]]
 ];

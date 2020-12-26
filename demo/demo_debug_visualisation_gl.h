@@ -33,10 +33,10 @@ namespace visilibDemo
         static size_t drawPolygonPoints(const std::vector<float>& vertices);
         static size_t drawPolygon(const std::vector<float>& vertices);
         static size_t drawScene(const visilib::HelperTriangleMeshContainer& aScene);
-        static size_t drawMesh(const visilib::TriangleMeshDescription& aMesh);
-        static size_t drawLines(const visilib::TriangleMeshDescription& info);
-        static size_t drawTriangles(const visilib::TriangleMeshDescription& info);
+        static size_t drawMesh(const visilib::GeometryTriangleMeshDescription& aMesh);
+        static size_t drawLines(const visilib::GeometryTriangleMeshDescription& info);
+        static size_t drawTriangles(const visilib::GeometryTriangleMeshDescription& info);
 
-        static size_t display(visilib::VisualDebugger* debugger, const visilib::HelperTriangleMeshContainer& aScene, const std::vector<float>& v0, const std::vector<float>& v1, visilib::VisibilityResult result, int drawGeometryType);
+        static size_t display(visilib::HelperVisualDebugger* debugger, const visilib::HelperTriangleMeshContainer& aScene, const std::vector<float>& v0, const std::vector<float>& v1, visilib::VisibilityResult result, int drawGeometryType);
     };
 }

@@ -45,7 +45,7 @@ namespace visilib
         
         The function calls embree to perform the intersection
         */
-        virtual bool intersect(Ray* aRay) override;
+        virtual bool intersect(VisibilityRay* aRay) override;
 
 
         /** @brief Prepare the scene before ray tracing
@@ -88,7 +88,7 @@ namespace visilib
 #define HIT_LIST_LENGTH 16
 
     /** @brief Extended ray structure to store all the hits along the ray */
-    struct RayMultiHit
+    struct GeometryRayMultiHit
     {
         RTCRayHit rayHit;
 
@@ -97,19 +97,19 @@ namespace visilib
         unsigned int hit_geomIDs[HIT_LIST_LENGTH];      
     };
 
-    struct IntersectContextMultiHit
+    struct GeometryIntersectContextMultiHit
     {
         RTCIntersectContext context;
-        RayMultiHit* ray;
+        GeometryRayMultiHit* ray;
     };
 
-    inline RTCRayHit* RTCRayHit_(RayMultiHit& ray)
+    inline RTCRayHit* RTCRayHit_(GeometryRayMultiHit& ray)
     {
         RTCRayHit* ray_ptr = (RTCRayHit*)& ray;
         return ray_ptr;
     }
 
-    inline RTCRay* RTCRay_(RayMultiHit& ray)
+    inline RTCRay* RTCRay_(GeometryRayMultiHit& ray)
     {
         RTCRay* ray_ptr = (RTCRay*)& ray;
         return ray_ptr;
@@ -128,8 +128,8 @@ namespace visilib
         /* ignore inactive rays */
         if (valid[0] != -1) return;
 
-        IntersectContextMultiHit* context = (IntersectContextMultiHit*)args->context;
-        RayMultiHit* ray = context->ray;
+        GeometryIntersectContextMultiHit* context = (GeometryIntersectContextMultiHit*)args->context;
+        GeometryRayMultiHit* ray = context->ray;
 
         for (unsigned int i = ray->firstHit; i < ray->lastHit; i++)
         {
@@ -147,9 +147,9 @@ namespace visilib
        
         valid[0] = 0;
   }
-    inline bool SilhouetteContainerEmbree::intersect(Ray* aRay)
+    inline bool SilhouetteContainerEmbree::intersect(VisibilityRay* aRay)
     {
-        RayMultiHit ray;
+        GeometryRayMultiHit ray;
         ray.firstHit = 0;
         ray.lastHit = 0;    
         ray.rayHit.ray.org_x = aRay->org[0];  ray.rayHit.ray.org_y = aRay->org[1]; ray.rayHit.ray.org_z = aRay->org[2];
@@ -161,7 +161,7 @@ namespace visilib
         ray.rayHit.ray.id = 0;
 
         ray.rayHit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
-        IntersectContextMultiHit context;
+        GeometryIntersectContextMultiHit context;
         rtcInitIntersectContext(&context.context);
 
         while (true)

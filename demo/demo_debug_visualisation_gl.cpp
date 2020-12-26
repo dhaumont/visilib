@@ -74,7 +74,7 @@ size_t DemoDebugVisualisationGl::drawPolygonPoints(const std::vector<float> & ve
     return vertices.size() / 3;
 }
 
-size_t DemoDebugVisualisationGl::drawTriangles(const TriangleMeshDescription & aMesh)
+size_t DemoDebugVisualisationGl::drawTriangles(const GeometryTriangleMeshDescription & aMesh)
 {
     glBegin(GL_TRIANGLES);
 
@@ -88,7 +88,7 @@ size_t DemoDebugVisualisationGl::drawTriangles(const TriangleMeshDescription & a
     return aMesh.vertexCount / 3;
 }
 
-size_t DemoDebugVisualisationGl::drawLines(const TriangleMeshDescription & aMesh)
+size_t DemoDebugVisualisationGl::drawLines(const GeometryTriangleMeshDescription & aMesh)
 {
     glBegin(GL_LINES);
 
@@ -110,8 +110,8 @@ size_t DemoDebugVisualisationGl::drawScene(const HelperTriangleMeshContainer & a
 
     for (size_t i = 0; i < ids.size(); i++)
     {
-        DiscreteGeometryDescription* mesh = aScene.createTriangleMeshDescription(ids[i]);
-        TriangleMeshDescription* triangleMeshDescription = dynamic_cast<TriangleMeshDescription*>(mesh);
+        GeometryDiscreteMeshDescription* mesh = aScene.createTriangleMeshDescription(ids[i]);
+        GeometryTriangleMeshDescription* triangleMeshDescription = dynamic_cast<GeometryTriangleMeshDescription*>(mesh);
         if (triangleMeshDescription)
             count += drawMesh(*triangleMeshDescription);
         delete mesh;
@@ -119,7 +119,7 @@ size_t DemoDebugVisualisationGl::drawScene(const HelperTriangleMeshContainer & a
     return count;
 }
 
-size_t DemoDebugVisualisationGl::drawMesh(const TriangleMeshDescription & aMesh)
+size_t DemoDebugVisualisationGl::drawMesh(const GeometryTriangleMeshDescription & aMesh)
 {
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_NORMAL_ARRAY);
@@ -139,7 +139,7 @@ size_t DemoDebugVisualisationGl::drawMesh(const TriangleMeshDescription & aMesh)
     return aMesh.faceCount;
 }
 
-size_t DemoDebugVisualisationGl::display(VisualDebugger * debugger, const visilib::HelperTriangleMeshContainer & scene, const std::vector<float> & v0, const std::vector<float> & v1, VisibilityResult result, int drawGeometryType)
+size_t DemoDebugVisualisationGl::display(HelperVisualDebugger * debugger, const visilib::HelperTriangleMeshContainer & scene, const std::vector<float> & v0, const std::vector<float> & v1, VisibilityResult result, int drawGeometryType)
 {
     glEnable(GL_LIGHTING);
 

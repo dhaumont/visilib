@@ -50,7 +50,7 @@ namespace visilib
     class GeometryConvexPolygon;
     class SilhouetteMeshFace;
     class GeometryOccluderSet;
-    struct Ray;
+    struct VisibilityRay;
     class Silhouette;
     class SilhouetteProcessor;
 
@@ -61,12 +61,12 @@ namespace visilib
 
     This interface is the protoype definition of an exact visibility query between two source polygons
     */
-    class IVisibilityExactQuery
+    class VisibilityExactQuery
     {
     public:
-        virtual ~IVisibilityExactQuery() {};
+        virtual ~VisibilityExactQuery() {};
 
-        virtual void attachVisualisationDebugger(VisualDebugger* aDebugger) = 0;
+        virtual void attachVisualisationDebugger(HelperVisualDebugger* aDebugger) = 0;
         virtual VisibilityResult arePolygonsVisible(const float* vertices0, size_t numVertices0, const float* vertices1, size_t numVertices1) = 0;
         virtual void displayStatistic() = 0;
     };
@@ -77,13 +77,13 @@ namespace visilib
     This class manages the computation of exact visibility query between two polygons through a set of occluders contained in a scene.
     */
     template<class P, class S>
-    class VisibilityExactQuery : public IVisibilityExactQuery
+    class VisibilityExactQuery_ : public VisibilityExactQuery
     {
     public:
 
-        VisibilityExactQuery(GeometryOccluderSet* aScene, const QueryConfiguration& aConfiguration, S tolerance);
+        VisibilityExactQuery_(GeometryOccluderSet* aScene, const VisibilityExactQueryConfiguration& aConfiguration, S tolerance);
 
-        virtual ~VisibilityExactQuery();
+        virtual ~VisibilityExactQuery_();
 
         /**@brief Return the source polygons at the given index */
         GeometryConvexPolygon* getQueryPolygon(size_t i)
@@ -114,7 +114,7 @@ namespace visilib
         bool collectAllOccluders(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron, std::vector<Silhouette*>& occluders, std::vector<P>& polytopeLines);
 
         /**@brief Attach a debugger to the query for visual inspection */
-        void attachVisualisationDebugger(VisualDebugger* aDebugger);
+        void attachVisualisationDebugger(HelperVisualDebugger* aDebugger);
 
         /**@brief Compute a visibility query to determine if the two polygons given as input are mutually visible or not */
         VisibilityResult arePolygonsVisible(const float* vertices0, size_t numVertices0, const float* vertices1, size_t numVertices1);
@@ -167,11 +167,11 @@ namespace visilib
         */
         bool createInitialPolygons(const float* vertices0, size_t numVertices0, const float* vertices1, size_t numVertices1, bool normalization);
 
-        QueryConfiguration mConfiguration;                     /**< @brief The configuration parameters of the query*/
+        VisibilityExactQueryConfiguration mConfiguration;                     /**< @brief The configuration parameters of the query*/
         PluckerPolytopeComplex<P>* mComplex;                   /**< @brief The polytope complex encoding the occlusion tree*/
         GeometryOccluderSet* mScene;                                         /**< @brief The scene containing the triangle mesh occluders*/
         GeometryConvexPolygon* mQueryPolygon[2];               /**< @brief The two convex polygonal sources*/
-        VisualDebugger* mDebugger;                             /**< @brief The visual debugging information of the query*/
+        HelperVisualDebugger* mDebugger;                             /**< @brief The visual debugging information of the query*/
         HelperStatisticCollector mStatistic;                   /**< @brief The statistics of the query*/
         SilhouetteProcessor* mSilhouetteProcessor;   /**< @brief The silhouette processor for silhouette optimization heuristic*/
 
@@ -186,7 +186,7 @@ namespace visilib
     };
 
     template<class P, class S>
-    VisibilityExactQuery<P, S>::VisibilityExactQuery(GeometryOccluderSet * aScene, const QueryConfiguration & aConfiguration, S aTolerance)
+    VisibilityExactQuery_<P, S>::VisibilityExactQuery_(GeometryOccluderSet * aScene, const VisibilityExactQueryConfiguration & aConfiguration, S aTolerance)
         : mScene(aScene),
         mConfiguration(aConfiguration),
         mDebugger(nullptr)
@@ -214,7 +214,7 @@ namespace visilib
     }
 
     template<class P, class S>
-    VisibilityExactQuery<P, S>::~VisibilityExactQuery()
+    VisibilityExactQuery_<P, S>::~VisibilityExactQuery_()
     {
         delete mComplex;
         delete mSilhouetteProcessor;
@@ -224,7 +224,7 @@ namespace visilib
      }
 
     template<class P, class S>
-    bool VisibilityExactQuery<P, S>::createInitialPolygons(const float* vertices0, size_t numVertices0, const float* vertices1, size_t numVertices1, bool)
+    bool VisibilityExactQuery_<P, S>::createInitialPolygons(const float* vertices0, size_t numVertices0, const float* vertices1, size_t numVertices1, bool)
     {
         GeometryConvexPolygon myQuery0(vertices0, numVertices0);
         GeometryConvexPolygon myQuery1(vertices1, numVertices1);
@@ -287,7 +287,7 @@ namespace visilib
     }
 
     template<class P, class S>
-    VisibilityResult VisibilityExactQuery<P, S>::arePolygonsVisible(const float* vertices0, size_t numVertices0, const float* vertices1, size_t numVertices1)
+    VisibilityResult VisibilityExactQuery_<P, S>::arePolygonsVisible(const float* vertices0, size_t numVertices0, const float* vertices1, size_t numVertices1)
     {
         VisibilityResult result;
 
@@ -351,13 +351,13 @@ namespace visilib
     }
 
     template<class P, class S>
-    void VisibilityExactQuery<P, S>::attachVisualisationDebugger(VisualDebugger * aDebugger)
+    void VisibilityExactQuery_<P, S>::attachVisualisationDebugger(HelperVisualDebugger * aDebugger)
     {
         mDebugger = aDebugger;
     }
 
     template<class P, class S>
-    bool VisibilityExactQuery<P, S>::findNextEdge(size_t& aSilhouetteEdgeIndex, Silhouette * &aSilhouette, PluckerPolytope<P> * aPolytope, const std::string & occlusionTreeNodeSymbol)
+    bool VisibilityExactQuery_<P, S>::findNextEdge(size_t& aSilhouetteEdgeIndex, Silhouette * &aSilhouette, PluckerPolytope<P> * aPolytope, const std::string & occlusionTreeNodeSymbol)
     {
         HelperScopedTimer timer(getStatistic(), OCCLUDER_TREATMENT);
         std::ofstream& debugOutput = mDebugger->get()->getDebugOutput();
@@ -428,19 +428,19 @@ namespace visilib
     }
 
     template<class P, class S>
-    bool VisibilityExactQuery<P, S>::isOccluded(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron, const std::vector <Silhouette*> & aSilhouettes, const std::vector<P> & polytopeLines)
+    bool VisibilityExactQuery_<P, S>::isOccluded(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron, const std::vector <Silhouette*> & aSilhouettes, const std::vector<P> & polytopeLines)
     {   
         return SilhouetteContainer::isOccluded(polytope, polyhedron, aSilhouettes,polytopeLines,mTolerance);
     }
 
     template<class P, class S>
-    bool VisibilityExactQuery<P, S>::findSceneIntersection(const MathVector3d & aBegin, const MathVector3d & anEnd, std::set<SilhouetteMeshFace*> & anIntersectedFaces, PluckerPolytope<P> * aPolytope)
+    bool VisibilityExactQuery_<P, S>::findSceneIntersection(const MathVector3d & aBegin, const MathVector3d & anEnd, std::set<SilhouetteMeshFace*> & anIntersectedFaces, PluckerPolytope<P> * aPolytope)
     {
         MathVector3d myBegin = aBegin;
         MathVector3d myDir = anEnd - aBegin;
         double myMax = myDir.normalize();
 
-        Ray myRay;
+        VisibilityRay myRay;
         myRay.org[0] = (float)myBegin.x;
         myRay.org[1] = (float)myBegin.y;
         myRay.org[2] = (float)myBegin.z;
@@ -488,7 +488,7 @@ namespace visilib
     }
 
     template<class P, class S>
-    void VisibilityExactQuery<P, S>::extractAllSilhouettes()
+    void VisibilityExactQuery_<P, S>::extractAllSilhouettes()
     {
         for (size_t geometryId = 0; geometryId < mScene->getOccluderCount(); geometryId++)
         {
@@ -506,7 +506,7 @@ namespace visilib
     }
 
     template<class P, class S>
-    bool VisibilityExactQuery<P, S>::collectAllOccluders(PluckerPolytope<P> * aPolytope, PluckerPolyhedron<P> * polyhedron, std::vector<Silhouette*> & occluders, std::vector<P> & polytopeLines)
+    bool VisibilityExactQuery_<P, S>::collectAllOccluders(PluckerPolytope<P> * aPolytope, PluckerPolyhedron<P> * polyhedron, std::vector<Silhouette*> & occluders, std::vector<P> & polytopeLines)
     {
         {   
             if (mConfiguration.representativeLineSampling)

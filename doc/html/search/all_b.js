@@ -8,6 +8,6 @@ var searchData=
   ['operator_2b',['operator+',['../classvisilib_1_1_math_plucker6.html#ad14b7bfd7a176bd87b1cd50bbeca6e9a',1,'visilib::MathPlucker6']]],
   ['operator_2b_3d',['operator+=',['../classvisilib_1_1_math_plucker6.html#ad0d6dd0d97dd00c7a98405c1e6717392',1,'visilib::MathPlucker6']]],
   ['operator_2f',['operator/',['../classvisilib_1_1_math_plucker6.html#ab6eb523f483a0e4452ee9573a14dea5d',1,'visilib::MathPlucker6']]],
-  ['org',['org',['../structvisilib_1_1_ray.html#a13149d8f8f4b9e75451bf9480614e94c',1,'visilib::Ray']]],
+  ['org',['org',['../structvisilib_1_1_visibility_ray.html#a8c78b0461d9f6e5425c5e14fcd24a9d1',1,'visilib::VisibilityRay']]],
   ['outputproperties',['outputProperties',['../classvisilib_1_1_plucker_polytope.html#a93ea12434a51f75ebffe3521dbb267af',1,'visilib::PluckerPolytope']]]
 ];

@@ -1,11 +1,17 @@
 var searchData=
 [
-  ['ray',['Ray',['../structvisilib_1_1_ray.html',1,'visilib']]],
-  ['raymultihit',['RayMultiHit',['../structvisilib_1_1_ray_multi_hit.html',1,'visilib']]],
-  ['removedegeneratedtriangles',['removeDegeneratedTriangles',['../classvisilib_1_1_helper_triangle_mesh.html#a8e1d36896b60a29eded64c1cc28c00cc',1,'visilib::HelperTriangleMesh::removeDegeneratedTriangles()'],['../classvisilib_1_1_helper_triangle_mesh_container.html#ac7b69c0fc33554617cda85f0f8a107f5',1,'visilib::HelperTriangleMeshContainer::removeDegeneratedTriangles()']]],
-  ['removefaces',['removeFaces',['../classvisilib_1_1_helper_synthetic_mesh_builder.html#a23adb9695595040ccf8782bd29f364c4',1,'visilib::HelperSyntheticMeshBuilder']]],
-  ['representativelinesampling',['representativeLineSampling',['../structvisilib_1_1_query_configuration.html#aae9b13bf5ffca8480f5a862c5ed5f6eb',1,'visilib::QueryConfiguration']]],
-  ['rescaletounitbox',['rescaleToUnitBox',['../classvisilib_1_1_helper_synthetic_mesh_builder.html#a408cd0c312a1053f6a479fc2fbea847f',1,'visilib::HelperSyntheticMeshBuilder']]],
-  ['restoreoccluderconnectedfaces',['restoreOccluderConnectedFaces',['../classvisilib_1_1_geometry_occluder_set.html#a01d2de1cfec62e4000ca3b5b262ae4bb',1,'visilib::GeometryOccluderSet']]],
-  ['rotate',['rotate',['../classvisilib_1_1_helper_synthetic_mesh_builder.html#a47c189c29ad2889310e1667a30eb2ad7',1,'visilib::HelperSyntheticMeshBuilder::rotate(HelperTriangleMeshContainer *scene, float pitch, float yaw, float roll)'],['../classvisilib_1_1_helper_synthetic_mesh_builder.html#ab61dd13855f074658c44c93fb9dce953',1,'visilib::HelperSyntheticMeshBuilder::rotate(HelperTriangleMesh *mesh, float pitch, float yaw, float roll)'],['../classvisilib_1_1_helper_synthetic_mesh_builder.html#aac6ebe32f62401531e2f2836d8da86a9',1,'visilib::HelperSyntheticMeshBuilder::rotate(std::vector&lt; MathVector3f &gt; &amp;vertices, float pitch, float yaw, float roll)']]]
+  ['scale',['scale',['../classvisilib_1_1_helper_synthetic_mesh_builder.html#a3ad2d53409b8fd3335e5acec7dd62e7a',1,'visilib::HelperSyntheticMeshBuilder::scale(HelperTriangleMeshContainer *scene, float scale)'],['../classvisilib_1_1_helper_synthetic_mesh_builder.html#a8b37a0fe23de8994cefeb27b39a5cb3f',1,'visilib::HelperSyntheticMeshBuilder::scale(HelperTriangleMesh *mesh, float scale)'],['../classvisilib_1_1_helper_synthetic_mesh_builder.html#a2387e4616a262b88bedfe6048646a2e2',1,'visilib::HelperSyntheticMeshBuilder::scale(std::vector&lt; MathVector3f &gt; &amp;vertices, float scale)']]],
+  ['setgeometry',['setGeometry',['../classvisilib_1_1_silhouette_mesh_face.html#a4fd7d7ee6b556712f7771aecf9685ae1',1,'visilib::SilhouetteMeshFace']]],
+  ['setneighbour',['setNeighbour',['../classvisilib_1_1_silhouette_mesh_face.html#a481d2d1b6544e3be14c55842ee37ab0a',1,'visilib::SilhouetteMeshFace']]],
+  ['setoccluderconnectedfaces',['setOccluderConnectedFaces',['../classvisilib_1_1_geometry_occluder_set.html#a64be17502b1343e735a4385edeaf223f',1,'visilib::GeometryOccluderSet']]],
+  ['silhouette',['Silhouette',['../classvisilib_1_1_silhouette.html',1,'visilib']]],
+  ['silhouettecontainer',['SilhouetteContainer',['../classvisilib_1_1_silhouette_container.html',1,'visilib']]],
+  ['silhouettecontainerembree',['SilhouetteContainerEmbree',['../classvisilib_1_1_silhouette_container_embree.html',1,'visilib']]],
+  ['silhouetteedge',['SilhouetteEdge',['../structvisilib_1_1_silhouette_edge.html',1,'visilib']]],
+  ['silhouettemeshface',['SilhouetteMeshFace',['../classvisilib_1_1_silhouette_mesh_face.html',1,'visilib']]],
+  ['silhouetteoptimization',['silhouetteOptimization',['../structvisilib_1_1_visibility_exact_query_configuration.html#a9c7e192417bf965199370bc13fe4d572',1,'visilib::VisibilityExactQueryConfiguration']]],
+  ['silhouetteprocessor',['SilhouetteProcessor',['../classvisilib_1_1_silhouette_processor.html',1,'visilib']]],
+  ['split',['split',['../classvisilib_1_1_plucker_polytope_splitter.html#a50150fef5b24618c067c14c5e5fdb438',1,'visilib::PluckerPolytopeSplitter']]],
+  ['subdivide',['subdivide',['../classvisilib_1_1_helper_synthetic_mesh_builder.html#a296e5adbc26d762b483b482e264632dd',1,'visilib::HelperSyntheticMeshBuilder']]],
+  ['sx',['Sx',['../classvisilib_1_1_geometry_ray.html#a19a4fc7cd519d2e28c6ce37d91dac6e4',1,'visilib::GeometryRay']]]
 ];

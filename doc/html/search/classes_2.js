@@ -7,5 +7,6 @@ var searchData=
   ['helperstatisticcollector',['HelperStatisticCollector',['../classvisilib_1_1_helper_statistic_collector.html',1,'visilib']]],
   ['helpersyntheticmeshbuilder',['HelperSyntheticMeshBuilder',['../classvisilib_1_1_helper_synthetic_mesh_builder.html',1,'visilib']]],
   ['helpertrianglemesh',['HelperTriangleMesh',['../classvisilib_1_1_helper_triangle_mesh.html',1,'visilib']]],
-  ['helpertrianglemeshcontainer',['HelperTriangleMeshContainer',['../classvisilib_1_1_helper_triangle_mesh_container.html',1,'visilib']]]
+  ['helpertrianglemeshcontainer',['HelperTriangleMeshContainer',['../classvisilib_1_1_helper_triangle_mesh_container.html',1,'visilib']]],
+  ['helpervisualdebugger',['HelperVisualDebugger',['../classvisilib_1_1_helper_visual_debugger.html',1,'visilib']]]
 ];

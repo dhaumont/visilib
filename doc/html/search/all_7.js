@@ -12,7 +12,8 @@ var searchData=
   ['helpersyntheticmeshbuilder',['HelperSyntheticMeshBuilder',['../classvisilib_1_1_helper_synthetic_mesh_builder.html',1,'visilib']]],
   ['helpertrianglemesh',['HelperTriangleMesh',['../classvisilib_1_1_helper_triangle_mesh.html',1,'visilib']]],
   ['helpertrianglemeshcontainer',['HelperTriangleMeshContainer',['../classvisilib_1_1_helper_triangle_mesh_container.html',1,'visilib']]],
+  ['helpervisualdebugger',['HelperVisualDebugger',['../classvisilib_1_1_helper_visual_debugger.html',1,'visilib']]],
   ['hitsboundingbox',['hitsBoundingBox',['../classvisilib_1_1_math_geometry.html#af19a3bdb94d0e929dbe8ffcda093c57e',1,'visilib::MathGeometry']]],
   ['hitstriangle',['hitsTriangle',['../classvisilib_1_1_math_geometry.html#ae24dedad7a35b9c818759ea566b8b3c5',1,'visilib::MathGeometry']]],
-  ['hyperspherenormalization',['hyperSphereNormalization',['../structvisilib_1_1_query_configuration.html#aeb28948ceb50f54bae39d6099b51ffe9',1,'visilib::QueryConfiguration']]]
+  ['hyperspherenormalization',['hyperSphereNormalization',['../structvisilib_1_1_visibility_exact_query_configuration.html#ae3f308c718e6e7051c9d8a1d08065def',1,'visilib::VisibilityExactQueryConfiguration']]]
 ];

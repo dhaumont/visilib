@@ -13,6 +13,6 @@ var searchData=
   ['addsourcepolygonedgesashyperplanes',['addSourcePolygonEdgesAsHyperplanes',['../classvisilib_1_1_plucker_polytope_builder.html#a5074ddd2e6fd2a48cb5770cd6af067f9',1,'visilib::PluckerPolytopeBuilder']]],
   ['addstabbingline',['addStabbingLine',['../classvisilib_1_1_helper_debug_visualisation.html#abfd5bfe2fcd61fea025e04c3c58f623b',1,'visilib::HelperDebugVisualisation']]],
   ['addtofacetsdescription',['addToFacetsDescription',['../classvisilib_1_1_plucker_polyhedron.html#a027bd5891e7b3a091549bfc8865ae9aa',1,'visilib::PluckerPolyhedron']]],
-  ['arepolygonsvisible',['arePolygonsVisible',['../classvisilib_1_1_visibility_exact_query.html#a73bb1b22a81c37aecc961770d3a0791c',1,'visilib::VisibilityExactQuery']]],
-  ['attachvisualisationdebugger',['attachVisualisationDebugger',['../classvisilib_1_1_silhouette_processor.html#a9b38305bfb50372badb231710dbd8c41',1,'visilib::SilhouetteProcessor::attachVisualisationDebugger()'],['../classvisilib_1_1_visibility_exact_query.html#a60f74fec10fe0ecd6637b5d7a6da270e',1,'visilib::VisibilityExactQuery::attachVisualisationDebugger()']]]
+  ['arepolygonsvisible',['arePolygonsVisible',['../classvisilib_1_1_visibility_exact_query__.html#a615c47cec68794e091d30852e959dbb9',1,'visilib::VisibilityExactQuery_']]],
+  ['attachvisualisationdebugger',['attachVisualisationDebugger',['../classvisilib_1_1_silhouette_processor.html#aac871de2acba542af88585a6ae66fe0d',1,'visilib::SilhouetteProcessor::attachVisualisationDebugger()'],['../classvisilib_1_1_visibility_exact_query__.html#aaf24602cc5844a5ef5f7ae6fe3df0f56',1,'visilib::VisibilityExactQuery_::attachVisualisationDebugger()']]]
 ];

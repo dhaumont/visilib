@@ -22,10 +22,10 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 
 namespace visilib
 {
-    class VisualDebugger;
+    class HelperVisualDebugger;
 
     template<class P, class S>
-    class VisibilityExactQuery;
+    class VisibilityExactQuery_;
 
 
 
@@ -35,7 +35,7 @@ namespace visilib
     class VisibilitySolver
     {
     public:
-        VisibilitySolver(VisibilityExactQuery<P, S>* aSolver)
+        VisibilitySolver(VisibilityExactQuery_<P, S>* aSolver)
             :mDebugger(nullptr),
             mQuery(aSolver)
         {
@@ -43,9 +43,9 @@ namespace visilib
 
         virtual VisibilityResult resolve() = 0;
 
-        void attachVisualisationDebugger(VisualDebugger* aDebugger) { mDebugger = aDebugger; }
+        void attachVisualisationDebugger(HelperVisualDebugger* aDebugger) { mDebugger = aDebugger; }
     protected:
-        VisibilityExactQuery<P, S>* mQuery;
-        VisualDebugger* mDebugger;
+        VisibilityExactQuery_<P, S>* mQuery;
+        HelperVisualDebugger* mDebugger;
     };
 }

@@ -80,7 +80,7 @@ namespace visilibDemo
             delete occluderSet;
             delete meshContainer;
             srand(0);
-            debugger = new VisualDebugger();
+            debugger = new HelperVisualDebugger();
 
             meshContainer = new HelperTriangleMeshContainer();
 
@@ -219,7 +219,7 @@ namespace visilibDemo
             occluderSet = new GeometryOccluderSet();
             for (size_t index = 0; index < meshContainer->getGeometryCount(); index++)
             {
-                DiscreteGeometryDescription* info = meshContainer->createTriangleMeshDescription(index);
+                GeometryDiscreteMeshDescription* info = meshContainer->createTriangleMeshDescription(index);
                 occluderSet->addOccluder(info);
             }
             occluderSet->prepare();
@@ -228,7 +228,7 @@ namespace visilibDemo
 
         void resolveVisibility()
         {
-            QueryConfiguration config;
+            VisibilityExactQueryConfiguration config;
             config.silhouetteOptimization = silhouetteOptimisation;
             config.hyperSphereNormalization = normalization;
             config.precision = precisionType;
@@ -307,7 +307,7 @@ namespace visilibDemo
                 else if (tokens[0] == "eta") { eta = (float)atof(tokens[2].c_str()); }
                 else if (tokens[0] == "sceneIndex") { sceneIndex = atoi(tokens[2].c_str()); }
                 else if (tokens[0] == "globalScaling") { globalScaling = (float)atof(tokens[2].c_str()); }
-                else if (tokens[0] == "precisionType") { precisionType = (QueryConfiguration::PrecisionType)atoi(tokens[2].c_str()); }
+                else if (tokens[0] == "precisionType") { precisionType = (VisibilityExactQueryConfiguration::PrecisionType)atoi(tokens[2].c_str()); }
 
                 else { V_ASSERT(0); }
             }
@@ -509,13 +509,13 @@ namespace visilibDemo
 
         GeometryOccluderSet* occluderSet = nullptr;
         HelperTriangleMeshContainer* meshContainer = nullptr;
-        VisualDebugger* debugger = nullptr;
+        HelperVisualDebugger* debugger = nullptr;
         VisibilityResult result = UNKNOWN;
         int vertexCount = 3;
         bool silhouetteOptimisation = true;
         int drawGeometryType = 0;
         bool representativeLineSampling = true;
-        QueryConfiguration::PrecisionType precisionType = QueryConfiguration::DOUBLE;
+        VisibilityExactQueryConfiguration::PrecisionType precisionType = VisibilityExactQueryConfiguration::DOUBLE;
         bool detectApertureOnly = false;
         bool animated = false;
         bool normalization = true;

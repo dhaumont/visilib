@@ -55,7 +55,7 @@ public:
             mSilhouettes.insert(aSilhouette);
     }
 
-    virtual bool intersect(Ray* aRay)
+    virtual bool intersect(VisibilityRay* aRay)
     {
         GeometryRay myGeometryRay(*aRay);
 

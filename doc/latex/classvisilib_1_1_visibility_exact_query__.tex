@@ -1,0 +1,148 @@
+\hypertarget{classvisilib_1_1_visibility_exact_query__}{}\section{visilib\+::Visibility\+Exact\+Query\+\_\+$<$ P, S $>$ Class Template Reference}
+\label{classvisilib_1_1_visibility_exact_query__}\index{visilib::VisibilityExactQuery\_$<$ P, S $>$@{visilib::VisibilityExactQuery\_$<$ P, S $>$}}
+
+
+Exact Visibility solver implementation class.  
+
+
+
+
+{\ttfamily \#include $<$visibility\+\_\+exact\+\_\+query.\+h$>$}
+
+Inheritance diagram for visilib\+::Visibility\+Exact\+Query\+\_\+$<$ P, S $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classvisilib_1_1_visibility_exact_query__}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_visibility_exact_query___a3da2482adc2bf3c520d602162a508806}\label{classvisilib_1_1_visibility_exact_query___a3da2482adc2bf3c520d602162a508806}} 
+{\bfseries Visibility\+Exact\+Query\+\_\+} (\mbox{\hyperlink{classvisilib_1_1_geometry_occluder_set}{Geometry\+Occluder\+Set}} $\ast$a\+Scene, const \mbox{\hyperlink{structvisilib_1_1_visibility_exact_query_configuration}{Visibility\+Exact\+Query\+Configuration}} \&a\+Configuration, S tolerance)
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_visibility_exact_query___a55b73c33132ac9b5ef6050a6fd6d699a}\label{classvisilib_1_1_visibility_exact_query___a55b73c33132ac9b5ef6050a6fd6d699a}} 
+\mbox{\hyperlink{classvisilib_1_1_geometry_convex_polygon}{Geometry\+Convex\+Polygon}} $\ast$ \mbox{\hyperlink{classvisilib_1_1_visibility_exact_query___a55b73c33132ac9b5ef6050a6fd6d699a}{get\+Query\+Polygon}} (size\+\_\+t i)
+\begin{DoxyCompactList}\small\item\em Return the source polygons at the given index. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classvisilib_1_1_visibility_exact_query___a1178db030d410172cb263526bda7e119}\label{classvisilib_1_1_visibility_exact_query___a1178db030d410172cb263526bda7e119}} 
+\mbox{\hyperlink{classvisilib_1_1_plucker_polytope_complex}{Plucker\+Polytope\+Complex}}$<$ P $>$ $\ast$ \mbox{\hyperlink{classvisilib_1_1_visibility_exact_query___a1178db030d410172cb263526bda7e119}{get\+Complex}} ()
+\begin{DoxyCompactList}\small\item\em Return the polytope complex encoding the occlusion tree. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classvisilib_1_1_visibility_exact_query___a9aecc3e02e9f23bfd1911f67833db419}{find\+Scene\+Intersection}} (const \mbox{\hyperlink{classvisilib_1_1_math_vector3__}{Math\+Vector3d}} \&a\+Begin, const \mbox{\hyperlink{classvisilib_1_1_math_vector3__}{Math\+Vector3d}} \&an\+End, std\+::set$<$ \mbox{\hyperlink{classvisilib_1_1_silhouette_mesh_face}{Silhouette\+Mesh\+Face}} $\ast$ $>$ \&intersected\+Faces, \mbox{\hyperlink{classvisilib_1_1_plucker_polytope}{Plucker\+Polytope}}$<$ P $>$ $\ast$a\+Polytope=nullptr)
+\begin{DoxyCompactList}\small\item\em Performs the intersection between a segment and the geometry of the scene. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classvisilib_1_1_visibility_exact_query___a44b86e8d38107ae316862478548f4e40}\label{classvisilib_1_1_visibility_exact_query___a44b86e8d38107ae316862478548f4e40}} 
+void {\bfseries extract\+All\+Silhouettes} ()
+\item 
+bool \mbox{\hyperlink{classvisilib_1_1_visibility_exact_query___a37d430f305c3024cc8ab9efb7dbaf534}{collect\+All\+Occluders}} (\mbox{\hyperlink{classvisilib_1_1_plucker_polytope}{Plucker\+Polytope}}$<$ P $>$ $\ast$polytope, \mbox{\hyperlink{classvisilib_1_1_plucker_polyhedron}{Plucker\+Polyhedron}}$<$ P $>$ $\ast$polyhedron, std\+::vector$<$ \mbox{\hyperlink{classvisilib_1_1_silhouette}{Silhouette}} $\ast$ $>$ \&occluders, std\+::vector$<$ P $>$ \&polytope\+Lines)
+\begin{DoxyCompactList}\small\item\em Given a polytope, finds a set of occluders that is intersected by the set of lines that the polytope represents. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classvisilib_1_1_visibility_exact_query___aaf24602cc5844a5ef5f7ae6fe3df0f56}\label{classvisilib_1_1_visibility_exact_query___aaf24602cc5844a5ef5f7ae6fe3df0f56}} 
+void \mbox{\hyperlink{classvisilib_1_1_visibility_exact_query___aaf24602cc5844a5ef5f7ae6fe3df0f56}{attach\+Visualisation\+Debugger}} (\mbox{\hyperlink{classvisilib_1_1_helper_visual_debugger}{Helper\+Visual\+Debugger}} $\ast$a\+Debugger)
+\begin{DoxyCompactList}\small\item\em Attach a debugger to the query for visual inspection. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classvisilib_1_1_visibility_exact_query___a615c47cec68794e091d30852e959dbb9}\label{classvisilib_1_1_visibility_exact_query___a615c47cec68794e091d30852e959dbb9}} 
+Visibility\+Result \mbox{\hyperlink{classvisilib_1_1_visibility_exact_query___a615c47cec68794e091d30852e959dbb9}{are\+Polygons\+Visible}} (const float $\ast$vertices0, size\+\_\+t num\+Vertices0, const float $\ast$vertices1, size\+\_\+t num\+Vertices1)
+\begin{DoxyCompactList}\small\item\em Compute a visibility query to determine if the two polygons given as input are mutually visible or not. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classvisilib_1_1_visibility_exact_query___ae0bb735eb2795124dee5cc542f754128}\label{classvisilib_1_1_visibility_exact_query___ae0bb735eb2795124dee5cc542f754128}} 
+bool \mbox{\hyperlink{classvisilib_1_1_visibility_exact_query___ae0bb735eb2795124dee5cc542f754128}{find\+Next\+Edge}} (size\+\_\+t \&a\+Silhouette\+Edge\+Index, \mbox{\hyperlink{classvisilib_1_1_silhouette}{Silhouette}} $\ast$\&a\+Silhouette, \mbox{\hyperlink{classvisilib_1_1_plucker_polytope}{Plucker\+Polytope}}$<$ P $>$ $\ast$polytope, const std\+::string \&occlusion\+Tree\+Node\+Symbol)
+\begin{DoxyCompactList}\small\item\em Find the next edge to be processed by the query. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classvisilib_1_1_visibility_exact_query___a6d9347605eb40334e880c03f13f079a3}\label{classvisilib_1_1_visibility_exact_query___a6d9347605eb40334e880c03f13f079a3}} 
+void {\bfseries set\+Approximate\+Normal} (const \mbox{\hyperlink{classvisilib_1_1_math_vector3__}{Math\+Vector3d}} \&a)
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_visibility_exact_query___a97cee8287c39ee835236af105cb2d5d6}\label{classvisilib_1_1_visibility_exact_query___a97cee8287c39ee835236af105cb2d5d6}} 
+const \mbox{\hyperlink{classvisilib_1_1_math_vector3__}{Math\+Vector3d}} \& {\bfseries get\+Approximate\+Normal} () const
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_visibility_exact_query___acd2ba3fda63141a41efaf91fcbb400ee}\label{classvisilib_1_1_visibility_exact_query___acd2ba3fda63141a41efaf91fcbb400ee}} 
+bool {\bfseries is\+Occluded} (\mbox{\hyperlink{classvisilib_1_1_plucker_polytope}{Plucker\+Polytope}}$<$ P $>$ $\ast$polytope, \mbox{\hyperlink{classvisilib_1_1_plucker_polyhedron}{Plucker\+Polyhedron}}$<$ P $>$ $\ast$polyhedron, const std\+::vector$<$ \mbox{\hyperlink{classvisilib_1_1_silhouette}{Silhouette}} $\ast$ $>$ \&silhouettes, const std\+::vector$<$ P $>$ \&polytope\+Lines)
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_visibility_exact_query___aa46af713c8a69cf466ed30601d6c2c7b}\label{classvisilib_1_1_visibility_exact_query___aa46af713c8a69cf466ed30601d6c2c7b}} 
+\mbox{\hyperlink{classvisilib_1_1_helper_statistic_collector}{Helper\+Statistic\+Collector}} $\ast$ \mbox{\hyperlink{classvisilib_1_1_visibility_exact_query___aa46af713c8a69cf466ed30601d6c2c7b}{get\+Statistic}} ()
+\begin{DoxyCompactList}\small\item\em Return the statistic collector. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classvisilib_1_1_visibility_exact_query___a7134e18dd518e8accb0f08e523149e6b}\label{classvisilib_1_1_visibility_exact_query___a7134e18dd518e8accb0f08e523149e6b}} 
+void \mbox{\hyperlink{classvisilib_1_1_visibility_exact_query___a7134e18dd518e8accb0f08e523149e6b}{display\+Statistic}} ()
+\begin{DoxyCompactList}\small\item\em Output the computation statistic in the console. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+bool \mbox{\hyperlink{classvisilib_1_1_visibility_exact_query___a8f1759e155f8d6e1880d725ecc74bde3}{create\+Initial\+Polygons}} (const float $\ast$vertices0, size\+\_\+t num\+Vertices0, const float $\ast$vertices1, size\+\_\+t num\+Vertices1, bool normalization)
+\begin{DoxyCompactList}\small\item\em Create the initial source polygons from the polygons provided as input. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_visibility_exact_query___a37e25de9998f18a338f6317055927daf}\label{classvisilib_1_1_visibility_exact_query___a37e25de9998f18a338f6317055927daf}} 
+\mbox{\hyperlink{structvisilib_1_1_visibility_exact_query_configuration}{Visibility\+Exact\+Query\+Configuration}} \mbox{\hyperlink{classvisilib_1_1_visibility_exact_query___a37e25de9998f18a338f6317055927daf}{m\+Configuration}}
+\begin{DoxyCompactList}\small\item\em The configuration parameters of the query. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classvisilib_1_1_visibility_exact_query___aa92d80cbe419dfb11e4bec7943a4979a}\label{classvisilib_1_1_visibility_exact_query___aa92d80cbe419dfb11e4bec7943a4979a}} 
+\mbox{\hyperlink{classvisilib_1_1_plucker_polytope_complex}{Plucker\+Polytope\+Complex}}$<$ P $>$ $\ast$ \mbox{\hyperlink{classvisilib_1_1_visibility_exact_query___aa92d80cbe419dfb11e4bec7943a4979a}{m\+Complex}}
+\begin{DoxyCompactList}\small\item\em The polytope complex encoding the occlusion tree. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classvisilib_1_1_visibility_exact_query___af38d44a1f04a2c2f181e7c90042dbecc}\label{classvisilib_1_1_visibility_exact_query___af38d44a1f04a2c2f181e7c90042dbecc}} 
+\mbox{\hyperlink{classvisilib_1_1_geometry_occluder_set}{Geometry\+Occluder\+Set}} $\ast$ \mbox{\hyperlink{classvisilib_1_1_visibility_exact_query___af38d44a1f04a2c2f181e7c90042dbecc}{m\+Scene}}
+\begin{DoxyCompactList}\small\item\em The scene containing the triangle mesh occluders. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classvisilib_1_1_visibility_exact_query___ae62060326802720d6dc05353f569f798}\label{classvisilib_1_1_visibility_exact_query___ae62060326802720d6dc05353f569f798}} 
+\mbox{\hyperlink{classvisilib_1_1_geometry_convex_polygon}{Geometry\+Convex\+Polygon}} $\ast$ \mbox{\hyperlink{classvisilib_1_1_visibility_exact_query___ae62060326802720d6dc05353f569f798}{m\+Query\+Polygon}} \mbox{[}2\mbox{]}
+\begin{DoxyCompactList}\small\item\em The two convex polygonal sources. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classvisilib_1_1_visibility_exact_query___a49f12637fa2d9372e87066476cbea3b1}\label{classvisilib_1_1_visibility_exact_query___a49f12637fa2d9372e87066476cbea3b1}} 
+\mbox{\hyperlink{classvisilib_1_1_helper_visual_debugger}{Helper\+Visual\+Debugger}} $\ast$ \mbox{\hyperlink{classvisilib_1_1_visibility_exact_query___a49f12637fa2d9372e87066476cbea3b1}{m\+Debugger}}
+\begin{DoxyCompactList}\small\item\em The visual debugging information of the query. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classvisilib_1_1_visibility_exact_query___aff46f0c6ba47127e6cdac7f134a237cf}\label{classvisilib_1_1_visibility_exact_query___aff46f0c6ba47127e6cdac7f134a237cf}} 
+\mbox{\hyperlink{classvisilib_1_1_helper_statistic_collector}{Helper\+Statistic\+Collector}} \mbox{\hyperlink{classvisilib_1_1_visibility_exact_query___aff46f0c6ba47127e6cdac7f134a237cf}{m\+Statistic}}
+\begin{DoxyCompactList}\small\item\em The statistics of the query. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classvisilib_1_1_visibility_exact_query___a60724cc0a8bda41cbcf21fa044c76f42}\label{classvisilib_1_1_visibility_exact_query___a60724cc0a8bda41cbcf21fa044c76f42}} 
+\mbox{\hyperlink{classvisilib_1_1_silhouette_processor}{Silhouette\+Processor}} $\ast$ \mbox{\hyperlink{classvisilib_1_1_visibility_exact_query___a60724cc0a8bda41cbcf21fa044c76f42}{m\+Silhouette\+Processor}}
+\begin{DoxyCompactList}\small\item\em The silhouette processor for silhouette optimization heuristic. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classvisilib_1_1_visibility_exact_query___afdcd18d5e821195c31a7af89a7101b47}\label{classvisilib_1_1_visibility_exact_query___afdcd18d5e821195c31a7af89a7101b47}} 
+S \mbox{\hyperlink{classvisilib_1_1_visibility_exact_query___afdcd18d5e821195c31a7af89a7101b47}{m\+Tolerance}}
+\begin{DoxyCompactList}\small\item\em The tolerance parameter used during computation. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classvisilib_1_1_visibility_exact_query___af3d8523a563062b7e44cba8ada447883}\label{classvisilib_1_1_visibility_exact_query___af3d8523a563062b7e44cba8ada447883}} 
+\mbox{\hyperlink{classvisilib_1_1_math_vector3__}{Math\+Vector3d}} {\bfseries m\+Approximate\+Normal}
+\item 
+\mbox{\Hypertarget{classvisilib_1_1_visibility_exact_query___a4a90222924ec37ee6523ae2152bead1a}\label{classvisilib_1_1_visibility_exact_query___a4a90222924ec37ee6523ae2152bead1a}} 
+\mbox{\hyperlink{classvisilib_1_1_silhouette_container}{Silhouette\+Container}} $\ast$ \mbox{\hyperlink{classvisilib_1_1_visibility_exact_query___a4a90222924ec37ee6523ae2152bead1a}{m\+Silhouette\+Container}}
+\begin{DoxyCompactList}\small\item\em The links between the polytopes and the silhouettes. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$class P, class S$>$\newline
+class visilib\+::\+Visibility\+Exact\+Query\+\_\+$<$ P, S $>$}
+
+Exact Visibility solver implementation class. 
+
+This class manages the computation of exact visibility query between two polygons through a set of occluders contained in a scene. 
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{classvisilib_1_1_visibility_exact_query___a37d430f305c3024cc8ab9efb7dbaf534}\label{classvisilib_1_1_visibility_exact_query___a37d430f305c3024cc8ab9efb7dbaf534}} 
+\index{visilib::VisibilityExactQuery\_$<$ P, S $>$@{visilib::VisibilityExactQuery\_$<$ P, S $>$}!collectAllOccluders@{collectAllOccluders}}
+\index{collectAllOccluders@{collectAllOccluders}!visilib::VisibilityExactQuery\_$<$ P, S $>$@{visilib::VisibilityExactQuery\_$<$ P, S $>$}}
+\subsubsection{\texorpdfstring{collectAllOccluders()}{collectAllOccluders()}}
+{\footnotesize\ttfamily template$<$class P , class S $>$ \\
+bool \mbox{\hyperlink{classvisilib_1_1_visibility_exact_query__}{visilib\+::\+Visibility\+Exact\+Query\+\_\+}}$<$ P, S $>$\+::collect\+All\+Occluders (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classvisilib_1_1_plucker_polytope}{Plucker\+Polytope}}$<$ P $>$ $\ast$}]{polytope,  }\item[{\mbox{\hyperlink{classvisilib_1_1_plucker_polyhedron}{Plucker\+Polyhedron}}$<$ P $>$ $\ast$}]{polyhedron,  }\item[{std\+::vector$<$ \mbox{\hyperlink{classvisilib_1_1_silhouette}{Silhouette}} $\ast$ $>$ \&}]{occluders,  }\item[{std\+::vector$<$ P $>$ \&}]{polytope\+Lines }\end{DoxyParamCaption})}
+
+
+
+Given a polytope, finds a set of occluders that is intersected by the set of lines that the polytope represents. 
+
+The occluder finding is done using a ray-\/tracing operation, the ray(s) direction used to perform the sampling beeing either a \char`\"{}representative line\char`\"{} of the polytope, or the extremal stabbing line of the polytope. \mbox{\Hypertarget{classvisilib_1_1_visibility_exact_query___a8f1759e155f8d6e1880d725ecc74bde3}\label{classvisilib_1_1_visibility_exact_query___a8f1759e155f8d6e1880d725ecc74bde3}} 
+\index{visilib::VisibilityExactQuery\_$<$ P, S $>$@{visilib::VisibilityExactQuery\_$<$ P, S $>$}!createInitialPolygons@{createInitialPolygons}}
+\index{createInitialPolygons@{createInitialPolygons}!visilib::VisibilityExactQuery\_$<$ P, S $>$@{visilib::VisibilityExactQuery\_$<$ P, S $>$}}
+\subsubsection{\texorpdfstring{createInitialPolygons()}{createInitialPolygons()}}
+{\footnotesize\ttfamily template$<$class P , class S $>$ \\
+bool \mbox{\hyperlink{classvisilib_1_1_visibility_exact_query__}{visilib\+::\+Visibility\+Exact\+Query\+\_\+}}$<$ P, S $>$\+::create\+Initial\+Polygons (\begin{DoxyParamCaption}\item[{const float $\ast$}]{vertices0,  }\item[{size\+\_\+t}]{num\+Vertices0,  }\item[{const float $\ast$}]{vertices1,  }\item[{size\+\_\+t}]{num\+Vertices1,  }\item[{bool}]{normalization }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Create the initial source polygons from the polygons provided as input. 
+
+If the suport plane of one of the input polygon intersect the other polygon, we clip the intersected polygon using the equation of the support plane. After both input polygons have been clipped, we are sure that the supporting planes of the two source polygons do not intersect inside one of the source polygons \mbox{\Hypertarget{classvisilib_1_1_visibility_exact_query___a9aecc3e02e9f23bfd1911f67833db419}\label{classvisilib_1_1_visibility_exact_query___a9aecc3e02e9f23bfd1911f67833db419}} 
+\index{visilib::VisibilityExactQuery\_$<$ P, S $>$@{visilib::VisibilityExactQuery\_$<$ P, S $>$}!findSceneIntersection@{findSceneIntersection}}
+\index{findSceneIntersection@{findSceneIntersection}!visilib::VisibilityExactQuery\_$<$ P, S $>$@{visilib::VisibilityExactQuery\_$<$ P, S $>$}}
+\subsubsection{\texorpdfstring{findSceneIntersection()}{findSceneIntersection()}}
+{\footnotesize\ttfamily template$<$class P , class S $>$ \\
+bool \mbox{\hyperlink{classvisilib_1_1_visibility_exact_query__}{visilib\+::\+Visibility\+Exact\+Query\+\_\+}}$<$ P, S $>$\+::find\+Scene\+Intersection (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classvisilib_1_1_math_vector3__}{Math\+Vector3d}} \&}]{a\+Begin,  }\item[{const \mbox{\hyperlink{classvisilib_1_1_math_vector3__}{Math\+Vector3d}} \&}]{an\+End,  }\item[{std\+::set$<$ \mbox{\hyperlink{classvisilib_1_1_silhouette_mesh_face}{Silhouette\+Mesh\+Face}} $\ast$ $>$ \&}]{intersected\+Faces,  }\item[{\mbox{\hyperlink{classvisilib_1_1_plucker_polytope}{Plucker\+Polytope}}$<$ P $>$ $\ast$}]{a\+Polytope = {\ttfamily nullptr} }\end{DoxyParamCaption})}
+
+
+
+Performs the intersection between a segment and the geometry of the scene. 
+
+When an intersection is found, the silhouette are extracted from the intersected face and the silhouette is linked to the polytope The links is used for occluder selection. 
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/code/github/visilib/visilib/plucker\+\_\+polytope\+\_\+complex.\+h\item 
+C\+:/code/github/visilib/visilib/visibility\+\_\+exact\+\_\+query.\+h\end{DoxyCompactItemize}

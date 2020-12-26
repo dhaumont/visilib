@@ -56,7 +56,7 @@ namespace visilib
         SilhouetteProcessor(HelperStatisticCollector* aStatisticCollector);
 
         /** @brief Attach a debbuger to store debugging information of the silhouette computations */
-        void attachVisualisationDebugger(VisualDebugger* aDebugger) { mDebugger = aDebugger; }
+        void attachVisualisationDebugger(HelperVisualDebugger* aDebugger) { mDebugger = aDebugger; }
 
         /** @brief Initialize the silhouette processor for the two source polygons */
         void init(const GeometryConvexPolygon& aSource1, const GeometryConvexPolygon& aSource2);
@@ -104,7 +104,7 @@ namespace visilib
         std::unordered_map<size_t, bool> mPotentialSilhouetteEdgeCache;                /**< @brief A cache storing if an edge is a potential silhouette edge*/
 
         GeometryConvexHull* mConvexHull;                                               /**< @brief The convex hull of the source polygons*/
-        VisualDebugger* mDebugger;                                                     /**< @brief A debugger collecting debugging information during silhouette extraction*/
+        HelperVisualDebugger* mDebugger;                                                     /**< @brief A debugger collecting debugging information during silhouette extraction*/
         HelperStatisticCollector* mHelperStatisticCollector;                           /**< @brief A statistic collector collecting statistics during silhouette extraction */
     };
 

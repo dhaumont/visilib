@@ -1,9 +1,9 @@
 var searchData=
 [
-  ['silhouette',['Silhouette',['../classvisilib_1_1_silhouette.html',1,'visilib']]],
-  ['silhouettecontainer',['SilhouetteContainer',['../classvisilib_1_1_silhouette_container.html',1,'visilib']]],
-  ['silhouettecontainerembree',['SilhouetteContainerEmbree',['../classvisilib_1_1_silhouette_container_embree.html',1,'visilib']]],
-  ['silhouetteedge',['SilhouetteEdge',['../structvisilib_1_1_silhouette_edge.html',1,'visilib']]],
-  ['silhouettemeshface',['SilhouetteMeshFace',['../classvisilib_1_1_silhouette_mesh_face.html',1,'visilib']]],
-  ['silhouetteprocessor',['SilhouetteProcessor',['../classvisilib_1_1_silhouette_processor.html',1,'visilib']]]
+  ['visibilityaperturefinder',['VisibilityApertureFinder',['../classvisilib_1_1_visibility_aperture_finder.html',1,'visilib']]],
+  ['visibilityexactquery',['VisibilityExactQuery',['../classvisilib_1_1_visibility_exact_query.html',1,'visilib']]],
+  ['visibilityexactqueryconfiguration',['VisibilityExactQueryConfiguration',['../structvisilib_1_1_visibility_exact_query_configuration.html',1,'visilib']]],
+  ['visibilityray',['VisibilityRay',['../structvisilib_1_1_visibility_ray.html',1,'visilib']]],
+  ['visibilitysolver',['VisibilitySolver',['../classvisilib_1_1_visibility_solver.html',1,'visilib']]],
+  ['visilibdemomain',['VisilibDemoMain',['../classvisilib_demo_1_1_visilib_demo_main.html',1,'visilibDemo']]]
 ];

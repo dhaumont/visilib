@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['performfasttest',['performFastTest',['../structvisilib_1_1_query_configuration.html#ab45239f2e17e37fd38c74ca41f33753d',1,'visilib::QueryConfiguration']]],
-  ['precision',['precision',['../structvisilib_1_1_query_configuration.html#a5109ade072b2337828b996410926b40e',1,'visilib::QueryConfiguration']]]
+  ['performfasttest',['performFastTest',['../structvisilib_1_1_visibility_exact_query_configuration.html#a1dc9eb7257bba268ce68a14cbcdd18d0',1,'visilib::VisibilityExactQueryConfiguration']]],
+  ['precision',['precision',['../structvisilib_1_1_visibility_exact_query_configuration.html#a85a72847cd60b3d5d41d0a893e439a71',1,'visilib::VisibilityExactQueryConfiguration']]]
 ];

@@ -24,13 +24,13 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include <vector>
 namespace visilib
 {
-    class VisualDebugger;
+    class HelperVisualDebugger;
     class HelperDebugVisualisation;
     class GeometryOccluderSet;
 
-    /** @brief Represents a 3D ray.*/
+    /** @brief Represents a 3D ray, and contains the list of intersected geometries.*/
 
-    struct Ray
+    struct VisibilityRay
     {
         float org[3];          /**< @brief Ray origin*/
         float dir[3];          /**< @brief Ray direction*/
@@ -52,11 +52,11 @@ namespace visilib
 
     /** @brief Description of a discrete geometry (ie a mesh).*/
 
-    struct DiscreteGeometryDescription
+    struct GeometryDiscreteMeshDescription
     {
-        DiscreteGeometryDescription();
+        GeometryDiscreteMeshDescription();
         
-        virtual ~DiscreteGeometryDescription()
+        virtual ~GeometryDiscreteMeshDescription()
         {
         }
 
@@ -72,9 +72,9 @@ namespace visilib
 
     /** @brief Representation of a triangle mesh.*/
 
-    struct TriangleMeshDescription : public DiscreteGeometryDescription
+    struct GeometryTriangleMeshDescription : public GeometryDiscreteMeshDescription
     {
-        TriangleMeshDescription();
+        GeometryTriangleMeshDescription();
 
         virtual std::vector<int> getIndices(size_t aFace) const override
         {
@@ -91,26 +91,26 @@ namespace visilib
 
     /** @brief Represents a container to store visual debugging information collected during a visibility query.*/
 
-    class VisualDebugger
+    class HelperVisualDebugger
     {
     public:
-        VisualDebugger();
-        ~VisualDebugger();
+        HelperVisualDebugger();
+        ~HelperVisualDebugger();
 
         /** @brief Return a mesh containing the removed triangles for visualization purposes*/
-        const TriangleMeshDescription& getRemovedTriangles() const;
+        const GeometryTriangleMeshDescription& getRemovedTriangles() const;
 
         /** @brief Return a mesh containing the stabbing lines for visualization purposes*/
-        const TriangleMeshDescription& getStabbingLines() const;
+        const GeometryTriangleMeshDescription& getStabbingLines() const;
 
         /** @brief Return a mesh containing the extremal stabbing lines for visualization purposes*/
-        const TriangleMeshDescription& getExtremalStabbingLines() const;
+        const GeometryTriangleMeshDescription& getExtremalStabbingLines() const;
         
         /** @brief Return a mesh containing the sampling lines for visualization purposes*/
-        const TriangleMeshDescription& getSamplingLines() const;
+        const GeometryTriangleMeshDescription& getSamplingLines() const;
 
         /** @brief Return a mesh containing the removed edges for visualization purposes*/
-        const TriangleMeshDescription& getRemovedEdges() const;
+        const GeometryTriangleMeshDescription& getRemovedEdges() const;
 
 
         HelperDebugVisualisation* get()  { return mInternalDebugger; }
@@ -122,7 +122,7 @@ namespace visilib
 
     /** @brief Configuration of a visibility query.*/
 
-    struct QueryConfiguration
+    struct VisibilityExactQueryConfiguration
     {
         /** @brief Arithmetic model presision  */
         enum PrecisionType
@@ -134,7 +134,7 @@ namespace visilib
 #endif
         };
 
-        QueryConfiguration()
+        VisibilityExactQueryConfiguration()
         {
             silhouetteOptimization = true;
             hyperSphereNormalization = false;
@@ -146,7 +146,7 @@ namespace visilib
             useEmbree = false;
         };
 
-        QueryConfiguration(const QueryConfiguration& other)
+        VisibilityExactQueryConfiguration(const VisibilityExactQueryConfiguration& other)
         {
             silhouetteOptimization = other.silhouetteOptimization;
             hyperSphereNormalization = other.hyperSphereNormalization;
@@ -192,8 +192,8 @@ namespace visilib
 
     VisibilityResult areVisible(GeometryOccluderSet* scene,
                                 const float* vertices0, size_t numVertices0, const float* vertices1, size_t numVertices1,
-                                const QueryConfiguration& configuration = QueryConfiguration(), 
-                                VisualDebugger* debugger = nullptr);
+                                const VisibilityExactQueryConfiguration& configuration = VisibilityExactQueryConfiguration(), 
+                                HelperVisualDebugger* debugger = nullptr);
 
 };
 

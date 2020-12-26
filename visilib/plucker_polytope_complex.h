@@ -31,7 +31,7 @@ namespace visilib
     class PluckerPolyhedron;
     class HelperStatisticCollector;
     template<class P, class S>
-    class VisibilityExactQuery;
+    class VisibilityExactQuery_;
     class GeometryConvexPolygon;
 
    

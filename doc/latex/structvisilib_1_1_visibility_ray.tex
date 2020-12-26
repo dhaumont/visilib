@@ -1,0 +1,49 @@
+\hypertarget{structvisilib_1_1_visibility_ray}{}\section{visilib\+::Visibility\+Ray Struct Reference}
+\label{structvisilib_1_1_visibility_ray}\index{visilib::VisibilityRay@{visilib::VisibilityRay}}
+
+
+Represents a 3D ray, and contains the list of intersected geometries.  
+
+
+
+
+{\ttfamily \#include $<$visilib.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structvisilib_1_1_visibility_ray_abdcc6b677206ac4226530a32f3ce58ec}\label{structvisilib_1_1_visibility_ray_abdcc6b677206ac4226530a32f3ce58ec}} 
+void {\bfseries add\+Intersection} (size\+\_\+t geometry\+Id, size\+\_\+t primitive\+Id, double t)
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structvisilib_1_1_visibility_ray_a8c78b0461d9f6e5425c5e14fcd24a9d1}\label{structvisilib_1_1_visibility_ray_a8c78b0461d9f6e5425c5e14fcd24a9d1}} 
+float \mbox{\hyperlink{structvisilib_1_1_visibility_ray_a8c78b0461d9f6e5425c5e14fcd24a9d1}{org}} \mbox{[}3\mbox{]}
+\begin{DoxyCompactList}\small\item\em Ray origin. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structvisilib_1_1_visibility_ray_ad3c5fe1430162ea249feb953f6a5a347}\label{structvisilib_1_1_visibility_ray_ad3c5fe1430162ea249feb953f6a5a347}} 
+float \mbox{\hyperlink{structvisilib_1_1_visibility_ray_ad3c5fe1430162ea249feb953f6a5a347}{dir}} \mbox{[}3\mbox{]}
+\begin{DoxyCompactList}\small\item\em Ray direction. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structvisilib_1_1_visibility_ray_afcf9585cadf9308044ff540f2206a890}\label{structvisilib_1_1_visibility_ray_afcf9585cadf9308044ff540f2206a890}} 
+float \mbox{\hyperlink{structvisilib_1_1_visibility_ray_afcf9585cadf9308044ff540f2206a890}{tnear}}
+\begin{DoxyCompactList}\small\item\em Start of ray segment. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structvisilib_1_1_visibility_ray_ad086e44a14588e12ebfb760803a07b47}\label{structvisilib_1_1_visibility_ray_ad086e44a14588e12ebfb760803a07b47}} 
+float \mbox{\hyperlink{structvisilib_1_1_visibility_ray_ad086e44a14588e12ebfb760803a07b47}{tfar}}
+\begin{DoxyCompactList}\small\item\em End of ray segment (set to hit distance) \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structvisilib_1_1_visibility_ray_afcabcbc095ab51fd144519eb568f128b}\label{structvisilib_1_1_visibility_ray_afcabcbc095ab51fd144519eb568f128b}} 
+std\+::vector$<$ size\+\_\+t $>$ \mbox{\hyperlink{structvisilib_1_1_visibility_ray_afcabcbc095ab51fd144519eb568f128b}{m\+Geometry\+Ids}}
+\begin{DoxyCompactList}\small\item\em Intersected geometry mesh. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structvisilib_1_1_visibility_ray_a544abf65e84c6ab85ba8b919b773b768}\label{structvisilib_1_1_visibility_ray_a544abf65e84c6ab85ba8b919b773b768}} 
+std\+::vector$<$ size\+\_\+t $>$ \mbox{\hyperlink{structvisilib_1_1_visibility_ray_a544abf65e84c6ab85ba8b919b773b768}{m\+Primitive\+Ids}}
+\begin{DoxyCompactList}\small\item\em Intersected primitve of the mesh. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structvisilib_1_1_visibility_ray_ac2a55af977beb87b9c1ce11667c12850}\label{structvisilib_1_1_visibility_ray_ac2a55af977beb87b9c1ce11667c12850}} 
+std\+::vector$<$ double $>$ \mbox{\hyperlink{structvisilib_1_1_visibility_ray_ac2a55af977beb87b9c1ce11667c12850}{m\+Ts}}
+\begin{DoxyCompactList}\small\item\em Intersected primitve of the mesh. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Represents a 3D ray, and contains the list of intersected geometries. 
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/code/github/visilib/visilib/visilib.\+h\end{DoxyCompactItemize}

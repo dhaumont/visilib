@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['facecount',['faceCount',['../structvisilib_1_1_discrete_geometry_description.html#ad3e0036614577235871af289b06e9153',1,'visilib::DiscreteGeometryDescription']]]
+  ['facecount',['faceCount',['../structvisilib_1_1_geometry_discrete_mesh_description.html#a62095a1d44914be5e4876494c3301f1e',1,'visilib::GeometryDiscreteMeshDescription']]]
 ];

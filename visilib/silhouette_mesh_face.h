@@ -54,7 +54,7 @@ namespace visilib
         }
 
         /** @brief Initialize a face from a triangle mesh*/
-        void setGeometry(DiscreteGeometryDescription* aMesh, size_t aFace)
+        void setGeometry(GeometryDiscreteMeshDescription* aMesh, size_t aFace)
         {
             const MathVector3f* myVertices = (MathVector3f*)aMesh->vertexArray;
             std::vector<int> myIndices = aMesh->getIndices(aFace);

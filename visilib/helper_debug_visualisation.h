@@ -60,19 +60,19 @@ namespace visilib
         void addRemovedTriangle(const MathVector3f& a1, const MathVector3f& a2, const MathVector3f& a3);
 
         /** @brief Return a mesh containing the removed triangles for visualization purposes*/
-        const TriangleMeshDescription& getRemovedTriangles() const;
+        const GeometryTriangleMeshDescription& getRemovedTriangles() const;
 
         /** @brief Return a mesh containing the stabbing lines for visualization purposes*/
-        const TriangleMeshDescription& getStabbingLines() const;
+        const GeometryTriangleMeshDescription& getStabbingLines() const;
  
         /** @brief Return a mesh containing the extremal stabbing lines for visualization purposes*/
-        const TriangleMeshDescription& getExtremalStabbingLines() const;
+        const GeometryTriangleMeshDescription& getExtremalStabbingLines() const;
 
         /** @brief Return a mesh containing the sampling lines for visualization purposes*/
-        const TriangleMeshDescription& getSamplingLines() const;
+        const GeometryTriangleMeshDescription& getSamplingLines() const;
 
         /** @brief Return a mesh containing the removed edges for visualization purposes*/
-        const TriangleMeshDescription& getRemovedEdges() const;
+        const GeometryTriangleMeshDescription& getRemovedEdges() const;
 
         
         std::ofstream& getDebugOutput() {   return mDebugOutput;};
@@ -84,11 +84,11 @@ namespace visilib
         std::vector<MathVector3f> mSamplingLineArray;   /** <@brief The array of sampling lines that have been processed*/
         std::vector<MathVector3f> mExtremalStabbingLineArray;   /** <@brief The array of extremal stabbbing lines that have been processed*/
 
-        TriangleMeshDescription mSplittingEdgeInformation;     /** <@brief The mesh containing the removed edges for visualization purposes*/
-        TriangleMeshDescription mRemovedTriangleInformation;   /** <@brief The mesh containing the removed triangles for visualization purposes*/
-        TriangleMeshDescription mStabbingLineInformation;      /** <@brief The mesh containing the removed stabbing lines for visualization purposes*/
-        TriangleMeshDescription mSamplingLineInformation;      /** <@brief The mesh containing the removed sampling lines for visualization purposes*/
-        TriangleMeshDescription mExtremalStabbingLineInformation;   /** <@brief The mesh containing the extremal stabbing lines for visualization purposes*/
+        GeometryTriangleMeshDescription mSplittingEdgeInformation;     /** <@brief The mesh containing the removed edges for visualization purposes*/
+        GeometryTriangleMeshDescription mRemovedTriangleInformation;   /** <@brief The mesh containing the removed triangles for visualization purposes*/
+        GeometryTriangleMeshDescription mStabbingLineInformation;      /** <@brief The mesh containing the removed stabbing lines for visualization purposes*/
+        GeometryTriangleMeshDescription mSamplingLineInformation;      /** <@brief The mesh containing the removed sampling lines for visualization purposes*/
+        GeometryTriangleMeshDescription mExtremalStabbingLineInformation;   /** <@brief The mesh containing the extremal stabbing lines for visualization purposes*/
         std::ofstream mDebugOutput;
     };
 
@@ -177,27 +177,27 @@ namespace visilib
 
     }
 
-    inline const TriangleMeshDescription& HelperDebugVisualisation::getRemovedTriangles() const
+    inline const GeometryTriangleMeshDescription& HelperDebugVisualisation::getRemovedTriangles() const
     {
         return mRemovedTriangleInformation;
     }
 
-    inline const TriangleMeshDescription& HelperDebugVisualisation::getStabbingLines() const
+    inline const GeometryTriangleMeshDescription& HelperDebugVisualisation::getStabbingLines() const
     {  
         return mStabbingLineInformation;
     }
 
-    inline const TriangleMeshDescription& HelperDebugVisualisation::getExtremalStabbingLines() const
+    inline const GeometryTriangleMeshDescription& HelperDebugVisualisation::getExtremalStabbingLines() const
     {
         return mExtremalStabbingLineInformation;
     }
 
-    inline const TriangleMeshDescription& HelperDebugVisualisation::getSamplingLines() const
+    inline const GeometryTriangleMeshDescription& HelperDebugVisualisation::getSamplingLines() const
     {
         return mSamplingLineInformation;
     }
 
-    inline const TriangleMeshDescription& HelperDebugVisualisation::getRemovedEdges() const
+    inline const GeometryTriangleMeshDescription& HelperDebugVisualisation::getRemovedEdges() const
     {
         return mSplittingEdgeInformation;
     }

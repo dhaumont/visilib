@@ -65,7 +65,7 @@ namespace visilib
         virtual size_t add(HelperTriangleMesh* mesh);
 
         /** @brief Return triangle mesh data information of a geometry stored in the scene*/
-        DiscreteGeometryDescription* createTriangleMeshDescription(size_t geometryId) const;
+        GeometryDiscreteMeshDescription* createTriangleMeshDescription(size_t geometryId) const;
 
         /** @brief Remove the degnerated triangles*/
         virtual void removeDegeneratedTriangles(float threshold);
@@ -111,10 +111,10 @@ namespace visilib
         }
     }
 
-    inline DiscreteGeometryDescription* HelperTriangleMeshContainer::createTriangleMeshDescription(size_t geometryId) const
+    inline GeometryDiscreteMeshDescription* HelperTriangleMeshContainer::createTriangleMeshDescription(size_t geometryId) const
     {
         HelperTriangleMesh* mesh = mMeshArray[geometryId];
-        TriangleMeshDescription* info = new TriangleMeshDescription;
+        GeometryTriangleMeshDescription* info = new GeometryTriangleMeshDescription;
         info->vertexCount = mesh->getVertexCount();
         info->faceCount= mesh->getIndiceCount() / 3;
         info->indexArray = &mesh->getIndices()[0];

@@ -91,9 +91,9 @@ Inheritance diagram for visilib::SilhouetteContainerEmbree:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a3a7290096b31163d775b11a356b7d3e0"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_silhouette_container_embree.html#a3a7290096b31163d775b11a356b7d3e0">intersect</a> (<a class="el" href="structvisilib_1_1_ray.html">Ray</a> *aRay) override</td></tr>
-<tr class="memdesc:a3a7290096b31163d775b11a356b7d3e0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Intersect the ray with the geometry.  <a href="#a3a7290096b31163d775b11a356b7d3e0">More...</a><br /></td></tr>
-<tr class="separator:a3a7290096b31163d775b11a356b7d3e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3cc23503bfa6f2db55762cf0851d6c69"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_silhouette_container_embree.html#a3cc23503bfa6f2db55762cf0851d6c69">intersect</a> (<a class="el" href="structvisilib_1_1_visibility_ray.html">VisibilityRay</a> *aRay) override</td></tr>
+<tr class="memdesc:a3cc23503bfa6f2db55762cf0851d6c69"><td class="mdescLeft">&#160;</td><td class="mdescRight">Intersect the ray with the geometry.  <a href="#a3cc23503bfa6f2db55762cf0851d6c69">More...</a><br /></td></tr>
+<tr class="separator:a3cc23503bfa6f2db55762cf0851d6c69"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad3d6193f5484b3fb56096efd8a1230a8"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classvisilib_1_1_silhouette_container_embree.html#ad3d6193f5484b3fb56096efd8a1230a8">prepare</a> ()</td></tr>
 <tr class="memdesc:ad3d6193f5484b3fb56096efd8a1230a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prepare the scene before ray tracing.  <a href="#ad3d6193f5484b3fb56096efd8a1230a8">More...</a><br /></td></tr>
 <tr class="separator:ad3d6193f5484b3fb56096efd8a1230a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -134,8 +134,8 @@ template&lt;class P , class S &gt; </td></tr>
 <div class="textblock"><p>Represents a set of silhouettes, using Embree library from Intel to perform ray-tracing against those silhouettes. </p>
 <p>This class is performance oriented, and is intended to provide the fastest possible occluder ray intersection, by using a modern ray tracing engine. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
-<a id="a3a7290096b31163d775b11a356b7d3e0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3a7290096b31163d775b11a356b7d3e0">&#9670;&nbsp;</a></span>intersect()</h2>
+<a id="a3cc23503bfa6f2db55762cf0851d6c69"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3cc23503bfa6f2db55762cf0851d6c69">&#9670;&nbsp;</a></span>intersect()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -146,7 +146,7 @@ template&lt;class P , class S &gt; </td></tr>
         <tr>
           <td class="memname">bool visilib::SilhouetteContainerEmbree::intersect </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structvisilib_1_1_ray.html">Ray</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="structvisilib_1_1_visibility_ray.html">VisibilityRay</a> *&#160;</td>
           <td class="paramname"><em>aRay</em></td><td>)</td>
           <td></td>
         </tr>

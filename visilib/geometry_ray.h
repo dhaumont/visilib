@@ -31,7 +31,7 @@ namespace visilib
     {
     public:
 
-        GeometryRay(const Ray& ray);
+        GeometryRay(const VisibilityRay& ray);
 
         GeometryRay(const MathVector3f& aStart, const MathVector3f& aDirection);
 
@@ -89,7 +89,7 @@ namespace visilib
         int kz;
     };
 
-    inline GeometryRay::GeometryRay(const Ray& ray)
+    inline GeometryRay::GeometryRay(const VisibilityRay& ray)
         : Sx(0.0), Sy(0.0), Sz(0.0), kx(0), ky(0), kz(0)
     {
         initialize(MathVector3f(ray.org), MathVector3f(ray.dir));
