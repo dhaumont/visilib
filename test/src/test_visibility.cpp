@@ -58,7 +58,7 @@ bool VisibilityTest(std::string& )
 #ifdef EXACT_ARITHMETIC
     precisions.push_back(VisibilityExactQueryConfiguration::EXACT);
 #endif
-    std::vector<float> globalScalings = {0.05f, 0.1f, 1.f, 10, 100, 100 };
+    std::vector<float> globalScalings = {0.05f, 0.1f, 1.f, 5.0f };
     std::vector<size_t> vertexCount = { 1,2,3,5,7,9,11 };
     std::vector<bool> normalizations = { true,false };
     std::vector<float> phis = { 0.0};
@@ -87,8 +87,7 @@ bool VisibilityTest(std::string& )
                             configuration.displaySummary();
 
                             if (!testConfiguration(configuration, VISIBLE))
-                            {
-                                std::cout << " FAILED" << std::endl;
+                            {   std::cout << " FAILED" << std::endl;
                                 result = false;
                             }
                             else
