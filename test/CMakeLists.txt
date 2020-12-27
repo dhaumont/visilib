@@ -25,6 +25,10 @@ create_test_sourcelist(Tests ${KIT}CxxTests.cpp
 include_directories( ../visilib/ )
 
 add_executable(visilibTest src/test_math.cpp)
+add_executable(visilibTest src/test_visibility.cpp)
+add_executable(visilibTest src/test_full.cpp)
+
+add_executable(visilibTest ../demo/demo_helper.cpp)
 
 target_link_libraries(visilibTest ${LIBS})
 

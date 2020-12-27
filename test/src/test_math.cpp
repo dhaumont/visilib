@@ -99,24 +99,8 @@ bool MathCombinatorialTest(std::string& )
 			return false;
 	}
 
-	return true;
-}
-bool MathPluckerTest(std::string& )
-{
-	std::cout << "Hello" << std::endl;
-	//    areVisible(nullptr, nullptr, 0, nullptr, 0);
+
+    std::cout << "MathCombinatorialTest SUCCESS" << std::endl;
 
 	return true;
-}
-
-int main()
-{
-	std::string errorMessage;
-
-	if (!MathCombinatorialTest(errorMessage))
-	{
-		return 1;
-	}
-
-	return 0;
 }

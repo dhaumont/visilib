@@ -196,3 +196,104 @@ HelperTriangleMeshContainer* DemoHelper::createScene(int s, float globalScalingF
 
     return myMeshContainer;
 }
+
+GeometryOccluderSet* DemoHelper::createOccluderSet(HelperTriangleMeshContainer* aContainer)
+{
+    GeometryOccluderSet* occluderSet = new GeometryOccluderSet();
+    for (size_t index = 0; index < aContainer->getGeometryCount(); index++)
+    {
+        GeometryDiscreteMeshDescription* info = aContainer->createTriangleMeshDescription(index);
+        occluderSet->addOccluder(info);
+    }
+    occluderSet->prepare();
+
+    return occluderSet;
+}
+
+void DemoHelper::configureDemoConfiguration(const std::string& name, DemoConfiguration& configuration)
+{
+}
+
+void DemoConfiguration::displaySettings()
+{
+    std::cout << std::endl << "Current Demo Settings: " << std::endl;
+
+    std::cout << "  [OccluderSet index:" << sceneIndex << "]";
+    std::cout << "[Source Size: " << scaling << "]";
+    std::cout << "[Source Vertices: " << vertexCount0 << " and " << vertexCount1 << "]";
+    std::cout << "[GlobalScaling:" << globalScaling << "]";
+    std::cout << std::endl;
+
+    std::cout << "  [Early stop: " << getStatusString(detectApertureOnly) << "]";
+    std::cout << "[Silhouette: " << getStatusString(silhouetteOptimisation) << "]";
+    std::cout << "[Middle line: " << getStatusString(representativeLineSampling) << "]";
+    std::cout << "[Normalization: " << getStatusString(normalization) << "]" << std::endl;
+
+#if EXACT_ARITHMETIC            
+    if (precisionType == QueryConfiguration::EXACT)
+        std::cout << "  [Exact arithmetic: ON]";
+    else
+#endif
+        std::cout << "  [Exact arithmetic: OFF]";
+#if EMBREE           
+    std::cout << "[Embree:" << getStatusString(embree) << "]" << std::endl;
+#endif
+
+}
+
+
+void DemoConfiguration::writeConfig(const std::string& filename)
+{
+    std::ofstream output(filename);
+    output << "vertexCount0 = " << vertexCount0 << std::endl;
+    output << "vertexCount1 = " << vertexCount1 << std::endl;
+    output << "silhouetteOptimisation  = " << silhouetteOptimisation << std::endl;
+    output << "detectApertureOnly  = " << detectApertureOnly << std::endl;
+    output << "representativeLineSampling  = " << representativeLineSampling << std::endl;
+    output << "normalization  = " << normalization << std::endl;
+    output << "scaling  = " << scaling << std::endl;
+    output << "phi  = " << phi << std::endl;
+    output << "eta = " << eta << std::endl;
+    output << "sceneIndex = " << sceneIndex << std::endl;
+    output << "globalScaling = " << globalScaling << std::endl;
+    output << "precisionType = " << precisionType << std::endl;
+
+    output.close();
+}
+
+void DemoConfiguration::readConfig(const std::string& filename)
+{
+    std::ifstream input(filename);
+    if (!input.is_open())
+        return;
+    while (!input.eof())
+    {
+        std::vector<std::string> tokens;
+
+        HelperGeometrySceneReader::tokenizeNextLine(input, tokens);
+        if (tokens.size() != 3)
+            continue;
+
+        if (tokens[0] == "vertexCount0") { vertexCount0 = atoi(tokens[2].c_str()); }
+        else if (tokens[0] == "vertexCount1") { vertexCount1 = atoi(tokens[2].c_str()); }
+        else if (tokens[0] == "silhouetteOptimisation") { silhouetteOptimisation = atoi(tokens[2].c_str()); }
+        else if (tokens[0] == "detectApertureOnly") { detectApertureOnly = atoi(tokens[2].c_str()); }
+        else if (tokens[0] == "representativeLineSampling") { representativeLineSampling = atoi(tokens[2].c_str()); }
+        else if (tokens[0] == "normalization") { normalization = atoi(tokens[2].c_str()); }
+        else if (tokens[0] == "scaling") { scaling = (float)atof(tokens[2].c_str()); }
+        else if (tokens[0] == "phi") { phi = (float)atof(tokens[2].c_str()); }
+        else if (tokens[0] == "eta") { eta = (float)atof(tokens[2].c_str()); }
+        else if (tokens[0] == "sceneIndex") { sceneIndex = atoi(tokens[2].c_str()); }
+        else if (tokens[0] == "globalScaling") { globalScaling = (float)atof(tokens[2].c_str()); }
+        else if (tokens[0] == "precisionType") { precisionType = (VisibilityExactQueryConfiguration::PrecisionType)atoi(tokens[2].c_str()); }
+
+        else { V_ASSERT(0); }
+    }
+    input.close();
+}
+
+
+void DemoConfiguration::displaySummary()
+{
+    std::cout << "VisibilityTest [Scaling: " << globalScaling << ", v0: " << vertexCount0 << ", vv1: " << vertexCount1 << "; phi:" << phi << "] ";
+}

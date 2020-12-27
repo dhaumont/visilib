@@ -25,11 +25,38 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 
 namespace visilibDemo
 {
+    struct DemoConfiguration
+    {
+        std::string getStatusString(bool enable)
+        {
+            return enable ? "ON" : "OFF";
+        }
+        size_t vertexCount0 = 3;
+        size_t vertexCount1 = 3;
+        bool silhouetteOptimisation = true;
+        bool representativeLineSampling = true;
+        VisibilityExactQueryConfiguration::PrecisionType precisionType = VisibilityExactQueryConfiguration::DOUBLE;
+        bool detectApertureOnly = false;
+        bool normalization = true;
+        float scaling = 0.1f;
+        float phi = 0;
+        float eta = 0;
+        int   sceneIndex = 2;
+        float globalScaling = 1;
+
+        void displaySettings();
+        void readConfig(const std::string& filename);
+        void writeConfig(const std::string& filename);
+        void displaySummary();
+    };
+
     class DemoHelper
     {
     public:
         static void generatePolygon(std::vector<float>& v, size_t vertexCount, float size, float phi, float scaling);
         static bool load(visilib::HelperTriangleMeshContainer* scene, const std::string& fileName, bool rempveDegeneratedTriangles = false);
         static HelperTriangleMeshContainer* createScene(int s, float globalScalingFactor);
+        static GeometryOccluderSet* createOccluderSet(HelperTriangleMeshContainer* aContainer);
+        static void configureDemoConfiguration(const std::string& name, DemoConfiguration& configuration);
     };
 }
