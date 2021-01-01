@@ -110,8 +110,8 @@ TODO
 
 ### License ###
 Visilib is  GNU GPL v3 licensed.
-
-
+If you use Visilib in a publication, please cite the following paper and refer to this project.
+```
 @inproceedings{DBLP:conf/rt/HaumontMN05,
   author    = {Denis Haumont and
                Otso Makinen and
@@ -135,7 +135,7 @@ Visilib is  GNU GPL v3 licensed.
   biburl    = {https://dblp.org/rec/conf/rt/HaumontMN05.bib},
   bibsource = {dblp computer science bibliography, https://dblp.org}
 }
-
+```
 
 WIndows (VS2019 x64)
 
