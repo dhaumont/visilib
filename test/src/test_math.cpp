@@ -99,6 +99,7 @@ bool MathCombinatorialTest(std::string& )
 			return false;
 	}
 
+    std::cout << "MathCombinatorialTest SUCCESS" << std::endl;
 	return true;
 }
 bool MathPluckerTest(std::string& )
@@ -115,6 +116,7 @@ int main()
 
 	if (!MathCombinatorialTest(errorMessage))
 	{
+        std::cout << "MathCombinatorialTest FAILURE: " << errorMessage << std::endl;
 		return 1;
 	}
 
