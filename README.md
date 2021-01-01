@@ -1,4 +1,4 @@
-# Visilib Overview#
+### Visilib Overview ###
 
 The visilib project aims to provide an efficient and robust library for exact visibility computation in 3D.
 
