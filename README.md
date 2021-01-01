@@ -142,7 +142,8 @@ If you use Visilib in a publication, please cite the following paper and refer t
 
 visilibDemo is an interactive demo application provided with visilib library.
 
-It allows to test the different library options interactively, by pressing the following keys.
+It allows to test the different library options interactively, by pressing the following keys:
+
 
 - 's': enable/disable silhouette optimisation
 
@@ -151,19 +152,26 @@ With silhouette optimisation, only the potential silhouette edges of the occlude
 
 - 'n': enable/disable nomalization
 
+When normalisation is activated, all points in the projective Plucker space are projected onto an unit hypersphere, in order to avoid numerical errors.
+
 - 'r': enable/disable representative line sampling strategy
+  
   
 - 'f': enable/disable detect aperture only
 
-- 'n': enable/disable Plucker normalization
-  
+When this option is activated, the visibility computation stops as soon as the two sources are proven to be mutually visible. Otherwise, the computation continues until the complete visibility information has been computed.
+ 
+ 
 - 'f': enable/disable fast silhouette rejection test
-  
-- 'x': change scene 
-  
+ 
 - '+/-': increase/decrease scaling of query polygons
 
-- '1/2': increase/decrease number of vertices of query polygons
+These
+
+- '1/2': increase/decrease number of vertices of the first query source
+
+The  key '1' decreases the number of vertices of the first source.
+The  key '2' increases the number of vertices of the first source.
 
 - 'w': write config
 
@@ -171,12 +179,14 @@ With silhouette optimisation, only the potential silhouette edges of the occlude
 
 - 'space': start/pause animation
 
+When animation is started, the source polygons will perform a rotation arount the scene.
+
 - 'Enter': show/hide geometry
 
+For debugging purpose, allow to change the representation of the scene and of the query polygons. 
 
-'h': write this help
-
-
+'h': display help
+Display the list of keys and their effect
 
 
 WIndows (VS2019 x64)
