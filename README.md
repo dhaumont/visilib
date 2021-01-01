@@ -137,6 +137,48 @@ If you use Visilib in a publication, please cite the following paper and refer t
 }
 ```
 
+
+### visilibDemo ###
+
+visilibDemo is an interactive demo application provided with visilib library.
+
+It allows to test the different library options interactively, by pressing the following keys.
+
+- 's': enable/disable silhouette optimisation
+
+Without silhouette optimisation, all the edges of the occluders are used to perform CSG operations in Plucker space.
+With silhouette optimisation, only the potential silhouette edges of the occluders with respect to the source polygons are used.
+
+- 'n': enable/disable nomalization
+
+- 'r': enable/disable representative line sampling strategy
+  
+- 'f': enable/disable detect aperture only
+
+- 'n': enable/disable Plucker normalization
+  
+- 'f': enable/disable fast silhouette rejection test
+  
+- 'x': change scene 
+  
+- '+/-': increase/decrease scaling of query polygons
+
+- '1/2': increase/decrease number of vertices of query polygons
+
+- 'w': write config
+
+- 'o': open config
+
+- 'space': start/pause animation
+
+- 'Enter': show/hide geometry
+
+
+'h': write this help
+
+
+
+
 WIndows (VS2019 x64)
 
 
