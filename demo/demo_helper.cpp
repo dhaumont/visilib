@@ -230,7 +230,7 @@ void DemoConfiguration::displaySettings()
     std::cout << "[Normalization: " << getStatusString(normalization) << "]" << std::endl;
 
 #if EXACT_ARITHMETIC            
-    if (precisionType == QueryConfiguration::EXACT)
+    if (precisionType == VisibilityExactQueryConfiguration::EXACT)
         std::cout << "  [Exact arithmetic: ON]";
     else
 #endif
@@ -297,3 +297,7 @@ void DemoConfiguration::displaySummary()
 {
     std::cout << "VisibilityTest [Scaling: " << globalScaling << ", v0: " << vertexCount0 << ", vv1: " << vertexCount1 << "; phi:" << phi << "] ";
 }
+
+#if EMBREE
+RTCDevice SilhouetteContainerEmbree::mDevice = nullptr;
+#endif

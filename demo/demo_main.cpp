@@ -66,7 +66,7 @@ namespace visilibDemo
                 0, 0, 0,
                 1, 0, 0);
 #endif
-            return initScene(configuration.sceneIndex);
+            return initScene(mDemoConfiguration.sceneIndex);
         }
         bool initScene(int s)
         {
@@ -76,7 +76,7 @@ namespace visilibDemo
             debugger = new HelperVisualDebugger();
 
             delete meshContainer;
-            meshContainer = DemoHelper::createScene(s, configuration.globalScaling);
+            meshContainer = DemoHelper::createScene(s, mDemoConfiguration.globalScaling);
             
             delete occluderSet;
             occluderSet = DemoHelper::createOccluderSet(meshContainer);
@@ -87,13 +87,13 @@ namespace visilibDemo
         void resolveVisibility()
         {
             VisibilityExactQueryConfiguration config;
-            config.silhouetteOptimization = configuration.silhouetteOptimisation;
-            config.hyperSphereNormalization = configuration.normalization;
-            config.precision = configuration.precisionType;
-            config.representativeLineSampling = configuration.representativeLineSampling;
-            config.detectApertureOnly = configuration.detectApertureOnly;
+            config.silhouetteOptimization = mDemoConfiguration.silhouetteOptimisation;
+            config.hyperSphereNormalization = mDemoConfiguration.normalization;
+            config.precision = mDemoConfiguration.precisionType;
+            config.representativeLineSampling = mDemoConfiguration.representativeLineSampling;
+            config.detectApertureOnly = mDemoConfiguration.detectApertureOnly;
 #if EMBREE 
-            config.useEmbree = embree;
+            config.useEmbree = mDemoConfiguration.embree;
 #endif
             result = visilib::areVisible(occluderSet, &v0[0], v0.size() / 3, &v1[0], v1.size() / 3, config, debugger);
         }
@@ -102,15 +102,15 @@ namespace visilibDemo
         {
             if (animated)
             {
-                configuration.phi += 0.005f;
-                configuration.eta += 0.001f;
+                mDemoConfiguration.phi += 0.005f;
+                mDemoConfiguration.eta += 0.001f;
                 forceDisplay = true;
             }
 
             if (forceDisplay)
             {
-                DemoHelper::generatePolygon(v0, configuration.vertexCount0, configuration.scaling, configuration.phi - 3.14519f, configuration.globalScaling);
-                DemoHelper::generatePolygon(v1, configuration.vertexCount1, configuration.scaling, configuration.phi, configuration.globalScaling);
+                DemoHelper::generatePolygon(v0, mDemoConfiguration.vertexCount0, mDemoConfiguration.scaling, mDemoConfiguration.phi - 3.14519f, mDemoConfiguration.globalScaling);
+                DemoHelper::generatePolygon(v1, mDemoConfiguration.vertexCount1, mDemoConfiguration.scaling, mDemoConfiguration.phi, mDemoConfiguration.globalScaling);
 
                 resolveVisibility();
 
@@ -123,12 +123,12 @@ namespace visilibDemo
 
         void writeConfig(const std::string & filename)
         {
-            configuration.writeConfig(filename);
+            mDemoConfiguration.writeConfig(filename);
         }
 
         void readConfig(const std::string & filename)
         {
-            configuration.readConfig(filename);
+            mDemoConfiguration.readConfig(filename);
         }
 
         void display()
@@ -138,7 +138,7 @@ namespace visilibDemo
 
         void displaySettings()
         {
-            configuration.displaySettings();
+            mDemoConfiguration.displaySettings();
         }
 
         void writeHelp()
@@ -174,6 +174,10 @@ namespace visilibDemo
 
         void keyboard(unsigned char key, int, int)
         {
+            static int wc = 10;
+            static int rc = 0;
+            std::stringstream ss;
+
             switch (key)
             {
             case 27:  // The escape key
@@ -183,45 +187,45 @@ namespace visilibDemo
                 break;
 
             case '2':
-                if (configuration.vertexCount1 < 12)
-                    configuration.vertexCount1++;
+                if (mDemoConfiguration.vertexCount1 < 12)
+                    mDemoConfiguration.vertexCount1++;
 
                 forceDisplay = true;
                 break;
             case '1':
-                if (configuration.vertexCount1 > 1)
-                    configuration.vertexCount1--;
+                if (mDemoConfiguration.vertexCount1 > 1)
+                    mDemoConfiguration.vertexCount1--;
 
                 forceDisplay = true;
                 break;
 
             case '+':
-                if (configuration.scaling < 1.00f)
-                    configuration.scaling += 0.01f;
+                if (mDemoConfiguration.scaling < 1.00f)
+                    mDemoConfiguration.scaling += 0.01f;
                 forceDisplay = true;
                 break;
 
             case '-':
-                if (configuration.scaling > 0.02f)
-                    configuration.scaling -= 0.01f;
+                if (mDemoConfiguration.scaling > 0.02f)
+                    mDemoConfiguration.scaling -= 0.01f;
 
                 forceDisplay = true;
                 break;
 
             case '*':
-                configuration.globalScaling *= 2;
+                mDemoConfiguration.globalScaling *= 2;
                 forceDisplay = true;
-                setViewPortScaling(configuration.globalScaling);
-                initScene(configuration.sceneIndex);
+                setViewPortScaling(mDemoConfiguration.globalScaling);
+                initScene(mDemoConfiguration.sceneIndex);
 
                 break;
 
             case '/':
-                configuration.globalScaling /= 2;
+                mDemoConfiguration.globalScaling /= 2;
 
                 forceDisplay = true;
-                setViewPortScaling(configuration.globalScaling);
-                initScene(configuration.sceneIndex);
+                setViewPortScaling(mDemoConfiguration.globalScaling);
+                initScene(mDemoConfiguration.sceneIndex);
 
                 break;
 
@@ -232,39 +236,39 @@ namespace visilibDemo
                 displaySettings();
                 break;
             case 's':
-                configuration.silhouetteOptimisation = !configuration.silhouetteOptimisation;
+                mDemoConfiguration.silhouetteOptimisation = !mDemoConfiguration.silhouetteOptimisation;
                 forceDisplay = true;
                 break;
             case 'f':
-                configuration.detectApertureOnly = !configuration.detectApertureOnly;
+                mDemoConfiguration.detectApertureOnly = !mDemoConfiguration.detectApertureOnly;
                 forceDisplay = true;
 
                 break;
 
             case 'x':
-                configuration.sceneIndex++;
-                if (configuration.sceneIndex > 9)
-                    configuration.sceneIndex = 0;
-                initScene(configuration.sceneIndex);
+                mDemoConfiguration.sceneIndex++;
+                if (mDemoConfiguration.sceneIndex > 9)
+                    mDemoConfiguration.sceneIndex = 0;
+                initScene(mDemoConfiguration.sceneIndex);
                 forceDisplay = true;
                 break;
             case 'r':
-                configuration.representativeLineSampling = !configuration.representativeLineSampling;
+                mDemoConfiguration.representativeLineSampling = !mDemoConfiguration.representativeLineSampling;
                 forceDisplay = true;
                 break;
 
 
 #ifdef EXACT_ARITHMETIC
             case 'e':
-                precisionType = precisionType == VisibilityExactQueryConfiguration::DOUBLE ? VisibilityExactQueryConfiguration::EXACT : VisibilityExactQueryConfiguration::DOUBLE;
+                mDemoConfiguration.precisionType = mDemoConfiguration.precisionType == VisibilityExactQueryConfiguration::DOUBLE ? VisibilityExactQueryConfiguration::EXACT : VisibilityExactQueryConfiguration::DOUBLE;
                 forceDisplay = true;
 #endif
                 break;
 #if EMBREE
             case 'g':
-                embree = !embree;
+                mDemoConfiguration.embree = !mDemoConfiguration.embree;
 
-                initScene(sceneIndex);
+                initScene(mDemoConfiguration.sceneIndex);
                 forceDisplay = true;
 
                 break;
@@ -272,18 +276,22 @@ namespace visilibDemo
 
             case 'w':
                 std::cout << "Save config.txt" << std::endl;
-                writeConfig("config.txt");
+                ss << "config_" << wc++ << ".txt";
+                writeConfig(ss.str());
                 break;
 
             case 'o':
                 std::cout << "Read config.txt" << std::endl;
-                readConfig("config.txt");
-                initScene(configuration.sceneIndex);
+                ss << "config_" << rc++ << ".txt";
+                if (rc > wc)
+                    rc = 0;
+                readConfig(ss.str());
+                initScene(mDemoConfiguration.sceneIndex);
                 forceDisplay = true;
                 break;
 
             case 'n':
-                configuration.normalization = !configuration.normalization;
+                mDemoConfiguration.normalization = !mDemoConfiguration.normalization;
 
                 forceDisplay = true;
                 break;
@@ -307,15 +315,10 @@ namespace visilibDemo
         HelperVisualDebugger* debugger = nullptr;
         VisibilityResult result = UNKNOWN;
 
-        DemoConfiguration configuration;
+        DemoConfiguration mDemoConfiguration;
         bool forceDisplay = true;
         bool animated = false;
         int drawGeometryType = 0;
-
-
-#if EMBREE
-        bool embree = false;
-#endif
     };
 }
 
@@ -383,6 +386,3 @@ int main(int argc, char** argv)
     return 0;
 }
 
-#if EMBREE
-RTCDevice SilhouetteContainerEmbree::mDevice = nullptr;
-#endif

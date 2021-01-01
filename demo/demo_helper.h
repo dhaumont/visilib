@@ -43,7 +43,9 @@ namespace visilibDemo
         float eta = 0;
         int   sceneIndex = 2;
         float globalScaling = 1;
-
+#if EMBREE
+        bool embree = false;
+#endif
         void displaySettings();
         void readConfig(const std::string& filename);
         void writeConfig(const std::string& filename);

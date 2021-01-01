@@ -18,6 +18,8 @@ You should have received a copy of the GNU General Public License
 along with Visilib. If not, see <http://www.gnu.org/licenses/>
 */
 
+
+#include "visilib_core.h"
 #include "visilib.h"
 #include "visibility_exact_query.h"
 #include "geometry_convex_polygon.h"
@@ -50,8 +52,8 @@ inline VisibilityResult visilib::areVisible(GeometryOccluderSet* scene, const fl
     switch (configuration.precision)
     {
 #ifdef EXACT_ARITHMETIC
-    case QueryConfiguration::EXACT:
-        query = new VisibilityExactQuery<MathPlucker6<exact>, exact>(scene, configuration, MathArithmetic<exact>::Tolerance());
+    case VisibilityExactQueryConfiguration::EXACT:
+        query = new VisibilityExactQuery_<MathPlucker6<exact>, exact>(scene, configuration, MathArithmetic<exact>::Tolerance());
         break;
 #endif
     case VisibilityExactQueryConfiguration::DOUBLE:
@@ -74,3 +76,4 @@ inline VisibilityResult visilib::areVisible(GeometryOccluderSet* scene, const fl
 
     return result;
 }
+
