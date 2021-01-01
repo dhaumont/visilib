@@ -4,7 +4,7 @@ The visilib project aims to provide an efficient and robust C++ library for exac
 
 The main feature of the current version is exact occlusion query between two polygons, a polygon and a segment, or between two segments, and allows to answer the fundamental question "Are these two polygons mutually visible?". The principal application is from-region occlusion culling and exact Potentially Visible Set computation (PVS). The visibility determination is exact and make no simplification, in opposition to conservative or aggressive visibility methods: visilib performs the complete penumbra fusion of the occluders, by the mean of CSG operations in Plücker space. All the technical details are described in the companion paper "A Low Dimensional Framework for Exact Polygon-to-Polygon Occlusion Queries", presented at EGSR 2005 (cf. download section)
 
-###Features###
+### Features ###
 
 - Available exact visibility query:
     - polygon to polygon
@@ -27,35 +27,35 @@ The main feature of the current version is exact occlusion query between two pol
      - Occluder selection using previous queries
      - Computational Geometry predicates in Plucker space
 
-###Applications###
+### Applications ###
 - Potentially Visible Set computation (PVS)
 - Sound propagation (edge diffraction)
 - Shadow and lighting computation
 - Robotic
 
-###Cross-platform###
+### Cross-platform ###
 
 - CMake: linux, windows
 
-###Supported Compilers ###
+### Supported Compilers ###
 
 - GCC // Add version
 - Visual Studio 2019
 
-###Dependencies###
+### Dependencies ###
 - CMake 3.14.0
 
-###Optional dependencies:###
+### Optional dependencies ###
 - CGAL and LEDA (exact arithmetic)
 - Embree (fast ray-triangle intersection)
 - Google Test (unit testing)
 - Doxygen (documentation generation)
 
-###Unit tests###
+## #Unit tests ###
 
 - based on Google test
 
-###Visilib Extensions###
+### Visilib Extensions ###
 
 Visilib will be extended in the future, in order to provide a complete framework for exact visibility determination in 3D. The following features will be added in the future:
 
@@ -103,10 +103,8 @@ TODO
 * Haumont Denis (denis.haumont@gmail.com)
 
 
-
-
-
-
+### License ###
+Visilib is  GNU GPL v3 licensed.
 
 
 
