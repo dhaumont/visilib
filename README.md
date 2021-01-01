@@ -1,8 +1,14 @@
-# Visilib #
+# Visilib Overview#
 
-The visilib project aims to provide an efficient and robust C++ library for exact visibility computation in 3D.
+The visilib project aims to provide an efficient and robust library for exact visibility computation in 3D.
 
-The main feature of the current version is exact occlusion query between two polygons, a polygon and a segment, or between two segments, and allows to answer the fundamental question "Are these two polygons mutually visible?". The principal application is from-region occlusion culling and exact Potentially Visible Set computation (PVS). The visibility determination is exact and make no simplification, in opposition to conservative or aggressive visibility methods: visilib performs the complete penumbra fusion of the occluders, by the mean of CSG operations in Plücker space. All the technical details are described in the companion paper "A Low Dimensional Framework for Exact Polygon-to-Polygon Occlusion Queries", presented at EGSR 2005 (cf. download section)
+The main feature of the current version of Visilib is the exact visibility computation between two primitives (points, segments or polygons). The visibility computation is exact and make no simplification, in opposition to conservative or aggressive visibility methods: Visilib performs the complete penumbra fusion of the occluders, by the use of CSG operations in Plücker space.
+
+The algorithm is described in detail in the technical paper "A Low Dimensional Framework for Exact Polygon-to-Polygon Occlusion Queries" (see "Paper" section).
+However, the library has been completely rewritten and benefits from several improvements in comparison to the paper (see "Features" section).
+
+Visilib is written in C++, it is cross-platform and distributed as a header only library.
+
 
 ### Features ###
 
@@ -17,7 +23,6 @@ The main feature of the current version is exact occlusion query between two pol
 - robust arithmetic computation via exact artithmetic via CGAL and LEDA libraries  (multiple precision arithmetic combined with interval arithmetic computations)
 - fast ray-triangle intersection based on Intel Embree library
 - easy to deploy: header only library 
-- fully documented (doxygen)
 
 - Visibility performed via CSG (Constructive Solid Geometry) operations in Plucker space:
      - Optimal minimum polytope building algorithm in Plucker space
@@ -106,6 +111,30 @@ TODO
 ### License ###
 Visilib is  GNU GPL v3 licensed.
 
+
+@inproceedings{DBLP:conf/rt/HaumontMN05,
+  author    = {Denis Haumont and
+               Otso Makinen and
+               Shaun Nirenstein},
+  editor    = {Oliver Deussen and
+               Alexander Keller and
+               Kavita Bala and
+               Philip Dutr{\'{e}} and
+               Dieter W. Fellner and
+               Stephen N. Spencer},
+  title     = {A Low Dimensional Framework for Exact Polygon-to-Polygon Occlusion
+               Queries},
+  booktitle = {Proceedings of the Eurographics Symposium on Rendering Techniques,
+               Konstanz, Germany, June 29 - July 1, 2005},
+  pages     = {211--222},
+  publisher = {Eurographics Association},
+  year      = {2005},
+  url       = {https://doi.org/10.2312/EGWR/EGSR05/211-222},
+  doi       = {10.2312/EGWR/EGSR05/211-222},
+  timestamp = {Thu, 25 May 2017 00:43:28 +0200},
+  biburl    = {https://dblp.org/rec/conf/rt/HaumontMN05.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
 
 
 WIndows (VS2019 x64)
