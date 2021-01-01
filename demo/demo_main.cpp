@@ -28,6 +28,8 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include <string>
 #include <iostream>
 #include <fstream>
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 #include "xmmintrin.h"
 #include "pmmintrin.h"
@@ -55,11 +57,6 @@ namespace visilibDemo
         {
         }
 
-        std::string getStatusString(bool enable)
-        {
-            return enable ? "ON" : "OFF";
-        }
-
         bool init()
         {
             _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
@@ -71,7 +68,7 @@ namespace visilibDemo
                 0, 0, 0,
                 1, 0, 0);
 #endif
-            return initScene(sceneIndex);
+            return initScene(mDemoConfiguration.sceneIndex);
         }
         bool initScene(int s)
         {
@@ -81,37 +78,24 @@ namespace visilibDemo
             debugger = new HelperVisualDebugger();
 
             delete meshContainer;
-            meshContainer = DemoHelper::createScene(s, globalScaling);
+            meshContainer = DemoHelper::createScene(s, mDemoConfiguration.globalScaling);
             
             delete occluderSet;
-            occluderSet = createOccluderSet();
+            occluderSet = DemoHelper::createOccluderSet(meshContainer);
 
             return true;
-        }
-
-        GeometryOccluderSet* createOccluderSet()
-        {
-            GeometryOccluderSet* occluderSet = new GeometryOccluderSet();
-            for (size_t index = 0; index < meshContainer->getGeometryCount(); index++)
-            {
-                GeometryDiscreteMeshDescription* info = meshContainer->createTriangleMeshDescription(index);
-                occluderSet->addOccluder(info);
-            }
-            occluderSet->prepare();
-
-            return occluderSet;
         }
 
         void resolveVisibility()
         {
             VisibilityExactQueryConfiguration config;
-            config.silhouetteOptimization = silhouetteOptimisation;
-            config.hyperSphereNormalization = normalization;
-            config.precision = precisionType;
-            config.representativeLineSampling = representativeLineSampling;
-            config.detectApertureOnly = detectApertureOnly;
+            config.silhouetteOptimization = mDemoConfiguration.silhouetteOptimisation;
+            config.hyperSphereNormalization = mDemoConfiguration.normalization;
+            config.precision = mDemoConfiguration.precisionType;
+            config.representativeLineSampling = mDemoConfiguration.representativeLineSampling;
+            config.detectApertureOnly = mDemoConfiguration.detectApertureOnly;
 #if EMBREE 
-            config.useEmbree = embree;
+            config.useEmbree = mDemoConfiguration.embree;
 #endif
             result = visilib::areVisible(occluderSet, &v0[0], v0.size() / 3, &v1[0], v1.size() / 3, config, debugger);
         }
@@ -120,15 +104,15 @@ namespace visilibDemo
         {
             if (animated)
             {
-                phi += 0.005f;
-                eta += 0.001f;
+                mDemoConfiguration.phi += 0.005f;
+                mDemoConfiguration.eta += 0.001f;
                 forceDisplay = true;
             }
 
             if (forceDisplay)
             {
-                DemoHelper::generatePolygon(v0, vertexCount, scaling, phi - 3.14519f, globalScaling);
-                DemoHelper::generatePolygon(v1, 3, scaling, phi, globalScaling);
+                DemoHelper::generatePolygon(v0, mDemoConfiguration.vertexCount0, mDemoConfiguration.scaling, mDemoConfiguration.phi - (float)M_PI, mDemoConfiguration.globalScaling);
+                DemoHelper::generatePolygon(v1, mDemoConfiguration.vertexCount1, mDemoConfiguration.scaling, mDemoConfiguration.phi, mDemoConfiguration.globalScaling);
 
                 resolveVisibility();
 
@@ -141,54 +125,12 @@ namespace visilibDemo
 
         void writeConfig(const std::string & filename)
         {
-            std::ofstream output(filename);
-            output << "vertexCount = " << vertexCount << std::endl;
-            output << "silhouetteOptimisation  = " << silhouetteOptimisation << std::endl;
-            output << "detectApertureOnly  = " << detectApertureOnly << std::endl;
-            output << "drawGeometryType  = " << drawGeometryType << std::endl;
-            output << "representativeLineSampling  = " << representativeLineSampling << std::endl;
-            output << "animated  = " << animated << std::endl;
-            output << "normalization  = " << normalization << std::endl;
-            output << "scaling  = " << scaling << std::endl;
-            output << "phi  = " << phi << std::endl;
-            output << "eta = " << eta << std::endl;
-            output << "sceneIndex = " << sceneIndex << std::endl;
-            output << "globalScaling = " << globalScaling << std::endl;
-            output << "precisionType = " << precisionType << std::endl;
-
-            output.close();
+            mDemoConfiguration.writeConfig(filename);
         }
 
         void readConfig(const std::string & filename)
         {
-            std::ifstream input(filename);
-            if (!input.is_open())
-                return;
-            while (!input.eof())
-            {
-                std::vector<std::string> tokens;
-
-                HelperGeometrySceneReader::tokenizeNextLine(input, tokens);
-                if (tokens.size() != 3)
-                    continue;
-
-                if (tokens[0] == "vertexCount") { vertexCount = atoi(tokens[2].c_str()); }
-                else if (tokens[0] == "silhouetteOptimisation") { silhouetteOptimisation = atoi(tokens[2].c_str()); }
-                else if (tokens[0] == "detectApertureOnly") { detectApertureOnly = atoi(tokens[2].c_str()); }
-                else if (tokens[0] == "drawGeometryType") { drawGeometryType = atoi(tokens[2].c_str()); }
-                else if (tokens[0] == "representativeLineSampling") { representativeLineSampling = atoi(tokens[2].c_str()); }
-                else if (tokens[0] == "animated") { animated = atoi(tokens[2].c_str()); }
-                else if (tokens[0] == "normalization") { normalization = atoi(tokens[2].c_str()); }
-                else if (tokens[0] == "scaling") { scaling = (float)atof(tokens[2].c_str()); }
-                else if (tokens[0] == "phi") { phi = (float)atof(tokens[2].c_str()); }
-                else if (tokens[0] == "eta") { eta = (float)atof(tokens[2].c_str()); }
-                else if (tokens[0] == "sceneIndex") { sceneIndex = atoi(tokens[2].c_str()); }
-                else if (tokens[0] == "globalScaling") { globalScaling = (float)atof(tokens[2].c_str()); }
-                else if (tokens[0] == "precisionType") { precisionType = (VisibilityExactQueryConfiguration::PrecisionType)atoi(tokens[2].c_str()); }
-
-                else { V_ASSERT(0); }
-            }
-            input.close();
+            mDemoConfiguration.readConfig(filename);
         }
 
         void display()
@@ -198,29 +140,7 @@ namespace visilibDemo
 
         void displaySettings()
         {
-            std::cout << std::endl << "Current Demo Settings: " << std::endl;
-
-            std::cout << "  [OccluderSet index:" << sceneIndex << "]";
-            std::cout << "[Source Size: " << scaling << "]";
-            std::cout << "[Source Vertices: " << vertexCount << "]";
-            std::cout << "[GlobalScaling:" << globalScaling << "]";
-            std::cout << std::endl;
-
-            std::cout << "  [Early stop: " << getStatusString(detectApertureOnly) << "]";
-            std::cout << "[Silhouette: " << getStatusString(silhouetteOptimisation) << "]";
-            std::cout << "[Middle line: " << getStatusString(representativeLineSampling) << "]";
-            std::cout << "[Normalization: " << getStatusString(normalization) << "]" << std::endl;
-
-#if EXACT_ARITHMETIC            
-            if (precisionType == QueryConfiguration::EXACT)
-                std::cout << "  [Exact arithmetic: ON]";
-            else
-#endif
-                std::cout << "  [Exact arithmetic: OFF]";
-#if EMBREE           
-            std::cout << "[Embree:" << getStatusString(embree) << "]" << std::endl;
-#endif
-            
+            mDemoConfiguration.displaySettings();
         }
 
         void writeHelp()
@@ -256,6 +176,10 @@ namespace visilibDemo
 
         void keyboard(unsigned char key, int, int)
         {
+            static int wc = 10;
+            static int rc = 0;
+            std::stringstream ss;
+
             switch (key)
             {
             case 27:  // The escape key
@@ -265,45 +189,45 @@ namespace visilibDemo
                 break;
 
             case '2':
-                if (vertexCount < 12)
-                    vertexCount++;
+                if (mDemoConfiguration.vertexCount1 < 12)
+                    mDemoConfiguration.vertexCount1++;
 
                 forceDisplay = true;
                 break;
             case '1':
-                if (vertexCount > 1)
-                    vertexCount--;
+                if (mDemoConfiguration.vertexCount1 > 1)
+                    mDemoConfiguration.vertexCount1--;
 
                 forceDisplay = true;
                 break;
 
             case '+':
-                if (scaling < 1.00f)
-                    scaling += 0.01f;
+                if (mDemoConfiguration.scaling < 1.00f)
+                    mDemoConfiguration.scaling += 0.01f;
                 forceDisplay = true;
                 break;
 
             case '-':
-                if (scaling > 0.02f)
-                    scaling -= 0.01f;
+                if (mDemoConfiguration.scaling > 0.02f)
+                    mDemoConfiguration.scaling -= 0.01f;
 
                 forceDisplay = true;
                 break;
 
             case '*':
-                globalScaling *= 2;
+                mDemoConfiguration.globalScaling *= 2;
                 forceDisplay = true;
-                setViewPortScaling(globalScaling);
-                initScene(sceneIndex);
+                setViewPortScaling(mDemoConfiguration.globalScaling);
+                initScene(mDemoConfiguration.sceneIndex);
 
                 break;
 
             case '/':
-                globalScaling /= 2;
+                mDemoConfiguration.globalScaling /= 2;
 
                 forceDisplay = true;
-                setViewPortScaling(globalScaling);
-                initScene(sceneIndex);
+                setViewPortScaling(mDemoConfiguration.globalScaling);
+                initScene(mDemoConfiguration.sceneIndex);
 
                 break;
 
@@ -314,39 +238,39 @@ namespace visilibDemo
                 displaySettings();
                 break;
             case 's':
-                silhouetteOptimisation = !silhouetteOptimisation;
+                mDemoConfiguration.silhouetteOptimisation = !mDemoConfiguration.silhouetteOptimisation;
                 forceDisplay = true;
                 break;
             case 'f':
-                detectApertureOnly = !detectApertureOnly;
+                mDemoConfiguration.detectApertureOnly = !mDemoConfiguration.detectApertureOnly;
                 forceDisplay = true;
 
                 break;
 
             case 'x':
-                sceneIndex++;
-                if (sceneIndex > 9)
-                    sceneIndex = 0;
-                initScene(sceneIndex);
+                mDemoConfiguration.sceneIndex++;
+                if (mDemoConfiguration.sceneIndex > 9)
+                    mDemoConfiguration.sceneIndex = 0;
+                initScene(mDemoConfiguration.sceneIndex);
                 forceDisplay = true;
                 break;
             case 'r':
-                representativeLineSampling = !representativeLineSampling;
+                mDemoConfiguration.representativeLineSampling = !mDemoConfiguration.representativeLineSampling;
                 forceDisplay = true;
                 break;
 
 
 #ifdef EXACT_ARITHMETIC
             case 'e':
-                precisionType = precisionType == QueryConfiguration::DOUBLE ? QueryConfiguration::EXACT : QueryConfiguration::DOUBLE;
+                mDemoConfiguration.precisionType = mDemoConfiguration.precisionType == VisibilityExactQueryConfiguration::DOUBLE ? VisibilityExactQueryConfiguration::EXACT : VisibilityExactQueryConfiguration::DOUBLE;
                 forceDisplay = true;
 #endif
                 break;
 #if EMBREE
             case 'g':
-                embree = !embree;
+                mDemoConfiguration.embree = !mDemoConfiguration.embree;
 
-                initScene(sceneIndex);
+                initScene(mDemoConfiguration.sceneIndex);
                 forceDisplay = true;
 
                 break;
@@ -354,18 +278,22 @@ namespace visilibDemo
 
             case 'w':
                 std::cout << "Save config.txt" << std::endl;
-                writeConfig("config.txt");
+                ss << "config_" << wc++ << ".txt";
+                writeConfig(ss.str());
                 break;
 
             case 'o':
                 std::cout << "Read config.txt" << std::endl;
-                readConfig("config.txt");
-                initScene(sceneIndex);
+                ss << "config_" << rc++ << ".txt";
+                if (rc > wc)
+                    rc = 0;
+                readConfig(ss.str());
+                initScene(mDemoConfiguration.sceneIndex);
                 forceDisplay = true;
                 break;
 
             case 'n':
-                normalization = !normalization;
+                mDemoConfiguration.normalization = !mDemoConfiguration.normalization;
 
                 forceDisplay = true;
                 break;
@@ -388,23 +316,11 @@ namespace visilibDemo
         HelperTriangleMeshContainer* meshContainer = nullptr;
         HelperVisualDebugger* debugger = nullptr;
         VisibilityResult result = UNKNOWN;
-        int vertexCount = 3;
-        bool silhouetteOptimisation = true;
-        int drawGeometryType = 0;
-        bool representativeLineSampling = true;
-        VisibilityExactQueryConfiguration::PrecisionType precisionType = VisibilityExactQueryConfiguration::DOUBLE;
-        bool detectApertureOnly = false;
-        bool animated = false;
-        bool normalization = true;
-        float scaling = 0.1f;
-        float phi = 0;
-        float eta = 0;
-        int   sceneIndex = 2;
-        float globalScaling = 1;
+
+        DemoConfiguration mDemoConfiguration;
         bool forceDisplay = true;
-#if EMBREE
-        bool embree = false;
-#endif
+        bool animated = false;
+        int drawGeometryType = 0;
     };
 }
 
@@ -472,6 +388,3 @@ int main(int argc, char** argv)
     return 0;
 }
 
-#if EMBREE
-RTCDevice SilhouetteContainerEmbree::mDevice = nullptr;
-#endif

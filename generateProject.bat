@@ -15,5 +15,11 @@ xcopy /y demo\external\freeglut\x64\freeglut.dll build\demo\Release\
 if exist "%EMBREE_INSTALL_DIR%\bin\embree3.dll"  xcopy /y "%EMBREE_INSTALL_DIR%\bin\*.dll" build\demo\Debug\
 if exist "%EMBREE_INSTALL_DIR%\bin\embree3.dll"  xcopy /y "%EMBREE_INSTALL_DIR%\bin\*.dll" build\demo\Release\
 
+if exist "%EMBREE_INSTALL_DIR%\bin\embree3.dll"  xcopy /y "%EMBREE_INSTALL_DIR%\bin\*.dll" build\test\Debug\
+if exist "%EMBREE_INSTALL_DIR%\bin\embree3.dll"  xcopy /y "%EMBREE_INSTALL_DIR%\bin\*.dll" build\test\Release\
+
 if exist "%LEDA_DIR%\leda_md.dll"  xcopy /y "%LEDA_DIR%\*.dll" build\demo\Debug\
 if exist "%LEDA_DIR%\leda_md.dll"  xcopy /y "%LEDA_DIR%\*.dll" build\demo\Release\
+
+if exist "%LEDA_DIR%\leda_md.dll"  xcopy /y "%LEDA_DIR%\*.dll" build\test\Debug\
+if exist "%LEDA_DIR%\leda_md.dll"  xcopy /y "%LEDA_DIR%\*.dll" build\test\Release\

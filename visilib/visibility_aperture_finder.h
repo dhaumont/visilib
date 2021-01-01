@@ -401,12 +401,16 @@ namespace visilib
             aPolytope->computeExtremalStabbingLines(myPolyhedron, mTolerance);
         }
 
-        std::vector<std::pair<MathVector3d, MathVector3d>> lines;
-        aPolytope->getExtremalStabbingLinesBackTo3D(lines, aPlane0, aPlane1);
-        for (auto line : lines)
-        {
-            VisibilitySolver<P, S>::mDebugger->addExtremalStabbingLine(convert<MathVector3f>(line.first), convert<MathVector3f>(line.second));
+        if (VisibilitySolver<P, S>::mDebugger != nullptr)
+        {  
+            std::vector<std::pair<MathVector3d, MathVector3d>> lines;
+            aPolytope->getExtremalStabbingLinesBackTo3D(lines, aPlane0, aPlane1);
+            for (auto line : lines)
+            {
+                VisibilitySolver<P, S>::mDebugger->addExtremalStabbingLine(convert<MathVector3f>(line.first), convert<MathVector3f>(line.second));
+            }
         }
+
     }
 
 

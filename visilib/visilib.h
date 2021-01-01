@@ -26,6 +26,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include "geometry_occluder_set.h"
 #include "helper_visual_debugger.h"
 
+
 namespace visilib
 {  
     /** @brief Configuration of a visibility query.*/
