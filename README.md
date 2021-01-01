@@ -1,13 +1,13 @@
 ### Visilib Overview ###
 
-The visilib project aims to provide an efficient and robust library for exact visibility computation in 3D.
+The visilib project aims to provide an efficient and robust library for **exact visibility computation** in 3D.
 
 The main feature of the current version of Visilib is the exact visibility computation between two primitives (points, segments or polygons). The visibility computation is exact and make no simplification, in opposition to conservative or aggressive visibility methods: Visilib performs the complete penumbra fusion of the occluders, by the use of CSG operations in Plücker space.
 
-The algorithm is described in detail in the technical paper "A Low Dimensional Framework for Exact Polygon-to-Polygon Occlusion Queries" (see "Paper" section).
-However, the library has been completely rewritten and benefits from several improvements in comparison to the paper (see "Features" section).
+The algorithm is described in detail in the technical paper "A Low Dimensional Framework for Exact Polygon-to-Polygon Occlusion Queries" (see **Paper**).
+However, the library has been completely rewritten and benefits from several improvements in comparison to the paper (see **Features**).
 
-Visilib is written in C++, it is cross-platform and distributed as a header only library.
+Visilib is written in C++, it is **cross-platform** and distributed as a **header only library**.
 
 
 ### Features ###
@@ -112,28 +112,16 @@ TODO
 Visilib is  GNU GPL v3 licensed.
 If you use Visilib in a publication, please cite the following paper and refer to this project.
 ```
-@inproceedings{DBLP:conf/rt/HaumontMN05,
+@inproceedings{
+  title     = {A Low Dimensional Framework for Exact Polygon-to-Polygon Occlusion Queries},
   author    = {Denis Haumont and
                Otso Makinen and
-               Shaun Nirenstein},
-  editor    = {Oliver Deussen and
-               Alexander Keller and
-               Kavita Bala and
-               Philip Dutr{\'{e}} and
-               Dieter W. Fellner and
-               Stephen N. Spencer},
-  title     = {A Low Dimensional Framework for Exact Polygon-to-Polygon Occlusion
-               Queries},
+               Shaun Nirenstein}, 
   booktitle = {Proceedings of the Eurographics Symposium on Rendering Techniques,
                Konstanz, Germany, June 29 - July 1, 2005},
   pages     = {211--222},
   publisher = {Eurographics Association},
-  year      = {2005},
-  url       = {https://doi.org/10.2312/EGWR/EGSR05/211-222},
-  doi       = {10.2312/EGWR/EGSR05/211-222},
-  timestamp = {Thu, 25 May 2017 00:43:28 +0200},
-  biburl    = {https://dblp.org/rec/conf/rt/HaumontMN05.bib},
-  bibsource = {dblp computer science bibliography, https://dblp.org}
+  year      = {2005}
 }
 ```
 
@@ -142,8 +130,7 @@ If you use Visilib in a publication, please cite the following paper and refer t
 
 visilibDemo is an interactive demo application provided with visilib library.
 
-It allows to test the different library options interactively, by pressing the following keys:
-
+It allows to test the different library options interactively, by pressing the **following keys**:
 
 - 's': enable/disable silhouette optimisation
 
@@ -166,7 +153,7 @@ When this option is activated, the visibility computation stops as soon as the t
  
 - '+/-': increase/decrease scaling of query polygons
 
-These
+
 
 - '1/2': increase/decrease number of vertices of the first query source
 
