@@ -18,7 +18,7 @@ Visilib is written in C++, it is **cross-platform** and distributed as a **heade
      - Occluder selection using previous queries
      - Computational Geometry predicates in Plucker space
 
-**NEW since paper publication**
+**NEW (since paper publication)**
 
 - Visibility query available between polygons, segments and points
 - Optimal minimum polytope building algorithm in Plucker space (TODO refer to paper),
@@ -96,7 +96,7 @@ TODO
 
 
 ## License 
-Visilib is  GNU GPL v3 licensed.
+Visilib is [GNU GPL v3](https://www.gnu.org/licenses/gpl-3.0) licensed
 If you use Visilib in a publication, please cite the following paper and refer to this project.
 ```
 @inproceedings{
