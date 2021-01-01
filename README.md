@@ -1,61 +1,60 @@
-# Visilib #
+## Visilib Overview 
 
-The visilib project aims to provide an efficient and robust C++ library for exact visibility computation in 3D.
+The Visilib project aims to provide an efficient and robust library for **exact visibility computation** in 3D.
 
-The main feature of the current version is exact occlusion query between two polygons, a polygon and a segment, or between two segments, and allows to answer the fundamental question "Are these two polygons mutually visible?". The principal application is from-region occlusion culling and exact Potentially Visible Set computation (PVS). The visibility determination is exact and make no simplification, in opposition to conservative or aggressive visibility methods: visilib performs the complete penumbra fusion of the occluders, by the mean of CSG operations in Plücker space. All the technical details are described in the companion paper "A Low Dimensional Framework for Exact Polygon-to-Polygon Occlusion Queries", presented at EGSR 2005 (cf. download section)
+The main feature of the current version of Visilib is the exact visibility computation between two primitives (points, segments or polygons). The visibility computation is exact and make no simplification, in opposition to conservative or aggressive visibility methods: Visilib performs the complete penumbra fusion of the occluders, by the use of CSG operations in Plücker space.
 
-###Features###
+If you are interested in implementation details please refer to our paper "A Low Dimensional Framework for Exact Polygon-to-Polygon Occlusion Queries" (see [Paper](https://github.com/dhaumont/visilib#License)).
+However, the library has been completely rewritten and benefits from several improvements (see [Features](https://github.com/dhaumont/visilib#Features)).
 
-- Available exact visibility query:
-    - polygon to polygon
-    - segment to segment
-    - segment to polygon
-    - point to point
-    - point to segment
-    - point to polygon
-    
-- robust arithmetic computation via exact artithmetic via CGAL and LEDA libraries  (multiple precision arithmetic combined with interval arithmetic computations)
-- fast ray-triangle intersection based on Intel Embree library
-- easy to deploy: header only library 
-- fully documented (doxygen)
+Visilib is written in C++, it is **cross-platform** and distributed as a **header only library**.
+
+## Features 
 
 - Visibility performed via CSG (Constructive Solid Geometry) operations in Plucker space:
-     - Optimal minimum polytope building algorithm in Plucker space
      - Polytope splitting algorithm using only skeleton of polytopes (vertices and edges)
      - Silhouette optimization algortihm reducing drastically the number of CSG operations
      - Guided aperture sampling and early termination: rays are casted in the visibility apertures left by the previously processed occluders, leading to early termination in case of mutual visibility
      - Occluder selection using previous queries
      - Computational Geometry predicates in Plucker space
 
-###Applications###
+**NEW**
+
+- Visibility query available between polygons, segments and points
+- Optimal minimum polytope building algorithm in Plucker space (TODO refer to paper),
+- robust arithmetic computation via exact artithmetic via CGAL and LEDA libraries  (multiple precision arithmetic combined with interval arithmetic computations)
+- fast ray-triangle intersection based on Intel Embree library
+- easy to deploy: header only library
+
+## Applications 
 - Potentially Visible Set computation (PVS)
 - Sound propagation (edge diffraction)
 - Shadow and lighting computation
 - Robotic
 
-###Cross-platform###
+## Cross-platform 
 
 - CMake: linux, windows
 
-###Supported Compilers ###
+## Supported Compilers 
 
 - GCC // Add version
 - Visual Studio 2019
 
-###Dependencies###
+## Dependencies 
 - CMake 3.14.0
 
-###Optional dependencies:###
+## Optional dependencies 
 - CGAL and LEDA (exact arithmetic)
 - Embree (fast ray-triangle intersection)
 - Google Test (unit testing)
 - Doxygen (documentation generation)
 
-###Unit tests###
+## #Unit tests 
 
 - based on Google test
 
-###Visilib Extensions###
+## Visilib Extensions 
 
 Visilib will be extended in the future, in order to provide a complete framework for exact visibility determination in 3D. The following features will be added in the future:
 
@@ -74,7 +73,7 @@ Algorithm 3D graphics geometry Mathematics Plucker Coordinates Library pvs occlu
 * Version
 * [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
 
-### How do I get set up? ###
+## How do I get set up? 
 
 * Summary of set up
 TODO 
@@ -89,25 +88,79 @@ TODO
 * Deployment instructions
 TODO 
 
-### Contribution guidelines ###
 
-* Writing tests
-TODO 
-* Code review
-TODO 
-* Other guidelines
-TODO 
 
-### Who do I talk to? ###
+## Who do I talk to? 
 
 * Haumont Denis (denis.haumont@gmail.com)
 
 
+## License 
+Visilib is  GNU GPL v3 licensed.
+If you use Visilib in a publication, please cite the following paper and refer to this project.
+```
+@inproceedings{
+  title     = {A Low Dimensional Framework for Exact Polygon-to-Polygon Occlusion Queries},
+  author    = {Denis Haumont and
+               Otso Makinen and
+               Shaun Nirenstein}, 
+  booktitle = {Proceedings of the Eurographics Symposium on Rendering Techniques,
+               Konstanz, Germany, June 29 - July 1, 2005},
+  pages     = {211--222},
+  publisher = {Eurographics Association},
+  year      = {2005}
+}
+```
+
+
+## visilibDemo 
+
+visilibDemo is an interactive demo application provided with visilib library.
+
+It allows to test the different library options interactively, by pressing the **following keys**:
+
+- 's': enable/disable silhouette optimisation
+
+Without silhouette optimisation, all the edges of the occluders are used to perform CSG operations in Plucker space.
+With silhouette optimisation, only the potential silhouette edges of the occluders with respect to the source polygons are used.
+
+- 'n': enable/disable nomalization
+
+When normalisation is activated, all points in the projective Plucker space are projected onto an unit hypersphere, in order to avoid numerical errors.
+
+- 'r': enable/disable representative line sampling strategy
+  
+  
+- 'f': enable/disable detect aperture only
+
+When this option is activated, the visibility computation stops as soon as the two sources are proven to be mutually visible. Otherwise, the computation continues until the complete visibility information has been computed.
+ 
+ 
+- 'f': enable/disable fast silhouette rejection test
+ 
+- '+/-': increase/decrease scaling of query polygons
 
 
 
+- '1/2': increase/decrease number of vertices of the first query source
 
+The  key '1' decreases the number of vertices of the first source.
+The  key '2' increases the number of vertices of the first source.
 
+- 'w': write config
+
+- 'o': open config
+
+- 'space': start/pause animation
+
+When animation is started, the source polygons will perform a rotation arount the scene.
+
+- 'Enter': show/hide geometry
+
+For debugging purpose, allow to change the representation of the scene and of the query polygons. 
+
+'h': display help
+Display the list of keys and their effect
 
 
 WIndows (VS2019 x64)
