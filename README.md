@@ -4,7 +4,7 @@ The Visilib project aims to provide an efficient and robust library for **exact 
 
 The main feature of the current version of Visilib is the exact visibility computation between two primitives (points, segments or polygons). The visibility computation is exact and make no simplification, in opposition to conservative or aggressive visibility methods: Visilib performs the complete penumbra fusion of the occluders, by the use of CSG operations in Plücker space.
 
-If you are interested in implementation details please refer to our paper "A Low Dimensional Framework for Exact Polygon-to-Polygon Occlusion Queries" (see [Paper](https://github.com/dhaumont/visilib#License)).
+If you are interested in implementation details please refer to our paper "A Low Dimensional Framework for Exact Polygon-to-Polygon Occlusion Queries" (see [Paper](https://github.com/dhaumont/visilib/blob/main/paper/paper_egsr_2005.pdf)).
 However, the library has been completely rewritten and benefits from several improvements (see [Features](https://github.com/dhaumont/visilib#Features)).
 
 Visilib is written in C++, it is **cross-platform** and distributed as a **header only library**.
@@ -18,7 +18,7 @@ Visilib is written in C++, it is **cross-platform** and distributed as a **heade
      - Occluder selection using previous queries
      - Computational Geometry predicates in Plucker space
 
-**NEW**
+**NEW since paper publication**
 
 - Visibility query available between polygons, segments and points
 - Optimal minimum polytope building algorithm in Plucker space (TODO refer to paper),
