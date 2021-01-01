@@ -4,32 +4,27 @@ The Visilib project aims to provide an efficient and robust library for **exact 
 
 The main feature of the current version of Visilib is the exact visibility computation between two primitives (points, segments or polygons). The visibility computation is exact and make no simplification, in opposition to conservative or aggressive visibility methods: Visilib performs the complete penumbra fusion of the occluders, by the use of CSG operations in Plücker space.
 
-If you are interested in implementation details please refer to our paper "A Low Dimensional Framework for Exact Polygon-to-Polygon Occlusion Queries" (see [Paper](https://github.com/dhaumont/visilib#Paper).
+If you are interested in implementation details please refer to our paper "A Low Dimensional Framework for Exact Polygon-to-Polygon Occlusion Queries" (see [Paper](https://github.com/dhaumont/visilib#License)).
 However, the library has been completely rewritten and benefits from several improvements (see [Features](https://github.com/dhaumont/visilib#Features)).
 
 Visilib is written in C++, it is **cross-platform** and distributed as a **header only library**.
 
 ## Features 
 
-- Available exact visibility query:
-    - polygon to polygon
-    - segment to segment
-    - segment to polygon
-    - point to point
-    - point to segment
-    - point to polygon
-    
-- robust arithmetic computation via exact artithmetic via CGAL and LEDA libraries  (multiple precision arithmetic combined with interval arithmetic computations)
-- fast ray-triangle intersection based on Intel Embree library
-- easy to deploy: header only library 
-
 - Visibility performed via CSG (Constructive Solid Geometry) operations in Plucker space:
-     - Optimal minimum polytope building algorithm in Plucker space
      - Polytope splitting algorithm using only skeleton of polytopes (vertices and edges)
      - Silhouette optimization algortihm reducing drastically the number of CSG operations
      - Guided aperture sampling and early termination: rays are casted in the visibility apertures left by the previously processed occluders, leading to early termination in case of mutual visibility
      - Occluder selection using previous queries
      - Computational Geometry predicates in Plucker space
+
+**NEW**
+
+- Visibility query available between polygons, segments and points
+- Optimal minimum polytope building algorithm in Plucker space (TODO refer to paper),
+- robust arithmetic computation via exact artithmetic via CGAL and LEDA libraries  (multiple precision arithmetic combined with interval arithmetic computations)
+- fast ray-triangle intersection based on Intel Embree library
+- easy to deploy: header only library
 
 ## Applications 
 - Potentially Visible Set computation (PVS)
