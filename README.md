@@ -1,8 +1,9 @@
-### Visilib Overview ###
+## Visilib Overview 
 
-The visilib project aims to provide an efficient and robust library for **exact visibility computation** in 3D.
+The Visilib project aims to provide an efficient and robust library for **exact visibility computation** in 3D.
 
 The main feature of the current version of Visilib is the exact visibility computation between two primitives (points, segments or polygons). The visibility computation is exact and make no simplification, in opposition to conservative or aggressive visibility methods: Visilib performs the complete penumbra fusion of the occluders, by the use of CSG operations in Plücker space.
+
 
 The algorithm is described in detail in the technical paper "A Low Dimensional Framework for Exact Polygon-to-Polygon Occlusion Queries" (see **Paper**).
 However, the library has been completely rewritten and benefits from several improvements in comparison to the paper (see **Features**).
@@ -10,7 +11,13 @@ However, the library has been completely rewritten and benefits from several imp
 Visilib is written in C++, it is **cross-platform** and distributed as a **header only library**.
 
 
-### Features ###
+## Important Tips
+
+ If you are interested in the algorithm details, please refer to our [paper](https://cs.nyu.edu/~yixinhu/tetwild.pdf) first. 
+ 
+💡💡💡 **Check our [license](https://github.com/Yixin-Hu/TetWild#license) first.**
+
+## Features 
 
 - Available exact visibility query:
     - polygon to polygon
@@ -32,35 +39,35 @@ Visilib is written in C++, it is **cross-platform** and distributed as a **heade
      - Occluder selection using previous queries
      - Computational Geometry predicates in Plucker space
 
-### Applications ###
+## Applications 
 - Potentially Visible Set computation (PVS)
 - Sound propagation (edge diffraction)
 - Shadow and lighting computation
 - Robotic
 
-### Cross-platform ###
+## Cross-platform 
 
 - CMake: linux, windows
 
-### Supported Compilers ###
+## Supported Compilers 
 
 - GCC // Add version
 - Visual Studio 2019
 
-### Dependencies ###
+## Dependencies 
 - CMake 3.14.0
 
-### Optional dependencies ###
+## Optional dependencies 
 - CGAL and LEDA (exact arithmetic)
 - Embree (fast ray-triangle intersection)
 - Google Test (unit testing)
 - Doxygen (documentation generation)
 
-## #Unit tests ###
+## #Unit tests 
 
 - based on Google test
 
-### Visilib Extensions ###
+## Visilib Extensions 
 
 Visilib will be extended in the future, in order to provide a complete framework for exact visibility determination in 3D. The following features will be added in the future:
 
@@ -79,7 +86,7 @@ Algorithm 3D graphics geometry Mathematics Plucker Coordinates Library pvs occlu
 * Version
 * [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
 
-### How do I get set up? ###
+## How do I get set up? 
 
 * Summary of set up
 TODO 
@@ -94,21 +101,14 @@ TODO
 * Deployment instructions
 TODO 
 
-### Contribution guidelines ###
 
-* Writing tests
-TODO 
-* Code review
-TODO 
-* Other guidelines
-TODO 
 
-### Who do I talk to? ###
+## Who do I talk to? 
 
 * Haumont Denis (denis.haumont@gmail.com)
 
 
-### License ###
+## License 
 Visilib is  GNU GPL v3 licensed.
 If you use Visilib in a publication, please cite the following paper and refer to this project.
 ```
@@ -126,7 +126,7 @@ If you use Visilib in a publication, please cite the following paper and refer t
 ```
 
 
-### visilibDemo ###
+## visilibDemo 
 
 visilibDemo is an interactive demo application provided with visilib library.
 
