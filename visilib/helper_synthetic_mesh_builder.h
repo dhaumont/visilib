@@ -20,6 +20,8 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 
 #pragma once
 
+#define _USE_MATH_DEFINES
+#include <math.h>
 #include <vector>
 #include <stdlib.h>
 #include <unordered_map>
@@ -336,11 +338,9 @@ namespace visilib
             vertices.push_back(MathVector3f(1, 0, 0));
         }
         else
-        {
-            const float PI = 3.14159265358979323846f;
-
+        {   
             float theta = 0;
-            float dt = -2 * PI / (float)vertexCount;
+            float dt = - 2.f * (float) M_PI / (float)vertexCount;
 
             for (size_t i = 0; i < vertexCount; i++)
             {

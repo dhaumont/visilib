@@ -28,6 +28,8 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include <string>
 #include <iostream>
 #include <fstream>
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 #include "xmmintrin.h"
 #include "pmmintrin.h"
@@ -109,7 +111,7 @@ namespace visilibDemo
 
             if (forceDisplay)
             {
-                DemoHelper::generatePolygon(v0, mDemoConfiguration.vertexCount0, mDemoConfiguration.scaling, mDemoConfiguration.phi - 3.14519f, mDemoConfiguration.globalScaling);
+                DemoHelper::generatePolygon(v0, mDemoConfiguration.vertexCount0, mDemoConfiguration.scaling, mDemoConfiguration.phi - (float)M_PI, mDemoConfiguration.globalScaling);
                 DemoHelper::generatePolygon(v1, mDemoConfiguration.vertexCount1, mDemoConfiguration.scaling, mDemoConfiguration.phi, mDemoConfiguration.globalScaling);
 
                 resolveVisibility();

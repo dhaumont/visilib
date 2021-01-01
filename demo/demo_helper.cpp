@@ -17,7 +17,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Visilib. If not, see <http://www.gnu.org/licenses/>
 */
-
+#define _USE_MATH_DEFINES
+#include <math.h>
 #include "demo_helper.h"
 #include "math_vector_3.h"
 #include "helper_triangle_mesh_container.h"
@@ -29,12 +30,11 @@ using namespace visilibDemo;
 
 void DemoHelper::generatePolygon(std::vector<float>& v, size_t vertexCount, float size, float phi, float scaling)
 {
-    const float PI = 3.14159265358979323846f;
     std::vector<MathVector3f> vertices;
 
     HelperSyntheticMeshBuilder::generateRegularPolygon(vertices, vertexCount);
     HelperSyntheticMeshBuilder::scale(vertices, size * scaling);
-    HelperSyntheticMeshBuilder::rotate(vertices, 0, PI / 2, phi);
+    HelperSyntheticMeshBuilder::rotate(vertices, 0, (float)M_PI_2, phi);
     HelperSyntheticMeshBuilder::translate(vertices,  MathVector3f(scaling * cos(phi), scaling * sin(phi), 0));
 
     v.clear();
@@ -75,7 +75,7 @@ HelperTriangleMeshContainer* DemoHelper::createScene(int s, float globalScalingF
         {
             HelperTriangleMesh* mesh = HelperSyntheticMeshBuilder::generateSlot(0.2f, 0.2f, 0.5f, 0.01f);
             HelperSyntheticMeshBuilder::scale(mesh, 2.0);
-            HelperSyntheticMeshBuilder::rotate(mesh, 0, 3.14f / 2, 3.14f);
+            HelperSyntheticMeshBuilder::rotate(mesh, 0, (float)M_PI_2, (float)M_PI);
             HelperSyntheticMeshBuilder::translate(mesh, MathVector3f((float)i / 3.0f, 0.0f, 0.0f));
             myMeshContainer->add(mesh);
             rescale = false;
@@ -88,7 +88,7 @@ HelperTriangleMeshContainer* DemoHelper::createScene(int s, float globalScalingF
         {
             HelperTriangleMesh* mesh = HelperSyntheticMeshBuilder::generateSlot(0.0f, 0.0f, 0.03f, 0.03f);
             HelperSyntheticMeshBuilder::scale(mesh, 2.0);
-            HelperSyntheticMeshBuilder::rotate(mesh, 0.0, 3.14f / 2, 3.14f);
+            HelperSyntheticMeshBuilder::rotate(mesh, 0.0, (float)M_PI_2, (float)M_PI);
 
             if (count > 1)
                 HelperSyntheticMeshBuilder::translate(mesh, MathVector3f(-0.5f + (float)i / (float)(count + 1), 0, 0));
@@ -104,8 +104,8 @@ HelperTriangleMeshContainer* DemoHelper::createScene(int s, float globalScalingF
             //   GeometryMesh* mesh = HelperSyntheticMeshBuilder::generateSlot(0.0,0.0,0.8,0.02);
             HelperTriangleMesh* mesh = HelperSyntheticMeshBuilder::generateRegularGrid(0);
 
-            HelperSyntheticMeshBuilder::rotate(mesh, 0.0, 3.14f / 2, 3.14f);
-            HelperSyntheticMeshBuilder::rotate(mesh, (float)i * 3.14f / (5 * (float)count), 0.0, 0.0);
+            HelperSyntheticMeshBuilder::rotate(mesh, 0.0, (float)M_PI_2, (float)M_PI);
+            HelperSyntheticMeshBuilder::rotate(mesh, (float)i * (float)M_PI / (5.f * (float)count), 0.0, 0.0);
             HelperSyntheticMeshBuilder::scale(mesh, 2.0);
 
             HelperSyntheticMeshBuilder::translate(mesh, MathVector3f(0.0f, 0.0f, -1.0f));
@@ -167,7 +167,7 @@ HelperTriangleMeshContainer* DemoHelper::createScene(int s, float globalScalingF
             HelperSyntheticMeshBuilder::addRandomness(mesh, 0.012f);
             //         HelperSyntheticMeshBuilder::removeFaces(mesh, 100);
 
-            HelperSyntheticMeshBuilder::rotate(mesh, 0.0, 3.14f / 2, 3.14f);
+            HelperSyntheticMeshBuilder::rotate(mesh, 0.0, (float)M_PI_2, (float)M_PI);
             MathVector3f random(-0.5f + (float)rand() / (float)(RAND_MAX), -0.5f + (float)rand() / (float)(RAND_MAX), -0.5f + (float)rand() / (float)(RAND_MAX));
             //   random *= 0.3;
             HelperSyntheticMeshBuilder::translate(mesh, random);
@@ -177,7 +177,7 @@ HelperTriangleMeshContainer* DemoHelper::createScene(int s, float globalScalingF
         }
         HelperTriangleMesh* mesh = HelperSyntheticMeshBuilder::generateRegularGrid(6);
 
-        HelperSyntheticMeshBuilder::rotate(mesh, 0.0, 3.14f / 2, 3.14f);
+        HelperSyntheticMeshBuilder::rotate(mesh, 0.0, (float)M_PI_2, (float)M_PI);
         //         HelperSyntheticMeshBuilder::addRandomness(mesh, 0.02);
      //   HelperSyntheticMeshBuilder::removeFaces(mesh, 100);
         HelperSyntheticMeshBuilder::removeFaces(mesh, 100);
@@ -295,7 +295,7 @@ void DemoConfiguration::readConfig(const std::string& filename)
 
 void DemoConfiguration::displaySummary()
 {
-    std::cout << "VisibilityTest [Scaling: " << globalScaling << ", v0: " << vertexCount0 << ", vv1: " << vertexCount1 << "; phi:" << phi << "] ";
+    std::cout << "VisibilityTest [Scaling: " << globalScaling << ", v0: " << vertexCount0 << ", vv1: " << vertexCount1 << "; phi:" << phi << "; precision: "<< precisionType<<"] ";
 }
 
 #if EMBREE
