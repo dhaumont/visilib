@@ -35,13 +35,13 @@ Visilib is written in C++, it is **cross-platform** and distributed as a **heade
 - Shadow and lighting computation
 
 ## Dependencies 
-- [CMake] (https://cmake.org/) for cross-platform compilation
+- [CMake](https://cmake.org/) for cross-platform compilation
 
 ## Optional dependencies 
-- [CGAL] (https://www.cgal.org/) and [Leda] for exact arithmetic support
-- [Intel Embree] (https://www.embree.org), for fast ray-tracing
-- [Doxygen] (https://www.doxygen.nl/index.html) for documentation generation
-- [freeglut] (http://freeglut.sourceforge.net/) and [OpenGl] (https://www.opengl.org/) for the interactive demo application
+- [CGAL](https://www.cgal.org/) and [Leda] for exact arithmetic support
+- [Intel Embree](https://www.embree.org), for fast ray-tracing
+- [Doxygen](https://www.doxygen.nl/index.html) for documentation generation
+- [freeglut](http://freeglut.sourceforge.net/) and [OpenGl](https://www.opengl.org/) for the interactive demo application
 
 ## #Unit tests 
 
