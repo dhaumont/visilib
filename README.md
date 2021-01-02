@@ -115,6 +115,7 @@ It allows to test the different library options interactively, by pressing the *
 We would like to thanks the following persons for their contribution to this library:
 - Otso Mäkinen for the silhouette computation implementation
 - Joseph O'Rourke and Cédric Laugerotte for the convex hull implementation
+- Shaun Nirenstein 
 - Eric Lengyel for the polygon clipping algorithm
 - Sven Woop et al. for the watertight triangle intersection code
 - Bajaj and Patucci for the interpolation algorithm code
