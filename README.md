@@ -25,9 +25,9 @@ Visilib is written in C++, it is **cross-platform** and distributed as a **heade
 
 - The source primitives that can be used are polygons, segments and points, allowing to perform polygon-to-polygon, polygon-to-segment, polygon-to-point and point-to-segment visibility query
 - Optimal minimum polytope building algorithm in Plucker space (TODO refer to paper),
-- Robust arithmetic computation handling based CGAL and LEDA libraries  (multiple precision arithmetic combined with interval arithmetic computations)
-- fast ray-triangle intersection based on Intel Embree library
-- easy to deploy: header only library
+- Robust arithmetic computation based on [CGAL](https://www.cgal.org/) and [Leda](https://www.algorithmic-solutions.com/index.php/products/leda-for-c) libraries  (multiple precision arithmetic combined with interval arithmetic computations)
+- Fast ray tracing based on [Intel Embree](https://www.embree.org) library
+- Easy to deploy: header only library
 
 ## Applications
 - Potentially Visible Set computation (PVS)
@@ -39,8 +39,8 @@ Visilib is written in C++, it is **cross-platform** and distributed as a **heade
 The only mandatory dependency is [CMake](https://cmake.org/) used for cross-platform compilation.
 
 The following dependencies are optional: 
-- [CGAL](https://www.cgal.org/) and [Leda](https://www.algorithmic-solutions.com/index.php/products/leda-for-c) and [Boost](https://www.boost.org/) for exact arithmetic support
-- [Intel Embree](https://www.embree.org), for fast ray-tracing support
+- [CGAL](https://www.cgal.org/) and [Leda](https://www.algorithmic-solutions.com/index.php/products/leda-for-c) and [Boost](https://www.boost.org/) for optional exact arithmetic support
+- [Intel Embree](https://www.embree.org), for optional fast ray-tracing support
 - [Doxygen](https://www.doxygen.nl/index.html) for documentation generation
 - [freeglut](http://freeglut.sourceforge.net/) and [OpenGl](https://www.opengl.org/) for the interactive demo application
 
