@@ -73,7 +73,7 @@ TODO
 
 ## Visilib License 
 Visilib is [GNU GPL v3](https://www.gnu.org/licenses/gpl-3.0) licensed
-If you use Visilib in a publication, please cite the following paper and refer to the homepage of the project [https://github.com/dhaumont/visilib](https://github.com/dhaumont/visilib)
+If you use Visilib in a publication, please cite the following paper and refer to the project homepage ([https://github.com/dhaumont/visilib](https://github.com/dhaumont/visilib))
 
 ```
 @inproceedings{
