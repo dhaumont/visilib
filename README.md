@@ -46,7 +46,7 @@ The following dependencies are optional:
 We also use [Doxygen](https://www.doxygen.nl/index.html) for documentation generation.
 ##  Unit tests 
 
-Visilib is partially unit tested, using the CMake framework. Ghd implementation of the unit test is provided in the [/test/src/](https://github.com/dhaumont/visilib/tree/main/test/src) folder. 
+Visilib is partially unit tested, using the CMake framework. The implementation of the unit test is provided in the [/test/src/](https://github.com/dhaumont/visilib/tree/main/test/src) folder. 
 The name of executable to run the unit tests is **visilibTest**.
 
 ## How do I get set up? 
