@@ -34,10 +34,11 @@ Visilib is written in C++, it is **cross-platform** and distributed as a **heade
 - Sound propagation (edge diffraction)
 - Shadow and lighting computation
 
-## Dependencies 
-- [CMake](https://cmake.org/) for cross-platform compilation
+## Dependencies
 
-## Optional dependencies 
+The only mandatory dependency is [CMake](https://cmake.org/) used for cross-platform compilation.
+
+The following dependencies are optional: 
 - [CGAL](https://www.cgal.org/) and [Leda](https://www.algorithmic-solutions.com/index.php/products/leda-for-c) and [Boost](https://www.boost.org/) for exact arithmetic support
 - [Intel Embree](https://www.embree.org), for fast ray-tracing support
 - [Doxygen](https://www.doxygen.nl/index.html) for documentation generation
@@ -45,9 +46,8 @@ Visilib is written in C++, it is **cross-platform** and distributed as a **heade
 
 ## #Unit tests 
 
-Project Information
-
-    License: GNU GPL v3
+Visilib is partially unit tested, using the CMake framework.
+The name of the unit test executable is **visilibTest**.
 
 ## Labels
 Algorithm 3D graphics geometry Mathematics Plucker Coordinates Library pvs occlusion visibility exact culling computation CPlusPlus CSG
