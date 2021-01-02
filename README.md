@@ -101,18 +101,18 @@ It allows to test the different library options interactively, by pressing the *
 
 | Key | Usage | Description |
 |-----|-------|-------------|
-| f | enable/disable detect aperture only| When this option is activated, the visibility computation stops as soon as the two sources are proven to be mutually visible. Otherwise, the computation continues until the complete visibility information has been computed |
-| s | enable/disable silhouette optimisation |When s$ilhouette optimisation is activated, only the potential silhouette edges of the occluders wrt the source polygons are considered for CSG operations |
-| n | enable/disable hypersphere nomalization| When normalisation is activated, all the Plücker points are projected onto an unit hypersphere, in order to reduce numerical errors |
+| f | enable/disable detect aperture only| When activated, the visibility computation stops as soon as the two sources are proven to be mutually visible. Otherwise, the computation continues until the complete visibility information has been computed |
+| s | enable/disable silhouette optimisation |When activated, only the potential silhouette edges of the occluders wrt the source polygons are considered for CSG operations |
+| n | enable/disable hypersphere nomalization| When activated, all the Plücker points are projected onto an unit hypersphere, in order to reduce numerical errors |
 | r | enable/disable representative line sampling strategy| |
 | f | enable/disable fast silhouette rejection test| |
-| + | increase size | Increase the size of the source polygons |
-| - | decrease size | Decrease the size of the source polygons |
-| 1 | decrease vertex count | Decrease the number of vertices of the first source polygon |
-| 2 | increase vertex count | Increase the number of vertices of the first source polygon |
+| + | increase source size | Increase the size of the source polygons |
+| - | decrease source size | Decrease the size of the source polygons |
+| 1 | decrease source vertex count | Decrease the number of vertices of the first source polygon |
+| 2 | increase source vertex count | Increase the number of vertices of the first source polygon |
 | w | write config|
 | o | open config|
-|space| start/pause animation | When animation is started, the source polygons will perform a rotation around the scene |
+|space| start/pause sources animation | When animation is started, the source polygons will perform a rotation around the scene |
 |Enter| show/hide geometry | For debugging purpose, allow to change the representation of the scene and of the query polygons |
 |h| display help | Display the list of keys and their effect |
 
