@@ -29,7 +29,7 @@ Visilib is written in C++, it is **cross-platform** and distributed as a **heade
 - fast ray-triangle intersection based on Intel Embree library
 - easy to deploy: header only library
 
-## Applications 
+## Applications
 - Potentially Visible Set computation (PVS)
 - Sound propagation (edge diffraction)
 - Shadow and lighting computation
@@ -104,7 +104,7 @@ If you use Visilib in a publication, please cite the following paper and refer t
 ```
 
 
-## visilibDemo 
+## Interactive Demo 
 
 visilibDemo is an interactive demo application provided with visilib library.
 
@@ -152,6 +152,18 @@ For debugging purpose, allow to change the representation of the scene and of th
 
 'h': display help
 Display the list of keys and their effect
+
+
+
+## Acknowledgements
+
+Many thanks to:
+- Otso Mäkinen for the silhouette computation implementation
+- Joseph O'Rourke and Cédric Laugerotte for the convex hull implementation
+- Eric Lengyel for the polygon clipping algorithm
+- Sven Woop et al. for the watertight triangle intersection code
+- Bajaj and Patucci for the interpolation algorithm code
+- David Eberly for the AABB to ray intersection code
 
 
 WIndows (VS2019 x64)
