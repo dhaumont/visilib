@@ -126,6 +126,6 @@ We used several useful libraries and tools to implement Visilib (see [Dependenci
 
 ## Who do I talk to? 
 
-For any question about this library, please contact Denis Haumont at denis.haumont@gmail.com.
+For any question about this library, please contact Denis Haumont.
 
 
