@@ -126,5 +126,6 @@ We would like to thanks the following persons for their contribution to this lib
 - Sven Woop et al. for the watertight triangle intersection code
 - Bajaj and Patucci for the interpolation algorithm code
 - David Eberly for the AABB to ray intersection code
+- Jiry Bittner for the Plücker point anchor computation
 
 We used several useful libraries and tools to implement Visilib (see [Dependencies](https://github.com/dhaumont/visilib#Dependencies)). We would like to especially thank their authors for their great work and publishing the code.
