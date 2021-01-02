@@ -38,31 +38,20 @@ Visilib is written in C++, it is **cross-platform** and distributed as a **heade
 - [CMake](https://cmake.org/) for cross-platform compilation
 
 ## Optional dependencies 
-- [CGAL](https://www.cgal.org/) and [Leda] for exact arithmetic support
-- [Intel Embree](https://www.embree.org), for fast ray-tracing
+- [CGAL](https://www.cgal.org/) and [Leda](https://www.algorithmic-solutions.com/index.php/products/leda-for-c) and [Boost](https://www.boost.org/) for exact arithmetic support
+- [Intel Embree](https://www.embree.org), for fast ray-tracing support
 - [Doxygen](https://www.doxygen.nl/index.html) for documentation generation
 - [freeglut](http://freeglut.sourceforge.net/) and [OpenGl](https://www.opengl.org/) for the interactive demo application
 
 ## #Unit tests 
 
-## Visilib Extensions 
-
-Visilib will be extended in the future, in order to provide a complete framework for exact visibility determination in 3D. The following features will be added in the future:
-
- TODO 
- Full visibility determination (in addition to the boolean visible/hidden predicates) for exact form-factor computation and exact shadow computation
-
 Project Information
 
     License: GNU GPL v3
 
-Labels:
+## Labels
 Algorithm 3D graphics geometry Mathematics Plucker Coordinates Library pvs occlusion visibility exact culling computation CPlusPlus CSG
 
-
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
 
 ## How do I get set up? 
 
