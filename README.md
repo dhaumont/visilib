@@ -100,22 +100,21 @@ visilibDemo is an interactive demo application provided with visilib library.
 It allows to test the different library options interactively, by pressing the **following keys**:
 
 | Key | Usage | Description |
-|---|---|---|
-| s | enable/disable silhouette optimisation |Without silhouette optimisation, all the edges of the occluders are used to perform CSG operations in Plucker space. With silhouette optimisation, only the potential silhouette edges of the occluders with respect to the source polygons are used.|
-| n | enable/disable hypersphere nomalization| When normalisation is activated, all points in the projective Plucker space are projected onto an unit hypersphere, in order to avoid numerical errors.|
+|-----|-------|-------------|
+| f | enable/disable detect aperture only| When this option is activated, the visibility computation stops as soon as the two sources are proven to be mutually visible. Otherwise, the computation continues until the complete visibility information has been computed |
+| s | enable/disable silhouette optimisation |When s$ilhouette optimisation is activated, only the potential silhouette edges of the occluders wrt the source polygons are considered for CSG operations |
+| n | enable/disable hypersphere nomalization| When normalisation is activated, all the Plücker points are projected onto an unit hypersphere, in order to reduce numerical errors |
 | r | enable/disable representative line sampling strategy| |
-| f | enable/disable detect aperture only| When this option is activated, the visibility computation stops as soon as the two sources are proven to be mutually visible. Otherwise, the computation continues until the complete visibility information has been computed.|
-| f | enable/disable fast silhouette rejection test||
-| +| increase size | Increase the size of the source polygons|
-| -| decrease size | Decrease the size of the source polygons|
-| 1 |decrease vertex count | decreases the number of vertices of the first source polygon |
-| 2 |increase vertex count | increases the number of vertices of the first source polygon |
-|w| write config|
-|o| open config|
-|space| start/pause animation| When animation is started, the source polygons will perform a rotation around the scene.|
-|Enter| show/hide geometry|For debugging purpose, allow to change the representation of the scene and of the query polygons.|
-|h| display help|Display the list of keys and their effect|
-
+| f | enable/disable fast silhouette rejection test| |
+| + | increase size | Increase the size of the source polygons |
+| - | decrease size | Decrease the size of the source polygons |
+| 1 | decrease vertex count | Decrease the number of vertices of the first source polygon |
+| 2 | increase vertex count | Increase the number of vertices of the first source polygon |
+| w | write config|
+| o | open config|
+|space| start/pause animation | When animation is started, the source polygons will perform a rotation around the scene |
+|Enter| show/hide geometry | For debugging purpose, allow to change the representation of the scene and of the query polygons |
+|h| display help | Display the list of keys and their effect |
 
 
 ## Acknowledgements
@@ -128,57 +127,4 @@ We would like to thanks the following persons for their contribution to this lib
 - Bajaj and Patucci for the interpolation algorithm code
 - David Eberly for the AABB to ray intersection code
 
-
 We used several useful libraries and tools to implement Visilib (see [Dependencies](https://github.com/dhaumont/visilib#Dependencies)). We would like to especially thank their authors for their great work and publishing the code.
-
-
-WIndows (VS2019 x64)
-
-
-1) EXACT ARITHMETIC: CGAL + BOOST + LEDA
-
-CGAL-4.13.1
-   1. download and install BOOST version 1_70_0
-https://www.boost.org/
-   
-   2. define BOOST_INCLUDEDIR variable
-   
-Note: you can decomment the line in generateProject.bat
-   
-   3. download and install CGAL version 4.13.1
-   https://github.com/CGAL/cgal/releases
-   4. define CGAL_DIR envionment variable
-Note: you can decomment the line in generateProject.bat
- 
-
-	5. download and install LEDA version 6.3
-	http://www.algorithmic-solutions.com/index.php/products/leda-free-edition
- 
- 
-   5. activate   
-
-
-2) FAST RAY TRACING: EMBREE
-
-
-Embree 3.0
-   1. download and install embree
-     https://www.embree.org/downloads.html
-   2. define EMBREE_INSTALL_DIR environment variable
-       in the compilation command, call 
-	   set EMBREE_INSTALL_DIR=c:\Program Files\Intel\Embree3 x64
-   
-   Note: you can decomment the line in generateProject.bat
-   
-   3. activate "embree" flag in CMake
-   
-   Open "CMakeList.txt"
-   set (USE_EMBREE True)
-
-   4. run generateProject.bat
-   
-   
-3) ADDITIONAL DLL FOR THE DEMO
- - freeGlut
- - Opengl
- 
