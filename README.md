@@ -2,16 +2,19 @@
 
 The Visilib project aims to provide an efficient and robust library for **exact visibility computation** in 3D.
 
-The main feature is the exact visibility computation between two primitives (points, segments or polygons). The visibility computations are **exact** and make no simplification, in opposition to conservative or aggressive visibility methods: Visilib performs the complete penumbra fusion of the occluders, by the use of CSG operations in Plücker space.
+Given a polygonal scene as input treated as occluders, the library allows to determine if two primitives called sources are mutually visible. In case of mutual visibility, Visilib optionally computes the set of lines stabbing the two primitives, providing a complete description of the mutual visibility information. 
 
-If you are interested in implementation details please refer to the technical [paper](https://github.com/dhaumont/visilib/blob/main/paper/paper_egsr_2005.pdf) describing the core algorithm.
+The visibility computations are computed in an **exact** way, without making any simplification.
+
+The core algorithm is based on CSG operations in a 5D projective space called Pücker space. If you are interested in implementation details please refer to this technical [paper](https://github.com/dhaumont/visilib/blob/main/paper/paper_egsr_2005.pdf) describing the core algorithm.
 However, the library has been completely rewritten and benefits from several improvements (see [Features](https://github.com/dhaumont/visilib#Features)).
 
 Visilib is written in C++, it is **cross-platform** and distributed as a **header only library**.
 
 ## Features 
 
-- Visibility performed via CSG (Constructive Solid Geometry) operations in Plucker space:
+- Visibility computation is exact:  contrary to conservative or aggressive visibility methods, the Visilib library does not make any assumption and performs the complete penumbra fusion of the occluders 
+- Visibility performed via CSG (Constructive Solid Geometry) operations in Plücker space:
      - Polytope splitting algorithm using only skeleton of polytopes (vertices and edges)
      - Silhouette optimization algortihm reducing drastically the number of CSG operations
      - Guided aperture sampling and early termination: rays are casted in the visibility apertures left by the previously processed occluders, leading to early termination in case of mutual visibility
@@ -20,9 +23,9 @@ Visilib is written in C++, it is **cross-platform** and distributed as a **heade
 
 **NEW (since paper publication)**
 
-- Visibility query available between polygons, segments and points
+- The source primitives that can be used are polygons, segments and points, allowing to perform polygon-to-polygon, polygon-to-segment, polygon-to-point and point-to-segment visibility query
 - Optimal minimum polytope building algorithm in Plucker space (TODO refer to paper),
-- robust arithmetic computation via exact artithmetic via CGAL and LEDA libraries  (multiple precision arithmetic combined with interval arithmetic computations)
+- Robust arithmetic computation handling based CGAL and LEDA libraries  (multiple precision arithmetic combined with interval arithmetic computations)
 - fast ray-triangle intersection based on Intel Embree library
 - easy to deploy: header only library
 
@@ -30,29 +33,17 @@ Visilib is written in C++, it is **cross-platform** and distributed as a **heade
 - Potentially Visible Set computation (PVS)
 - Sound propagation (edge diffraction)
 - Shadow and lighting computation
-- Robotic
-
-## Cross-platform 
-
-- CMake: linux, windows
-
-## Supported Compilers 
-
-- GCC // Add version
-- Visual Studio 2019
 
 ## Dependencies 
-- CMake 3.14.0
+- [CMake] (https://cmake.org/) for cross-platform compilation
 
 ## Optional dependencies 
-- CGAL and LEDA (exact arithmetic)
-- Embree (fast ray-triangle intersection)
-- Google Test (unit testing)
-- Doxygen (documentation generation)
+- [CGAL] (https://www.cgal.org/) and [Leda] for exact arithmetic support
+- [Intel Embree] (https://www.embree.org), for fast ray-tracing
+- [Doxygen] (https://www.doxygen.nl/index.html) for documentation generation
+- [freeglut] (http://freeglut.sourceforge.net/) and [OpenGl] (https://www.opengl.org/) for the interactive demo application
 
 ## #Unit tests 
-
-- based on Google test
 
 ## Visilib Extensions 
 
