@@ -2,7 +2,7 @@
 
 The Visilib project aims to provide an efficient and robust library for **exact visibility computation** in 3D.
 
-Given a polygonal scene as input treated as occluders, the library allows to determine if two primitives called sources are mutually visible. In case of mutual visibility, Visilib optionally computes the set of lines stabbing the two primitives, providing a complete description of the mutual visibility information. 
+Given  as input a polygonal scene treated as occluder, the library allows to determine if two primitives called sources are mutually visible. In case of mutual visibility, Visilib optionally computes the set of lines stabbing the two primitives, providing a complete description of the mutual visibility information. 
 
 The visibility computations are computed in an **exact** way, without making any simplification.
 
