@@ -18,8 +18,8 @@ Visilib is written in C++, it is **cross-platform** and distributed as a **heade
      - Polytope splitting algorithm using only skeleton of polytopes (vertices and edges)
      - Silhouette optimization algortihm reducing drastically the number of CSG operations
      - Guided aperture sampling and early termination: rays are casted in the visibility apertures left by the previously processed occluders, leading to early termination in case of mutual visibility
-     - Occluder selection using previous queries
-     - Computational Geometry predicates in Plucker space
+     - Occluder selection using already computed visibility information
+     - Computational geometry predicates in Plücker space
 
 **NEW (since paper publication)**
 
