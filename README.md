@@ -106,8 +106,10 @@ It allows to test the different library options interactively, by pressing the *
 | r | enable/disable representative line sampling strategy| |
 | f | enable/disable detect aperture only| When this option is activated, the visibility computation stops as soon as the two sources are proven to be mutually visible. Otherwise, the computation continues until the complete visibility information has been computed.|
 | f | enable/disable fast silhouette rejection test||
-| +/-| increase/decrease scaling of query polygons||
-| '1/2'| increase/decrease number of vertices of the first query source| The  key '1' decreases the number of vertices of the first source.The  key '2' increases the number of vertices of the first source.|
+| +| increase size | Increase the size of the source polygons|
+| -| decrease size | Decrease the size of the source polygons|
+| 1 |decrease vertex count | decreases the number of vertices of the first source polygon |
+| 2 |increase vertex count | increases the number of vertices of the first source polygon |
 |w| write config|
 |o| open config|
 |space| start/pause animation| When animation is started, the source polygons will perform a rotation around the scene.|
