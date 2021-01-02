@@ -99,48 +99,20 @@ visilibDemo is an interactive demo application provided with visilib library.
 
 It allows to test the different library options interactively, by pressing the **following keys**:
 
-- 's': enable/disable silhouette optimisation
-
-Without silhouette optimisation, all the edges of the occluders are used to perform CSG operations in Plucker space.
-With silhouette optimisation, only the potential silhouette edges of the occluders with respect to the source polygons are used.
-
-- 'n': enable/disable nomalization
-
-When normalisation is activated, all points in the projective Plucker space are projected onto an unit hypersphere, in order to avoid numerical errors.
-
-- 'r': enable/disable representative line sampling strategy
-  
-  
-- 'f': enable/disable detect aperture only
-
-When this option is activated, the visibility computation stops as soon as the two sources are proven to be mutually visible. Otherwise, the computation continues until the complete visibility information has been computed.
- 
- 
-- 'f': enable/disable fast silhouette rejection test
- 
-- '+/-': increase/decrease scaling of query polygons
-
-
-
-- '1/2': increase/decrease number of vertices of the first query source
-
-The  key '1' decreases the number of vertices of the first source.
-The  key '2' increases the number of vertices of the first source.
-
-- 'w': write config
-
-- 'o': open config
-
-- 'space': start/pause animation
-
-When animation is started, the source polygons will perform a rotation arount the scene.
-
-- 'Enter': show/hide geometry
-
-For debugging purpose, allow to change the representation of the scene and of the query polygons. 
-
-'h': display help
-Display the list of keys and their effect
+| Key | Usage | Description |
+|---|---|---|
+| s | enable/disable silhouette optimisation |Without silhouette optimisation, all the edges of the occluders are used to perform CSG operations in Plucker space. With silhouette optimisation, only the potential silhouette edges of the occluders with respect to the source polygons are used.|
+| n | enable/disable hypersphere nomalization| When normalisation is activated, all points in the projective Plucker space are projected onto an unit hypersphere, in order to avoid numerical errors.|
+| r | enable/disable representative line sampling strategy| |
+| f | enable/disable detect aperture only| When this option is activated, the visibility computation stops as soon as the two sources are proven to be mutually visible. Otherwise, the computation continues until the complete visibility information has been computed.|
+| f | enable/disable fast silhouette rejection test||
+| +/-| increase/decrease scaling of query polygons||
+| '1/2'| increase/decrease number of vertices of the first query source| The  key '1' decreases the number of vertices of the first source.The  key '2' increases the number of vertices of the first source.|
+|w| write config|
+|o| open config|
+|space| start/pause animation| When animation is started, the source polygons will perform a rotation around the scene.|
+|Enter| show/hide geometry|For debugging purpose, allow to change the representation of the scene and of the query polygons.|
+|h| display help|Display the list of keys and their effect|
 
 
 
