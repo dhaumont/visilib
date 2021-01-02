@@ -34,7 +34,7 @@ Visilib is written in C++, it is **cross-platform** and distributed as a **heade
 - Sound propagation (edge diffraction)
 - Shadow and lighting computation
 
-## Visilib Dependencies
+## Dependencies
 
 The only mandatory dependency is [CMake](https://cmake.org/) used for cross-platform compilation.
 
