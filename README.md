@@ -66,11 +66,6 @@ TODO
 
 
 
-## Who do I talk to? 
-
-* Haumont Denis (denis.haumont@gmail.com)
-
-
 ## Visilib License 
 Visilib is [GNU GPL v3](https://www.gnu.org/licenses/gpl-3.0) licensed, and is not free for commercial usage.
 
@@ -127,3 +122,10 @@ We would like to thanks the following persons for their contribution to this lib
 - Jiry Bittner for the Plücker point anchor computation
 
 We used several useful libraries and tools to implement Visilib (see [Dependencies](https://github.com/dhaumont/visilib#Dependencies)). We would like to especially thank their authors for their great work and publishing the code.
+
+
+## Who do I talk to? 
+
+For any question about this library, please contact Denis Haumont (denis.haumont@gmail.com).
+
+
