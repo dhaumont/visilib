@@ -41,9 +41,9 @@ The only mandatory dependency is [CMake](https://cmake.org/) used for cross-plat
 The following dependencies are optional: 
 - [CGAL](https://www.cgal.org/) and [Leda](https://www.algorithmic-solutions.com/index.php/products/leda-for-c) and [Boost](https://www.boost.org/) for optional exact arithmetic support
 - [Intel Embree](https://www.embree.org), for optional fast ray-tracing support
-- [Doxygen](https://www.doxygen.nl/index.html) for documentation generation
 - [freeglut](http://freeglut.sourceforge.net/) and [OpenGl](https://www.opengl.org/) for the interactive demo application
 
+We also use [Doxygen](https://www.doxygen.nl/index.html) for documentation generation.
 ##  Unit tests 
 
 Visilib is partially unit tested, using the CMake framework.
