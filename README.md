@@ -11,7 +11,7 @@ However, the library has been completely rewritten and benefits from several imp
 
 Visilib is written in C++, it is **cross-platform** and distributed as a **header only library**.
 
-## Visilib Features 
+## Features 
 
 - Visibility computation is exact:  contrary to conservative or aggressive visibility methods, the Visilib library does not make any assumption and performs the complete penumbra fusion of the occluders 
 - Visibility performed via CSG (Constructive Solid Geometry) operations in Plücker space:
@@ -44,7 +44,7 @@ The following dependencies are optional:
 - [Doxygen](https://www.doxygen.nl/index.html) for documentation generation
 - [freeglut](http://freeglut.sourceforge.net/) and [OpenGl](https://www.opengl.org/) for the interactive demo application
 
-## Visilib Unit tests 
+##  Unit tests 
 
 Visilib is partially unit tested, using the CMake framework.
 The name of the unit test executable is **visilibTest**.
@@ -93,7 +93,7 @@ If you use Visilib in a publication, please cite the following paper and refer t
 ```
 
 
-## Visilib Interactive Demo 
+##  Interactive Demo 
 
 visilibDemo is an interactive demo application provided with visilib library.
 
