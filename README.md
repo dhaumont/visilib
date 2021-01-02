@@ -146,13 +146,16 @@ Display the list of keys and their effect
 
 ## Acknowledgements
 
-Many thanks for their contribution into this library to:
+We would like to thanks the following persons for their contribution to this library:
 - Otso Mäkinen for the silhouette computation implementation
 - Joseph O'Rourke and Cédric Laugerotte for the convex hull implementation
 - Eric Lengyel for the polygon clipping algorithm
 - Sven Woop et al. for the watertight triangle intersection code
 - Bajaj and Patucci for the interpolation algorithm code
 - David Eberly for the AABB to ray intersection code
+
+
+We used several useful libraries and tools to implement Visilib (see [Dependencies](https://github.com/dhaumont/visilib#Dependencies)). We would like to especially thank their authors for their great work and publishing the code.
 
 
 WIndows (VS2019 x64)
