@@ -157,7 +157,7 @@ Display the list of keys and their effect
 
 ## Acknowledgements
 
-Many thanks to:
+Many thanks for their contribution into this library to:
 - Otso Mäkinen for the silhouette computation implementation
 - Joseph O'Rourke and Cédric Laugerotte for the convex hull implementation
 - Eric Lengyel for the polygon clipping algorithm
