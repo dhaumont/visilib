@@ -46,8 +46,8 @@ The following dependencies are optional:
 We also use [Doxygen](https://www.doxygen.nl/index.html) for documentation generation.
 ##  Unit tests 
 
-Visilib is partially unit tested, using the CMake framework.
-The name of the unit test executable is **visilibTest**.
+Visilib is partially unit tested, using the CMake framework. Ghd implementation of the unit test is provided in the [/test/src/](https://github.com/dhaumont/visilib/tree/main/test/src) folder. 
+The name of executable to run the unit tests is **visilibTest**.
 
 ## Labels
 Algorithm 3D graphics geometry Mathematics Plucker Coordinates Library pvs occlusion visibility exact culling computation CPlusPlus CSG
