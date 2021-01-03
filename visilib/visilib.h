@@ -47,8 +47,6 @@ namespace visilib
         {
             silhouetteOptimization = true;
             hyperSphereNormalization = false;
-            performFastTest = false;
-            testPolytopeForIntersectionWithOccluder = false;
             representativeLineSampling = true;
             precision = DOUBLE;
             detectApertureOnly = true;
@@ -59,8 +57,6 @@ namespace visilib
         {
             silhouetteOptimization = other.silhouetteOptimization;
             hyperSphereNormalization = other.hyperSphereNormalization;
-            performFastTest = other.performFastTest;
-            testPolytopeForIntersectionWithOccluder = other.testPolytopeForIntersectionWithOccluder;
             precision = other.precision;
             representativeLineSampling = other.representativeLineSampling;
             detectApertureOnly = other.detectApertureOnly;
@@ -69,8 +65,6 @@ namespace visilib
 
         bool silhouetteOptimization;                  /**< @brief Use silhouette optimization*/
         bool hyperSphereNormalization;                /**< @brief Normalize the Plucker point (projection on unit hypersphere)*/ 
-        bool performFastTest;                         /**< @brief Deprecated */
-        bool testPolytopeForIntersectionWithOccluder; /**< @brief Deprecated */
         bool representativeLineSampling;              /**< @brief Use a representative line heuristic to sample the apertures instead of using the extremal stabbing lines*/   
         PrecisionType precision;                      /**< @brief Arithmetic model presicion t*/  
         bool detectApertureOnly;                      /**< @brief Stop the query as soon as a visible line has been found*/  
