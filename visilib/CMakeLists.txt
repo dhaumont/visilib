@@ -1,5 +1,5 @@
 # Visilib, an open source library for exact visibility computation.
-# Copyright(C) 2020 by Denis Haumont
+# Copyright(C) 2021 by Denis Haumont
 #
 # This file is part of Visilib.
 #
