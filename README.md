@@ -4,7 +4,7 @@ The Visilib project aims to provide an efficient and robust library for **exact 
 
 Given  as input a polygonal scene treated as occluder, the library allows to determine if two primitives called sources are mutually visible. In case of mutual visibility, Visilib optionally computes the set of lines stabbing the two primitives, providing a complete description of the mutual visibility information. 
 
-The visibility computations are computed in an **exact** way, without making any simplification.
+The from-region visibility computations are computed in an **exact** way, without making any simplification.
 
 The core algorithm is based on CSG operations in a 5D projective space called Pücker space. If you are interested in implementation details please refer to this technical [paper](https://github.com/dhaumont/visilib/blob/main/paper/paper_egsr_2005.pdf) describing the core algorithm.
 However, since this publication the library has been completely rewritten and benefits from several improvements (see [Features](https://github.com/dhaumont/visilib#Features)).
@@ -13,7 +13,7 @@ Visilib is written in C++, it is **cross-platform** and distributed as a **heade
 
 ## Features 
 
-- Visibility computation is exact:  contrary to conservative or aggressive visibility methods, the Visilib library does not make any assumption and performs the complete penumbra fusion of the occluders 
+- From-region visibility computations are exact:  contrary to conservative or aggressive visibility methods, the Visilib library does not make any assumption and performs the complete penumbra fusion of the occluders 
 - Visibility performed via CSG (Constructive Solid Geometry) operations in Plücker space:
      - Polytope splitting algorithm using only skeleton of polytopes (vertices and edges)
      - Silhouette optimization algortihm reducing drastically the number of CSG operations
