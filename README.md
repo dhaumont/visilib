@@ -6,7 +6,7 @@ Given a set of polygonal geometries that are treated as occluders, the library a
 
 The from-region visibility computations are computed in an **exact** way, without making any simplification.
 
-The core algorithm is based on CSG (Constructive Solid Geometry) operations in a 5D projective space called Pücker space. If you are interested in implementation details please refer to this technical [paper](https://github.com/dhaumont/visilib/blob/main/paper/paper_egsr_2005.pdf) describing the core algorithm.
+The core algorithm is based on CSG (Constructive Solid Geometry) operations in a 5D projective space called Pücker space. If you are interested in implementation detail please refer to this technical [paper](https://github.com/dhaumont/visilib/blob/main/paper/paper_egsr_2005.pdf) describing the core algorithm.
 However, since this publication the library has been completely rewritten and benefits from several improvements (see [Features](https://github.com/dhaumont/visilib#Features)).
 
 Visilib is written in C++, it is **cross-platform** and distributed as a **header only library**.
