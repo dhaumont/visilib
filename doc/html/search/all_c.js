@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['performfasttest',['performFastTest',['../structvisilib_1_1_visibility_exact_query_configuration.html#a1dc9eb7257bba268ce68a14cbcdd18d0',1,'visilib::VisibilityExactQueryConfiguration']]],
   ['pluckerpolyhedron',['PluckerPolyhedron',['../classvisilib_1_1_plucker_polyhedron.html',1,'visilib']]],
   ['pluckerpolytope',['PluckerPolytope',['../classvisilib_1_1_plucker_polytope.html',1,'visilib']]],
   ['pluckerpolytopebuilder',['PluckerPolytopeBuilder',['../classvisilib_1_1_plucker_polytope_builder.html',1,'visilib']]],

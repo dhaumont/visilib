@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['testpolytopeforintersectionwithoccluder',['testPolytopeForIntersectionWithOccluder',['../structvisilib_1_1_visibility_exact_query_configuration.html#a37b636febbcac1c265fd23d18145821b',1,'visilib::VisibilityExactQueryConfiguration']]],
   ['tfar',['tfar',['../structvisilib_1_1_visibility_ray.html#ad086e44a14588e12ebfb760803a07b47',1,'visilib::VisibilityRay']]],
   ['tnear',['tnear',['../structvisilib_1_1_visibility_ray.html#afcf9585cadf9308044ff540f2206a890',1,'visilib::VisibilityRay']]],
   ['tolerance',['Tolerance',['../classvisilib_1_1_math_arithmetic.html#a402058efef79b2039522f78fda6ffddb',1,'visilib::MathArithmetic']]],
