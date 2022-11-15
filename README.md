@@ -52,18 +52,28 @@ The name of executable to run the unit tests is **visilibTest**.
 ## How do I get set up? 
 
 * Summary of set up
-TODO 
-* Configuration
-TODO 
-* Dependencies
-TODO 
-* Database configuration
-TODO 
-* How to run tests
-TODO 
-* Deployment instructions
-TODO 
 
+LINUX 
+
+#install required dependency
+sudo apt-get install freeglut3-dev
+sudo apt-get install cmake
+
+#clone repository
+git clone https://github.com/dhaumont/visilib.git
+cd visilib
+
+#configure 
+source configure.sh
+
+#build
+cd build
+make -j10
+
+#Launch demo
+demo/visilibDemo 
+
+WINDOWS
 
 
 ## Visilib License 
