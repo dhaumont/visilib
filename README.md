@@ -56,26 +56,21 @@ The name of executable to run the unit tests is **visilibTest**.
 LINUX 
 ```
 #install required dependency
-
 sudo apt-get install freeglut3-dev
 sudo apt-get install cmake
 
 #clone repository
-
 git clone https://github.com/dhaumont/visilib.git
-cd visilib
 
 #configure 
-
+cd visilib
 source configure.sh
 
 #build
-
 cd build
 make -j10
 
 #Launch demo
-
 demo/visilibDemo 
 ```
 
