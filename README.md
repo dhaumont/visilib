@@ -54,7 +54,7 @@ The name of executable to run the unit tests is **visilibTest**.
 * Summary of set up
 
 LINUX 
-
+'''
 #install required dependency
 
 sudo apt-get install freeglut3-dev
@@ -77,6 +77,7 @@ make -j10
 #Launch demo
 
 demo/visilibDemo 
+'''
 
 WINDOWS
 
