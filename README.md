@@ -24,7 +24,7 @@ Visilib is written in C++, it is **cross-platform** and distributed as a **heade
 **NEW (since paper publication)**
 
 - The source primitives that can be used are polygons, segments and points, allowing to perform polygon-to-polygon, polygon-to-segment, polygon-to-point and point-to-segment visibility query
-- Optimal minimum polytope building algorithm in Plucker space as describe in [Charneau et al.]( https://www.cs.purdue.edu/cgvlab/popescu/Visibility/Additional%20References/Charneau%202007.pdf)),
+- Optimal minimum polytope building algorithm in Plucker space (as described in [Charneau et al.]( https://www.cs.purdue.edu/cgvlab/popescu/Visibility/Additional%20References/Charneau%202007.pdf)),
 - Robust arithmetic computation based on [CGAL](https://www.cgal.org/) and [Leda](https://www.algorithmic-solutions.com/index.php/products/leda-for-c) libraries  (multiple precision arithmetic combined with interval arithmetic computations)
 - Fast ray tracing based on [Intel Embree](https://www.embree.org) library
 - Easy to deploy: header only library
