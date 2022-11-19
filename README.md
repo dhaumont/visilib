@@ -78,7 +78,7 @@ WINDOWS
 
 
 ## Visilib License 
-Visilib is [GNU GPL v3](https://www.gnu.org/licenses/gpl-3.0) licensed, and is not free for commercial usage.
+Visilib is [GNU GPL v3](https://www.gnu.org/licenses/gpl-3.0) licensed.
 
 If you use Visilib in a publication, please refer to the project homepage ([https://github.com/dhaumont/visilib](https://github.com/dhaumont/visilib)) and  cite the following paper:
 
