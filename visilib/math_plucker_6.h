@@ -202,7 +202,7 @@ namespace visilib
             }
         }
 
-
+       
         /**@brief Origin point in Plucker space*/
         static MathPlucker6<S>  Zero()
         {

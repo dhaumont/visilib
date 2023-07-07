@@ -43,6 +43,7 @@ namespace visilibDemo
         float eta = 0;
         int   sceneIndex = 2;
         float globalScaling = 1;
+        double tolerance = -1;
 #if EMBREE
         bool embree = false;
 #endif

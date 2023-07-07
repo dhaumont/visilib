@@ -157,6 +157,7 @@ namespace visilib
    
 
         template<class P, class S> static P getProjectionOnQuadric(const P& line);
+        template<class P, class S> static P getClosestQuadricPoint(const P& line);
 
         template<class P, class S>
         bool static isEdgeInsidePolytope(const MathVector3d& a, const MathVector3d& b, PluckerPolytope<P>* aPolytope, const MathVector3d& approximateNormal, PluckerPolyhedron<P>* polyhedron, S tolerance);
@@ -883,7 +884,7 @@ namespace visilib
         }
         
         P myGravityCenterReal = getProjectionOnQuadric<P,S>(myGravityCenterImaginary);
-
+//        P myGravityCenterReal = getClosestQuadricPoint<P,S>(myGravityCenterImaginary);
         V_ASSERT(MathPredicates::getQuadricRelativePosition(myGravityCenterReal, tolerance) == ON_BOUNDARY);
         return myGravityCenterReal;
     }
@@ -999,9 +1000,30 @@ namespace visilib
         S q = a.getSquaredNorm() + b.getSquaredNorm();
 
         S mu = 2 * p / ( q+ MathArithmetic<S>::getSqrt(q*q-4*p*p));
-//        S invU = 1 / (1 - mu * mu);
 
         return P((a.x - mu * b.x), (a.y - mu * b.y), (a.z - mu * b.z), (b.x - mu * a.x), (b.y - mu * a.y), (b.z - mu * a.z));
+    }
+
+    /** @brief Return the closest Plucker point on the Plucker quadric 
+        Solve the Plucker correction problem as described in the paper
+        "Plücker Correction Problem: Analysis and Improvements in Efficiency"*/        
+    template<class P, class S> 
+    inline P MathGeometry::getClosestQuadricPoint(const P& line)
+    {            
+        const MathVector3_<S>& a = line.getDirection();
+        const MathVector3_<S>& b = line.getLocation();
+        const S a1 = a.x, a2 = a.y, a3 = a.z;
+        const S b1 = b.x,  b2 = b.y, b3 = b.z;
+
+        const S p = a1*b1 + a2*b2 + a3*b3;
+        const S q = a1*a1 + a2*a2 + a3*a3 + b1*b1 + b2*b2 + b3*b3;
+        const S mu = 2*p/(q+MathArithmetic<S>::getSqrt(q*q-4*p*p));
+        const S u_ = 1/(1-mu*mu);
+        
+        const S x1 = (a1-mu*b1)*u_, x2 = (a2-mu*b2)*u_, x3 = (a3-mu*b3)*u_;
+        const S y1 = (b1-mu*a1)*u_, y2 = (b2-mu*a2)*u_, y3 = (b3-mu*a3)*u_;
+        
+        return P(x1, x2, x3, y1, y2, y3);
     }
 
     template<class S>

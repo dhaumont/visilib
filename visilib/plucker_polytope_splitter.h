@@ -200,9 +200,12 @@ namespace visilib
                         myI2 = temp;
                     }
                     
+                   const std::vector<size_t>& facetsI1 = aPolyhedron->getFacetsDescription(myI1);
+                   const std::vector<size_t>& facetsI2 = aPolyhedron->getFacetsDescription(myI2);
+         
                     std::vector<size_t> myFacets;
-                    MathCombinatorial::initFacets(aPolyhedron->getFacetsDescription(myI1), 
-                                                  aPolyhedron->getFacetsDescription(myI2), 
+                    MathCombinatorial::initFacets(facetsI1, 
+                                                  facetsI2, 
                                                   aPlaneID,
                                                   myFacets);
 
@@ -226,6 +229,29 @@ namespace visilib
                     }
 
                     size_t vertexIndex = aPolyhedron->add(myIntersection, MathPredicates::getQuadricRelativePosition(myIntersection, tolerance), normalization, tolerance);
+
+                    std::cout << "Vertex: " << vertexIndex << " obtained by splitting (" << myI1 << ", " << myI2 << ") with plane " << aPlaneID << " " << aPlane << std::endl;
+                    
+                        std::cout << myI1 << ": ";
+                        for (auto f: facetsI1)
+                        {
+                            std::cout << f << " ";
+                        }
+                        std::cout << aPolyhedron->get(myI1) << std::endl;
+                        std::cout << myI2 << ": ";
+                        for (auto f: facetsI2)
+                        {
+                            std::cout << f << " ";
+                        }
+                        std::cout << aPolyhedron->get(myI2) << std::endl;                        
+                        std::cout <<  vertexIndex << ": ";
+                        for (auto f: myFacets)
+                        {
+                            std::cout << f << " ";
+                        }
+                        std::cout << myIntersection << std::endl;
+                        
+
 
                     // Prepare for new edges creation
                     myQueryList.push_back(vertexIndex);
@@ -268,19 +294,44 @@ namespace visilib
                     V_ASSERT(Qm != Qn);
                     if (!MathPredicates::isEdgeCollapsed(aPolyhedron->get(Qn), aPolyhedron->get(Qm), tolerance))
                     {
-                        V_ASSERT(facetsQm.size() != facetsQn.size() || !std::equal(facetsQm.begin(), facetsQm.end(), facetsQn.begin()));
+                        if (facetsQm.size() != facetsQn.size() || !std::equal(facetsQm.begin(), facetsQm.end(), facetsQn.begin()))
+                        {
+                             aLeft->addEdge(Qm, Qn, aPolyhedron);
+                             aRight->addEdge(Qm, Qn, aPolyhedron);
+                        }
+                        else
+                        {
+                            std::cout << "ERROR DETECTED WHEN CREATING EDGES:" << std::endl;
+                            std::cout << Qm << ": ";
+                            for (auto f: facetsQm)
+                            {
+                                std::cout << f << " ";
+                            }
+                            std::cout << std::endl;
+                            std::cout << Qn << ": ";
+                            for (auto f: facetsQn)
+                            {
+                                std::cout << f << " ";
+                            }
+                            std::cout << std::endl;
+                            std::cout << aPolyhedron->get(Qn) << std::endl;
+                            std::cout << aPolyhedron->get(Qm) << std::endl;
+                            //V_ASSERT(0);
+                        }
 
-                        aLeft->addEdge(Qm, Qn, aPolyhedron);
-                        aRight->addEdge(Qm, Qn, aPolyhedron);
+                      
                     }
                 }
             }
         }
 
+        aLeft->removeCollapsedEdges(aPolyhedron,tolerance);
+        aRight->removeCollapsedEdges(aPolyhedron,tolerance);
         V_ASSERT(aLeft->getEdgeCount() > 0);
         V_ASSERT(aRight->getEdgeCount() > 0);
-        //	aLeft->V_ASSERTIsValid(aPolyhedron, normalization);
-        //	aRight->V_ASSERTIsValid(aPolyhedron, normalization);
+        //V_ASSERT(aLeft->isValid(aPolyhedron, normalization,tolerance));
+        //V_ASSERT(aRight->isValid(aPolyhedron, normalization,tolerance));
+        
         return ON_BOUNDARY;
     }
 }

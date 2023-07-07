@@ -33,6 +33,7 @@ namespace visilib
     public:
         static bool haveAtLeastNCommonFacets(const std::vector<size_t>& aFacetsDescription1, const std::vector<size_t>& aFacetsDescription2, size_t n = 3);
         static void initFacets(const std::vector<size_t>& aFacetsDescription1, const std::vector<size_t>& aFacetsDescription2, size_t anHyperplane, std::vector<size_t>& result);
+        static void initFacets(const std::vector<size_t>& aFacetsDescription1, const std::vector<size_t>& aFacetsDescription2, std::vector<size_t>& result);
         static bool hasFacet(const std::vector<size_t>& facets, size_t aFace);
     };
 
@@ -75,6 +76,42 @@ namespace visilib
         }
         V_ASSERT(std::is_sorted(result.begin(), result.end()));
     }
+
+    /** @brief Initialize a new facets description result from the two input facets description aFacetsDescription1 an aFacetsDescription1 of two given vertices
+    The resulting facets description is a sorted list of facets, containing the intersection set of the two input facets descriptions list and the additional facet anHyperplane.
+    Remark: the precondition is that the input facets list are sorted .*/
+
+    inline void MathCombinatorial::initFacets(const std::vector<size_t>& aFacetsDescription1, const std::vector<size_t>& aFacetsDescription2, std::vector<size_t>& result)
+    {
+        int i = 0, j = 0;
+        int n1 = aFacetsDescription1.size();
+        int n2 = aFacetsDescription2.size();
+
+        while (i < n1 && j < n2)
+        {
+            if (aFacetsDescription1[i] < aFacetsDescription2[j])
+            {
+                aFacetsDescription1[i++];
+            }
+            else if (aFacetsDescription1[i] > aFacetsDescription2[j])
+            {
+                result.push_back(aFacetsDescription2[j++]);
+            }
+            else
+            { 
+                i++;j++;                
+            }
+        }
+
+        while (i < n1)
+        {
+            result.push_back(aFacetsDescription1[i++]);
+        }
+        while (j < n2)
+        {
+            result.push_back(aFacetsDescription2[j++]);
+        }
+}
 
     /** @brief Determine if the sorted facets description contains aFace. Behaviour is only defined if aFacetsDescription is sorted.*/
 

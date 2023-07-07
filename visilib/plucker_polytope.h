@@ -117,8 +117,17 @@ namespace visilib
         @param S: the tolerance against which the length of the edges is tested
         */
 
-        template<class S> bool hasAllEdgesCollapsed(PluckerPolyhedron<P>* polyhedron, S Tolerance);
+        template<class S> bool hasSomeEdgesCollapsed(PluckerPolyhedron<P>* polyhedron, S Tolerance);
 
+        /** @brief Remove the collasped edge (the length of all edges are below the given tolerance).
+        
+        @param polyhedron: the polyhedron containing all the vertices definition
+        @param S: the tolerance against which the length of the edges is tested
+        */
+
+        template<class S> bool removeCollapsedEdges(PluckerPolyhedron<P>* polyhedron, S Tolerance);
+
+        
         /** @brief Compute the extremal stabbing lines of the polytope*/
         template<class S> void computeExtremalStabbingLines(PluckerPolyhedron<P>* polyhedron, S Tolerance);
 
@@ -266,16 +275,14 @@ namespace visilib
 
     template<class P>
     void PluckerPolytope<P>::outputProperties(std::ostream& o, PluckerPolyhedron<P>* polyhedron)
-    {
-        return;
-        o << "Polyhedron Lines:" << polyhedron->getLinesCount() << std::endl;
-
+    {   
         o << "Polytope ESL: " << mExtremalStabbingLines.size() << std::endl;
         o << "Polytope Edges: " << mEdges.size() << std::endl;
         o << "Polytope Vertices: " << mVertices.size() << std::endl;
 
         if (polyhedron != nullptr)
         {
+            o << "Polyhedron Lines:" << polyhedron->getLinesCount() << std::endl;
             std::set<size_t> myFacets;
             getFacets(myFacets, polyhedron);
 
@@ -302,32 +309,135 @@ namespace visilib
                 o << std::endl;
             }
 
-            o << "Polytope edges facets: " << std::endl;
-
-            int line = 0;
-            for (auto iter = mEdges.begin(); iter != mEdges.end(); iter++)
-            {
-                o << " e[" << iter->first << "," << iter->second << "]";
-            }
-            o << std::endl;
         }
+        o << "Polytope edges facets: " << std::endl;
+
+        int line = 0;
+        for (auto iter = mEdges.begin(); iter != mEdges.end(); iter++)
+        {
+            o << " e[" << iter->first << "," << iter->second << "]";
+        }
+        o << std::endl;
+        
+    }
+    template<class P> template<class S>
+    bool PluckerPolytope<P>::removeCollapsedEdges(PluckerPolyhedron<P>* polyhedron, S tolerance)
+    {
+        std::vector<int> myEdgesTable;
+        std::vector<int> myMergeTable;
+        
+        for (auto iter = mEdges.begin(); iter != mEdges.end();iter++)
+        {
+            size_t i1 = iter->first;
+            size_t i2 = iter->second;                
+        
+            const P& v1 = polyhedron->get(i1);
+            const P& v2 = polyhedron->get(i2);
+
+                        
+            if (MathPredicates::isEdgeCollapsed(v1, v2, tolerance))
+            {
+                std::cout << "collapsed edge dected: " << v1-v2 << "; tolerance: "<< 0.5 *tolerance<<std::endl;
+                myMergeTable.push_back(i1);                
+                myMergeTable.push_back(i2);
+            }
+            else
+            {
+                myEdgesTable.push_back(i1);
+                myEdgesTable.push_back(i2);
+            }
+        }
+
+        if (myMergeTable.empty())
+        {
+            return false;            
+        }
+
+        std::cout << "EDGE TO BE MERGED DETECTED!" << std::endl;
+        outputProperties(std::cout,polyhedron);
+
+        std::cout << "myMergeTable table:";
+        for (int i=0; i<myMergeTable.size();i++)
+        {
+            std::cout<<myMergeTable[i]<<" ";
+        }
+        std::cout<<std::endl;
+        std::cout << "myEdgesTable table:";
+        for (int i=0; i<myEdgesTable.size();i++)
+        {
+            std::cout<<myEdgesTable[i]<<" ";
+        }
+        std::cout<<std::endl;
+        for (int i=0; i<myMergeTable.size();i+=2)
+        {
+            int merge_left  = myMergeTable[i];
+            int merge_right = myMergeTable[i+1];
+            if (merge_left!=merge_right)
+            {
+                for (int j=0; j<myEdgesTable.size();j++)
+                {
+                    if (myEdgesTable[j] == merge_right)
+                    {
+                        myEdgesTable[j] = merge_left;
+                    }
+                }
+
+                for (int k=i;k<myMergeTable.size();k++)
+                {
+                    if (myMergeTable[k] == merge_right)
+                    {
+                        myMergeTable[k] = merge_left;
+                    }
+                }
+
+                const std::vector<size_t>& facetsI1 = polyhedron->getFacetsDescription(merge_left);
+                const std::vector<size_t>& facetsI2 = polyhedron->getFacetsDescription(merge_right);
+         
+                std::vector<size_t> myFacets;
+                MathCombinatorial::initFacets(facetsI1, 
+                                              facetsI2,                                               
+                                              myFacets);
+                polyhedron->initFacetsDescription(merge_left, myFacets);
+            }
+        }
+
+        std::cout << "myMergeTable table:";
+        for (int i=0; i<myMergeTable.size();i++)
+        {
+            std::cout<<myMergeTable[i]<<" ";
+        }
+        std::cout<<std::endl;
+        std::cout << "myEdgesTable table:";
+        for (int i=0; i<myEdgesTable.size();i++)
+        {
+            std::cout<<myEdgesTable[i]<<" ";
+        }
+        std::cout<<std::endl;   
+
+        outputProperties(std::cout,polyhedron);
+        mEdges.clear();
+        for (int i=0; i<myEdgesTable.size();i+=2)
+        {
+            addEdge(myEdgesTable[i], myEdgesTable[i+1],polyhedron);
+        }
+        return true;
     }
 
     template<class P> template<class S>
-    bool PluckerPolytope<P>::hasAllEdgesCollapsed(PluckerPolyhedron<P>* polyhedron, S tolerance)
+    bool PluckerPolytope<P>::hasSomeEdgesCollapsed(PluckerPolyhedron<P>* polyhedron, S tolerance)
     {
         for (auto iter = mEdges.begin(); iter != mEdges.end(); iter++)
         {
             const P& v1 = polyhedron->get(iter->first);
             const P& v2 = polyhedron->get(iter->second);
 
-            if (!MathPredicates::isEdgeCollapsed(v1, v2, tolerance))
+            if (MathPredicates::isEdgeCollapsed(v1, v2, tolerance))
             {
-                return false;
+                return true;
             }
         }
 
-        return true;
+        return false;
     }
 
     template<class P> template<class S>
@@ -421,9 +531,9 @@ namespace visilib
             isValid = false;
         }
 
-        if (hasAllEdgesCollapsed(polyhedron, tolerance))
+        if (hasSomeEdgesCollapsed(polyhedron, tolerance))
         {
-            std::cerr << "   IsValid error: hasAllEdgesCollapesd" << std::endl;
+            std::cerr << "   IsValid error: hasSomeEdgesCollapsed" << std::endl;
             outputProperties(std::cout);
 
             isValid = false;
@@ -452,6 +562,7 @@ namespace visilib
                     std::cerr << "   IsValid error: polytope vertex " << *iter << " is not on the facet " << *i << std::endl;
                     std::cerr << "        P:" << polyhedron->get(*iter) << std::endl;
                     std::cerr << "        Facet:" << polyhedron->get(*i) << std::endl;
+                    std::cerr << "        Facet.dot(P):" <<  polyhedron->get(*iter).dot(polyhedron->get(*i)) << std::endl;
                     isValid = false;
                 }
             }

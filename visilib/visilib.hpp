@@ -53,16 +53,17 @@ inline VisibilityResult visilib::areVisible(GeometryOccluderSet* scene, const fl
     {
 #ifdef EXACT_ARITHMETIC
     case VisibilityExactQueryConfiguration::EXACT:
+        exact tolerance = configuration.tolerance == -1 ?  MathArithmetic<exact>::Tolerance() : configuration.tolerance;
         query = new VisibilityExactQuery_<MathPlucker6<exact>, exact>(scene, configuration, MathArithmetic<exact>::Tolerance());
         break;
 #endif
-    case VisibilityExactQueryConfiguration::DOUBLE:
-        query = new VisibilityExactQuery_<MathPlucker6<double>, double>(scene, configuration, MathArithmetic<double>::Tolerance());
+    case VisibilityExactQueryConfiguration::DOUBLE:        
+        query = new VisibilityExactQuery_<MathPlucker6<double>, double>(scene, configuration,configuration.tolerance == -1 ? MathArithmetic<double>::Tolerance() : configuration.tolerance);
         break;
 
     default:
-
-        query = new VisibilityExactQuery_<MathPlucker6<float>, float>(scene, configuration, MathArithmetic<float>::Tolerance());
+        float tolerance = configuration.tolerance == -1 ? MathArithmetic<float>::Tolerance() : configuration.tolerance;
+        query = new VisibilityExactQuery_<MathPlucker6<float>, float>(scene, configuration,configuration.tolerance == -1 ? MathArithmetic<float>::Tolerance() : configuration.tolerance);
         break;
     }
 

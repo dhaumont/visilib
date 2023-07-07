@@ -51,7 +51,8 @@ namespace visilib
             precision = DOUBLE;
             detectApertureOnly = true;
             useEmbree = false;
-        };
+            tolerance = -1.0;
+        }
 
         VisibilityExactQueryConfiguration(const VisibilityExactQueryConfiguration& other)
         {
@@ -61,14 +62,16 @@ namespace visilib
             representativeLineSampling = other.representativeLineSampling;
             detectApertureOnly = other.detectApertureOnly;
             useEmbree = other.useEmbree;
-        };
+            tolerance = other.tolerance;
+        }
 
         bool silhouetteOptimization;                  /**< @brief Use silhouette optimization*/
         bool hyperSphereNormalization;                /**< @brief Normalize the Plucker point (projection on unit hypersphere)*/ 
         bool representativeLineSampling;              /**< @brief Use a representative line heuristic to sample the apertures instead of using the extremal stabbing lines*/   
-        PrecisionType precision;                      /**< @brief Arithmetic model presicion t*/  
+        PrecisionType precision;                      /**< @brief Arithmetic model precision t*/  
         bool detectApertureOnly;                      /**< @brief Stop the query as soon as a visible line has been found*/  
         bool useEmbree;
+        double tolerance;
     };
 
 
@@ -107,7 +110,7 @@ namespace visilib
 
 The visilib project aims to provide an efficient C++ library for exact visibility computation in 3D.
 
-The main feature of the current version is exact occlusion query between two polygons, a polygonand a segment, or between two segments, and allows to answer the fundamental question "Are these two polygons mutually visible?".The principal application is from - region occlusion cullingand exact Potentially Visible Set computation(PVS).The visibility determination is exactand make no simplification, in opposition to conservative or aggressive visibility methods : visilib performs the complete penumbra fusion of the occluders, by the mean of CSG operations in Plücker space.All the technical details are described in the companion paper "A Low Dimensional Framework for Exact Polygon-to-Polygon Occlusion Queries", presented at EGSR 2005 (cf.download section)
+The main feature of the current version is exact occlusion query between two polygons, a polygonand a segment, or between two segments, and allows to answer the fundamental question "Are these two polygons mutually visible?".The principal application is from - region occlusion cullingand exact Potentially Visible Set computation(PVS).The visibility determination is exactand make no simplification, in opposition to conservative or aggressive visibility methods : visilib performs the complete penumbra fusion of the occluders, by the mean of CSG operations in Plï¿½cker space.All the technical details are described in the companion paper "A Low Dimensional Framework for Exact Polygon-to-Polygon Occlusion Queries", presented at EGSR 2005 (cf.download section)
 
 ###Features###
 

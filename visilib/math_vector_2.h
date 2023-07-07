@@ -106,7 +106,10 @@ namespace visilib
                 x *= inv;
                 y *= inv;
             }
-
+            else
+            {
+                x=y=0.0;
+            }
             return d;
         }
         MathVector2_ getNormalized() const
