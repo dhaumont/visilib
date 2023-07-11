@@ -66,12 +66,48 @@ public:
             for (auto faceIndex : s->getSilhouetteFaces())
             {
                 const SilhouetteMeshFace& face = myMeshFaces[faceIndex];
-
+                //MathPlucker6<float> p = MathPlucker6<float>(myGeometryRay.getStart(),
+                  //                                       myGeometryRay.getStart()+myGeometryRay.getDirection());
+                  //  bool newHit = MathGeometry::cylinderTriangleIntersects<MathPlucker6<float>,float>(p,  0.0f,
+                    //                                                      face.getVertex(0), face.getVertex(1), face.getVertex(2));
+                   // std::cout <<"h1:" << newHit << std::endl;
+            
+                //std::cout << "h2:";
                 if (MathGeometry::hitsTriangle<float>(myGeometryRay, face.getVertex(0), face.getVertex(1), face.getVertex(2)))
                 {
+                  //  std::cout << "1" << std::endl;
                     aRay->addIntersection(s->getGeometryId(), faceIndex, 0.0);
                     hasIntersection = true;
+                 
                     break;
+                }
+               // std::cout << "0" << std::endl;
+            }
+
+        }
+
+        return hasIntersection;
+    }
+
+    template<class P, class S>
+    bool intersectCylinder(VisibilityRay* aRay, const P& cylinderAxis, const S& cylinderRadius)
+    {
+        bool hasIntersection = false;
+        for (auto s : mSilhouettes)
+        {
+            const auto& myMeshFaces = s->getMeshFaces();
+            for (auto faceIndex : s->getSilhouetteFaces())
+            {
+                const SilhouetteMeshFace& face = myMeshFaces[faceIndex];
+
+                if (MathGeometry::cylinderTriangleIntersects(cylinderAxis,
+                                                             cylinderRadius, 
+                                                             convert<MathVector3_<S>>(face.getVertex(0)),
+                                                             convert<MathVector3_<S>>(face.getVertex(1)), 
+                                                             convert<MathVector3_<S>>(face.getVertex(2))))
+                {
+                    aRay->addIntersection(s->getGeometryId(), faceIndex, 0.0);
+                    hasIntersection = true;                    
                 }
             }
 
@@ -80,6 +116,7 @@ public:
         return hasIntersection;
     }
 
+    
     template<class P, class S>
     static bool isOccluded(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron, const std::vector <Silhouette*>& aSilhouettes, const std::vector<P>& polytopeLines, S myTolerance)
     {

@@ -103,6 +103,9 @@ namespace visilib
         */
         bool findSceneIntersection(const MathVector3d& aBegin, const MathVector3d& anEnd, std::set<SilhouetteMeshFace*>& intersectedFaces, PluckerPolytope<P>* aPolytope = nullptr);
 
+        
+        bool findSceneIntersection(const P& line, std::set<SilhouetteMeshFace*>& intersectedFaces, const S& distance);
+
         void extractAllSilhouettes();
 
         /**@brief Given a polytope, finds a set of occluders that is intersected by the set of lines that the polytope represents.
@@ -489,6 +492,34 @@ namespace visilib
         return false;
     }
 
+
+    template<class P, class S>
+    bool VisibilityExactQuery_<P, S>::findSceneIntersection(const P& aLine, std::set<SilhouetteMeshFace*> & anIntersectedFaces, const S& aDistance)
+    {
+        bool intersect = false;
+        VisibilityRay myRay;
+
+        intersect = mSilhouetteContainer->intersectCylinder(&myRay, aLine,aDistance);
+    
+        if (intersect)
+        {
+            for (size_t i = 0; i < myRay.mPrimitiveIds.size(); i++)
+            {
+                //:TODO: replace wihth accessors
+                size_t myPrimitive = myRay.mPrimitiveIds[i];
+                size_t geometryId = myRay.mGeometryIds[i];
+
+                std::vector<SilhouetteMeshFace>* myFaces = mScene->getOccluderConnectedFaces(geometryId);
+                SilhouetteMeshFace* myFace = &(*myFaces)[myPrimitive];
+                anIntersectedFaces.insert(myFace);
+            }
+            return true;
+        }
+
+
+        return false;
+    }
+
     template<class P, class S>
     void VisibilityExactQuery_<P, S>::extractAllSilhouettes()
     {
@@ -511,7 +542,7 @@ namespace visilib
     bool VisibilityExactQuery_<P, S>::collectAllOccluders(PluckerPolytope<P> * aPolytope, PluckerPolyhedron<P> * polyhedron, std::vector<Silhouette*> & occluders, std::vector<P> & polytopeLines)
     {
         {   
-            if (mConfiguration.representativeLineSampling)
+            if (mConfiguration.representativeLineSampling || !mConfiguration.detectApertureOnly)
             {
                 HelperScopedTimer timer(getStatistic(), STABBING_LINE_EXTRACTION);
 
@@ -549,12 +580,45 @@ namespace visilib
             bool hit = findSceneIntersection(line.first, line.second, intersectedFaces, aPolytope);
        //     if (mConfiguration.useEmbree )
          //        hit = hit || findSceneIntersection(line.second, line.first, intersectedFaces, aPolytope);
-         
+           // std::cout << "HIT1:" << hit << std::endl;
+        //    S myMaxDistance = 0;
+          //  const P& myLine = aPolytope->getRepresentativeLine();
+            //bool hit2 = findSceneIntersection(myLine, intersectedFaces,myMaxDistance);
+            //std::cout << "HIT2:" << hit2 <<std::endl;
+            //if (hit!=hit2)
+            {
+              //  std::cout << "DIFFERENT" << std::endl;
+            }
             if (!hit)
             {
-                return false;
-            }
+                if (mConfiguration.detectApertureOnly)
+                    return false;
 
+                if (aPolytope->getExtremalStabbingLinesCount() == 0)
+                {
+                    aPolytope->computeExtremalStabbingLines(polyhedron, mTolerance);
+                }
+                if(aPolytope->getExtremalStabbingLinesCount() == 0)
+                    return false;
+              
+                const P& myLine = aPolytope->getRepresentativeLine();
+                S myMaxDistance = 0;
+                //std::cout << "myLine: " << myLine << std::endl;
+
+                for (size_t i = 0; i < aPolytope->getExtremalStabbingLinesCount(); i++)
+                {
+                    S myDistance = myLine.dot(aPolytope->getExtremalStabbingLine(i));
+                //    std::cout << "myDistance:" << myDistance << std::endl;
+                    if (myDistance<myMaxDistance)
+                    {
+                        myMaxDistance = myDistance;
+                    }
+                }
+              //  std::cout << "myMaxDistance:" << myMaxDistance << std::endl;
+                 hit = findSceneIntersection(myLine, intersectedFaces,myMaxDistance);
+
+            }
+            
             for (auto myFace : intersectedFaces)
             {
                 Silhouette* s = mSilhouetteProcessor->findSilhouette(myFace);

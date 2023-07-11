@@ -54,6 +54,10 @@ namespace visilib
         */
         template <class S> static bool hitsTriangle(const GeometryRay& ray, const MathVector3_<S>& v0, const MathVector3_<S>& v1, const MathVector3_<S>& v2);
 
+
+        template <class P, class S> static bool cylinderTriangleIntersects(const P& cylinderAxis, const S cylinderRadius, const MathVector3_<S> & v0, const MathVector3_<S> & v1, const MathVector3_<S> & v2);
+
+
         /** @brief  Compute if a ray has an intersection with a bounding box 
         
         Plane/axis aligned box intersection code from David Eberly
@@ -825,6 +829,32 @@ namespace visilib
         return true;
     }
 
+
+    template<class P, class S>
+    inline bool MathGeometry::cylinderTriangleIntersects(const P& cylinderAxis, const S cylinderRadius, const MathVector3_<S> & v0, const MathVector3_<S> & v1, const MathVector3_<S> & v2)
+    {
+        std::cout << "axis: " << cylinderAxis << std::endl;
+        std::cout << "radius: " << cylinderRadius << std::endl;
+        
+        S d = MathPlucker6<S>(v0,v1).getDistance(cylinderAxis);
+        S dot = MathPlucker6<S>(v0,v1).dot(cylinderAxis);
+        std::cout << "d:" << d << "; dot: " << dot  << std::endl;
+        if (dot < cylinderRadius)
+           return false;
+        
+        d = MathPlucker6<S>(v1,v2).getDistance(cylinderAxis);
+        dot = MathPlucker6<S>(v1,v2).dot(cylinderAxis);
+        std::cout << "d:" << d << "; dot: " << dot<< std::endl;
+        if (dot < cylinderRadius)
+           return false;
+
+        d = MathPlucker6<S>(v2,v0).getDistance(cylinderAxis);
+        dot = MathPlucker6<S>(v2,v0).dot(cylinderAxis);
+        std::cout << "d:" << d << "; dot: " << dot << std::endl;
+        if (dot < cylinderRadius)
+           return false;
+        return true;
+    }
 
     template<class P, class S>
     bool  MathGeometry::isEdgeInsidePolytope(const MathVector3d& a, const MathVector3d& b, PluckerPolytope<P>* aPolytope, const MathVector3d& approximateNormal, PluckerPolyhedron<P>* polyhedron, S tolerance)
