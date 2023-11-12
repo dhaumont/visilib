@@ -90,7 +90,7 @@ source_group( external FILES ${ConvexHullSrc} )
 source_group( include FILES ${Headers} )
 source_group( src FILES ${Sources} )
 
-add_library( ${VISILIB_LIB_NAME} STATIC
+add_library( ${VISILIB_LIB_NAME} INTERFACE
     ${GeometrySrc}
     ${GeometryHeader}
     ${HelperSrc}
