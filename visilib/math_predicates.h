@@ -222,7 +222,12 @@ namespace visilib
             }
         }
 
-        if (myRight == 0)
+        if (myRight == 0 && myLeft == 0 && points.size() > 0)
+        {
+            // Relative position is on the boundary if all points were on the plane.
+            return ON_BOUNDARY;
+        }
+        else if (myRight == 0)
         {
             V_ASSERT(myLeft > 0);
             return ON_NEGATIVE_SIDE;
