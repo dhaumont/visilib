@@ -111,7 +111,7 @@ if(NOT WIN32)
     add_definitions(${OpenGL_DEFINITIONS})
    
    
-    set(LIBS ${LIBS}  ${OPENGL_LIBRARIES} m stdc++)
+    set(LIBS ${LIBS} ${OPENGL_LIBRARIES})
     if(NOT OPENGL_FOUND)
         message(ERROR " OPENGL not found!")
     endif(NOT OPENGL_FOUND)
