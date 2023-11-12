@@ -22,8 +22,14 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include <windows.h>
 #endif
 #ifdef USE_GLUT
+#ifdef __APPLE__
+#define GL_SILENCE_DEPRECATION \
+#include <OpenGL/gl.h>
+#include <GLUT/glut.h>
+#else
 #include <GL/gl.h>
 #include <GL/glut.h>
+#endif
 #endif
 #include <string>
 #include <iostream>
