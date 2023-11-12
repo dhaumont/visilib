@@ -20,7 +20,7 @@
 # top-level CMakeLists.txt
 # !! To be run from 'cmakeout' subdirectory !!
 
-cmake_minimum_required (VERSION 2.4.0 FATAL_ERROR)
+cmake_minimum_required (VERSION 3.1 FATAL_ERROR)
 
 set( VISILIB_LIB_NAME "visilib" )
 set( VISILIB_DEMO_NAME "visilibDemo" )
