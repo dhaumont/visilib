@@ -64,8 +64,8 @@ namespace visilib
         /**@brief Construct a plucker point from a 3D line defined by two points*/
         MathPlucker6(const MathVector3d& aBegin, const MathVector3d& anEnd)
         {
-            MathVector3_<S> myBegin = convert<MathVector3_<S>>(aBegin);
-            MathVector3_<S> myEnd = convert<MathVector3_<S>>(anEnd);
+            MathVector3_<S> myBegin = convert<MathVector3_<S> >(aBegin);
+            MathVector3_<S> myEnd = convert<MathVector3_<S> >(anEnd);
 
             mDirection = myEnd - myBegin;
             mLocation = MathVector3_<S>::cross(myBegin, myEnd);

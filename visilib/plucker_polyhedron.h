@@ -133,7 +133,7 @@ namespace visilib
         std::vector<P> mLines;                                        /** < @brief The list of Plucker points (Plucker vertices and hyperplanes). */
         std::vector<GeometryPositionType> mQuadricRelativePositions;  /** < @brief The relative position of the Plucker point relative to the Plucker quadric*/
         std::vector<bool> mNormalizations;                            /** < @brief The normalization status of each Plucker point*/
-        std::vector<std::vector<size_t>> mFacetsDescription;          /** < @brief The facet description (list of all the hyperplanes intersecting at that point) of each Plucker point mLines*/
+        std::vector<std::vector<size_t> > mFacetsDescription;          /** < @brief The facet description (list of all the hyperplanes intersecting at that point) of each Plucker point mLines*/
     };
 
     template<class P>

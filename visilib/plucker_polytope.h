@@ -92,7 +92,7 @@ namespace visilib
        @return: a set containing all the edges <i,j> joining the vertices i and j with an intersection with the Plucker Quadric
        */
 
-        const std::set<std::pair<size_t, size_t>>& getEdgesIntersectingQuadric()
+        const std::set<std::pair<size_t, size_t> >& getEdgesIntersectingQuadric()
         {
             return mEdgesIntersectingQuadric;
         }
@@ -134,7 +134,7 @@ namespace visilib
         @param aPlane1: first plane that will be intersected by each stabbing lines to define the first point of the extremal line in 3D
         @param aPlane2: second plane that will be intersected by each stabbing lines to define the second point of the extremal line in 3D
       */
-        void getExtremalStabbingLinesBackTo3D(std::vector<std::pair<MathVector3d, MathVector3d>>& aStabbingLines, const MathPlane3d& aPlane1, const MathPlane3d& aPlane2);
+        void getExtremalStabbingLinesBackTo3D(std::vector<std::pair<MathVector3d, MathVector3d> >& aStabbingLines, const MathPlane3d& aPlane1, const MathPlane3d& aPlane2);
 
 
         /** @brief Add an extremal stabbing line to the polytope.
@@ -184,13 +184,13 @@ namespace visilib
 
     private:
         
-        std::set<std::pair<size_t, size_t>> mEdges;                      /** < @brief The edges of the polytope, each edge is defined by the indices of the two vertices supporting it*/
-        std::set<std::pair<size_t, size_t>> mEdgesProcessed;
+        std::set<std::pair<size_t, size_t> > mEdges;                      /** < @brief The edges of the polytope, each edge is defined by the indices of the two vertices supporting it*/
+        std::set<std::pair<size_t, size_t> > mEdgesProcessed;
         std::vector<P> mExtremalStabbingLines;                           /** < @brief The ESL of the polytope, at the intersection of an edge and the Plucker Quadric*/
-        std::set<std::pair<size_t, size_t>> mEdgesIntersectingQuadric;   /** < @brief The edges containing an intersection with the Plucker Quadric.*/
+        std::set<std::pair<size_t, size_t> > mEdgesIntersectingQuadric;   /** < @brief The edges containing an intersection with the Plucker Quadric.*/
         std::unordered_set<Silhouette*> mSilhouettes;          /** < @brief The set of silhouettes associated to the polytope*/
         std::unordered_set<size_t> mVertices;                            /** < @brief The indices of the vertices of the polytope*/
-        std::vector<std::vector<size_t>> mExtremalStabbingLinesFacets;
+        std::vector<std::vector<size_t> > mExtremalStabbingLinesFacets;
         double mRadius;
         P mRepresentativeLine;
     };

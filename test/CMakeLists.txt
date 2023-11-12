@@ -18,19 +18,30 @@
 
 set(KIT visilibTest)
 
-create_test_sourcelist(Tests ${KIT}CxxTests.cpp
-    src/test_math.cpp
-    )
+# ${KIT}CxxTests.cpp
+
+create_test_sourcelist(Tests
+    ./src/test_full.cpp
+    ./src/test_math.cpp
+    ./src/test_visibility.cpp
+    ../demo/demo_helper.cpp
+)
 
 include_directories( ../visilib/ )
 
-add_executable(visilibTest src/test_math.cpp)
-add_executable(visilibTest src/test_visibility.cpp)
-add_executable(visilibTest src/test_full.cpp)
-
-add_executable(visilibTest ../demo/demo_helper.cpp)
+add_executable(visilibTest ${Tests})
 
 target_link_libraries(visilibTest ${LIBS})
 
 #add_test(NAME stc_test_math COMMAND ${KIT}CxxTests stc_test_math})
 add_test(NAME visilibTest COMMAND visilibTest)
+
+# remove the test driver source file
+set (TestsToRun ${Tests})
+list ( REMOVE_ITEM TestsToRun src/test_full.cxx)
+
+# Add all the ADD_TEST for each test
+foreach (test ${TestsToRun})
+    get_filename_component (TName ${test} NAME_WE)
+    add_test (NAME ${TName} COMMAND test_full ${TName})
+endforeach ()

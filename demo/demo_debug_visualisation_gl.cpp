@@ -23,7 +23,14 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #endif
 
 #ifdef USE_GLUT
-#include "GL/gl.h"
+#ifdef __APPLE__
+#define GL_SILENCE_DEPRECATION \
+#include <OpenGL/gl.h>
+#include <GLUT/glut.h>
+#else
+#include <GL/gl.h>
+#include <GL/glut.h>
+#endif
 #endif
 #include "demo_debug_visualisation_gl.h"
 #include <iostream>
