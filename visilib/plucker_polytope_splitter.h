@@ -280,8 +280,6 @@ namespace visilib
                         {
                             V_ASSERT(0);
                         }
-
-                      
                     }
                 }
             }

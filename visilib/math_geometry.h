@@ -56,7 +56,6 @@ namespace visilib
 
         template <class S> static bool hitsCylinder(const GeometryRay& ray, const S& distance, const MathVector3_<S>& v0, const MathVector3_<S>& v1, const MathVector3_<S>& v2);
 
-
         /** @brief  Compute if a ray has an intersection with a bounding box 
         
         Plane/axis aligned box intersection code from David Eberly

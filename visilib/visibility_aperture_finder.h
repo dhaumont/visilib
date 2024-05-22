@@ -207,7 +207,6 @@ namespace visilib
                         myHyperplane = myHyperplane.getNormalized();
                     }
                     myPolyhedronFace = myPolyhedron->add(myHyperplane, ON_BOUNDARY, mNormalization, mTolerance);
-                 //   std::cout << "Face: " << myPolyhedronFace << "added as splitting plane " << myHyperplane <<std::endl;
                     myVisibilitySilhouetteEdge.mHyperPlaneIndex = myPolyhedronFace;
                 }
 

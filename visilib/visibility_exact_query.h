@@ -102,7 +102,6 @@ namespace visilib
         The links is used for occluder selection.
         */
         bool findSceneIntersection(const MathVector3d& aBegin, const MathVector3d& anEnd, std::set<SilhouetteMeshFace*>& intersectedFaces, const S& aDistance = 0, PluckerPolytope<P>* aPolytope = nullptr);
-
         
         void extractAllSilhouettes();
 

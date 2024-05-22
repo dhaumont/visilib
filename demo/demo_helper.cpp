@@ -229,7 +229,6 @@ void DemoConfiguration::displaySettings()
     std::cout << "[Silhouette: " << getStatusString(silhouetteOptimisation) << "]";
     std::cout << "[Normalization: " << getStatusString(normalization) << "]" << std::endl;
     
-
 #if EXACT_ARITHMETIC            
     if (precisionType == VisibilityExactQueryConfiguration::EXACT)
         std::cout << "  [Exact arithmetic: ON]";
