@@ -41,7 +41,6 @@ bool testConfiguration(const DemoConfiguration& configuration, VisibilityResult 
     config.silhouetteOptimization = true;
     config.hyperSphereNormalization = configuration.normalization;
     config.precision = configuration.precisionType;
-    config.representativeLineSampling = true;
     config.detectApertureOnly = false;
 
     int s = 2;

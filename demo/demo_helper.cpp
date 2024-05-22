@@ -227,7 +227,6 @@ void DemoConfiguration::displaySettings()
 
     std::cout << "  [Early stop: " << getStatusString(detectApertureOnly) << "]";
     std::cout << "[Silhouette: " << getStatusString(silhouetteOptimisation) << "]";
-    std::cout << "[Middle line: " << getStatusString(representativeLineSampling) << "]";
     std::cout << "[Normalization: " << getStatusString(normalization) << "]" << std::endl;
     
 
@@ -251,7 +250,6 @@ void DemoConfiguration::writeConfig(const std::string& filename)
     output << "vertexCount1 = " << vertexCount1 << std::endl;
     output << "silhouetteOptimisation  = " << silhouetteOptimisation << std::endl;
     output << "detectApertureOnly  = " << detectApertureOnly << std::endl;
-    output << "representativeLineSampling  = " << representativeLineSampling << std::endl;
     output << "normalization  = " << normalization << std::endl;
     output << "scaling  = " << scaling << std::endl;
     output << "phi  = " << phi << std::endl;
@@ -280,7 +278,6 @@ void DemoConfiguration::readConfig(const std::string& filename)
         else if (tokens[0] == "vertexCount1") { vertexCount1 = atoi(tokens[2].c_str()); }
         else if (tokens[0] == "silhouetteOptimisation") { silhouetteOptimisation = atoi(tokens[2].c_str()); }
         else if (tokens[0] == "detectApertureOnly") { detectApertureOnly = atoi(tokens[2].c_str()); }
-        else if (tokens[0] == "representativeLineSampling") { representativeLineSampling = atoi(tokens[2].c_str()); }
         else if (tokens[0] == "normalization") { normalization = atoi(tokens[2].c_str()); }
         else if (tokens[0] == "scaling") { scaling = (float)atof(tokens[2].c_str()); }
         else if (tokens[0] == "phi") { phi = (float)atof(tokens[2].c_str()); }

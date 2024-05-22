@@ -92,7 +92,7 @@ namespace visilibDemo
             config.silhouetteOptimization = mDemoConfiguration.silhouetteOptimisation;
             config.hyperSphereNormalization = mDemoConfiguration.normalization;
             config.precision = mDemoConfiguration.precisionType;
-            config.representativeLineSampling = mDemoConfiguration.representativeLineSampling;
+
             config.detectApertureOnly = mDemoConfiguration.detectApertureOnly;
             config.tolerance = mDemoConfiguration.tolerance;
 #if EMBREE 
@@ -156,7 +156,6 @@ namespace visilibDemo
 #if EMBREE
             std::cout << "  g: enable/disable embree ray tracing" << std::endl;
 #endif
-            std::cout << "  r: enable/disable representative line sampling strategy" << std::endl;
             std::cout << "  f: enable/disable detect aperture only" << std::endl;
 
             std::cout << "  n: enable/disable Plucker normalization" << std::endl;
@@ -268,11 +267,7 @@ namespace visilibDemo
                 initScene(mDemoConfiguration.sceneIndex);
                 forceDisplay = true;
                 break;
-            case 'r':
-                mDemoConfiguration.representativeLineSampling = !mDemoConfiguration.representativeLineSampling;
-                forceDisplay = true;
-                break;
-
+            
 
 #ifdef EXACT_ARITHMETIC
             case 'e':

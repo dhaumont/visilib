@@ -34,7 +34,6 @@ namespace visilibDemo
         size_t vertexCount0 = 3;
         size_t vertexCount1 = 3;
         bool silhouetteOptimisation = true;
-        bool representativeLineSampling = true;
         VisibilityExactQueryConfiguration::PrecisionType precisionType = VisibilityExactQueryConfiguration::DOUBLE;
         bool detectApertureOnly = false;
         bool normalization = true;
