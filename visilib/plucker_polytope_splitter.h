@@ -271,19 +271,27 @@ namespace visilib
                     V_ASSERT(Qm != Qn);
                     if (!MathPredicates::isEdgeCollapsed(aPolyhedron->get(Qn), aPolyhedron->get(Qm), tolerance))
                     {
-                        V_ASSERT(facetsQm.size() != facetsQn.size() || !std::equal(facetsQm.begin(), facetsQm.end(), facetsQn.begin()));
-
+                        if (facetsQm.size() != facetsQn.size() || !std::equal(facetsQm.begin(), facetsQm.end(), facetsQn.begin()))
+                        {
                         aLeft->addEdge(Qm, Qn, aPolyhedron);
                         aRight->addEdge(Qm, Qn, aPolyhedron);
+                        }
+                        else
+                        {
+                            V_ASSERT(0);
+                        }
                     }
                 }
             }
         }
 
+        aLeft->removeCollapsedEdges(aPolyhedron,tolerance);
+        aRight->removeCollapsedEdges(aPolyhedron,tolerance);
         V_ASSERT(aLeft->getEdgeCount() > 0);
         V_ASSERT(aRight->getEdgeCount() > 0);
-        //	aLeft->V_ASSERTIsValid(aPolyhedron, normalization);
-        //	aRight->V_ASSERTIsValid(aPolyhedron, normalization);
+        //V_ASSERT(aLeft->isValid(aPolyhedron, normalization,tolerance));
+        //V_ASSERT(aRight->isValid(aPolyhedron, normalization,tolerance));
+        
         return ON_BOUNDARY;
     }
 }
