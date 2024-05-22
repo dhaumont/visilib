@@ -69,7 +69,7 @@ namespace visilib
         static bool isFinite(MathVector3_<S> a);
     };
 
-    template<> inline double MathArithmetic<double>::Tolerance() { return  1e-3; }
+    template<> inline double MathArithmetic<double>::Tolerance() { return  1e-12; }
     template<> inline float MathArithmetic<float>::Tolerance() { return 1e-6f; }
     template<> inline double MathArithmetic<double>::GuardBandClipping() { return 1e-12; };
     template<> inline float MathArithmetic<float>::GuardBandClipping() { return 1e-6f; };
