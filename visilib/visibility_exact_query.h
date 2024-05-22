@@ -101,11 +101,9 @@ namespace visilib
         When an intersection is found, the silhouette are extracted from the intersected face and the silhouette is linked to the polytope
         The links is used for occluder selection.
         */
-        bool findSceneIntersection(const MathVector3d& aBegin, const MathVector3d& anEnd, std::set<SilhouetteMeshFace*>& intersectedFaces, PluckerPolytope<P>* aPolytope = nullptr);
+        bool findSceneIntersection(const MathVector3d& aBegin, const MathVector3d& anEnd, std::set<SilhouetteMeshFace*>& intersectedFaces, const S& aDistance = 0, PluckerPolytope<P>* aPolytope = nullptr);
 
         
-        bool findSceneIntersection(const P& line, std::set<SilhouetteMeshFace*>& intersectedFaces, const S& distance);
-
         void extractAllSilhouettes();
 
         /**@brief Given a polytope, finds a set of occluders that is intersected by the set of lines that the polytope represents.
@@ -235,7 +233,7 @@ namespace visilib
         MathVector3d g2 = MathGeometry::getGravityCenter(myQuery1);
 
         MathVector3d myN = g2 - g1;
-
+        myN.normalize();
         if (myQuery0.getVertexCount() < 3 || myQuery1.getVertexCount() < 3)
         {
 
@@ -439,7 +437,7 @@ namespace visilib
     }
 
     template<class P, class S>
-    bool VisibilityExactQuery_<P, S>::findSceneIntersection(const MathVector3d & aBegin, const MathVector3d & anEnd, std::set<SilhouetteMeshFace*> & anIntersectedFaces, PluckerPolytope<P> * aPolytope)
+    bool VisibilityExactQuery_<P, S>::findSceneIntersection(const MathVector3d & aBegin, const MathVector3d & anEnd, std::set<SilhouetteMeshFace*> & anIntersectedFaces, const S& aDistance, PluckerPolytope<P> * aPolytope)
     {
         MathVector3d myBegin = aBegin;
         MathVector3d myDir = anEnd - aBegin;
@@ -466,7 +464,7 @@ namespace visilib
             HelperScopedTimer timer(getStatistic(), RAY_INTERSECTION);
             getStatistic()->inc(RAY_COUNT);
             
-            intersect = mSilhouetteContainer->intersect(&myRay);
+            intersect = mSilhouetteContainer->intersect(&myRay, aDistance);
         }
 
         if (intersect)
@@ -484,38 +482,10 @@ namespace visilib
             return true;
         }
 
-        if (mDebugger != nullptr)
+        if (mDebugger != nullptr && aDistance == 0.0)
         {
             mDebugger->addStabbingLine(convert<MathVector3f>(aBegin), convert<MathVector3f>(anEnd));
         }
-
-        return false;
-    }
-
-
-    template<class P, class S>
-    bool VisibilityExactQuery_<P, S>::findSceneIntersection(const P& aLine, std::set<SilhouetteMeshFace*> & anIntersectedFaces, const S& aDistance)
-    {
-        bool intersect = false;
-        VisibilityRay myRay;
-
-        intersect = mSilhouetteContainer->intersectCylinder(&myRay, aLine,aDistance);
-    
-        if (intersect)
-        {
-            for (size_t i = 0; i < myRay.mPrimitiveIds.size(); i++)
-            {
-                //:TODO: replace wihth accessors
-                size_t myPrimitive = myRay.mPrimitiveIds[i];
-                size_t geometryId = myRay.mGeometryIds[i];
-
-                std::vector<SilhouetteMeshFace>* myFaces = mScene->getOccluderConnectedFaces(geometryId);
-                SilhouetteMeshFace* myFace = &(*myFaces)[myPrimitive];
-                anIntersectedFaces.insert(myFace);
-            }
-            return true;
-        }
-
 
         return false;
     }
@@ -541,92 +511,79 @@ namespace visilib
     template<class P, class S>
     bool VisibilityExactQuery_<P, S>::collectAllOccluders(PluckerPolytope<P> * aPolytope, PluckerPolyhedron<P> * polyhedron, std::vector<Silhouette*> & occluders, std::vector<P> & polytopeLines)
     {
+        P myRepresentativeLine;
         {   
-            if (mConfiguration.representativeLineSampling || !mConfiguration.detectApertureOnly)
-            {
-                HelperScopedTimer timer(getStatistic(), STABBING_LINE_EXTRACTION);
+            HelperScopedTimer timer(getStatistic(), STABBING_LINE_EXTRACTION);
 
-                P myRepresentativeLine = MathGeometry::computeRepresentativeLine<P>(aPolytope, polyhedron, mTolerance);
-                if (mConfiguration.hyperSphereNormalization)
-                    myRepresentativeLine = myRepresentativeLine.getNormalized();
-                polytopeLines.push_back(myRepresentativeLine);
+            myRepresentativeLine = MathGeometry::computeRepresentativeLine<P>(aPolytope, polyhedron, mTolerance);
+            if (mConfiguration.hyperSphereNormalization)
+                myRepresentativeLine = myRepresentativeLine.getNormalized();
+            polytopeLines.push_back(myRepresentativeLine);
 
-                aPolytope->setRepresentativeLine(myRepresentativeLine);
-            }
-            else
-            {
-                HelperScopedTimer timer(getStatistic(), STABBING_LINE_EXTRACTION);
-
-                if (aPolytope->getExtremalStabbingLinesCount() == 0)
-                {
-                    aPolytope->computeExtremalStabbingLines(polyhedron, mTolerance);
-                }
-                for (size_t i = 0; i < aPolytope->getExtremalStabbingLinesCount(); i++)
-                {
-                    polytopeLines.push_back(aPolytope->getExtremalStabbingLine(i));
-                }
-            }
+            aPolytope->setRepresentativeLine(myRepresentativeLine);        
+            
         }
 
         const MathPlane3d& aPlane0 = getQueryPolygon(0)->getPlane();
         const MathPlane3d& aPlane1 = getQueryPolygon(1)->getPlane();
 
-        for (size_t i = 0; i < polytopeLines.size(); i++)
+        std::pair<MathVector3d, MathVector3d> centerLine = MathGeometry::getBackTo3D(myRepresentativeLine, aPlane0, aPlane1);
+           
+        std::set<SilhouetteMeshFace*> intersectedFaces;
+        bool hit = findSceneIntersection(centerLine.first, centerLine.second, intersectedFaces, 0, aPolytope);
+    
+        if (!hit)
         {
-            std::pair<MathVector3d, MathVector3d> line = MathGeometry::getBackTo3D(polytopeLines[i], aPlane0, aPlane1);
-            // V_ASSERT(MathGeometry::isPointInsidePolygon(*getQueryPolygon(0), lines[i].first, MathArithmetic<double>::Tolerance()));
-            // V_ASSERT(MathGeometry::isPointInsidePolygon(*getQueryPolygon(1), lines[i].second, MathArithmetic<double>::Tolerance()));
-            std::set<SilhouetteMeshFace*> intersectedFaces;
-            bool hit = findSceneIntersection(line.first, line.second, intersectedFaces, aPolytope);
-       //     if (mConfiguration.useEmbree )
-         //        hit = hit || findSceneIntersection(line.second, line.first, intersectedFaces, aPolytope);
-           // std::cout << "HIT1:" << hit << std::endl;
-        //    S myMaxDistance = 0;
-          //  const P& myLine = aPolytope->getRepresentativeLine();
-            //bool hit2 = findSceneIntersection(myLine, intersectedFaces,myMaxDistance);
-            //std::cout << "HIT2:" << hit2 <<std::endl;
-            //if (hit!=hit2)
-            {
-              //  std::cout << "DIFFERENT" << std::endl;
-            }
-            if (!hit)
-            {
                 if (mConfiguration.detectApertureOnly)
                     return false;
-
-                if (aPolytope->getExtremalStabbingLinesCount() == 0)
                 {
-                    aPolytope->computeExtremalStabbingLines(polyhedron, mTolerance);
+                    HelperScopedTimer timer(getStatistic(), STABBING_LINE_EXTRACTION);
+
+                        if (aPolytope->getExtremalStabbingLinesCount() == 0)
+                        {
+                            aPolytope->computeExtremalStabbingLines(polyhedron, mTolerance);
+                        }
                 }
+                    
                 if(aPolytope->getExtremalStabbingLinesCount() == 0)
-                    return false;
-              
-                const P& myLine = aPolytope->getRepresentativeLine();
-                S myMaxDistance = 0;
-                //std::cout << "myLine: " << myLine << std::endl;
+                {
+                    V_ASSERT(0);
+                    return true;
+                }
+                S myMaxDistance = 0;        
+                S myDistance = 0;
 
                 for (size_t i = 0; i < aPolytope->getExtremalStabbingLinesCount(); i++)
                 {
-                    S myDistance = myLine.dot(aPolytope->getExtremalStabbingLine(i));
-                //    std::cout << "myDistance:" << myDistance << std::endl;
-                    if (myDistance<myMaxDistance)
+                    std::pair<MathVector3d, MathVector3d> line = MathGeometry::getBackTo3D(aPolytope->getExtremalStabbingLine(i),
+                                                                                        aPlane0,
+                                                                                        aPlane1);
+            
+                    myDistance = (line.first - centerLine.first).getSquaredNorm();
+                    if (myDistance> myMaxDistance)
+                    {
+                        myMaxDistance = myDistance;
+                    }
+                
+                    myDistance = (line.second - centerLine.second).getSquaredNorm();
+                    if (myDistance> myMaxDistance)
                     {
                         myMaxDistance = myDistance;
                     }
                 }
-              //  std::cout << "myMaxDistance:" << myMaxDistance << std::endl;
-                 hit = findSceneIntersection(myLine, intersectedFaces,myMaxDistance);
-
-            }
-            
-            for (auto myFace : intersectedFaces)
-            {
-                Silhouette* s = mSilhouetteProcessor->findSilhouette(myFace);
-                //   V_ASSERT(s);
-                if (s)
-                    occluders.push_back(s);
-            }
+                myMaxDistance = MathArithmetic<S>::getSqrt(myMaxDistance);
+                hit = findSceneIntersection(centerLine.first, centerLine.second, intersectedFaces, myMaxDistance, aPolytope);
+                if (!hit)
+                    return false;
+        }            
+        for (auto myFace : intersectedFaces)
+        {
+            Silhouette* s = mSilhouetteProcessor->findSilhouette(myFace);
+            //   V_ASSERT(s);
+            if (s)
+                occluders.push_back(s);
         }
         return true;
-    }
+    }    
+    
 }

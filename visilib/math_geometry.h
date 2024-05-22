@@ -54,8 +54,7 @@ namespace visilib
         */
         template <class S> static bool hitsTriangle(const GeometryRay& ray, const MathVector3_<S>& v0, const MathVector3_<S>& v1, const MathVector3_<S>& v2);
 
-
-        template <class P, class S> static bool cylinderTriangleIntersects(const P& cylinderAxis, const S cylinderRadius, const MathVector3_<S> & v0, const MathVector3_<S> & v1, const MathVector3_<S> & v2);
+        template <class S> static bool hitsCylinder(const GeometryRay& ray, const S& distance, const MathVector3_<S>& v0, const MathVector3_<S>& v1, const MathVector3_<S>& v2);
 
 
         /** @brief  Compute if a ray has an intersection with a bounding box 
@@ -136,13 +135,16 @@ namespace visilib
          intersection point: t = - (a * aBegin.x + b * aBegin.y + c * aBegin.z + d)/(a  * aDirection.x + b* aDirection.y + z * aDirection.z);
                                = - (myPlaneDirection.dotProduct(myDir) + w) / (myPlaneDirection.dotProduct(myDir));
         */
-        static bool getPlaneIntersection(const MathPlane3_<double>& plane, const MathVector3_<double>& aBegin, const MathVector3_<double>& aDirection, MathVector3_<double>& anIntersection, double epsilon);
+       template<class S>
+        static bool getPlaneIntersection(const MathPlane3_<S>& plane, const MathVector3_<S>& aBegin, const MathVector3_<S>& aDirection, MathVector3_<S>& anIntersection, double epsilon);
 
         /** @brief Compute if a polygon is intersected by a plane */
         static bool intersect(const GeometryConvexPolygon& polygon, const MathPlane3d& aPlane);
        
         /** @brief  Compute the gravity center of a polygon */
         static MathVector3d getGravityCenter(const GeometryConvexPolygon& polygon);
+
+        template<class S> static MathVector3_<S> getGravityCenter(const MathVector3_<S>& v0, const MathVector3_<S>& v1, const MathVector3_<S>& v2);
 
         static bool hasVertexOnFrontSide(const MathPlane3d& plane, SilhouetteMeshFace* face);
 
@@ -267,6 +269,19 @@ namespace visilib
         }
 
         center *= (1. / (double)(polygon.getVertexCount()));
+
+        return center;
+    }
+
+
+    template<class S>
+    inline MathVector3_<S> MathGeometry::getGravityCenter(const MathVector3_<S>& v0, const MathVector3_<S>& v1, const MathVector3_<S> & v2)
+    {
+        MathVector3_<S> center(v0);        
+        center+=v1;
+        center+=v2;
+        
+        center *= (1. / 3.);
 
         return center;
     }
@@ -743,20 +758,21 @@ namespace visilib
         return getBackTo3D(aPoint, plane1, plane2);
     }
 
-    inline bool MathGeometry::getPlaneIntersection(const MathPlane3_<double> & plane, const MathVector3_<double> & aBegin, const MathVector3_<double> & aDirection, MathVector3_<double> & anIntersection, double tolerance)
+    template<class S>
+    inline bool MathGeometry::getPlaneIntersection(const MathPlane3_<S> & plane, const MathVector3_<S> & aBegin, const MathVector3_<S> & aDirection, MathVector3_<S> & anIntersection, double tolerance)
     {
         anIntersection = aBegin;
-        MathVector3_<double> myDir(aDirection);
+        MathVector3_<S> myDir(aDirection);
 
-        double lambda = -(plane.dot(aBegin));
-        double div = plane.mNormal.dot(myDir);
+        S lambda = -(plane.dot(aBegin));
+        S div = plane.mNormal.dot(myDir);
 
-        if (MathArithmetic<double>::getAbs(div) > tolerance)
+        if (MathArithmetic<S>::getAbs(div) > tolerance)
         {
             lambda /= div;
             myDir *= lambda;
             anIntersection += myDir;
-            V_ASSERT(MathArithmetic<double>::getAbs(plane.dot(anIntersection)) <= tolerance);
+            V_ASSERT(MathArithmetic<S>::getAbs(plane.dot(anIntersection)) <= tolerance);
 
             return true;
         }
@@ -830,30 +846,30 @@ namespace visilib
     }
 
 
-    template<class P, class S>
-    inline bool MathGeometry::cylinderTriangleIntersects(const P& cylinderAxis, const S cylinderRadius, const MathVector3_<S> & v0, const MathVector3_<S> & v1, const MathVector3_<S> & v2)
+    template<class S>
+    inline bool MathGeometry::hitsCylinder(const GeometryRay & ray, const S& distance, 
+                                           const MathVector3_<S> & v0,
+                                           const MathVector3_<S> & v1, 
+                                           const MathVector3_<S> & v2)
     {
-        std::cout << "axis: " << cylinderAxis << std::endl;
-        std::cout << "radius: " << cylinderRadius << std::endl;
-        
-        S d = MathPlucker6<S>(v0,v1).getDistance(cylinderAxis);
-        S dot = MathPlucker6<S>(v0,v1).dot(cylinderAxis);
-        std::cout << "d:" << d << "; dot: " << dot  << std::endl;
-        if (dot < cylinderRadius)
-           return false;
-        
-        d = MathPlucker6<S>(v1,v2).getDistance(cylinderAxis);
-        dot = MathPlucker6<S>(v1,v2).dot(cylinderAxis);
-        std::cout << "d:" << d << "; dot: " << dot<< std::endl;
-        if (dot < cylinderRadius)
-           return false;
+        const S epsilon = MathArithmetic<S>::Tolerance();
+        MathPlane3_<S> myPlane;
+        myPlane = MathPlane3_<S>::computeTrianglePlane(v0,v1,v2, epsilon);
 
-        d = MathPlucker6<S>(v2,v0).getDistance(cylinderAxis);
-        dot = MathPlucker6<S>(v2,v0).dot(cylinderAxis);
-        std::cout << "d:" << d << "; dot: " << dot << std::endl;
-        if (dot < cylinderRadius)
-           return false;
-        return true;
+        MathVector3_<S> myRayPiercingPointInPlane;
+        bool hit = getPlaneIntersection(myPlane, ray.getStart(), ray.getDirection(), myRayPiercingPointInPlane, epsilon);
+        if (!hit)
+            return false;
+        
+        MathVector3_<S> gravityCenter = getGravityCenter(v0,v1,v2);
+        
+        S enclosingCircleRadius = (gravityCenter-v0).getSquaredNorm();
+        enclosingCircleRadius = std::max(enclosingCircleRadius, (gravityCenter -v1).getSquaredNorm());
+        enclosingCircleRadius = std::max(enclosingCircleRadius, (gravityCenter -v2).getSquaredNorm());
+        enclosingCircleRadius = MathArithmetic<S>::getSqrt(enclosingCircleRadius);
+
+        S d = distance + enclosingCircleRadius;
+        return (myRayPiercingPointInPlane - gravityCenter).getSquaredNorm() < d * d;
     }
 
     template<class P, class S>
