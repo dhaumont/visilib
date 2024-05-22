@@ -78,24 +78,19 @@ public:
                 
                 if (hit)
                 {
-                //  std::cout << "1" << std::endl;
                     aRay->addIntersection(s->getGeometryId(), faceIndex, 0.0);
                     hasIntersection = true;
                     if (aDistance == 0)
                     {      
                         break;
                     }
-                }
-            
-               // std::cout << "0" << std::endl;
+                }            
             }
 
         }
 
         return hasIntersection;
     }
-
-   
     
     template<class P, class S>
     static bool isOccluded(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron, const std::vector <Silhouette*>& aSilhouettes, const std::vector<P>& polytopeLines, S myTolerance)

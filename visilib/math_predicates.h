@@ -62,8 +62,7 @@ namespace visilib
     template <class P, class S>
     inline bool MathPredicates::isEdgeCollapsed(const P& a, const P& b, S tolerance)
     {
-        S t = 0.5 * tolerance;
-        return isZero(a - b, t);
+        return isZero(a - b, tolerance);
     }
 
     template <class P, class S>

@@ -95,13 +95,13 @@ namespace visilib
         aPolytope->outputProperties(debugOutput, myPolyhedron);
 #endif
         VisibilityResult globalResult = HIDDEN;
-        if (aDepth > 2000)
+        if (aDepth > 200)
         {
-            std::cerr << "Overflow detected: more than 2000 recursive calls...." << std::endl;
+            std::cerr << "Overflow detected: more than 200 recursive calls...." << std::endl;
 #ifdef OUTPUT_DEBUG_FILE
             V_LOG(debugOutput, "RESULT FAILURE: Overflow detected : more than 2000 recursive calls....", occlusionTreeNodeSymbol);
 #endif
-            //V_ASSERT(0);
+            V_ASSERT(0);
             return FAILURE;
         }
         {
