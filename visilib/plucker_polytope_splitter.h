@@ -200,9 +200,12 @@ namespace visilib
                         myI2 = temp;
                     }
                     
+                   const std::vector<size_t>& facetsI1 = aPolyhedron->getFacetsDescription(myI1);
+                   const std::vector<size_t>& facetsI2 = aPolyhedron->getFacetsDescription(myI2);
+         
                     std::vector<size_t> myFacets;
-                    MathCombinatorial::initFacets(aPolyhedron->getFacetsDescription(myI1), 
-                                                  aPolyhedron->getFacetsDescription(myI2), 
+                    MathCombinatorial::initFacets(facetsI1, 
+                                                  facetsI2, 
                                                   aPlaneID,
                                                   myFacets);
 

@@ -61,10 +61,10 @@ namespace visilib
 
             if (MathArithmetic<S>::getAbs(r) > epsilon)
             {
-                return MathPlane3d(myNormal, -myNormal.dot(v0));
+                return MathPlane3_<S>(myNormal, -myNormal.dot(v0));
             }
             V_ASSERT(0);
-            return MathPlane3d::Zero();
+            return MathPlane3_<S>::Zero();
         }
 
         static bool computeTrianglePlane(MathPlane3_<S> & aPlane, MathVector3_<S> * aTriangeVertices, S epsilon)
