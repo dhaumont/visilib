@@ -132,7 +132,8 @@ namespace visilib
          intersection point: t = - (a * aBegin.x + b * aBegin.y + c * aBegin.z + d)/(a  * aDirection.x + b* aDirection.y + z * aDirection.z);
                                = - (myPlaneDirection.dotProduct(myDir) + w) / (myPlaneDirection.dotProduct(myDir));
         */
-        static bool getPlaneIntersection(const MathPlane3_<double>& plane, const MathVector3_<double>& aBegin, const MathVector3_<double>& aDirection, MathVector3_<double>& anIntersection, double epsilon);
+       template<class S>
+        static bool getPlaneIntersection(const MathPlane3_<S>& plane, const MathVector3_<S>& aBegin, const MathVector3_<S>& aDirection, MathVector3_<S>& anIntersection, double epsilon);
 
         /** @brief Compute if a polygon is intersected by a plane */
         static bool intersect(const GeometryConvexPolygon& polygon, const MathPlane3d& aPlane);
@@ -738,20 +739,21 @@ namespace visilib
         return getBackTo3D(aPoint, plane1, plane2);
     }
 
-    inline bool MathGeometry::getPlaneIntersection(const MathPlane3_<double> & plane, const MathVector3_<double> & aBegin, const MathVector3_<double> & aDirection, MathVector3_<double> & anIntersection, double tolerance)
+    template<class S>
+    inline bool MathGeometry::getPlaneIntersection(const MathPlane3_<S> & plane, const MathVector3_<S> & aBegin, const MathVector3_<S> & aDirection, MathVector3_<S> & anIntersection, double tolerance)
     {
         anIntersection = aBegin;
-        MathVector3_<double> myDir(aDirection);
+        MathVector3_<S> myDir(aDirection);
 
-        double lambda = -(plane.dot(aBegin));
-        double div = plane.mNormal.dot(myDir);
+        S lambda = -(plane.dot(aBegin));
+        S div = plane.mNormal.dot(myDir);
 
-        if (MathArithmetic<double>::getAbs(div) > tolerance)
+        if (MathArithmetic<S>::getAbs(div) > tolerance)
         {
             lambda /= div;
             myDir *= lambda;
             anIntersection += myDir;
-            V_ASSERT(MathArithmetic<double>::getAbs(plane.dot(anIntersection)) <= tolerance);
+            V_ASSERT(MathArithmetic<S>::getAbs(plane.dot(anIntersection)) <= tolerance);
 
             return true;
         }
