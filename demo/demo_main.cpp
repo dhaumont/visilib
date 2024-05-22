@@ -92,8 +92,9 @@ namespace visilibDemo
             config.silhouetteOptimization = mDemoConfiguration.silhouetteOptimisation;
             config.hyperSphereNormalization = mDemoConfiguration.normalization;
             config.precision = mDemoConfiguration.precisionType;
-            config.representativeLineSampling = mDemoConfiguration.representativeLineSampling;
+
             config.detectApertureOnly = mDemoConfiguration.detectApertureOnly;
+            config.tolerance = mDemoConfiguration.tolerance;
 #if EMBREE 
             config.useEmbree = mDemoConfiguration.embree;
 #endif
@@ -155,7 +156,6 @@ namespace visilibDemo
 #if EMBREE
             std::cout << "  g: enable/disable embree ray tracing" << std::endl;
 #endif
-            std::cout << "  r: enable/disable representative line sampling strategy" << std::endl;
             std::cout << "  f: enable/disable detect aperture only" << std::endl;
 
             std::cout << "  n: enable/disable Plucker normalization" << std::endl;
@@ -164,6 +164,8 @@ namespace visilibDemo
             std::cout << "  x: change scene " << std::endl;
             std::cout << "  +/-: increase/decrease scaling of query polygons" << std::endl;
             std::cout << "  1/2: increase/decrease number of vertices of query polygons" << std::endl;
+            std::cout << "  /-*: increase/decrease global scaling" << std::endl;
+            std::cout << "  [/]: increase/decrease scaling" << std::endl;
 
             std::cout << "  w: write config" << std::endl;
             std::cout << "  o: open config" << std::endl;
@@ -231,6 +233,17 @@ namespace visilibDemo
 
                 break;
 
+            case '[':                
+                mDemoConfiguration.tolerance = mDemoConfiguration.tolerance == -1 ? 1e-8 : mDemoConfiguration.tolerance/2;
+                forceDisplay = true;                                
+
+                break;
+
+            case ']':
+                mDemoConfiguration.tolerance = mDemoConfiguration.tolerance == -1 ? 1e-8 : mDemoConfiguration.tolerance*2;
+                forceDisplay = true;                
+                break;
+
             case 'h':
 
                 writeHelp();
@@ -252,10 +265,6 @@ namespace visilibDemo
                 if (mDemoConfiguration.sceneIndex > 9)
                     mDemoConfiguration.sceneIndex = 0;
                 initScene(mDemoConfiguration.sceneIndex);
-                forceDisplay = true;
-                break;
-            case 'r':
-                mDemoConfiguration.representativeLineSampling = !mDemoConfiguration.representativeLineSampling;
                 forceDisplay = true;
                 break;
 

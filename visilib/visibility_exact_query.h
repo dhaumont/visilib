@@ -510,31 +510,14 @@ namespace visilib
     template<class P, class S>
     bool VisibilityExactQuery_<P, S>::collectAllOccluders(PluckerPolytope<P> * aPolytope, PluckerPolyhedron<P> * polyhedron, std::vector<Silhouette*> & occluders, std::vector<P> & polytopeLines)
     {
-        {   
-            if (mConfiguration.representativeLineSampling)
-            {
-                HelperScopedTimer timer(getStatistic(), STABBING_LINE_EXTRACTION);
+        {
+             HelperScopedTimer timer(getStatistic(), STABBING_LINE_EXTRACTION);
 
-                P myRepresentativeLine = MathGeometry::computeRepresentativeLine<P>(aPolytope, polyhedron, mTolerance);
-                if (mConfiguration.hyperSphereNormalization)
-                    myRepresentativeLine = myRepresentativeLine.getNormalized();
-                polytopeLines.push_back(myRepresentativeLine);
-
-                aPolytope->setRepresentativeLine(myRepresentativeLine);
-            }
-            else
-            {
-                HelperScopedTimer timer(getStatistic(), STABBING_LINE_EXTRACTION);
-
-                if (aPolytope->getExtremalStabbingLinesCount() == 0)
-                {
-                    aPolytope->computeExtremalStabbingLines(polyhedron, mTolerance);
-                }
-                for (size_t i = 0; i < aPolytope->getExtremalStabbingLinesCount(); i++)
-                {
-                    polytopeLines.push_back(aPolytope->getExtremalStabbingLine(i));
-                }
-            }
+             P myRepresentativeLine = MathGeometry::computeRepresentativeLine<P>(aPolytope, polyhedron, mTolerance);
+             if (mConfiguration.hyperSphereNormalization)
+                 myRepresentativeLine = myRepresentativeLine.getNormalized();
+             polytopeLines.push_back(myRepresentativeLine);
+             aPolytope->setRepresentativeLine(myRepresentativeLine);
         }
 
         const MathPlane3d& aPlane0 = getQueryPolygon(0)->getPlane();
