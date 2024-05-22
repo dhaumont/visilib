@@ -111,7 +111,7 @@ namespace visilib
         {
             result.push_back(aFacetsDescription2[j++]);
         }
-}
+    }
 
     /** @brief Determine if the sorted facets description contains aFace. Behaviour is only defined if aFacetsDescription is sorted.*/
 

@@ -273,8 +273,8 @@ namespace visilib
                     {
                         if (facetsQm.size() != facetsQn.size() || !std::equal(facetsQm.begin(), facetsQm.end(), facetsQn.begin()))
                         {
-                             aLeft->addEdge(Qm, Qn, aPolyhedron);
-                             aRight->addEdge(Qm, Qn, aPolyhedron);
+                        aLeft->addEdge(Qm, Qn, aPolyhedron);
+                        aRight->addEdge(Qm, Qn, aPolyhedron);
                         }
                         else
                         {

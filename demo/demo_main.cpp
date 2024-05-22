@@ -267,7 +267,7 @@ namespace visilibDemo
                 initScene(mDemoConfiguration.sceneIndex);
                 forceDisplay = true;
                 break;
-            
+
 
 #ifdef EXACT_ARITHMETIC
             case 'e':
