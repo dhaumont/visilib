@@ -72,7 +72,18 @@ inline VisibilityResult visilib::areVisible(GeometryOccluderSet* scene, const fl
     VisibilityResult result = query->arePolygonsVisible(vertices0, numVertices0, vertices1, numVertices1);
 
     if (debugger)
+    {
         query->displayStatistic();
+        std::cout << "RESULT ";
+        switch(result)
+        {
+            case UNKNOWN: std::cout << "UNKNOWN " << std::endl; break;
+            case FAILURE: std::cout << "FAILURE " << std::endl; break;
+            case VISIBLE: std::cout << "VISIBLE " << std::endl; break;
+            case HIDDEN: std::cout <<  "OCCLUDED" << std::endl; break;
+        }
+
+    }
     delete query;
 
     return result;
