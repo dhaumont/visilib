@@ -1099,4 +1099,18 @@ namespace visilib
 
         MathGeometry::computeRayParameters(*this, Sx, Sy, Sz, kx, ky, kz);
     }
+
+    template<>
+    inline bool MathGeometry::getPlaneIntersection<float>(const MathPlane3f & plane, const MathVector3f & aBegin, const MathVector3f & aDirection, MathVector3f & anIntersection, double tolerance)
+    {
+        MathVector3d myIntersection;
+        bool result = MathGeometry::getPlaneIntersection<double>(convert<MathPlane3d>(plane),
+                                                                 convert<MathVector3d>(aBegin),
+                                                                 convert<MathVector3d>(aDirection),
+                                                                 myIntersection,
+                                                                tolerance);
+        anIntersection = convert<MathVector3f>(myIntersection);
+        return result;
+    }
+
 }

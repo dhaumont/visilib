@@ -481,7 +481,7 @@ namespace visilib
             return true;
         }
 
-        if (mDebugger != nullptr && aDistance == 0.0)
+        if (mDebugger != nullptr)
         {
             mDebugger->addStabbingLine(convert<MathVector3f>(aBegin), convert<MathVector3f>(anEnd));
         }
@@ -511,10 +511,10 @@ namespace visilib
     bool VisibilityExactQuery_<P, S>::collectAllOccluders(PluckerPolytope<P> * aPolytope, PluckerPolyhedron<P> * polyhedron, std::vector<Silhouette*> & occluders, std::vector<P> & polytopeLines)
     {
         P myRepresentativeLine;
- 	{
+        {
              HelperScopedTimer timer(getStatistic(), STABBING_LINE_EXTRACTION);
 
-             P myRepresentativeLine = MathGeometry::computeRepresentativeLine<P>(aPolytope, polyhedron, mTolerance);
+             myRepresentativeLine = MathGeometry::computeRepresentativeLine<P>(aPolytope, polyhedron, mTolerance);
              if (mConfiguration.hyperSphereNormalization)
                  myRepresentativeLine = myRepresentativeLine.getNormalized();
              polytopeLines.push_back(myRepresentativeLine);
