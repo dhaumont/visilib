@@ -275,12 +275,7 @@ namespace visilib
 
     template<class P>
     void PluckerPolytope<P>::outputProperties(std::ostream& o, PluckerPolyhedron<P>* polyhedron)
-==== BASE ====
     {
-        return;
-        o << "Polyhedron Lines:" << polyhedron->getLinesCount() << std::endl;
-
-==== BASE ====
         o << "Polytope ESL: " << mExtremalStabbingLines.size() << std::endl;
         o << "Polytope Edges: " << mEdges.size() << std::endl;
         o << "Polytope Vertices: " << mVertices.size() << std::endl;
@@ -290,13 +285,13 @@ namespace visilib
             o << "Polyhedron Lines:" << polyhedron->getLinesCount() << std::endl;
             std::set<size_t> myFacets;
             getFacets(myFacets, polyhedron);
-
+        
             o << "Facets: {";
 
             for (auto i = myFacets.begin(); i != myFacets.end(); i++)
             {
                 o << *i << ", ";
-            }
+    }
             o << "}" << std::endl;
 
             o << "Polytope vertices facets: " << std::endl;
@@ -314,18 +309,17 @@ namespace visilib
                 o << std::endl;
             }
 
-==== BASE ====
-            o << "Polytope edges facets: " << std::endl;
-==== BASE ====
-
-        int line = 0;
-        for (auto iter = mEdges.begin(); iter != mEdges.end(); iter++)
-        {
-            o << " e[" << iter->first << "," << iter->second << "]";
         }
-        o << std::endl;
+            o << "Polytope edges facets: " << std::endl;
+
+            int line = 0;
+            for (auto iter = mEdges.begin(); iter != mEdges.end(); iter++)
+            {
+                o << " e[" << iter->first << "," << iter->second << "]";
+            }
+            o << std::endl;
         
-    }
+        }
     template<class P> template<class S>
     bool PluckerPolytope<P>::removeCollapsedEdges(PluckerPolyhedron<P>* polyhedron, S tolerance)
     {
@@ -352,12 +346,81 @@ namespace visilib
                 myEdgesTable.push_back(i1);
                 myEdgesTable.push_back(i2);
             }
-==== BASE ====
-            o << std::endl;
-==== BASE ====
         }
-==== BASE ====
-==== BASE ====
+
+        if (myMergeTable.empty())
+        {
+            return false;            
+        }
+
+        std::cout << "EDGE TO BE MERGED DETECTED!" << std::endl;
+        outputProperties(std::cout,polyhedron);
+
+        std::cout << "myMergeTable table:";
+        for (int i=0; i<myMergeTable.size();i++)
+        {
+            std::cout<<myMergeTable[i]<<" ";
+        }
+        std::cout<<std::endl;
+        std::cout << "myEdgesTable table:";
+        for (int i=0; i<myEdgesTable.size();i++)
+        {
+            std::cout<<myEdgesTable[i]<<" ";
+        }
+        std::cout<<std::endl;
+        for (int i=0; i<myMergeTable.size();i+=2)
+        {
+            int merge_left  = myMergeTable[i];
+            int merge_right = myMergeTable[i+1];
+            if (merge_left!=merge_right)
+            {
+                for (int j=0; j<myEdgesTable.size();j++)
+                {
+                    if (myEdgesTable[j] == merge_right)
+                    {
+                        myEdgesTable[j] = merge_left;
+                    }
+                }
+
+                for (int k=i;k<myMergeTable.size();k++)
+                {
+                    if (myMergeTable[k] == merge_right)
+                    {
+                        myMergeTable[k] = merge_left;
+                    }
+                }
+
+                const std::vector<size_t>& facetsI1 = polyhedron->getFacetsDescription(merge_left);
+                const std::vector<size_t>& facetsI2 = polyhedron->getFacetsDescription(merge_right);
+         
+                std::vector<size_t> myFacets;
+                MathCombinatorial::initFacets(facetsI1, 
+                                              facetsI2,                                               
+                                              myFacets);
+                polyhedron->initFacetsDescription(merge_left, myFacets);
+            }
+        }
+
+        std::cout << "myMergeTable table:";
+        for (int i=0; i<myMergeTable.size();i++)
+        {
+            std::cout<<myMergeTable[i]<<" ";
+        }
+        std::cout<<std::endl;
+        std::cout << "myEdgesTable table:";
+        for (int i=0; i<myEdgesTable.size();i++)
+        {
+            std::cout<<myEdgesTable[i]<<" ";
+        }
+        std::cout<<std::endl;   
+
+        outputProperties(std::cout,polyhedron);
+        mEdges.clear();
+        for (int i=0; i<myEdgesTable.size();i+=2)
+        {
+            addEdge(myEdgesTable[i], myEdgesTable[i+1],polyhedron);
+        }
+	return true;
     }
 
     template<class P> template<class S>
