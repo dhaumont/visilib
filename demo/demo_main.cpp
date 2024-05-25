@@ -22,8 +22,14 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include <windows.h>
 #endif
 #ifdef USE_GLUT
+#ifdef __APPLE__
+#define GL_SILENCE_DEPRECATION \
+#include <OpenGL/gl.h>
+#include <GLUT/glut.h>
+#else
 #include <GL/gl.h>
 #include <GL/glut.h>
+#endif
 #endif
 #include <string>
 #include <iostream>
@@ -31,8 +37,8 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #define _USE_MATH_DEFINES
 #include <math.h>
 
-#include "xmmintrin.h"
-#include "pmmintrin.h"
+// #include "xmmintrin.h"
+// #include "pmmintrin.h"
 
 #include "helper_triangle_mesh_container.h"
 #include "silhouette_container_embree.h"
@@ -59,8 +65,8 @@ namespace visilibDemo
 
         bool init()
         {
-            _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
-            _MM_SET_DENORMALS_ZERO_MODE(_MM_DENORMALS_ZERO_ON);
+//            _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
+//            _MM_SET_DENORMALS_ZERO_MODE(_MM_DENORMALS_ZERO_ON);
             readConfig("config.txt");
             forceDisplay = true;
 #ifdef USE_GLUT

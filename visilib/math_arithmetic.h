@@ -45,7 +45,7 @@ namespace visilib
         }
 
         /** @brief Compute the axis aligned bounding box of a set of points.*/
-        static void getMinMax(const std::vector<MathVector3_<S>>& aPoints, MathVector3_<S>& aMin, MathVector3_<S>& aMax);
+        static void getMinMax(const std::vector<MathVector3_<S> >& aPoints, MathVector3_<S>& aMin, MathVector3_<S>& aMax);
       
         /** @brief Compute the axis aligned bounding box of a set of points.*/
         static void getMinMax(const S* aPoints, size_t pointCount, MathVector3_<S>& aMin, MathVector3_<S>& aMax);
