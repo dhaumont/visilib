@@ -163,7 +163,7 @@ namespace visilib
         bool static isEdgeInsidePolytope(const MathVector3d& a, const MathVector3d& b, PluckerPolytope<P>* aPolytope, const MathVector3d& approximateNormal, PluckerPolyhedron<P>* polyhedron, S tolerance);
         
         template<class S>
-        static bool isBoxInsideConvexHull(const MathVector3_<S>& AABBMin, const MathVector3_<S>& AABBMax, const std::vector<MathPlane3_<S>>& convexHullPlanes);
+        static bool isBoxInsideConvexHull(const MathVector3_<S>& AABBMin, const MathVector3_<S>& AABBMax, const std::vector<MathPlane3_<S> >& convexHullPlanes);
  };
 
     inline bool MathGeometry::isPointInsidePolygon(const GeometryConvexPolygon& aPolygon, const MathVector3d& aPoint, double tolerance)
@@ -351,26 +351,26 @@ namespace visilib
     }
 
     template<>
-    inline bool MathGeometry::findPluckerEdgeWithQuadricIntersection<MathPlucker6<float>, float>(const MathPlucker6<float> & v1, const MathPlucker6<float> & v2, GeometryPositionType p1, GeometryPositionType p2, std::vector<MathPlucker6<float>> & result, float tolerance)
+    inline bool MathGeometry::findPluckerEdgeWithQuadricIntersection<MathPlucker6<float>, float>(const MathPlucker6<float> & v1, const MathPlucker6<float> & v2, GeometryPositionType p1, GeometryPositionType p2, std::vector<MathPlucker6<float> > & result, float tolerance)
     {
         return findPluckerEdgeWithQuadricIntersection<MathPlucker6<float>, float>(v1, v2, p1, p2, result, true, tolerance);
     }
 
     template<>
-    inline bool MathGeometry::findPluckerEdgeWithQuadricIntersection<MathPlucker6<double>, double>(const MathPlucker6<double> & v1, const MathPlucker6<double> & v2, GeometryPositionType p1, GeometryPositionType p2, std::vector<MathPlucker6<double>> & result, double tolerance)
+    inline bool MathGeometry::findPluckerEdgeWithQuadricIntersection<MathPlucker6<double>, double>(const MathPlucker6<double> & v1, const MathPlucker6<double> & v2, GeometryPositionType p1, GeometryPositionType p2, std::vector<MathPlucker6<double> > & result, double tolerance)
     {
         return findPluckerEdgeWithQuadricIntersection<MathPlucker6<double>, double>(v1, v2, p1, p2, result, true, tolerance);
     }
 
     template<>
-    inline bool MathGeometry::findPluckerEdgeWithQuadricIntersection<MathPlucker2<double>, double>(const MathPlucker2<double> & v1, const MathPlucker2<double> & v2, GeometryPositionType p1, GeometryPositionType p2, std::vector<MathPlucker2<double>> & result, double tolerance)
+    inline bool MathGeometry::findPluckerEdgeWithQuadricIntersection<MathPlucker2<double>, double>(const MathPlucker2<double> & v1, const MathPlucker2<double> & v2, GeometryPositionType p1, GeometryPositionType p2, std::vector<MathPlucker2<double> > & result, double tolerance)
     {
         return findPluckerEdgeWithQuadricIntersection<MathPlucker2<double>, double>(v1, v2, p1, p2, result, true, tolerance);
     }
 
 #ifdef EXACT_ARITHMETIC
     template<>
-    inline bool MathGeometry::findPluckerEdgeWithQuadricIntersection<MathPlucker6<exact>, exact>(const MathPlucker6<exact> & v1, const MathPlucker6<exact> & v2, GeometryPositionType p1, GeometryPositionType p2, std::vector<MathPlucker6<exact>> & result, exact tolerance)
+    inline bool MathGeometry::findPluckerEdgeWithQuadricIntersection<MathPlucker6<exact>, exact>(const MathPlucker6<exact> & v1, const MathPlucker6<exact> & v2, GeometryPositionType p1, GeometryPositionType p2, std::vector<MathPlucker6<exact> > & result, exact tolerance)
     {
         return findPluckerEdgeWithQuadricIntersection<MathPlucker6<exact>, exact>(v1, v2, p1, p2, result, false, tolerance);
     }
@@ -764,9 +764,9 @@ namespace visilib
     template<class S>
     inline bool MathGeometry::hitsTriangle(const GeometryRay & ray, const MathVector3_<S> & v0, const MathVector3_<S> & v1, const MathVector3_<S> & v2)
     {
-        MathVector3_<S> A = v0 - convert<MathVector3_<S>>(ray.getStart());
-        MathVector3_<S> B = v1 - convert<MathVector3_<S>>(ray.getStart());
-        MathVector3_<S> C = v2 - convert<MathVector3_<S>>(ray.getStart());
+        MathVector3_<S> A = v0 - convert<MathVector3_<S> >(ray.getStart());
+        MathVector3_<S> B = v1 - convert<MathVector3_<S> >(ray.getStart());
+        MathVector3_<S> C = v2 - convert<MathVector3_<S> >(ray.getStart());
 
         S Sx;	S Sy;	S Sz;
         int kx;	int ky;	int kz;
@@ -1007,7 +1007,7 @@ namespace visilib
     }
 
     template<class S>
-    inline bool isBoxInsideConvexHull(const MathVector3_<S>& AABBMin, const MathVector3_<S>& AABBMax, const std::vector<MathPlane3_<S>>& convexHullPlanes)
+    inline bool isBoxInsideConvexHull(const MathVector3_<S>& AABBMin, const MathVector3_<S>& AABBMax, const std::vector<MathPlane3_<S> >& convexHullPlanes)
     {
             for (const auto& plane: convexHullPlanes)
             {

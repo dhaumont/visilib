@@ -20,7 +20,7 @@
 # top-level CMakeLists.txt
 # !! To be run from 'cmakeout' subdirectory !!
 
-cmake_minimum_required (VERSION 2.4.0 FATAL_ERROR)
+cmake_minimum_required (VERSION 3.1 FATAL_ERROR)
 
 set( VISILIB_LIB_NAME "visilib" )
 set( VISILIB_DEMO_NAME "visilibDemo" )
@@ -59,7 +59,7 @@ if (GLUT_FOUND)
     include_directories(${GLUT_INCLUDE_DIRS})
     link_directories(${GLUT_LIBRARY_DIRS})
     add_definitions(${GLUT_DEFINITIONS})
-    set (LIBS ${GLUT_LIBRARY})
+    set (LIBS ${GLUT_LIBRARIES})
 else()
     message(ERROR " GLUT not found!")
 endif()
@@ -111,12 +111,16 @@ if(NOT WIN32)
     add_definitions(${OpenGL_DEFINITIONS})
    
    
-    set(LIBS ${LIBS}  ${OPENGL_LIBRARIES} m stdc++)
+    set(LIBS ${LIBS} ${OPENGL_LIBRARIES})
     if(NOT OPENGL_FOUND)
         message(ERROR " OPENGL not found!")
     endif(NOT OPENGL_FOUND)
 
 endif(NOT WIN32)
+
+set(CMAKE_CXX_STANDARD 11 CACHE STRING "The C++ standard to use")
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 ENABLE_TESTING()
 
