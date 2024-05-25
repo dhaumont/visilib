@@ -222,11 +222,11 @@ void DemoConfiguration::displaySettings()
     std::cout << "[Source Size: " << scaling << "]";
     std::cout << "[Source Vertices: " << vertexCount0 << " and " << vertexCount1 << "]";
     std::cout << "[GlobalScaling:" << globalScaling << "]";
+    std::cout << "[Tolerance:" << tolerance << "]";
     std::cout << std::endl;
 
     std::cout << "  [Early stop: " << getStatusString(detectApertureOnly) << "]";
     std::cout << "[Silhouette: " << getStatusString(silhouetteOptimisation) << "]";
-    std::cout << "[Middle line: " << getStatusString(representativeLineSampling) << "]";
     std::cout << "[Normalization: " << getStatusString(normalization) << "]" << std::endl;
 
 #if EXACT_ARITHMETIC            
@@ -249,7 +249,6 @@ void DemoConfiguration::writeConfig(const std::string& filename)
     output << "vertexCount1 = " << vertexCount1 << std::endl;
     output << "silhouetteOptimisation  = " << silhouetteOptimisation << std::endl;
     output << "detectApertureOnly  = " << detectApertureOnly << std::endl;
-    output << "representativeLineSampling  = " << representativeLineSampling << std::endl;
     output << "normalization  = " << normalization << std::endl;
     output << "scaling  = " << scaling << std::endl;
     output << "phi  = " << phi << std::endl;
@@ -257,7 +256,7 @@ void DemoConfiguration::writeConfig(const std::string& filename)
     output << "sceneIndex = " << sceneIndex << std::endl;
     output << "globalScaling = " << globalScaling << std::endl;
     output << "precisionType = " << precisionType << std::endl;
-
+    output << "tolerance = " << tolerance << std::endl;
     output.close();
 }
 
@@ -278,7 +277,6 @@ void DemoConfiguration::readConfig(const std::string& filename)
         else if (tokens[0] == "vertexCount1") { vertexCount1 = atoi(tokens[2].c_str()); }
         else if (tokens[0] == "silhouetteOptimisation") { silhouetteOptimisation = atoi(tokens[2].c_str()); }
         else if (tokens[0] == "detectApertureOnly") { detectApertureOnly = atoi(tokens[2].c_str()); }
-        else if (tokens[0] == "representativeLineSampling") { representativeLineSampling = atoi(tokens[2].c_str()); }
         else if (tokens[0] == "normalization") { normalization = atoi(tokens[2].c_str()); }
         else if (tokens[0] == "scaling") { scaling = (float)atof(tokens[2].c_str()); }
         else if (tokens[0] == "phi") { phi = (float)atof(tokens[2].c_str()); }
@@ -286,7 +284,7 @@ void DemoConfiguration::readConfig(const std::string& filename)
         else if (tokens[0] == "sceneIndex") { sceneIndex = atoi(tokens[2].c_str()); }
         else if (tokens[0] == "globalScaling") { globalScaling = (float)atof(tokens[2].c_str()); }
         else if (tokens[0] == "precisionType") { precisionType = (VisibilityExactQueryConfiguration::PrecisionType)atoi(tokens[2].c_str()); }
-
+        else if (tokens[0] == "tolerance") { tolerance =  (double)atof(tokens[2].c_str()); }
         else { V_ASSERT(0); }
     }
     input.close();
@@ -295,7 +293,7 @@ void DemoConfiguration::readConfig(const std::string& filename)
 
 void DemoConfiguration::displaySummary()
 {
-    std::cout << "VisibilityTest [Scaling: " << globalScaling << ", v0: " << vertexCount0 << ", vv1: " << vertexCount1 << "; phi:" << phi << "; precision: "<< precisionType<<"] ";
+    std::cout << "VisibilityTest [Scaling: " << globalScaling << ", v0: " << vertexCount0 << ", vv1: " << vertexCount1 << "; phi:" << phi << "; precision: "<< precisionType<<"; tolerance:" << tolerance << "] ";
 }
 
 #if EMBREE

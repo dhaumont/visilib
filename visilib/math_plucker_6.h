@@ -74,6 +74,19 @@ namespace visilib
             V_ASSERT(MathArithmetic<S>::isFinite(getLocation()));
         }
 
+        /**@brief Construct a plucker point from a 3D line defined by two points*/
+        MathPlucker6(const MathVector3f& aBegin, const MathVector3f& anEnd)
+        {
+            MathVector3_<S> myBegin = convert<MathVector3_<S>>(aBegin);
+            MathVector3_<S> myEnd = convert<MathVector3_<S>>(anEnd);
+
+            mDirection = myEnd - myBegin;
+            mLocation = MathVector3_<S>::cross(myBegin, myEnd);
+
+            V_ASSERT(MathArithmetic<S>::isFinite(getDirection()));
+            V_ASSERT(MathArithmetic<S>::isFinite(getLocation()));
+        }
+
         /**@brief Subtract another point in Plucker space*/
         MathPlucker6<S>& operator -= (const MathPlucker6<S>& v)
         {

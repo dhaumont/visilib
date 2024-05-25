@@ -385,3 +385,6 @@
 /doc/latex/structvisilib_1_1_triangle_mesh_information.tex
 /doc/latex/structvisilib_1_1_visibility_silhouette_1_1_hash.tex
 /installationInfo.txt
+debug
+release
+build

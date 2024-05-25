@@ -170,7 +170,10 @@ namespace visilib
             y *= inv;
             z *= inv;
         }
-
+        else 
+        {
+             x = y = z = 0;
+        }
         return d;
     }
 

@@ -34,7 +34,6 @@ namespace visilibDemo
         size_t vertexCount0 = 3;
         size_t vertexCount1 = 3;
         bool silhouetteOptimisation = true;
-        bool representativeLineSampling = true;
         VisibilityExactQueryConfiguration::PrecisionType precisionType = VisibilityExactQueryConfiguration::DOUBLE;
         bool detectApertureOnly = false;
         bool normalization = true;
@@ -43,6 +42,7 @@ namespace visilibDemo
         float eta = 0;
         int   sceneIndex = 2;
         float globalScaling = 1;
+        double tolerance = -1;
 #if EMBREE
         bool embree = false;
 #endif
