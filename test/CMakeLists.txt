@@ -20,7 +20,7 @@ set(KIT visilibTest)
 
 # ${KIT}CxxTests.cpp
 
-create_test_sourcelist(Tests
+set(Tests
     ./src/test_full.cpp
     ./src/test_math.cpp
     ./src/test_visibility.cpp
