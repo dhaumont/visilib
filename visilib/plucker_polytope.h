@@ -435,6 +435,13 @@ namespace visilib
             {
                 return true;
             }
+            const std::vector<size_t>& facets1 = polyhedron->getFacetsDescription(iter->first);
+            const std::vector<size_t>& facets2 = polyhedron->getFacetsDescription(iter->second);
+
+            if (facets1.size() == facets2.size() && std::equal(facets1.begin(), facets1.end(), facets2.begin()))
+            {
+                return true;
+            }
         }
 
         return false;

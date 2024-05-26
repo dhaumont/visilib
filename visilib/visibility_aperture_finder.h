@@ -58,7 +58,7 @@ namespace visilib
 
         VisibilityResult resolve();
     private:
-        VisibilityResult resolveInternal(PluckerPolytope<P>* aPolytope, const std::string& occlusionTreeNodeSymbol, const std::vector<Silhouette*>& anOccluders, const std::vector<P>& aPolytopeLines, int depth);
+        VisibilityResult resolveInternal(VisibilityResult& aGlobalResult, PluckerPolytope<P>* aPolytope, const std::string& occlusionTreeNodeSymbol, const std::vector<Silhouette*>& anOccluders, const std::vector<P>& aPolytopeLines, int depth);
         void resize(size_t myInitiaLineCount, PluckerPolyhedron<P>* myPolyhedron, PluckerPolytope<P>* aPolytope);
         void extractStabbingLines(PluckerPolyhedron<P>* myPolyhedron, PluckerPolytope<P>* aPolytope);
             
@@ -80,11 +80,15 @@ namespace visilib
     template <class P, class S>
     VisibilityResult VisibilityApertureFinder<P, S>::resolve()
     {
-        return resolveInternal(reinterpret_cast<PluckerPolytope<P>*>(VisibilitySolver<P, S>::mQuery->getComplex()->getRoot()), "*", std::vector<Silhouette*>(), std::vector<P>(), 0);
+        VisibilityResult myGlobalResult = HIDDEN;
+
+        resolveInternal(myGlobalResult, reinterpret_cast<PluckerPolytope<P>*>(VisibilitySolver<P, S>::mQuery->getComplex()->getRoot()), "*", std::vector<Silhouette*>(), std::vector<P>(), 0);
+
+        return myGlobalResult;
     }
 
     template<class P, class S>
-    VisibilityResult VisibilityApertureFinder<P, S>::resolveInternal(PluckerPolytope<P>* aPolytope, const std::string& occlusionTreeNodeSymbol, const std::vector<Silhouette*>& anOccluders, const std::vector<P>& aPolytopeLines, int aDepth)
+    VisibilityResult VisibilityApertureFinder<P, S>::resolveInternal(VisibilityResult& aGlobalResult, PluckerPolytope<P>* aPolytope, const std::string& occlusionTreeNodeSymbol, const std::vector<Silhouette*>& anOccluders, const std::vector<P>& aPolytopeLines, int aDepth)
     {
         PluckerPolyhedron<P>* myPolyhedron = reinterpret_cast<PluckerPolyhedron<P>*> (VisibilitySolver<P, S>::mQuery->getComplex()->getPolyhedron());
         size_t myInitiaLineCount = myPolyhedron->getLinesCount();
@@ -94,14 +98,13 @@ namespace visilib
         V_LOG(debugOutput, "Resolve internal ", occlusionTreeNodeSymbol);
         aPolytope->outputProperties(debugOutput, myPolyhedron);
 #endif
-        VisibilityResult globalResult = HIDDEN;
         if (aDepth > 2000)
         {
             std::cerr << "Overflow detected: more than 200 recursive calls...." << std::endl;
 #ifdef OUTPUT_DEBUG_FILE
             V_LOG(debugOutput, "RESULT FAILURE: Overflow detected : more than 2000 recursive calls....", occlusionTreeNodeSymbol);
 #endif
-            V_ASSERT(0);
+            aGlobalResult = FAILURE;
             return FAILURE;
         }
         {
@@ -111,7 +114,7 @@ namespace visilib
         if (!aPolytope->containsRealLines())
         {
 #ifdef OUTPUT_DEBUG_FILE
-            V_LOG(debugOutput, "RESULT UNKNOWN: polytope does not contains real line", occlusionTreeNodeSymbol);
+            V_LOG(debugOutput, "RESULT HIDDEN: polytope does not contains real line", occlusionTreeNodeSymbol);
 #endif
             return HIDDEN;
         }
@@ -130,10 +133,10 @@ namespace visilib
                 V_LOG(debugOutput, "RAY: IS VISIBLE", occlusionTreeNodeSymbol);
 #endif
                 hasRay = true;
-                globalResult = VISIBLE;
+                aGlobalResult = VISIBLE;
                 if (mDetectApertureOnly)
                 {
-                    return globalResult;
+                    return VISIBLE;
                 }
             }
             else
@@ -144,24 +147,23 @@ namespace visilib
             }
         }
 
-        if (mDetectApertureOnly)
+{
+        HelperScopedTimer timer(VisibilitySolver<P, S>::mQuery->getStatistic(), OCCLUDER_TREATMENT);
+        if (VisibilitySolver<P, S>::mQuery->isOccluded(aPolytope, myPolyhedron, myOccluders, polytopeLines))
         {
-            HelperScopedTimer timer(VisibilitySolver<P, S>::mQuery->getStatistic(), OCCLUDER_TREATMENT);
-            if (VisibilitySolver<P, S>::mQuery->isOccluded(aPolytope, myPolyhedron, myOccluders, polytopeLines))
-            {
 #ifdef OUTPUT_DEBUG_FILE
-                V_LOG(debugOutput, "COUNT: IS OCCLUDED", occlusionTreeNodeSymbol);
+            V_LOG(debugOutput, "COUNT: IS OCCLUDED", occlusionTreeNodeSymbol);
 #endif
-                return HIDDEN;
-            }
-            else
-            {
+            return HIDDEN;
+        }
+        else
+        {
 #ifdef OUTPUT_DEBUG_FILE
-                V_LOG(debugOutput, "COUNT: maybe VISIBLE", occlusionTreeNodeSymbol);
+            V_LOG(debugOutput, "COUNT: maybe VISIBLE", occlusionTreeNodeSymbol);
 #endif
 
-            }
         }
+}
         Silhouette* mySilhouette = nullptr;
         size_t mySilhouetteEdgeIndex = 0;
 
@@ -287,18 +289,20 @@ namespace visilib
 
                     if (reuseOccluders[i])
                     {
-                        result = resolveInternal(myPolytopes[i], ss.str(), myOccluders, polytopeLines, aDepth + 1);
+                        result = resolveInternal(aGlobalResult, myPolytopes[i], ss.str(), myOccluders, polytopeLines, aDepth + 1);
                     }
                     else
                     {
-                        result = resolveInternal(myPolytopes[i], ss.str(), std::vector<Silhouette*>(), std::vector<P>(), aDepth + 1);
+                        result = resolveInternal(aGlobalResult, myPolytopes[i], ss.str(), std::vector<Silhouette*>(), std::vector<P>(), aDepth + 1);
                     }
                     if (result == FAILURE)
-                        return result;
-
+                    {
+                        aGlobalResult = FAILURE;
+                        return FAILURE;
+                    }
                     if (result == VISIBLE)
                     {
-                        globalResult = VISIBLE;
+                        aGlobalResult = VISIBLE;
                         if (mDetectApertureOnly) // Early stop - an aperture has been found
                         {
 #ifdef OUTPUT_DEBUG_FILE
@@ -307,7 +311,7 @@ namespace visilib
                             delete myPolytopeLeft;  myPolytopeLeft = nullptr;
                             delete myPolytopeRight; myPolytopeRight = nullptr;
 
-                            return result;
+                            return VISIBLE;
                         }
                     }
                     if (hasBeenAdded)
@@ -325,16 +329,16 @@ namespace visilib
 #ifdef OUTPUT_DEBUG_FILE              
                 ss << occlusionTreeNodeSymbol << "|" << face->getFaceIndex() << "-" << myVisibilitySilhouetteEdge.mEdgeIndex << "*";
 #endif
-                VisibilityResult result = resolveInternal(aPolytope, ss.str(), anOccluders, aPolytopeLines, aDepth + 1);
+                VisibilityResult result = resolveInternal(aGlobalResult, aPolytope, ss.str(), anOccluders, aPolytopeLines, aDepth + 1);
                 if (result == FAILURE)
                     return result;
 
                 if (result == VISIBLE)
                 {
-                    globalResult = VISIBLE;
+                    aGlobalResult = VISIBLE;
                     if (mDetectApertureOnly) // Early stop - an aperture has been found
                     {
-                        return result;
+                        return VISIBLE;
                     }
                 }
             }
@@ -355,7 +359,11 @@ namespace visilib
                 V_LOG(debugOutput, "visible polytope found: exporting stabbing lines", occlusionTreeNodeSymbol);
 #endif
                 extractStabbingLines(myPolyhedron, aPolytope);
-                globalResult = VISIBLE;
+                aGlobalResult = VISIBLE;
+                if (mDetectApertureOnly) // Early stop - an aperture has been found
+                {
+                    return VISIBLE;
+                }
             }
         }
 
@@ -363,7 +371,7 @@ namespace visilib
         {
        //     resize(myInitiaLineCount, myPolyhedron, aPolytope);
         }
-        return globalResult;
+        return UNKNOWN;
 
     }
 

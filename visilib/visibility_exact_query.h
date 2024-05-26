@@ -529,49 +529,45 @@ namespace visilib
         std::set<SilhouetteMeshFace*> intersectedFaces;
         bool hit = findSceneIntersection(centerLine.first, centerLine.second, intersectedFaces, 0, aPolytope);
     
-        if (!hit)
+        if (!hit && !mConfiguration.detectApertureOnly)
         {
-                if (mConfiguration.detectApertureOnly)
-                    return false;
-                {
-                    HelperScopedTimer timer(getStatistic(), STABBING_LINE_EXTRACTION);
+            {
+                HelperScopedTimer timer(getStatistic(), STABBING_LINE_EXTRACTION);
 
-                        if (aPolytope->getExtremalStabbingLinesCount() == 0)
-                        {
-                            aPolytope->computeExtremalStabbingLines(polyhedron, mTolerance);
-                        }
-                }
-                    
-                if(aPolytope->getExtremalStabbingLinesCount() == 0)
-                {
-                    V_ASSERT(0);
-                    return true;
-                }
-                S myMaxDistance = 0;        
-                S myDistance = 0;
+                    if (aPolytope->getExtremalStabbingLinesCount() == 0)
+                    {
+                        aPolytope->computeExtremalStabbingLines(polyhedron, mTolerance);
+                    }
+            }
 
-                for (size_t i = 0; i < aPolytope->getExtremalStabbingLinesCount(); i++)
+            if(aPolytope->getExtremalStabbingLinesCount() == 0)
+            {
+                V_ASSERT(0);
+                return true;
+            }
+            S myMaxDistance = 0;
+            S myDistance = 0;
+
+            for (size_t i = 0; i < aPolytope->getExtremalStabbingLinesCount(); i++)
+            {
+                std::pair<MathVector3d, MathVector3d> line = MathGeometry::getBackTo3D(aPolytope->getExtremalStabbingLine(i),
+                                                                                    aPlane0,
+                                                                                    aPlane1);
+
+                myDistance = (line.first - centerLine.first).getSquaredNorm();
+                if (myDistance> myMaxDistance)
                 {
-                    std::pair<MathVector3d, MathVector3d> line = MathGeometry::getBackTo3D(aPolytope->getExtremalStabbingLine(i),
-                                                                                        aPlane0,
-                                                                                        aPlane1);
-            
-                    myDistance = (line.first - centerLine.first).getSquaredNorm();
-                    if (myDistance> myMaxDistance)
-                    {
-                        myMaxDistance = myDistance;
-                    }
-                
-                    myDistance = (line.second - centerLine.second).getSquaredNorm();
-                    if (myDistance> myMaxDistance)
-                    {
-                        myMaxDistance = myDistance;
-                    }
+                    myMaxDistance = myDistance;
                 }
-                myMaxDistance = MathArithmetic<S>::getSqrt(myMaxDistance);
-                hit = findSceneIntersection(centerLine.first, centerLine.second, intersectedFaces, myMaxDistance, aPolytope);
-                if (!hit)
-                    return false;
+
+                myDistance = (line.second - centerLine.second).getSquaredNorm();
+                if (myDistance> myMaxDistance)
+                {
+                    myMaxDistance = myDistance;
+                }
+            }
+            myMaxDistance = MathArithmetic<S>::getSqrt(myMaxDistance);
+            findSceneIntersection(centerLine.first, centerLine.second, intersectedFaces, myMaxDistance, aPolytope);
         }            
         for (auto myFace : intersectedFaces)
         {
@@ -580,7 +576,7 @@ namespace visilib
             if (s)
                 occluders.push_back(s);
         }
-        return true;
+        return hit;
     }    
     
 }
