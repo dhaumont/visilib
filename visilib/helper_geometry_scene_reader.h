@@ -49,7 +49,8 @@ namespace visilib
         bool readFileObj(const std::string& fileName);
         void writeFileObj(const std::string& fileName);
         static void appendMeshToFileObj(std::ofstream& stream, int& anOffset, const std::vector<MathVector3f> & vertices, const std::vector<int> & indices);
-        static void appendPolygonToFileObj(std::ofstream& stream, int& anOffset, const std::vector<float> & vertices, float aScaling = 1.);
+        static void appendPolygonToFileObj(std::ofstream& stream, int& anOffset, const std::vector<float> & vertices);
+        static void appendSegmentsToFileObj(std::ofstream& stream, int& anOffset, const std::vector<MathVector3f> & vertices, const std::vector<int> & indices);
         static void tokenizeNextLine(std::istream& stream, std::vector< std::string >& tokens);
 
 
@@ -263,58 +264,63 @@ namespace visilib
 
     inline void HelperGeometrySceneReader::appendPolygonToFileObj(std::ofstream& stream, 
                                                                    int& anOffset,
-                                                                   const std::vector<float> & vertices,
-                                                                   float aScaling                                                          
+                                                                   const std::vector<float> & vertices                                                                                                                           
                                                                    )
     {   
         size_t myVertexCount = vertices.size() / 3;
-        if (myVertexCount == 0)
-            return;
-        size_t i = 1;
-        if (myVertexCount == 1)
+        //Export a Fan for polygon
+        stream << "#Polygon (v:" << myVertexCount << ", f:" << myVertexCount - 2 << ")" << std::endl;
+    
+        for (size_t i = 0; i < myVertexCount; i++)
         {
-               //export a cube to represent single points
-            MathVector3f translation(vertices[0], vertices[1], vertices[2]);
-            std::vector<int> sphere_indices;
-            std::vector<MathVector3f> sphere_vertices;
-            HelperSyntheticMeshBuilder::generateSphere(2, sphere_indices,  sphere_vertices);
-            HelperSyntheticMeshBuilder::scale(sphere_vertices, aScaling);
-            HelperSyntheticMeshBuilder::translate(sphere_vertices, translation);
-            
-            appendMeshToFileObj(stream, anOffset, sphere_vertices, sphere_indices);            
+            stream << "#v " << anOffset + i << std::endl;
+            stream << "v " << vertices[i*3] << " " << vertices[i*3+1] << " " << vertices[i*3+2] << std::endl;
         }
-        else if (myVertexCount == 2)
-        {
-            stream << "#Polygon (v:2, l:1)"<< std::endl;
-        
-            // export an oriented box for segments
-            stream << "v " << vertices[0*3] << " " << vertices[0*3+1] << " " << vertices[0*3+2] << std::endl;
-            stream << "v " << vertices[1*3] << " " << vertices[1*3+1] << " " << vertices[1*3+2] << std::endl;
-            stream << "l " << anOffset << " "  << anOffset + 1 << std::endl;
-            anOffset += 2;  
+        size_t i = 0;
+        while (i < myVertexCount -1)
+        {  
+            stream << "#f " << i << std::endl;
+            stream << "f " << anOffset
+                    << " "  << anOffset+i
+                    << " "  << anOffset+i+1 
+                    << std::endl;
+            i++;
         }
-        else if (myVertexCount > 2)
-        {
-            //Export a Fan for polygon
-            stream << "#Polygon (v:" << myVertexCount << ", f:" << myVertexCount - 2 << ")" << std::endl;
-        
-            for (size_t i = 0; i < myVertexCount; i++)
-            {
-                stream << "#v " << anOffset + i << std::endl;
-                stream << "v " << vertices[i*3] << " " << vertices[i*3+1] << " " << vertices[i*3+2] << std::endl;
-            }
-   
-            while (i < myVertexCount -1)
-            {  
-                stream << "#f " << i << std::endl;
-                stream << "f " << anOffset
-                        << " "  << anOffset+i
-                        << " "  << anOffset+i+1 
-                        << std::endl;
-                i++;
-            }
-            anOffset += myVertexCount;  
-        }          
-    }
+        anOffset += myVertexCount;  
+    }          
+    
 
+inline void HelperGeometrySceneReader::appendSegmentsToFileObj(std::ofstream& stream, 
+                                                              int& anOffset,
+                                                              const std::vector<MathVector3f> & vertices,
+                                                              const std::vector<int> & indices                                                                                                                            
+                                                                )
+    {   
+        size_t myLineCount = indices.size() / 2;
+        
+        if (vertices.size() <  2 || myLineCount < 1)
+            return;
+        
+        stream << "#Lines (v:" << vertices.size() << ", l:" << myLineCount << ")" << std::endl;
+        
+        for (size_t i = 0; i < vertices.size(); i++)
+        {
+            stream << "#v " << anOffset + i << std::endl;
+            stream << "v " << vertices[i].x << " " << vertices[i].y << " " << vertices[i].z << std::endl;
+        }
+
+        size_t i = 0;
+
+        while (i < myLineCount)
+        {                
+            stream << "#l " << i + 1 << std::endl;
+
+            stream << "l "  << indices[i*2  ] + anOffset
+                    << " "  << indices[i*2+1] + anOffset << std::endl;
+                    
+            i++;
+        }
+
+        anOffset += vertices.size(); 
+    }
 }

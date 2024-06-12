@@ -60,7 +60,8 @@ namespace visilibDemo
         static HelperTriangleMeshContainer* createScene(int s, float globalScalingFactor);
         static GeometryOccluderSet* createOccluderSet(HelperTriangleMeshContainer* aContainer);
         static void configureDemoConfiguration(const std::string& name, DemoConfiguration& configuration);
-        static void exportQueryToObj(const std::string& filename, const std::vector<float>& v0, const std::vector<float>& v1, const HelperTriangleMeshContainer& aContainer);
+        static void exportQueryToObj(const std::string& filename, const std::vector<float>& v0, const std::vector<float>& v1, const HelperTriangleMeshContainer& aContainer, float aScaling = 1.);
+        static void appendPolygonRepresentationToFileObj(std::ofstream& stream, int& anOffset, const std::vector<float>& v, float aScaling = 1);
     };
 }
 

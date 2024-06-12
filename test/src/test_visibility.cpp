@@ -48,7 +48,7 @@ bool testConfiguration(const DemoConfiguration& configuration, VisibilityResult 
 
     auto result = visilib::areVisible(occluderSet, &v0[0], v0.size() / 3, &v1[0], v1.size() / 3, config, nullptr);
 
-    DemoHelper::exportQueryToObj(filename, v0, v1, *meshContainer);
+    DemoHelper::exportQueryToObj(filename, v0, v1, *meshContainer, configuration.globalScaling);
     
     return (result == expected);
 }

@@ -210,14 +210,14 @@ GeometryOccluderSet* DemoHelper::createOccluderSet(HelperTriangleMeshContainer* 
     return occluderSet;
 }
 
-void DemoHelper::exportQueryToObj(const std::string& fileName, const std::vector<float>& v0, const std::vector<float>& v1, const HelperTriangleMeshContainer & aScene)
+void DemoHelper::exportQueryToObj(const std::string& fileName, const std::vector<float>& v0, const std::vector<float>& v1, const HelperTriangleMeshContainer & aScene, float aScaling)
 {
     std::ofstream myOutput(fileName.c_str());
     auto myMeshArray  = aScene.getMeshArray();
     int myOffset = 1;
 
-    HelperGeometrySceneReader::appendPolygonToFileObj(myOutput, myOffset, v0);
-    HelperGeometrySceneReader::appendPolygonToFileObj(myOutput, myOffset, v1);
+    DemoHelper::appendPolygonRepresentationToFileObj(myOutput, myOffset, v0, 0.01 * aScaling);
+    DemoHelper::appendPolygonRepresentationToFileObj(myOutput, myOffset, v1, 0.01 * aScaling);
 
     for (auto iter = myMeshArray.begin(); iter != myMeshArray.end(); iter++)
     {
@@ -227,6 +227,40 @@ void DemoHelper::exportQueryToObj(const std::string& fileName, const std::vector
     myOutput.close();   
 }
 
+void DemoHelper::appendPolygonRepresentationToFileObj(std::ofstream& stream, int& anOffset, const std::vector<float>& vertices, float aScaling)
+{
+    size_t myVertexCount = vertices.size() / 3;
+    if (myVertexCount == 0)
+        return;
+    size_t i = 1;
+    if (myVertexCount == 1)
+    {
+            //export a sphere to represent single points
+        MathVector3f translation(vertices[0], vertices[1], vertices[2]);
+        std::vector<int> sphere_indices;
+        std::vector<MathVector3f> sphere_vertices;
+        HelperSyntheticMeshBuilder::generateSphere(2, sphere_indices,  sphere_vertices);
+        HelperSyntheticMeshBuilder::scale(sphere_vertices, aScaling);
+        HelperSyntheticMeshBuilder::translate(sphere_vertices, translation);
+        
+        HelperGeometrySceneReader::appendMeshToFileObj(stream, anOffset, sphere_vertices, sphere_indices);            
+    }
+    else if (myVertexCount == 2)
+    {
+        std::vector<int> myIndices = {0,1};
+        std::vector<MathVector3f> myVertices = 
+        {
+            MathVector3f(vertices[0], vertices[1], vertices[2]),
+            MathVector3f(vertices[3], vertices[4], vertices[5])
+        };
+
+        HelperGeometrySceneReader::appendSegmentsToFileObj(stream, anOffset, myVertices, myIndices);      
+    }
+    else 
+    {
+        HelperGeometrySceneReader::appendPolygonToFileObj(stream, anOffset, vertices);
+    }
+}
 
 
 void DemoHelper::configureDemoConfiguration(const std::string& name, DemoConfiguration& configuration)
