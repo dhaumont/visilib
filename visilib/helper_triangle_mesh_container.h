@@ -75,7 +75,12 @@ namespace visilib
         {
             return mMeshArray;
         }
-
+        
+        /** @brief Return the list of tirangle meshes of the scene */
+        const std::vector<HelperTriangleMesh*>& getMeshArray() const
+        {
+            return mMeshArray;
+        }
     protected:
      
         std::vector<HelperTriangleMesh*> mMeshArray;  /**< @brief The list of triangle meshes representing the occluders set*/

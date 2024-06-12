@@ -79,6 +79,9 @@ namespace visilib
         /** @brief Generate the vertex table and index table of a unit cube*/
         static void generateCube(std::vector<int>& indices, std::vector<MathVector3f>& vertices);
 
+        /** @brief Generate the vertex table and index table of a unit sphere*/
+        static void generateSphere(int subdivision, std::vector<int>& indices, std::vector<MathVector3f>& vertices);
+
         /** @brief Removes in a random way a given number of faces*/
         static void removeFaces(HelperTriangleMesh* mesh, size_t count);
 
@@ -260,11 +263,9 @@ namespace visilib
         return new HelperTriangleMesh(vertices, indices);
     }
 
-    inline HelperTriangleMesh* HelperSyntheticMeshBuilder::generateSphere(int subdivision)
-    {
-        std::vector<MathVector3f> vertices;
-        std::vector<int> indices;
 
+    inline void HelperSyntheticMeshBuilder::generateSphere(int subdivision, std::vector<int>& indices, std::vector<MathVector3f>& vertices)
+    {
         generateCube(indices, vertices);
 
         for (size_t i = 0; i < subdivision; i++)
@@ -275,7 +276,16 @@ namespace visilib
         for (size_t i = 0; i < vertices.size(); i++)
         {
             vertices[i].normalize();
-        }
+        }        
+    }
+
+
+    inline HelperTriangleMesh* HelperSyntheticMeshBuilder::generateSphere(int subdivision)
+    {
+        std::vector<MathVector3f> vertices;
+        std::vector<int> indices;
+
+        generateSphere(subdivision, indices, vertices);
 
         return new HelperTriangleMesh(vertices, indices);
     }
@@ -339,9 +349,9 @@ namespace visilib
         }
         else
         {   
-            float theta = 0;
+            
             float dt = - 2.f * (float) M_PI / (float)vertexCount;
-
+            float theta = dt / 2.;
             for (size_t i = 0; i < vertexCount; i++)
             {
                 vertices.push_back(MathVector3f(cos(theta), sin(theta), 0));

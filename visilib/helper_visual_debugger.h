@@ -74,6 +74,7 @@ namespace visilib
         /** @brief Return a mesh containing the removed edges for visualization purposes*/
         const GeometryTriangleMeshDescription& getRemovedEdges() const;
 
+
 #ifdef OUTPUT_DEBUG_FILE
         std::ofstream& getDebugOutput() { return mDebugOutput; };
 #endif       

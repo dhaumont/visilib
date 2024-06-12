@@ -136,9 +136,9 @@ HelperTriangleMeshContainer* DemoHelper::createScene(int s, float globalScalingF
     }
     else if (s == 6)
     {
-        HelperTriangleMesh* mesh = HelperSyntheticMeshBuilder::generateCube(4);
+        HelperTriangleMesh* mesh = HelperSyntheticMeshBuilder::generateCube(1);
         HelperSyntheticMeshBuilder::scale(mesh, 0.3f);
-        HelperSyntheticMeshBuilder::removeFaces(mesh, 100);
+     //   HelperSyntheticMeshBuilder::removeFaces(mesh, 100);
 
         myMeshContainer->add(mesh);
         rescale = true;
@@ -209,6 +209,25 @@ GeometryOccluderSet* DemoHelper::createOccluderSet(HelperTriangleMeshContainer* 
 
     return occluderSet;
 }
+
+void DemoHelper::exportQueryToObj(const std::string& fileName, const std::vector<float>& v0, const std::vector<float>& v1, const HelperTriangleMeshContainer & aScene)
+{
+    std::ofstream myOutput(fileName.c_str());
+    auto myMeshArray  = aScene.getMeshArray();
+    int myOffset = 1;
+
+    HelperGeometrySceneReader::appendPolygonToFileObj(myOutput, myOffset, v0);
+    HelperGeometrySceneReader::appendPolygonToFileObj(myOutput, myOffset, v1);
+
+    for (auto iter = myMeshArray.begin(); iter != myMeshArray.end(); iter++)
+    {
+        HelperGeometrySceneReader::appendMeshToFileObj(myOutput, myOffset, (*iter)->getVertices(), (*iter)->getIndices());
+    }
+
+    myOutput.close();   
+}
+
+
 
 void DemoHelper::configureDemoConfiguration(const std::string& name, DemoConfiguration& configuration)
 {
@@ -293,7 +312,7 @@ void DemoConfiguration::readConfig(const std::string& filename)
 
 void DemoConfiguration::displaySummary()
 {
-    std::cout << "VisibilityTest [Scaling: " << globalScaling << ", v0: " << vertexCount0 << ", vv1: " << vertexCount1 << "; phi:" << phi << "; precision: "<< precisionType<<"; tolerance:" << tolerance << "] ";
+    std::cout << "VisibilityTest [SceneIndex : " << sceneIndex << ", scaling: " << globalScaling << ", v0: " << vertexCount0 << ", vv1: " << vertexCount1 << "; phi:" << phi << "; precision: "<< precisionType<<"; tolerance:" << tolerance << "] ";
 }
 
 #if EMBREE

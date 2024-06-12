@@ -28,8 +28,7 @@ using namespace visilib;
 using namespace visilibDemo;
 
 
-bool testConfiguration(const DemoConfiguration& configuration, VisibilityResult expected
-    )
+bool testConfiguration(const DemoConfiguration& configuration, VisibilityResult expected, const std::string& filename)
 {
     std::vector<float> v0, v1;
     
@@ -48,6 +47,9 @@ bool testConfiguration(const DemoConfiguration& configuration, VisibilityResult 
     GeometryOccluderSet* occluderSet = DemoHelper::createOccluderSet(meshContainer);
 
     auto result = visilib::areVisible(occluderSet, &v0[0], v0.size() / 3, &v1[0], v1.size() / 3, config, nullptr);
+
+    DemoHelper::exportQueryToObj(filename, v0, v1, *meshContainer);
+    
     return (result == expected);
 }
 
@@ -61,37 +63,46 @@ bool VisibilityTest(std::string& )
     std::vector<size_t> vertexCount = { 1,2,3,5,7,9,11 };
     std::vector<bool> normalizations = { true,false };
     std::vector<float> phis = { 0.0};
+    std::vector<bool> silhouetteOptimization = {true,false};
     bool result = true;
-  
-    for (auto precision : precisions)
+    
+    int i = 0;
+    for (auto silhouette : silhouetteOptimization)
     {
-        for (auto globalScaling : globalScalings)
+        for (auto precision : precisions)
         {
-            for (auto v0 : vertexCount)
+            for (auto globalScaling : globalScalings)
             {
-                for (auto v1 : vertexCount)
+                for (auto v0 : vertexCount)
                 {
-                    for (auto phi : phis)
+                    for (auto v1 : vertexCount)
                     {
-                        for (auto normalization : normalizations)
+                        for (auto phi : phis)
                         {
-                            DemoConfiguration configuration;
-                            configuration.globalScaling = globalScaling;
-                            configuration.phi = phi;
-                            configuration.vertexCount0 = v0;
-                            configuration.vertexCount1 = v1;
-                            configuration.precisionType = precision;
-                            configuration.normalization = normalization;
-                            configuration.scaling = 0.14;
-                            configuration.displaySummary();
-
-                            if (!testConfiguration(configuration, VISIBLE))
-                            {   std::cout << " FAILED" << std::endl;
-                                result = false;
-                            }
-                            else
+                            for (auto normalization : normalizations)
                             {
-                                std::cout << " SUCCESS" << std::endl;
+                                DemoConfiguration configuration;
+                                configuration.globalScaling = globalScaling;
+                                configuration.phi = phi;
+                                configuration.vertexCount0 = v0;
+                                configuration.vertexCount1 = v1;
+                                configuration.precisionType = precision;
+                                configuration.normalization = normalization;
+                                configuration.scaling = 0.14;
+                                configuration.silhouetteOptimisation = silhouette;
+                                configuration.displaySummary();
+                                std::stringstream s;
+                                s << v0 << "_" << v1 << ".obj";
+                                
+                                if (!testConfiguration(configuration, VISIBLE, s.str()))
+                                {   std::cout << " FAILED" << std::endl;
+                                    result = false;
+                                }
+                                else
+                                {
+                                    std::cout << " SUCCESS" << std::endl;
+                                }
+                                i++;
                             }
                         }
                     }
