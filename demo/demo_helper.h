@@ -21,6 +21,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #pragma once
 
 #include <vector>
+#include "visilib.h"
 #include "helper_triangle_mesh_container.h"
 
 namespace visilibDemo
@@ -31,10 +32,10 @@ namespace visilibDemo
         {
             return enable ? "ON" : "OFF";
         }
-        size_t vertexCount0 = 4;
+        size_t vertexCount0 = 3;
         size_t vertexCount1 = 3;
         bool silhouetteOptimisation = true;
-        VisibilityExactQueryConfiguration::PrecisionType precisionType = VisibilityExactQueryConfiguration::DOUBLE;
+        visilib::VisibilityExactQueryConfiguration::PrecisionType precisionType = visilib::VisibilityExactQueryConfiguration::DOUBLE;
         bool detectApertureOnly = false;
         bool normalization = true;
         float scaling = 0.1f;
@@ -57,10 +58,10 @@ namespace visilibDemo
     public:
         static void generatePolygon(std::vector<float>& v, size_t vertexCount, float size, float phi, float scaling);
         static bool load(visilib::HelperTriangleMeshContainer* scene, const std::string& fileName, bool removeDegeneratedTriangles = false);
-        static HelperTriangleMeshContainer* createScene(int s, float globalScalingFactor);
-        static GeometryOccluderSet* createOccluderSet(HelperTriangleMeshContainer* aContainer);
+        static visilib::HelperTriangleMeshContainer* createScene(int s, float globalScalingFactor);
+        static visilib::GeometryOccluderSet* createOccluderSet(visilib::HelperTriangleMeshContainer* aContainer);
         static void configureDemoConfiguration(const std::string& name, DemoConfiguration& configuration);
-        static void exportQueryToObj(const std::string& filename, const std::vector<float>& v0, const std::vector<float>& v1, const HelperTriangleMeshContainer& aContainer, float aScaling = 1.);
+        static void exportQueryToObj(const std::string& filename, const std::vector<float>& v0, const std::vector<float>& v1, const visilib::HelperTriangleMeshContainer& aContainer, float aScaling = 1.);
         static void appendPolygonRepresentationToFileObj(std::ofstream& stream, int& anOffset, const std::vector<float>& v, float aScaling = 1);
     };
 }

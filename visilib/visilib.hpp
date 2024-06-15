@@ -25,9 +25,10 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include "geometry_convex_polygon.h"
 #include "geometry_occluder_set.h"
 
-using namespace visilib;
+namespace visilib
+{
 
-inline VisibilityResult visilib::areVisible(GeometryOccluderSet* scene, const float* vertices0, size_t numVertices0, const float* vertices1, size_t numVertices1,
+inline VisibilityResult areVisible(GeometryOccluderSet* scene, const float* vertices0, size_t numVertices0, const float* vertices1, size_t numVertices1,
     const VisibilityExactQueryConfiguration& configuration, HelperVisualDebugger* debugger)
 {
     if (vertices0 == 0 || vertices1 == 0)
@@ -89,3 +90,4 @@ inline VisibilityResult visilib::areVisible(GeometryOccluderSet* scene, const fl
     return result;
 }
 
+}

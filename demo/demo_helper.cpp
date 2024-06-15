@@ -44,7 +44,7 @@ void DemoHelper::generatePolygon(std::vector<float>& v, size_t vertexCount, floa
     }
 }
 
-bool DemoHelper::load(HelperTriangleMeshContainer* scene, const std::string& fileName, bool removeDegeneratedTriangles)
+bool DemoHelper::load(visilib::HelperTriangleMeshContainer* scene, const std::string& fileName, bool removeDegeneratedTriangles)
 {
     HelperGeometrySceneReader reader(scene);
 

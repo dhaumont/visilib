@@ -67,6 +67,8 @@ namespace visilib
 
         /** @brief Test is a vector is finite (not containing NaN).*/
         static bool isFinite(MathVector3_<S> a);
+
+        static S getRandom();
     };
 
     template<> inline double MathArithmetic<double>::Tolerance() { return  1e-11; }
@@ -190,5 +192,11 @@ namespace visilib
     {
         const S* p = static_cast<const S*>(&(aPoints[0].x));
         MathArithmetic<S>::getMinMax(p, aPoints.size(), aMin, aMax);
+    }
+
+    template<class S>
+    inline S MathArithmetic<S>::getRandom()
+    {
+        return (S)rand() / (S)(RAND_MAX);
     }
 }
