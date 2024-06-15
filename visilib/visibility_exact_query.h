@@ -622,49 +622,65 @@ namespace visilib
     VisibilityResult VisibilityAggressiveSolver<P, S>::resolve()
     {
         VisibilityResult myGlobalResult = HIDDEN;
-        GeometryConvexPolygon* q1 = VisibilitySolver<P, S>::mQuery->getQueryPolygon(0);
-        GeometryConvexPolygon* q2 = VisibilitySolver<P, S>::mQuery->getQueryPolygon(1);
+        GeometryConvexPolygon* q0 = VisibilitySolver<P, S>::mQuery->getQueryPolygon(0);
+        GeometryConvexPolygon* q1 = VisibilitySolver<P, S>::mQuery->getQueryPolygon(1);
   
-        const std::vector<MathVector3d> v1 = q1->getVertices();
-        const std::vector<MathVector3d> v2 = q2->getVertices();
-  
+        
      //   std::random_device rd;  // Will be used to obtain a seed for the random number engine
        // std::mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
 
         //std::uniform_real_distribution<> distribution(0.0, 1.0);
 
         std::vector<double> triangleFanArea0, triangleFanArea1;
-        double polygonArea0 = MathGeometry::getTriangleFanAreas(*q1, triangleFanArea0);
-        double polygonArea1 = MathGeometry::getTriangleFanAreas(*q2, triangleFanArea1);
+        double polygonArea0 = MathGeometry::getTriangleFanAreas(*q0, triangleFanArea0);
+        double polygonArea1 = MathGeometry::getTriangleFanAreas(*q1, triangleFanArea1);
         
-        const size_t cumulativeProbabilitySize = 32;
+        const size_t cumulativeProbabilitySize = 2048;
         std::vector<int> cumulativeProbability0, cumulativeProbability1;
         MathGeometry::computeCumulativeProbabilityLookupTable(cumulativeProbabilitySize,triangleFanArea0,cumulativeProbability0);
         MathGeometry::computeCumulativeProbabilityLookupTable(cumulativeProbabilitySize,triangleFanArea1,cumulativeProbability1);
-        
+        MathVector3d myBegin;
+        MathVector3d myEnd;
         for (int i = 0; i < 2000; i++)
         {
-            int randomTriangleChoice0 = (int)(MathArithmetic<float>::getRandom() * (float)cumulativeProbabilitySize);
-            int triangle0 = cumulativeProbability0[randomTriangleChoice0];
-            int randomTriangleChoice1 = (int)(MathArithmetic<float>::getRandom() * (float)cumulativeProbabilitySize);
-            int triangle1 = cumulativeProbability1[randomTriangleChoice1];
-            
-            
+            int triangle0  = 0;
+            int triangle1  = 0;
+        
+            if (q0->getVertexCount() > 2)
+            {
+                int randomTriangleChoice0 = (int)(MathArithmetic<float>::getRandom() * (float)cumulativeProbabilitySize);
+                triangle0 = cumulativeProbability0[randomTriangleChoice0];
+            }
+            if (q1->getVertexCount() > 2)
+            {            
+                int randomTriangleChoice1 = (int)(MathArithmetic<float>::getRandom() * (float)cumulativeProbabilitySize);
+                 triangle1 = cumulativeProbability1[randomTriangleChoice1];
+            }
          //   MathVector2d u1(distribution(gen), distribution(gen));
-            MathVector2d u1(MathArithmetic<double>::getRandom(),MathArithmetic<double>::getRandom());
-            MathVector3d b1 = MathGeometry::sampleUniformTriangle(u1);                
-            MathVector3d myBegin(b1.x * v1[0].x +  b1.y * v1[triangle0+1].x + b1.z * v1[triangle0+2].x,
-                                 b1.x * v1[0].y +  b1.y * v1[triangle0+1].y + b1.z * v1[triangle0+2].y,
-                                 b1.x * v1[0].z +  b1.y * v1[triangle0+1].z + b1.z * v1[triangle0+2].z
-                                );
+            {
+                const std::vector<MathVector3d>& v0 = q0->getVertices();
+                MathVector2d u0(MathArithmetic<double>::getRandom(),MathArithmetic<double>::getRandom());
+                MathVector3d b0 = MathGeometry::sampleUniformTriangle(u0);                
+                
+                myBegin =      MathVector3d(b0.x * v0[0          ].x , b0.x * v0[0          ].y, b0.x * v0[0         ].z );
+                if (v0.size() > 0)
+                    myBegin += MathVector3d(b0.y * v0[triangle0+1].x , b0.y * v0[triangle0+1].y, b0.y * v0[triangle0+1].z );
+                if (v0.size() > 1)
+                    myBegin += MathVector3d(b0.z * v0[triangle0+2].x , b0.z * v0[triangle0+2].y, b0.z * v0[triangle0+2].z );
+            }
             
+            {
               //  MathVector2d u2(distribution(gen), distribution(gen));
-                MathVector2d u2(MathArithmetic<double>::getRandom(),MathArithmetic<double>::getRandom());
-                MathVector3d b2 = MathGeometry::sampleUniformTriangle(u2);
-                MathVector3d myEnd( b1.x * v2[0].x +  b1.y * v2[triangle1+1].x + b1.z * v2[triangle1+2].x,
-                                    b1.x * v2[0].y +  b1.y * v2[triangle1+1].y + b1.z * v2[triangle1+2].y,
-                                    b1.x * v2[0].z +  b1.y * v2[triangle1+1].z + b1.z * v2[triangle1+2].z
-                            );
+                const std::vector<MathVector3d>& v1 = q1->getVertices();
+  
+                MathVector2d u1(MathArithmetic<double>::getRandom(),MathArithmetic<double>::getRandom());
+                MathVector3d b1 = MathGeometry::sampleUniformTriangle(u1);
+                myEnd = MathVector3d(b1.x * v1[0].x , b1.x * v1[0].y, b1.x * v1[0].z );
+                if (v1.size() > 0)
+                    myEnd += MathVector3d(b1.y * v1[triangle1+1].x , b1.y * v1[triangle1+1].y, b1.y * v1[triangle1+1].z );
+                if (v1.size() > 1)
+                    myEnd += MathVector3d(b1.z * v1[triangle1+2].x , b1.z * v1[triangle1+2].y, b1.z * v1[triangle1+2].z );
+            }                  
                // bool hasIntersection = VisibilitySolver<P, S>::mQuery->hasSceneIntersection(myBegin,myEnd);
                 bool hasIntersection = false;
                 if (!hasIntersection)

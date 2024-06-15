@@ -1184,6 +1184,10 @@ namespace visilib
 
     inline void MathGeometry::computeCumulativeProbabilityLookupTable(size_t lookupSize, const std::vector<double>& distribution, std::vector<int>& loopkupTable)
     {
+        if (distribution.empty())
+        {
+            return;
+        }
         double distributionSum = 0;
         
         for (auto p : distribution)
@@ -1204,8 +1208,7 @@ namespace visilib
                 cumulatedProbabilityEndOfInterval += distribution[currentIndex];
             }
            loopkupTable[i] = currentIndex;
-           cumulatedProbability += (increment * distributionSum);
-           std::cout << i << ":" << loopkupTable[i] << std::endl; 
+           cumulatedProbability += (increment * distributionSum);         
         }
     }
 }
