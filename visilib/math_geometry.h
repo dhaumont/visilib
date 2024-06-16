@@ -47,7 +47,10 @@ namespace visilib
         /** @brief  Compute if a point is inside a convex polygon */
         static bool isPointInsidePolygon(const GeometryConvexPolygon& aPolygon, const MathVector3d& aPoint, double tolerance);
 
-        static MathVector3d sampleUniformTriangle(const MathVector2d& u);
+        static MathVector3d uniformSampleTriangle(const MathVector2d& u);
+        static MathVector3d cosineSampleHemisphere(const MathVector2d& u);
+
+        static void getTangentBasis(const MathVector3d& aUnitVector, MathVector3d& u, MathVector3d& v );
         /** @brief  Compute if a ray has an intersection with a triangle
         
         The ray triangle intersection is computed using code from "Watertight ray/triangle intersection" in Journal of Graphics Tools
@@ -1120,7 +1123,7 @@ namespace visilib
         return result;
     }
 
-    inline MathVector3d MathGeometry::sampleUniformTriangle(const MathVector2d& u) 
+    inline MathVector3d MathGeometry::uniformSampleTriangle(const MathVector2d& u) 
     {
         double b0, b1;
         if (u.x < u.y) 
@@ -1136,6 +1139,16 @@ namespace visilib
         return MathVector3d(b0, b1, 1 - b0 - b1);
     }
 
+    inline MathVector3d MathGeometry::cosineSampleHemisphere(const MathVector2d& u)
+    {
+        const double r = sqrt(u.x);
+        const double theta = 2 * M_PI * u.y;
+ 
+        const double x = r * cos(theta);
+        const double y = r * sin(theta);
+ 
+        return MathVector3d(x, y, sqrt(std::max(0.0, 1. - u.x)));
+    }
     inline MathVector3d MathGeometry::cartesianToSpherical(const MathVector3d& cartesian, bool computeLength)
     {
         double theta = atan2(cartesian.y, cartesian. x);
@@ -1208,5 +1221,37 @@ namespace visilib
            loopkupTable[i] = currentIndex;
            cumulatedProbability += (increment * distributionSum);         
         }
+    }
+
+    inline void MathGeometry::getTangentBasis(const MathVector3d& aUnitVector, MathVector3d& u, MathVector3d& v )
+    {
+    //    V_ASSERT(MathArithmetic<double>::getAbs(aUnitVector.getSquaredNorm() - 1.0) < MathArithmetic<double>::Tolerance );
+        MathVector3d av(MathArithmetic<double>::getAbs(aUnitVector.x),MathArithmetic<double>::getAbs(aUnitVector.y),MathArithmetic<double>::getAbs(aUnitVector.z) );
+        
+        MathVector3d mainAxis;
+        if (av.x >= av.z && av.x >= av.y)
+        {
+            mainAxis.x = 0; mainAxis.y = 1;mainAxis.z = 0;
+        }
+        else if (av.y >= av.x && av.y >= av.z)
+        {
+            mainAxis.x = 0; mainAxis.y = 0;mainAxis.z = 1;
+        }
+        else
+        {   
+            V_ASSERT(av.z >= av.x && av.z >= av.x);
+            
+            mainAxis.x = 1; mainAxis.y = 0;mainAxis.z = 0;
+        }
+        
+        u = MathVector3d::cross(aUnitVector, mainAxis);
+        u.normalize();
+
+        v = MathVector3d::cross(aUnitVector,u);
+        v.normalize();        
+
+        std::cout << "n:" << aUnitVector <<  "main:" << mainAxis  << "; u: " << u << "; v: " << v << std::endl; 
+        
+
     }
 }

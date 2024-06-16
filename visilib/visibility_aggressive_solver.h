@@ -22,6 +22,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 
 #include "visibility_solver.h"
 #include "visibility_exact_query.h"
+#include "math_matrix_4.h"
 
 namespace visilib
 {
@@ -58,22 +59,23 @@ namespace visilib
              {
                 initialize(aPolygon, aCumulativeProbabilityTableSize);
              }
-             MathVector3d getSample()
+             
+             MathVector3d getSpatialSample()
              {
                 int triangle  = 0;
                 int vertexCount = mPolygon->getVertexCount();
                 if (vertexCount > 2)
                 {
-                    int randomTriangleChoice = (int)(MathArithmetic<float>::getRandom() * mCumulativeProbabilityTableSize);
+                    int randomTriangleChoice = (int)(MathArithmetic<float>::getRandom() * (mCumulativeProbabilityTableSize-1));
                     triangle = mCumulativeProbabilityTable[randomTriangleChoice];
                 }
                 const std::vector<MathVector3d>& v = mPolygon->getVertices();
-                MathVector2d u(MathArithmetic<double>::getRandom(),MathArithmetic<double>::getRandom());
-                MathVector3d b = MathGeometry::sampleUniformTriangle(u);                
+                MathVector2d u(getRandom(),getRandom());
+                MathVector3d b = MathGeometry::uniformSampleTriangle(u);                
                 
                 MathVector3d myResult(b.x * v[0          ].x , b.x * v[0          ].y, b.x * v[0         ].z );
                 if (vertexCount > 0)
-                {
+                {   
                     myResult += MathVector3d(b.y * v[triangle+1].x , b.y * v[triangle+1].y, b.y * v[triangle+1].z );
                     if (vertexCount > 1)
                     {
@@ -82,7 +84,21 @@ namespace visilib
                 }
                 return myResult;
              }
+
+
+            MathVector3d getDirectionSample()
+            {
+                MathVector2d u(getRandom(),getRandom());
+                MathVector3d d = MathGeometry::cosineSampleHemisphere(u);
+                d = mLocalToWorldMatrix.multiply(d);        
+                return d;
+            }
         private:
+
+             double getRandom()
+             {
+                return MathArithmetic<double>::getRandom();
+             }
             void initialize(const GeometryConvexPolygon& aPolygon, size_t aCumulativeProbabilityTableSize)
             {
                 mCumulativeProbabilityTableSize = (float)aCumulativeProbabilityTableSize;
@@ -91,10 +107,23 @@ namespace visilib
                 double polygonArea0 = MathGeometry::getTriangleFanAreas(aPolygon, myTriangleFanArea);
                 MathGeometry::computeCumulativeProbabilityLookupTable(aCumulativeProbabilityTableSize, myTriangleFanArea, mCumulativeProbabilityTable);
                 V_ASSERT(mCumulativeProbabilityTable.size() == aCumulativeProbabilityTableSize);
+
+                MathPlane3d myPlane = aPolygon.getPlane();
+                MathVector3d myNormal = myPlane.getNormal();
+                myNormal.normalize();
+                MathVector3d u,v;
+                MathGeometry::getTangentBasis(myNormal, u, v);
+                mLocalToWorldMatrix.setOrthogonalBasisInverseTranspose(u, v, myNormal);
+                std::cout << mLocalToWorldMatrix;
+
+                
+                MathVector3d myZ(0,0,1);
+                myZ = mLocalToWorldMatrix.multiply(myZ);                
             }
             std::vector<int> mCumulativeProbabilityTable;
             const GeometryConvexPolygon* mPolygon;
             float mCumulativeProbabilityTableSize;
+            MathMatrixd mLocalToWorldMatrix;
     };
 
 
@@ -102,32 +131,49 @@ namespace visilib
     VisibilityResult VisibilityAggressiveSolver<P, S>::resolve()
     {
         VisibilityResult myGlobalResult = HIDDEN;
-        GeometryConvexPolygon* q0 = VisibilitySolver<P, S>::mQuery->getQueryPolygon(0);
-        GeometryConvexPolygon* q1 = VisibilitySolver<P, S>::mQuery->getQueryPolygon(1);
+        const GeometryConvexPolygon& q0 = *VisibilitySolver<P, S>::mQuery->getQueryPolygon(0);
+        const GeometryConvexPolygon& q1 = *VisibilitySolver<P, S>::mQuery->getQueryPolygon(1);
   
-        GeometryConvexPolygonRandomSampler sampler0(*q0, 2048);
-        GeometryConvexPolygonRandomSampler sampler1(*q1, 2048);
+        GeometryConvexPolygonRandomSampler sampler0(q0, 2048);
+        GeometryConvexPolygonRandomSampler sampler1(q1, 2048);
+        const MathPlane3d& myPlane = q1.getPlane();
         
-        for (int i = 0; i < 2000; i++)
+        
+        for (int i = 0; i < 5000;)
         {
-            MathVector3d myBegin = sampler0.getSample();
-            MathVector3d myEnd  = sampler1.getSample();
-            // bool hasIntersection = VisibilitySolver<P, S>::mQuery->hasSceneIntersection(myBegin,myEnd);
-            bool hasIntersection = false;
-            if (!hasIntersection)
-            {                
-
-                if (VisibilitySolver<P, S>::mDebugger != nullptr)
-                {
-                    VisibilitySolver<P, S>::mDebugger->addStabbingLine(convert<MathVector3f>(myBegin), convert<MathVector3f>(myEnd));
-                }
-
-                if (mDetectApertureOnly) 
-                    return VISIBLE;
-                else
-                    myGlobalResult = VISIBLE;   
-            }
+            MathVector3d myBegin  = sampler0.getSpatialSample();    
+            MathVector3d myDirection = sampler0.getDirectionSample();
             
+            MathVector3d myEnd;  
+            bool isSampleValid = false;
+            
+            if (MathGeometry::getPlaneIntersection(myPlane, myBegin, myDirection, myEnd, MathArithmetic<double>::Tolerance()))
+            {
+                if (MathGeometry::isPointInsidePolygon(q1,myEnd, MathArithmetic<double>::Tolerance()))
+                {
+                    isSampleValid = true;
+                }
+            }
+                
+            if (isSampleValid)
+            {
+                i+=1;
+                bool hasIntersection = VisibilitySolver<P, S>::mQuery->hasSceneIntersection(myBegin,myEnd);
+                
+                if (!hasIntersection)
+                {                
+
+                    if (VisibilitySolver<P, S>::mDebugger != nullptr)
+                    {
+                        VisibilitySolver<P, S>::mDebugger->addStabbingLine(convert<MathVector3f>(myBegin), convert<MathVector3f>(myEnd));
+                    }
+
+                    if (mDetectApertureOnly) 
+                        return VISIBLE;
+                    else
+                        myGlobalResult = VISIBLE;   
+                }
+            }
         }
 
         return myGlobalResult;
