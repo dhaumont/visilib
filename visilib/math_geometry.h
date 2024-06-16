@@ -1163,7 +1163,6 @@ namespace visilib
 
     inline double MathGeometry::getTriangleFanAreas(const GeometryConvexPolygon& aPolygon, std::vector<double>& triangleFanAreas)
     {
-        std::cout << "getTriangleFanAreas:" << std::endl;
         double totalArea = 0.0;    
         const MathVector3d& v0 = aPolygon.getVertex(0);
         
@@ -1176,7 +1175,6 @@ namespace visilib
             double triangleArea = myNormal.getNorm();
             totalArea += triangleArea;
             triangleFanAreas.push_back(triangleArea);
-            std::cout << triangleArea << std::endl;
         }
 
         return totalArea;
