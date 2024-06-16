@@ -136,20 +136,23 @@ namespace visilib
   
         GeometryConvexPolygonRandomSampler sampler0(q0, 2048);
         GeometryConvexPolygonRandomSampler sampler1(q1, 2048);
-        const MathPlane3d& myPlane = q1.getPlane();
-        
         
         for (int i = 0; i < 5000;)
         {
-            MathVector3d myBegin  = sampler0.getSpatialSample();    
-            MathVector3d myDirection = sampler0.getDirectionSample();
+            bool sampleTriangle0 = MathArithmetic<float>::getRandom() < 0.5;
+            
+            GeometryConvexPolygonRandomSampler& sampler = sampleTriangle0 ? sampler0 : sampler1;
+            const GeometryConvexPolygon& myOppositePolyhon = sampleTriangle0 ? q1 : q0;
+
+            MathVector3d myBegin  = sampler.getSpatialSample();    
+            MathVector3d myDirection = sampler.getDirectionSample();
             
             MathVector3d myEnd;  
             bool isSampleValid = false;
             
-            if (MathGeometry::getPlaneIntersection(myPlane, myBegin, myDirection, myEnd, MathArithmetic<double>::Tolerance()))
+            if (MathGeometry::getPlaneIntersection(myOppositePolyhon.getPlane(), myBegin, myDirection, myEnd, MathArithmetic<double>::Tolerance()))
             {
-                if (MathGeometry::isPointInsidePolygon(q1,myEnd, MathArithmetic<double>::Tolerance()))
+                if (MathGeometry::isPointInsidePolygon(myOppositePolyhon,myEnd, MathArithmetic<double>::Tolerance()))
                 {
                     isSampleValid = true;
                 }
