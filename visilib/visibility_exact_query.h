@@ -339,7 +339,10 @@ namespace visilib
             VisibilitySolver<P, S>* solver;
 
             //solver = new VisibilityApertureFinder<P, S>(this, mConfiguration.hyperSphereNormalization, mTolerance, mConfiguration.detectApertureOnly);
-            solver = new VisibilityAggressiveSolver<P, S>(this, mTolerance, mConfiguration.detectApertureOnly, mConfiguration.minimumApertureSize);
+            solver = new VisibilityAggressiveSolver<P, S>(this, mTolerance,
+                                                           mConfiguration.detectApertureOnly, 
+                                                           mConfiguration.minimumApertureSize,
+                                                           mConfiguration.confidenceValue);
               
                     
             if (mDebugger != nullptr)

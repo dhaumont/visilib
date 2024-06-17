@@ -45,6 +45,7 @@ namespace visilibDemo
         float globalScaling = 1;
         double tolerance = -1;
         double minimumApertureSize = 0.005;
+        double confidenceValue = 0.999999;
 #if EMBREE
         bool embree = false;
 #endif

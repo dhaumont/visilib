@@ -53,6 +53,7 @@ namespace visilib
             useEmbree = false;
             tolerance = -1.0;
             minimumApertureSize = 0.005;
+            confidenceValue = 0.99;
         }
 
         VisibilityExactQueryConfiguration(const VisibilityExactQueryConfiguration& other)
@@ -64,6 +65,7 @@ namespace visilib
             useEmbree = other.useEmbree;
             tolerance = other.tolerance;
             minimumApertureSize = other.minimumApertureSize;
+            confidenceValue = other.confidenceValue;
         }
 
         bool silhouetteOptimization;                  /**< @brief Use silhouette optimization*/
@@ -73,6 +75,7 @@ namespace visilib
         bool useEmbree;
         double tolerance;
         double minimumApertureSize;
+        double confidenceValue;
     };
 
 
