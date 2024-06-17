@@ -49,7 +49,7 @@ namespace visilib
 
         static MathVector3d uniformSampleTriangle(const MathVector2d& u);
         static MathVector3d cosineSampleHemisphere(const MathVector2d& u);
-
+        static double getZValueForConfidenceLevel(double confidenceLevel, double precision);
         static void getTangentBasis(const MathVector3d& aUnitVector, MathVector3d& u, MathVector3d& v );
         /** @brief  Compute if a ray has an intersection with a triangle
         
@@ -1251,7 +1251,26 @@ namespace visilib
         v.normalize();        
 
         std::cout << "n:" << aUnitVector <<  "main:" << mainAxis  << "; u: " << u << "; v: " << v << std::endl; 
-        
+    }
 
+    inline double MathGeometry::getZValueForConfidenceLevel(double confidenceLevel, double precision)
+    {
+        V_ASSERT(confidenceLevel >=0 && confidenceLevel <=1);
+        V_ASSERT(precision >=0 && precision <=0.1);
+
+        double zValue = -8;
+        double area = 0;
+        double constant = 1.0 / sqrt(M_PI*2);
+        double expectedArea = 1.0 - confidenceLevel;
+        expectedArea *= 0.5;
+        expectedArea = 1.0 - expectedArea;
+        while (area < expectedArea)
+        {
+            double normalValue = constant * exp(-zValue * zValue * 0.5);
+            area += normalValue * precision;            
+            zValue += precision;
+        }
+        
+        return zValue;
     }
 }

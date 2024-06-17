@@ -93,6 +93,34 @@ namespace visilib
                 d = mLocalToWorldMatrix.multiply(d);        
                 return d;
             }
+            const double getPolygonArea() const
+            {
+                return mPolygonArea;
+            }
+
+            static size_t getSampleCount(double minimumHoleArea, double samplingArea, double confidenceValue, double errorMargin)
+            {
+                double p = 1 - minimumHoleArea / samplingArea;
+                std::cout << "p:" << p << "; minimumHoleArea:" << minimumHoleArea << "; samplingArea:" <<  samplingArea << std::endl;
+                //Normal distribution
+                //double t = MathGeometry::getZValueForConfidenceLevel(confidenceValue, 0.0001);
+                size_t count = 1;
+                double cumulatedProbability = 1;
+                while (cumulatedProbability >= (1.0 - confidenceValue))
+                {
+                    //std::cout << cumulatedProbability << " " << count << std::endl;
+                    cumulatedProbability *= p;
+                    count = count + 1;                    
+                }
+                std::cout << cumulatedProbability << " " << count << std::endl;
+                //Cochran formulae
+                //std::cout << "t: " << t << "; t * t * p * (1-p): " << t * t * p * (1-p) << "; errorMargin*errorMargin:" <<  errorMargin*errorMargin << std::endl;
+                //size_t count = size_t(t * t * p * (1-p) / (errorMargin * errorMargin));
+                
+                std::cout << "COUNT: " << count << std::endl;
+                
+                return count;
+            }
         private:
 
              double getRandom()
@@ -104,7 +132,7 @@ namespace visilib
                 mCumulativeProbabilityTableSize = (float)aCumulativeProbabilityTableSize;
                 mPolygon = &aPolygon;
                 std::vector<double> myTriangleFanArea;
-                double polygonArea0 = MathGeometry::getTriangleFanAreas(aPolygon, myTriangleFanArea);
+                mPolygonArea = MathGeometry::getTriangleFanAreas(aPolygon, myTriangleFanArea);
                 MathGeometry::computeCumulativeProbabilityLookupTable(aCumulativeProbabilityTableSize, myTriangleFanArea, mCumulativeProbabilityTable);
                 V_ASSERT(mCumulativeProbabilityTable.size() == aCumulativeProbabilityTableSize);
 
@@ -124,6 +152,7 @@ namespace visilib
             const GeometryConvexPolygon* mPolygon;
             float mCumulativeProbabilityTableSize;
             MathMatrixd mLocalToWorldMatrix;
+            double mPolygonArea;
     };
 
 
@@ -137,12 +166,17 @@ namespace visilib
         GeometryConvexPolygonRandomSampler sampler0(q0, 2048);
         GeometryConvexPolygonRandomSampler sampler1(q1, 2048);
         
-        for (int i = 0; i < 5000;)
+    
+        double totalArea = sampler0.getPolygonArea() + sampler1.getPolygonArea();
+        double polygonAreaRatio = sampler0.getPolygonArea() / (totalArea);
+        size_t sampleCount = GeometryConvexPolygonRandomSampler::getSampleCount(0.0005, totalArea, 0.95, 0.05);
+        
+        for (size_t i = 0; i < sampleCount;)
         {
-            bool sampleTriangle0 = MathArithmetic<float>::getRandom() < 0.5;
+            bool isTriangle0WhichIsSampled = MathArithmetic<float>::getRandom() < polygonAreaRatio;
             
-            GeometryConvexPolygonRandomSampler& sampler = sampleTriangle0 ? sampler0 : sampler1;
-            const GeometryConvexPolygon& myOppositePolyhon = sampleTriangle0 ? q1 : q0;
+            GeometryConvexPolygonRandomSampler& sampler = isTriangle0WhichIsSampled ? sampler0 : sampler1;
+            const GeometryConvexPolygon& myOppositePolyhon = isTriangle0WhichIsSampled ? q1 : q0;
 
             MathVector3d myBegin  = sampler.getSpatialSample();    
             MathVector3d myDirection = sampler.getDirectionSample();
