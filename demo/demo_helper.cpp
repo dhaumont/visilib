@@ -267,6 +267,21 @@ void DemoHelper::configureDemoConfiguration(const std::string& name, DemoConfigu
 {
 }
 
+VisibilityExactQueryConfiguration::PrecisionType DemoConfiguration::getPrecisionType() const
+{
+    if (sampling)
+    {
+        return VisibilityExactQueryConfiguration::AGGRESSIVE;
+    }
+#if EXACT_ARITHMETIC     
+    if (exactArithmetic)
+    {
+        return VisibilityExactQueryConfiguration::EXACT;
+    }
+#endif     
+    return VisibilityExactQueryConfiguration::DOUBLE;
+
+}
 void DemoConfiguration::displaySettings()
 {
     std::cout << std::endl << "Current Demo Settings: " << std::endl;
@@ -281,9 +296,11 @@ void DemoConfiguration::displaySettings()
     std::cout << "  [Early stop: " << getStatusString(detectApertureOnly) << "]";
     std::cout << "[Silhouette: " << getStatusString(silhouetteOptimisation) << "]";
     std::cout << "[Normalization: " << getStatusString(normalization) << "]" << std::endl;
+    std::cout << "[Sampling: " << getStatusString(sampling)<< "]";
+    std::cout << "[ExactArithmetic: " << getStatusString(exactArithmetic)<< "]" << std::endl;
     
 #if EXACT_ARITHMETIC            
-    if (precisionType == VisibilityExactQueryConfiguration::EXACT)
+    if (exactArithmetic)
         std::cout << "  [Exact arithmetic: ON]";
     else
 #endif
@@ -308,7 +325,8 @@ void DemoConfiguration::writeConfig(const std::string& filename)
     output << "eta = " << eta << std::endl;
     output << "sceneIndex = " << sceneIndex << std::endl;
     output << "globalScaling = " << globalScaling << std::endl;
-    output << "precisionType = " << precisionType << std::endl;
+    output << "exactArithmetic = " << exactArithmetic << std::endl;
+    output << "sampling = " << sampling << std::endl;
     output << "tolerance = " << tolerance << std::endl;
     output.close();
 }
@@ -336,7 +354,7 @@ void DemoConfiguration::readConfig(const std::string& filename)
         else if (tokens[0] == "eta") { eta = (float)atof(tokens[2].c_str()); }
         else if (tokens[0] == "sceneIndex") { sceneIndex = atoi(tokens[2].c_str()); }
         else if (tokens[0] == "globalScaling") { globalScaling = (float)atof(tokens[2].c_str()); }
-        else if (tokens[0] == "precisionType") { precisionType = (VisibilityExactQueryConfiguration::PrecisionType)atoi(tokens[2].c_str()); }
+        else if (tokens[0] == "sampling") { sampling = atoi(tokens[2].c_str()); }
         else if (tokens[0] == "tolerance") { tolerance =  (double)atof(tokens[2].c_str()); }
         else { V_ASSERT(0); }
     }
@@ -346,7 +364,10 @@ void DemoConfiguration::readConfig(const std::string& filename)
 
 void DemoConfiguration::displaySummary()
 {
-    std::cout << "VisibilityTest [SceneIndex : " << sceneIndex << ", scaling: " << globalScaling << ", v0: " << vertexCount0 << ", vv1: " << vertexCount1 << "; phi:" << phi << "; precision: "<< precisionType<<"; tolerance:" << tolerance << "] ";
+    std::string method = sampling ? "Sampling visibility" : "Exact visibility";
+    std::cout << method << " [SceneIndex : " << sceneIndex << ", scaling: " << globalScaling << std::endl;
+    std::cout << ", v0: " << vertexCount0 << ", vv1: " << vertexCount1 << "; phi:" << phi;
+    std::cout << "; precision: "<< getPrecisionType() <<"; tolerance:" << tolerance << "] ";
 }
 
 #if EMBREE

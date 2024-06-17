@@ -338,12 +338,17 @@ namespace visilib
             }
             VisibilitySolver<P, S>* solver;
 
-            //solver = new VisibilityApertureFinder<P, S>(this, mConfiguration.hyperSphereNormalization, mTolerance, mConfiguration.detectApertureOnly);
-            solver = new VisibilityAggressiveSolver<P, S>(this, mTolerance,
+            if (mConfiguration.precision == VisibilityExactQueryConfiguration::AGGRESSIVE)
+            {
+                solver = new VisibilityAggressiveSolver<P, S>(this, mTolerance,
                                                            mConfiguration.detectApertureOnly, 
                                                            mConfiguration.minimumApertureSize,
                                                            mConfiguration.confidenceValue);
-              
+            }
+            else
+            {
+                solver = new VisibilityApertureFinder<P, S>(this, mConfiguration.hyperSphereNormalization, mTolerance, mConfiguration.detectApertureOnly);
+            } 
                     
             if (mDebugger != nullptr)
             {

@@ -39,7 +39,7 @@ bool testConfiguration(const DemoConfiguration& configuration, VisibilityResult 
     VisibilityExactQueryConfiguration config;
     config.silhouetteOptimization = true;
     config.hyperSphereNormalization = configuration.normalization;
-    config.precision = configuration.precisionType;
+    config.precision = configuration.getPrecisionType();
     config.detectApertureOnly = false;
 
     int s = 2;
@@ -86,7 +86,8 @@ bool VisibilityTest(std::string& )
                                 configuration.phi = phi;
                                 configuration.vertexCount0 = v0;
                                 configuration.vertexCount1 = v1;
-                                configuration.precisionType = precision;
+                                configuration.sampling = false;
+                                configuration.exactArithmetic = false;
                                 configuration.normalization = normalization;
                                 configuration.scaling = 0.14;
                                 configuration.silhouetteOptimisation = silhouette;

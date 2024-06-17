@@ -97,7 +97,7 @@ namespace visilibDemo
             VisibilityExactQueryConfiguration config;
             config.silhouetteOptimization = mDemoConfiguration.silhouetteOptimisation;
             config.hyperSphereNormalization = mDemoConfiguration.normalization;
-            config.precision = mDemoConfiguration.precisionType;
+            config.precision = mDemoConfiguration.getPrecisionType();
 
             config.detectApertureOnly = mDemoConfiguration.detectApertureOnly;
             config.tolerance = mDemoConfiguration.tolerance;
@@ -166,9 +166,10 @@ namespace visilibDemo
 #endif
             std::cout << "  f: enable/disable detect aperture only" << std::endl;
 
-            std::cout << "  n: enable/disable Plucker normalization" << std::endl;
-            std::cout << "  f: enable/disable fast silhouette rejection test" << std::endl;
+            std::cout << "  a: enable/disable aggressive" << std::endl;
 
+            std::cout << "  n: enable/disable Plucker normalization" << std::endl;
+            
             std::cout << "  x: change scene " << std::endl;
             std::cout << "  +/-: increase/decrease scaling of query polygons" << std::endl;
             std::cout << "  1/2: increase/decrease number of vertices of query polygons" << std::endl;
@@ -253,13 +254,16 @@ namespace visilibDemo
                 break;
 
             case 'h':
-
                 writeHelp();
 
                 displaySettings();
                 break;
             case 's':
                 mDemoConfiguration.silhouetteOptimisation = !mDemoConfiguration.silhouetteOptimisation;
+                forceDisplay = true;
+                break;
+            case 'a':
+                mDemoConfiguration.sampling = !mDemoConfiguration.sampling;
                 forceDisplay = true;
                 break;
             case 'f':
@@ -276,12 +280,9 @@ namespace visilibDemo
                 forceDisplay = true;
                 break;
 
-
-#ifdef EXACT_ARITHMETIC
             case 'e':
-                mDemoConfiguration.precisionType = mDemoConfiguration.precisionType == VisibilityExactQueryConfiguration::DOUBLE ? VisibilityExactQueryConfiguration::EXACT : VisibilityExactQueryConfiguration::DOUBLE;
-                forceDisplay = true;
-#endif
+                mDemoConfiguration.exactArithmetic = !mDemoConfiguration.exactArithmetic;
+                forceDisplay = true;                
                 break;
 #if EMBREE
             case 'g':
