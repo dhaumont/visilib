@@ -44,6 +44,7 @@ namespace visilibDemo
         int   sceneIndex = 2;
         float globalScaling = 1;
         double tolerance = -1;
+        double minimumApertureSize = 0.005;
 #if EMBREE
         bool embree = false;
 #endif

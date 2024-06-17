@@ -37,7 +37,8 @@ namespace visilib
         enum PrecisionType
         {
             FLOAT,       /**< @brief Single floating point aritmetic*/
-            DOUBLE       /**< @brief Double floating point aritmetic*/
+            DOUBLE       /**< @brief Double floating point aritmetic*/,
+            AGGRESSIVE,
 #ifdef EXACT_ARITHMETIC  
             , EXACT      /**< @brief Exact arithmetic (based on CGAL and LEDA)*/
 #endif
@@ -51,6 +52,7 @@ namespace visilib
             detectApertureOnly = true;
             useEmbree = false;
             tolerance = -1.0;
+            minimumApertureSize = 0.005;
         }
 
         VisibilityExactQueryConfiguration(const VisibilityExactQueryConfiguration& other)
@@ -61,6 +63,7 @@ namespace visilib
             detectApertureOnly = other.detectApertureOnly;
             useEmbree = other.useEmbree;
             tolerance = other.tolerance;
+            minimumApertureSize = other.minimumApertureSize;
         }
 
         bool silhouetteOptimization;                  /**< @brief Use silhouette optimization*/
@@ -69,6 +72,7 @@ namespace visilib
         bool detectApertureOnly;                      /**< @brief Stop the query as soon as a visible line has been found*/  
         bool useEmbree;
         double tolerance;
+        double minimumApertureSize;
     };
 
 

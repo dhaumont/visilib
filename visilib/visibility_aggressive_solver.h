@@ -34,7 +34,8 @@ namespace visilib
     public:
         VisibilityAggressiveSolver(VisibilityExactQuery_<P, S>* aSolver,
             S tolerance,
-            bool detectApertureOnly);
+            bool detectApertureOnly,
+            double minimumApertureSize);
 
         VisibilityResult resolve();
     private:
@@ -42,13 +43,16 @@ namespace visilib
 
         bool mDetectApertureOnly;
         S mTolerance;
+        double mMinimumApertureSize;        
+        
     };
 
     template<class P, class S>
-    VisibilityAggressiveSolver<P, S>::VisibilityAggressiveSolver(VisibilityExactQuery_<P, S>* mQuery, S tolerance, bool detectApertureOnly)
+    VisibilityAggressiveSolver<P, S>::VisibilityAggressiveSolver(VisibilityExactQuery_<P, S>* mQuery, S tolerance, bool detectApertureOnly, double minimumApertureSize)
         : VisibilitySolver<P, S>(mQuery),
         mTolerance(tolerance),
-        mDetectApertureOnly(detectApertureOnly)
+        mDetectApertureOnly(detectApertureOnly),
+        mMinimumApertureSize(minimumApertureSize)
     {
     }
 
@@ -98,10 +102,9 @@ namespace visilib
                 return mPolygonArea;
             }
 
-            static size_t getSampleCount(double minimumHoleArea, double samplingArea, double confidenceValue, double errorMargin)
+            static size_t getSampleCount(double aMinimumApertureSize, double samplingArea, double confidenceValue, double errorMargin)
             {
-                double p = 1 - minimumHoleArea / samplingArea;
-                std::cout << "p:" << p << "; minimumHoleArea:" << minimumHoleArea << "; samplingArea:" <<  samplingArea << std::endl;
+                double p = 1 - aMinimumApertureSize / samplingArea;
                 //Normal distribution
                 //double t = MathGeometry::getZValueForConfidenceLevel(confidenceValue, 0.0001);
                 size_t count = 1;
@@ -117,7 +120,7 @@ namespace visilib
                 //std::cout << "t: " << t << "; t * t * p * (1-p): " << t * t * p * (1-p) << "; errorMargin*errorMargin:" <<  errorMargin*errorMargin << std::endl;
                 //size_t count = size_t(t * t * p * (1-p) / (errorMargin * errorMargin));
                 
-                std::cout << "COUNT: " << count << std::endl;
+                //std::cout << "COUNT: " << count << std::endl;
                 
                 return count;
             }
@@ -169,7 +172,7 @@ namespace visilib
     
         double totalArea = sampler0.getPolygonArea() + sampler1.getPolygonArea();
         double polygonAreaRatio = sampler0.getPolygonArea() / (totalArea);
-        size_t sampleCount = GeometryConvexPolygonRandomSampler::getSampleCount(0.0005, totalArea, 0.95, 0.05);
+        size_t sampleCount = GeometryConvexPolygonRandomSampler::getSampleCount(mMinimumApertureSize, totalArea, 0.95, 0.05);
         
         for (size_t i = 0; i < sampleCount;)
         {

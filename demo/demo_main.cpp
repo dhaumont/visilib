@@ -101,6 +101,7 @@ namespace visilibDemo
 
             config.detectApertureOnly = mDemoConfiguration.detectApertureOnly;
             config.tolerance = mDemoConfiguration.tolerance;
+            config.minimumApertureSize = mDemoConfiguration.minimumApertureSize * mDemoConfiguration.globalScaling* mDemoConfiguration.globalScaling;
 #if EMBREE 
             config.useEmbree = mDemoConfiguration.embree;
 #endif
