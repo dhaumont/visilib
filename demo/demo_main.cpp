@@ -76,7 +76,7 @@ namespace visilibDemo
 #endif
             return initScene(mDemoConfiguration.sceneIndex);
         }
-        bool initScene(int s)
+        bool initScene(DemoConfiguration::SCENE_TYPE s)
         {
             srand(0);
 
@@ -102,7 +102,7 @@ namespace visilibDemo
             config.detectApertureOnly = mDemoConfiguration.detectApertureOnly;
             config.tolerance = mDemoConfiguration.tolerance;
             config.confidenceValue = mDemoConfiguration.confidenceValue;
-            config.minimumApertureSize = mDemoConfiguration.minimumApertureSize * mDemoConfiguration.globalScaling* mDemoConfiguration.globalScaling;
+            config.minimumApertureSize = mDemoConfiguration.minimumApertureSize * mDemoConfiguration.globalScaling;
 #if EMBREE 
             config.useEmbree = mDemoConfiguration.embree;
 #endif
@@ -144,7 +144,7 @@ namespace visilibDemo
 
         void display()
         {
-            DemoDebugVisualisationGl::display(debugger, *meshContainer, v0, v1, result, drawGeometryType);
+            DemoDebugVisualisationGl::display(debugger, *meshContainer, v0, v1, result, drawGeometryType,mDemoConfiguration.minimumApertureSize * mDemoConfiguration.globalScaling);
         }
 
         void displaySettings()
@@ -199,13 +199,13 @@ namespace visilibDemo
                 exit(0);   // Simply exit
                 break;
 
-            case '2':
+            case '>':
                 if (mDemoConfiguration.vertexCount1 < 12)
                     mDemoConfiguration.vertexCount1++;
 
                 forceDisplay = true;
                 break;
-            case '1':
+            case '<':
                 if (mDemoConfiguration.vertexCount1 > 1)
                     mDemoConfiguration.vertexCount1--;
 
@@ -272,13 +272,16 @@ namespace visilibDemo
 
                 break;
 
-            case 'x':
-                mDemoConfiguration.sceneIndex++;
-                if (mDemoConfiguration.sceneIndex > 9)
-                    mDemoConfiguration.sceneIndex = 0;
-                initScene(mDemoConfiguration.sceneIndex);
-                forceDisplay = true;
-                break;
+            case '0': mDemoConfiguration.sceneIndex = DemoConfiguration::SLOT_OFF_AXIS_01; forceDisplay = true; initScene(mDemoConfiguration.sceneIndex); break;
+            case '1': mDemoConfiguration.sceneIndex = DemoConfiguration::SLOT_OFF_AXIS_02; forceDisplay = true;  initScene(mDemoConfiguration.sceneIndex);break;
+            case '2': mDemoConfiguration.sceneIndex = DemoConfiguration::SLOT_OFF_AXIS_03; forceDisplay = true;  initScene(mDemoConfiguration.sceneIndex);break;
+            case '3': mDemoConfiguration.sceneIndex = DemoConfiguration::SLOT_OFF_AXIS_04; forceDisplay = true; initScene(mDemoConfiguration.sceneIndex); break;
+            case '4': mDemoConfiguration.sceneIndex = DemoConfiguration::SLOT_OFF_AXIS_05; forceDisplay = true; initScene(mDemoConfiguration.sceneIndex); break;
+            case '5': mDemoConfiguration.sceneIndex = DemoConfiguration::SLOT_ON_AXIS_01; forceDisplay = true;  initScene(mDemoConfiguration.sceneIndex);break;
+            case '6': mDemoConfiguration.sceneIndex = DemoConfiguration::SPHERE_WITH_HOLES; forceDisplay = true; initScene(mDemoConfiguration.sceneIndex); break;
+            case '7': mDemoConfiguration.sceneIndex = DemoConfiguration::NOISY_SPHERE; forceDisplay = true; initScene(mDemoConfiguration.sceneIndex); break;
+            case '8': mDemoConfiguration.sceneIndex = DemoConfiguration::SIMPLE_CUBE; forceDisplay = true; initScene(mDemoConfiguration.sceneIndex); break;
+            case '9': mDemoConfiguration.sceneIndex = DemoConfiguration::NOISY_CUBE; forceDisplay = true; initScene(mDemoConfiguration.sceneIndex); break;
 
             case 'e':
                 mDemoConfiguration.exactArithmetic = !mDemoConfiguration.exactArithmetic;

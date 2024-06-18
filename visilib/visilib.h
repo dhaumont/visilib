@@ -52,7 +52,7 @@ namespace visilib
             detectApertureOnly = true;
             useEmbree = false;
             tolerance = -1.0;
-            minimumApertureSize = 0.005;
+            minimumApertureSize = 0.00175;
             confidenceValue = 0.99;
         }
 

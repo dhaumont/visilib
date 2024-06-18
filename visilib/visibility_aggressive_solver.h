@@ -112,13 +112,15 @@ namespace visilib
 
             static size_t getSampleCount(double aMinimumApertureSize, double samplingArea, double confidenceValue)
             {
-                double p = 1 - aMinimumApertureSize / samplingArea;
+                double p = 1 - (aMinimumApertureSize * aMinimumApertureSize)/ samplingArea;
+                
                 size_t count = 1;
                 double cumulatedProbability = 1;
                 double stop = (1.0 - confidenceValue);
-                std::cout << stop << std::endl;
+                
                 while (cumulatedProbability >= stop)
                 {
+                     //std::cout << count << " " << p << " " << cumulatedProbability << std::endl;
                     cumulatedProbability *= p;
                     count = count + 1;                    
                 }
@@ -174,7 +176,7 @@ namespace visilib
         double totalArea = sampler0.getPolygonArea() + sampler1.getPolygonArea();
         double polygonAreaRatio = sampler0.getPolygonArea() / (totalArea);
         size_t sampleCount = GeometryConvexPolygonRandomSampler::getSampleCount(mMinimumApertureSize, totalArea, mConfidenceValue);
-        
+        std::cout << "SAMPLES COUNT:" << sampleCount << std::endl;
         for (size_t i = 0; i < sampleCount;)
         {
             bool isTriangle0WhichIsSampled = MathArithmetic<float>::getRandom() < polygonAreaRatio;

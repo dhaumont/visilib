@@ -42,7 +42,7 @@ bool testConfiguration(const DemoConfiguration& configuration, VisibilityResult 
     config.precision = configuration.getPrecisionType();
     config.detectApertureOnly = false;
 
-    int s = 2;
+    DemoConfiguration::SCENE_TYPE s = DemoConfiguration::SLOT_OFF_AXIS_01;
     auto meshContainer = DemoHelper::createScene(s, configuration.globalScaling);
     GeometryOccluderSet* occluderSet = DemoHelper::createOccluderSet(meshContainer);
 

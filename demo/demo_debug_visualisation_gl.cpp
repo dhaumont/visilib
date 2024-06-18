@@ -134,6 +134,55 @@ size_t DemoDebugVisualisationGl::drawScene(const HelperTriangleMeshContainer & a
     return count;
 }
 
+size_t DemoDebugVisualisationGl::drawAperture(const float size, const visilib::MathVector3f& position)
+{
+    const double s2 = size / 2;
+#ifdef USE_GLUT
+    glBegin(GL_LINES);
+        
+        glVertex3f(position.x - s2, position.y - s2, position.z);
+        glVertex3f(position.x - s2, position.y + s2, position.z);
+        
+        glVertex3f(position.x - s2, position.y + s2, position.z);
+        glVertex3f(position.x + s2, position.y + s2, position.z);
+        
+        glVertex3f(position.x + s2, position.y + s2, position.z);
+        glVertex3f(position.x + s2, position.y - s2, position.z);
+        
+        glVertex3f(position.x + s2, position.y - s2, position.z);
+        glVertex3f(position.x - s2, position.y - s2, position.z);
+        
+        // -- 
+        glVertex3f(position.x - s2, position.y, position.z - s2);
+        glVertex3f(position.x - s2, position.y, position.z + s2);
+
+        glVertex3f(position.x - s2, position.y, position.z + s2);
+        glVertex3f(position.x + s2, position.y, position.z + s2);
+
+        glVertex3f(position.x + s2, position.y, position.z + s2);
+        glVertex3f(position.x + s2, position.y, position.z - s2);
+
+        glVertex3f(position.x + s2, position.y, position.z - s2);
+        glVertex3f(position.x - s2, position.y, position.z - s2);
+
+        // -- 
+
+        glVertex3f(position.x, position.y - s2, position.z - s2);
+        glVertex3f(position.x, position.y - s2, position.z + s2);
+
+        glVertex3f(position.x, position.y - s2, position.z + s2);
+        glVertex3f(position.x, position.y + s2, position.z + s2);
+
+        glVertex3f(position.x, position.y + s2, position.z + s2);
+        glVertex3f(position.x, position.y + s2, position.z - s2);
+
+        glVertex3f(position.x, position.y + s2, position.z - s2);
+        glVertex3f(position.x, position.y - s2, position.z - s2);
+    glEnd();
+#endif
+        return 12;
+}
+
 size_t DemoDebugVisualisationGl::drawMesh(const GeometryTriangleMeshDescription & aMesh)
 {
 #ifdef USE_GLUT
@@ -156,7 +205,7 @@ size_t DemoDebugVisualisationGl::drawMesh(const GeometryTriangleMeshDescription 
     return aMesh.faceCount;
 }
 
-size_t DemoDebugVisualisationGl::display(HelperVisualDebugger * debugger, const visilib::HelperTriangleMeshContainer & scene, const std::vector<float> & v0, const std::vector<float> & v1, VisibilityResult result, int drawGeometryType)
+size_t DemoDebugVisualisationGl::display(HelperVisualDebugger * debugger, const visilib::HelperTriangleMeshContainer & scene, const std::vector<float> & v0, const std::vector<float> & v1, VisibilityResult result, int drawGeometryType, float aApertureSize)
 {
 #ifdef USE_GLUT
 
@@ -256,6 +305,27 @@ size_t DemoDebugVisualisationGl::display(HelperVisualDebugger * debugger, const 
     if (drawGeometryType == 1)
     {
         DemoDebugVisualisationGl::drawLines(debugger->getSamplingLines());
+    }
+
+    glColor3f(255.0f, 0.0f, 0.0f);
+    {
+        visilib::MathVector3f center;
+        for (size_t i = 0; i < v0.size(); i += 3)
+        {
+            center += MathVector3f(v0[i], v0[i + 1], v0[i + 2]);
+        }
+        center /= float(v0.size()/3);
+        drawAperture(aApertureSize, center);
+    }
+    {
+        visilib::MathVector3f center;
+        for (size_t i = 0; i < v1.size(); i += 3)
+        {
+            
+            center += MathVector3f(v1[i], v1[i + 1], v1[i + 2]);
+        }
+        center /= float(v1.size()/3);
+        drawAperture(aApertureSize, center);
     }
 #endif
     return 0;

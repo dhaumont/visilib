@@ -28,6 +28,24 @@ namespace visilibDemo
 {
     struct DemoConfiguration
     {
+        enum SCENE_TYPE
+        {
+            SLOT_OFF_AXIS_01,
+            SLOT_OFF_AXIS_02,
+            SLOT_OFF_AXIS_03,
+            SLOT_OFF_AXIS_04,
+            SLOT_OFF_AXIS_05,
+            SLOT_ON_AXIS_01,
+            SPHERE_WITH_HOLES,
+            REGULAR_GRID,
+            NOISY_SPHERE,
+            SIMPLE_CUBE,
+            NOISY_CUBE,
+            CUBES_AND_GRID,
+            CUBES_AND_GRID_100,
+            COUNT
+        };
+
         std::string getStatusString(bool enable)
         {
             return enable ? "ON" : "OFF";
@@ -40,13 +58,13 @@ namespace visilibDemo
         float scaling = 0.1f;
         float phi = 0;
         float eta = 0;
-        int   sceneIndex = 2;
+        DemoConfiguration::SCENE_TYPE sceneIndex = DemoConfiguration::SPHERE_WITH_HOLES;
         float globalScaling = 1;
         double tolerance = -1;
-        double minimumApertureSize = 0.0005;
+        double minimumApertureSize = 0.00175;
         double confidenceValue = 0.999999;
         bool sampling = false;
-        bool exactArithmetic = false;
+        bool exactArithmetic = false;       
 #if EMBREE
         bool embree = false;
 #endif
@@ -62,7 +80,8 @@ namespace visilibDemo
     public:
         static void generatePolygon(std::vector<float>& v, size_t vertexCount, float size, float phi, float scaling);
         static bool load(visilib::HelperTriangleMeshContainer* scene, const std::string& fileName, bool removeDegeneratedTriangles = false);
-        static visilib::HelperTriangleMeshContainer* createScene(int s, float globalScalingFactor);
+        static double getApertureSize(DemoConfiguration::SCENE_TYPE s);
+        static visilib::HelperTriangleMeshContainer* createScene(DemoConfiguration::SCENE_TYPE s, float globalScalingFactor);
         static visilib::GeometryOccluderSet* createOccluderSet(visilib::HelperTriangleMeshContainer* aContainer);
         static void configureDemoConfiguration(const std::string& name, DemoConfiguration& configuration);
         static void exportQueryToObj(const std::string& filename, const std::vector<float>& v0, const std::vector<float>& v1, const visilib::HelperTriangleMeshContainer& aContainer, float aScaling = 1.);

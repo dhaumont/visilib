@@ -21,6 +21,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #pragma once
 
 #include "visilib.h"
+#include "math_vector_3.h"
 #include "helper_triangle_mesh_container.h"
 
 namespace visilibDemo
@@ -28,6 +29,7 @@ namespace visilibDemo
     class DemoDebugVisualisationGl
     {
     public:
+        static size_t drawAperture(const float size, const visilib::MathVector3f& position );
         static size_t draw(const visilib::GeometryAABB& aabb);
         static size_t drawPolygonEdges(const std::vector<float>& vertices);
         static size_t drawPolygonPoints(const std::vector<float>& vertices);
@@ -37,6 +39,6 @@ namespace visilibDemo
         static size_t drawLines(const visilib::GeometryTriangleMeshDescription& info);
         static size_t drawTriangles(const visilib::GeometryTriangleMeshDescription& info);
 
-        static size_t display(visilib::HelperVisualDebugger* debugger, const visilib::HelperTriangleMeshContainer& aScene, const std::vector<float>& v0, const std::vector<float>& v1, visilib::VisibilityResult result, int drawGeometryType);
+        static size_t display(visilib::HelperVisualDebugger* debugger, const visilib::HelperTriangleMeshContainer& aScene, const std::vector<float>& v0, const std::vector<float>& v1, visilib::VisibilityResult result, int drawGeometryType, float aApertureSize);
     };
 }
