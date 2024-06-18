@@ -62,7 +62,7 @@ namespace visilibDemo
         float globalScaling = 1;
         double tolerance = -1;
         double minimumApertureSize = 0.00175;
-        double confidenceValue = 0.999999;
+        double confidenceValue = 0.99;
         bool sampling = false;
         bool exactArithmetic = false;       
 #if EMBREE

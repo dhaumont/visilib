@@ -242,17 +242,17 @@ namespace visilibDemo
 
                 break;
 
-            case '[':                
-                mDemoConfiguration.tolerance = mDemoConfiguration.tolerance == -1 ? 1e-8 : mDemoConfiguration.tolerance/2;
-                forceDisplay = true;                                
+            case ']':                
+               if (mDemoConfiguration.minimumApertureSize < 0.3f)
+                    mDemoConfiguration.minimumApertureSize += 0.001f;
+                     forceDisplay = true;                                
 
                 break;
 
-            case ']':
-                mDemoConfiguration.tolerance = mDemoConfiguration.tolerance == -1 ? 1e-8 : mDemoConfiguration.tolerance*2;
-                forceDisplay = true;                
-                break;
-
+            case '[':
+                if (mDemoConfiguration.minimumApertureSize > 0.001f)
+                    mDemoConfiguration.minimumApertureSize -= 0.001f;
+                forceDisplay = true;
             case 'h':
                 writeHelp();
 
