@@ -27,6 +27,7 @@ namespace visilib
     {
         ON_BOUNDARY = 1,        /**< @brief The points lies on the geometric entity*/
         ON_NEGATIVE_SIDE = 0,   /**< @brief The points lies on the negative side of geometric entity*/
-        ON_POSITIVE_SIDE = 2    /**< @brief The points lies on the postive side of the geometric entity*/
+        ON_POSITIVE_SIDE = 2,    /**< @brief The points lies on the postive side of the geometric entity*/
+        ON_UNKNOWN_POSITION = -1
     };
 }
