@@ -37,11 +37,16 @@ namespace visilib
         enum PrecisionType
         {
             FLOAT,       /**< @brief Single floating point aritmetic*/
-            DOUBLE       /**< @brief Double floating point aritmetic*/,
-            AGGRESSIVE,
+            DOUBLE       /**< @brief Double floating point aritmetic*/,            
 #ifdef EXACT_ARITHMETIC  
             , EXACT      /**< @brief Exact arithmetic (based on CGAL and LEDA)*/
 #endif
+        };
+
+        enum SolverType
+        {
+            EXACT,
+            MONTECARLO
         };
 
         VisibilityExactQueryConfiguration()
@@ -54,6 +59,7 @@ namespace visilib
             tolerance = -1.0;
             minimumApertureSize = 0.00175;
             confidenceValue = 0.99;
+            solverType = EXACT;
         }
 
         VisibilityExactQueryConfiguration(const VisibilityExactQueryConfiguration& other)
@@ -66,6 +72,7 @@ namespace visilib
             tolerance = other.tolerance;
             minimumApertureSize = other.minimumApertureSize;
             confidenceValue = other.confidenceValue;
+            solverType - other.solverType;
         }
 
         bool silhouetteOptimization;                  /**< @brief Use silhouette optimization*/
@@ -76,6 +83,7 @@ namespace visilib
         double tolerance;
         double minimumApertureSize;
         double confidenceValue;
+        SolverType solverType; 
     };
 
 
@@ -105,6 +113,11 @@ namespace visilib
                                 const VisibilityExactQueryConfiguration& configuration = VisibilityExactQueryConfiguration(), 
                                 HelperVisualDebugger* debugger = nullptr);
 
+
+    VisibilityResult extractVisibilityTree(GeometryOccluderSet* scene,
+                                            const float* vertices0, size_t numVertices0, const float* vertices1, size_t numVertices1,
+                                            const VisibilityExactQueryConfiguration& configuration = VisibilityExactQueryConfiguration(), 
+                                            HelperVisualDebugger* debugger = nullptr);
 };
 
 #include "visilib.hpp"

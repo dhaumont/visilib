@@ -90,4 +90,66 @@ inline VisibilityResult areVisible(GeometryOccluderSet* scene, const float* vert
     return result;
 }
 
+
+inline VisibilityResult extractVisibilityTree(GeometryOccluderSet* scene, const float* vertices0, size_t numVertices0, const float* vertices1, size_t numVertices1,
+    const VisibilityExactQueryConfiguration& configuration, HelperVisualDebugger* debugger)
+{
+    if (vertices0 == 0 || vertices1 == 0)
+    {
+        std::cerr << "Error: invalid number of vertices" << std::endl;
+        return FAILURE;
+    }
+
+    if (scene == nullptr || dynamic_cast<GeometryOccluderSet*>(scene) == nullptr)
+    {
+        std::cerr << "Error: invalid scene" << std::endl;
+        return FAILURE;
+    }
+    if (vertices0 == nullptr || vertices1 == nullptr)
+    {
+        std::cerr << "Error: invalid vertex array" << std::endl;
+        return FAILURE;
+    }
+
+    VisibilityExactQuery* query = nullptr;
+
+    switch (configuration.precision)
+    {
+#ifdef EXACT_ARITHMETIC
+    case VisibilityExactQueryConfiguration::EXACT:
+        exact tolerance = configuration.tolerance == -1 ?  MathArithmetic<exact>::Tolerance() : configuration.tolerance;
+        query = new VisibilityExactQuery_<MathPlucker6<exact>, exact>(scene, configuration, MathArithmetic<exact>::Tolerance());
+        break;
+#endif
+    case VisibilityExactQueryConfiguration::DOUBLE:
+        query = new VisibilityExactQuery_<MathPlucker6<double>, double>(scene, configuration,configuration.tolerance == -1 ? MathArithmetic<double>::Tolerance() : configuration.tolerance);
+        break;
+
+    default:
+        float tolerance = configuration.tolerance == -1 ? MathArithmetic<float>::Tolerance() : configuration.tolerance;
+        query = new VisibilityExactQuery_<MathPlucker6<float>, float>(scene, configuration,configuration.tolerance == -1 ? MathArithmetic<float>::Tolerance() : configuration.tolerance);
+        break;
+    }
+
+    query->attachVisualisationDebugger(debugger);
+
+    VisibilityResult result = query->arePolygonsVisible(vertices0, numVertices0, vertices1, numVertices1);
+
+    if (debugger)
+    {
+        query->displayStatistic();
+        std::cout << "RESULT ";
+        switch(result)
+        {
+            case UNKNOWN: std::cout << "UNKNOWN " << std::endl; break;
+            case FAILURE: std::cout << "FAILURE " << std::endl; break;
+            case VISIBLE: std::cout << "VISIBLE " << std::endl; break;
+            case HIDDEN: std::cout <<  "OCCLUDED" << std::endl; break;
+        }
+
+    }
+    delete query;
+
+    return result;
+}
 }

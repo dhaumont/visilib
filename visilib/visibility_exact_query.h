@@ -67,7 +67,7 @@ namespace visilib
         virtual ~VisibilityExactQuery() {};
 
         virtual void attachVisualisationDebugger(HelperVisualDebugger* aDebugger) = 0;
-        virtual VisibilityResult arePolygonsVisible(const float* vertices0, size_t numVertices0, const float* vertices1, size_t numVertices1) = 0;
+        virtual VisibilityResult computeVisibility(const float* vertices0, size_t numVertices0, const float* vertices1, size_t numVertices1, bool occlusionOnly) = 0;
         virtual void displayStatistic() = 0;
     };
 
@@ -81,7 +81,7 @@ namespace visilib
     {
     public:
 
-        VisibilityExactQuery_(GeometryOccluderSet* aScene, const VisibilityExactQueryConfiguration& aConfiguration, S tolerance);
+        VisibilityExactQuery_(GeometryOccluderSet* aScene, const VisibilityExactQueryConfiguration& aConfiguration, S tolerance, bool occlusionOnly);
 
         virtual ~VisibilityExactQuery_();
 
@@ -119,7 +119,7 @@ namespace visilib
         void attachVisualisationDebugger(HelperVisualDebugger* aDebugger);
 
         /**@brief Compute a visibility query to determine if the two polygons given as input are mutually visible or not */
-        VisibilityResult arePolygonsVisible(const float* vertices0, size_t numVertices0, const float* vertices1, size_t numVertices1);
+        VisibilityResult arePolygonsVisible(const float* vertices0, size_t numVertices0, const float* vertices1, size_t numVertices1, bool occlusionOnly);
         /*
         const std::unordered_set<PluckerPolytope<P>*>& getPolytopes(VisibilitySilhouette* silhouette)
         {
@@ -289,7 +289,7 @@ namespace visilib
     }
 
     template<class P, class S>
-    VisibilityResult VisibilityExactQuery_<P, S>::arePolygonsVisible(const float* vertices0, size_t numVertices0, const float* vertices1, size_t numVertices1)
+    VisibilityResult VisibilityExactQuery_<P, S>::arePolygonsVisible(const float* vertices0, size_t numVertices0, const float* vertices1, size_t numVertices1, bool occlusionOnly)
     {
         VisibilityResult result;
 
@@ -338,16 +338,16 @@ namespace visilib
             }
             VisibilitySolver<P, S>* solver;
 
-            if (mConfiguration.precision == VisibilityExactQueryConfiguration::AGGRESSIVE)
+            if (mConfiguration.solverType == VisibilityExactQueryConfiguration::MONTECARLO)
             {
                 solver = new VisibilityAggressiveSolver<P, S>(this, mTolerance,
-                                                           mConfiguration.detectApertureOnly, 
-                                                           mConfiguration.minimumApertureSize,
-                                                           mConfiguration.confidenceValue);
+                                                            occlusionOnly, 
+                                                            mConfiguration.minimumApertureSize,
+                                                            mConfiguration.confidenceValue);
             }
             else
             {
-                solver = new VisibilityApertureFinder<P, S>(this, mConfiguration.hyperSphereNormalization, mTolerance, mConfiguration.detectApertureOnly);
+                solver = new VisibilityApertureFinder<P, S>(this, mConfiguration.hyperSphereNormalization, mTolerance, occlusionOnly);
             } 
                     
             if (mDebugger != nullptr)
