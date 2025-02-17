@@ -23,11 +23,13 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include <unordered_map>
 #include <list>
 #include <stack>
+#include <map>
 #include "geometry_position_type.h"
 #include "math_predicates.h"
 #include "math_geometry.h"
 #include "math_combinatorial.h"
 #include "plucker_polytope.h"
+#include "plucker_polytope_complex.h"
 #include "plucker_polyhedron.h"
 
 namespace visilib
@@ -89,7 +91,7 @@ namespace visilib
                     myVertices.insert(a);
 
                     S result = aPlane.dot(aPolyhedron->get(a));
-                    GeometryPositionType position = MathPredicates::getVertexPlaneRelativePosition(aPlane, aPolyhedron->get(a), tolerance);
+                    GeometryPositionType position = MathPredicates::getRelativePosition(S, tolerance);
 
                     myArrayOfPlanePosition.insert(std::pair<size_t, S>(a, result));
 
@@ -297,194 +299,116 @@ namespace visilib
         return ON_BOUNDARY;
     }
 
-
-class PluckerElement
+template<class S>
+class SplitAlgorithmStatus
 {
 public:
-    PluckerElement()
+    GeometryPositionType getPosition(PluckerElement* aElement) const
     {
-        reset();
-        mVertexIndex = -1;
-    }
-    ~PluckerElement()
-    {
-    }
-
-    void setVertexIndex(int aVertexIndex)
-    {
-        mVertexIndex = aVertexIndex;
-    }
-    int getVertexIndex() const
-    {
-        return mVertexIndex;
-    }
-    void setPosition(GeometryPositionType aPosition)
-    {
-        mPosition = aPosition;
-    }
-    GeometryPositionType getPosition() const
-    {
-        return mPosition;
+        auto myIter = mPositions.find(aElement);
+        if (myIter != mPositions.end())
+        {
+            return myIter->second;
+        }
+        return GeometryPositionType::ON_UNKNOWN_POSITION;
     }
 
-    bool isUnchecked() const
+    void setPosition(PluckerElement* aElement, GeometryPositionType aPosition)
     {
-        return mUnckecked;
+        mPositions[aElement] = aPosition;
     }
 
-    void setChecked()
+    void setUnchecked(PluckerElement* aElement)
     {
-        mUnckecked = false;
+        mUnchecked[aElement] = true;
     }
 
-    void setUnchecked()
+    void setChecked(PluckerElement* aElement)
     {
-        mUnckecked = true;
+        mUnchecked[aElement] = false;
     }
 
-    void appendChildren(PluckerElement* aChild)
+    bool isUnchecked(PluckerElement* aElement) const
     {
-        mChildren.push_back(aChild);
-        aChild->appendParent(this);
+        auto myIter = mUnchecked.find(aElement);
+        if (myIter != mUnchecked.end())
+        {
+            return myIter->second;
+        }
+        return false;
     }
 
-    void deleteChildren(PluckerElement* aChild)
+    void setPlaneOffset(PluckerVertex* v, S result)
     {
-        mChildren.remove(aChild);
-    }
-
-    void appendParent(PluckerElement* aParent)
-    {
-        mParents.push_back(aParent);
-        aParent->appendChildren(this);
-    }
-
-    void deleteParent(PluckerElement* aParent)
-    {
-        mParents.remove(aParent);
-    }
-
-    const std::list<PluckerElement*>& getChildren() const
-    {
-        return mChildren;
-    }
-    const std::list<PluckerElement*>& getParents() const
-    {
-        return mParents;
+        mPlaneOffsets[v] = result;
     }
     
-    GeometryPositionType getChildrenPosition() const
+    S getPosition(PluckerVertex* v) const
     {
-        GeometryPositionType position = ON_BOUNDARY;
-
-        for (auto vertices = mChildren.begin(); vertices != mChildren.end(); vertices++)
+        auto myIter = mPlaneOffsets.find(v);
+        if (myIter != mPlaneOffsets.end())
         {
-            
+            return myIter->second;
         }
-        return position;
-    }   
-    void reset()
-    {
-        mPosition = ON_UNKNOWN_POSITION;
-        mUnckecked = false;    
-    }
-
-    private:
-        GeometryPositionType mPosition;
-        std::list<PluckerElement*> mChildren;
-        std::list<PluckerElement*> mParents;
-        bool mUnckecked;
-        int mVertexIndex;
-};
-
-class Lattice
-{
-    public:
-    Lattice(int dimension)
-    {
-        mDimension = dimension;
+        return 0;
     }
     
-    ~Lattice()
+    void clear()
     {
-        for (int k = 0; k < mDimension; k++)
-        {
-            for (auto element : mElements[k])
-            {
-                delete element;
-            }
-        }
+        mPositions.clear();
+        mUnchecked.clear();
     }
-    int getDimension() const
-    {
-        return mDimension;
-    }
-
-    void reset()
-    {
-        for (int k = 0; k < mDimension; k++)
-        {
-            for (auto element : mElements[k])
-            {
-                element->reset();
-            }
-        }
-    }
-    const std::list<PluckerElement*>& getElements(int k)
-    {
-        return mElements[k];
-    }
-    void appendElement(PluckerElement* element, int k)
-    {
-        mElements[k].push_back(element);
-    }
-    void deleteElement(PluckerElement* element, int k)
-    {
-        mElements[k].remove(element);
-        for (auto child : element->getChildren())
-        {
-            child->deleteParent(element);
-        }
-        for (auto parent : element->getParents())
-        {
-            parent->deleteChildren(element);
-        }
-        delete element;
-    }
-    private:
-        int mDimension;
-        std::vector<std::list<PluckerElement*>> mElements;
+private:
+        std::map<PluckerElement*, GeometryPositionType> mPositions;
+        std::map<PluckerElement*, bool> mUnchecked;
+        std::map<PluckerVertex*, S> mPlaneOffsets;
 };
 
-inline void split()
-{
-    Lattice* myLattice;// = aPolytope->getLattice();
-    myLattice->reset();
-
-    for (auto vertices: myLattice->getElements(0))
-    {
-        GeometryPositionType position ;//= computePosition(hyperplane);
-        vertices->setPosition(position);
+template<class P, class S>
+inline void split(const P& aPlane, PluckerPolytopeComplex<P>& aComplex, SplitAlgorithmStatus<S>& aStatus)
+{           
+    for (auto v: aComplex.getVertices())
+    {        
+        S result = aPlane.dot(v.getPlucker());
+        GeometryPositionType position = MathPredicates::getRelativePosition(S, tolerance);
+        aStatus.setPlaneOffset(v,result);
+        aStatus.setPosition(v,position);
     }
 
-    for (int k = 1; k < myLattice->getDimension(); k++)
+    std::vector<PluckerInterpolatedVertex*> newVertices;
+    
+    for (int k = 1; k < aComplex.getDimension(); k++)
     {
         std::vector<PluckerElement*> newElements;
         std::vector<PluckerElement*> newChildren;
-
-        for (auto c: myLattice->getElements(k))
+        
+        for (auto c: aComplex.getElements(k))
         {
-            GeometryPositionType position = c->getChildrenPosition();
-            c->setPosition(position); 
-            if (position == ON_BOUNDARY)
+            GeometryPositionType myPositionC = c->getChildrenPosition();
+            aStatus.setPosition(c, myPositionC); 
+            if (myPositionC == ON_BOUNDARY)
             {
-                PluckerElement* f = new PluckerElement();
+                PluckerElement* f = NULL;
+                
+                if (k==1) // edges
+                {
+                    PluckerEdge* myEdge = static_cast<PluckerEdge*>(c);
+                    PluckerInterpolatedVertex* v = new PluckerInterpolatedVertex(myEdge, 
+                                                      aStatus.getPosition(myEdge->getVertex0()), 
+                                                      aStatus.getPosition(myEdge->getVertex1()));
+                    newVertices.push_back(v);
+                    f = v;
+                 }
+                 else
+                 {
+                    f = new PluckerElement();
+                 }
                 newChildren.push_back(f);
-                f->setPosition(ON_BOUNDARY);
+                aStatus.setPosition(f, ON_BOUNDARY);
                
                 for (auto km2: c->getChildren())
                 {
-                   if (km2->getPosition() == ON_BOUNDARY)
+                   if (aStatus.getPosition(km2) == ON_BOUNDARY)
                    {
                        f->appendChildren(km2);
                    }
@@ -506,39 +430,47 @@ inline void split()
 
                 for (auto km1: c->getChildren())
                 {
-                    if (km1->getPosition() == ON_NEGATIVE_SIDE)
+                    GeometryPositionType myPositionKm1 = aStatus.getPosition(km1);
+                    if (myPositionKm1== ON_NEGATIVE_SIDE)
                     {
                         cm->appendParent(f);
                     }                                              
-                    else if (km1->getPosition() == ON_POSITIVE_SIDE)                    
+                    else if (myPositionKm1 == ON_POSITIVE_SIDE)                    
                     {
                        cp->appendParent(f);
                     }
                 }
 
-                myLattice->deleteElement(c,k);
+                aComplex.deleteElement(c,k);
+
                 for (auto element: newChildren)
                 {
-                    myLattice->appendElement(element,k-1);
+                    aComplex.appendElement(element,k-1);                    
+
                 }
                 for (auto element: newElements)
                 {
-                    myLattice->appendElement(element,k);
-                }
+                    aComplex.appendElement(element,k);
+                }              
             }
         }
 
     }
+
+    for (auto vertex: newVertices)
+    {
+        vertex.interpolate();
+    }
 }
 
-inline void reclassify()
+template<class P, class S>
+inline void reclassify(PluckerPolytopeComplex<P>& aComplex, SplitAlgorithmStatus<S>& aStatus)
 {
-    Lattice* myLattice;// = aPolytope->getLattice();
-    
     //Mark all the polytopes that have at least one vertex classified ON_BOUNDARY as unchecked
-    for (auto vertex: myLattice->getElements(0))
+    
+    for (auto vertex: aComplex.getElements(0))
     {   
-        if (vertex->getPosition() == ON_BOUNDARY)
+        if (aStatus.getPosition(vertex) == ON_BOUNDARY)
         {
             std::stack<PluckerElement*> stack;
             for (auto parent: vertex->getParents())
@@ -550,7 +482,7 @@ inline void reclassify()
                 PluckerElement* element = stack.top();
                 stack.pop();
 
-                element->setUnchecked();                
+                aStatus.setChecked(element);
                 for (auto parent: element->getParents())
                 {
                     stack.push(parent);
@@ -565,12 +497,12 @@ inline void reclassify()
         for (auto c: myLattice->getElements(k))
         {
             // ... that is unchecked
-            if (c->isUnchecked())
+            if (aStatus.isUnchecked(c))
             {
                 // Mark c checked
-                c->setChecked();
+                aStatus.setChecked(c);
                 GeometryPositionType position = c->getChildrenPosition();
-                c->setPosition(position);
+                aStatus.setPosition(c,position);
 
                 if (false)
                 {
@@ -584,9 +516,9 @@ inline void reclassify()
                     {
                         PluckerElement* element = stack.top();
                         stack.pop();  
-                        if (element->getVertexIndex() != -1)
+                        if (element->getRank() == 0)
                         {
-                            element->setPosition(ON_BOUNDARY);
+                            aStatus.setPosition(element, ON_BOUNDARY);
                         }
                         else
                         {
@@ -600,7 +532,7 @@ inline void reclassify()
                     // Mark all the faces of c as unchecked
                     for (auto child: c->getChildren())
                     {
-                        child->setUnchecked();
+                        aStatus.setUnchecked(child)
                     }
 
                     //set k=0 and continue to step 2 (we set k =1 for to re-enter the for loop)

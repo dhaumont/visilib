@@ -32,7 +32,8 @@ namespace visilib
     {
     public:
         static bool haveAtLeastNCommonFacets(const std::vector<size_t>& aFacetsDescription1, const std::vector<size_t>& aFacetsDescription2, size_t n = 3);
-        static void initFacets(const std::vector<size_t>& aFacetsDescription1, const std::vector<size_t>& aFacetsDescription2, size_t anHyperplane, std::vector<size_t>& result);
+        static void getCommonFacets(const std::vector<size_t>& aFacetsDescription1, const std::vector<size_t>& aFacetsDescription2, std::vector<size_t>& aCommonFactes);
+        static void initFacets(const std::vector<size_t>& aFacetsDescription1, const std::vector<size_t>& aFacetsDescription2, size_t anHyperplane, std::vector<size_t>& aResultFacetsDescription);
         static void initFacets(const std::vector<size_t>& aFacetsDescription1, const std::vector<size_t>& aFacetsDescription2, std::vector<size_t>& result);
         static bool hasFacet(const std::vector<size_t>& facets, size_t aFace);
     };
@@ -44,14 +45,19 @@ namespace visilib
 
     inline bool MathCombinatorial::haveAtLeastNCommonFacets(const std::vector<size_t>& aFacetsDescription1, const std::vector<size_t>& aFacetsDescription2, size_t n)
     {
+        std::vector<size_t> result;
+        getCommonFacets(aFacetsDescription1, aFacetsDescription2, result); 
+        size_t size = result.size();        
+        return size >= n;
+    }
+
+    inline void MathCombinatorial::getCommonFacets(const std::vector<size_t>& aFacetsDescription1, const std::vector<size_t>& aFacetsDescription2, std::vector<size_t>& aResultFacetsDescription)
+    {
         V_ASSERT(std::is_sorted(aFacetsDescription1.begin(), aFacetsDescription1.end()));
         V_ASSERT(std::is_sorted(aFacetsDescription2.begin(), aFacetsDescription2.end()));
 
-        std::vector<size_t> result(aFacetsDescription1.size());
-        auto iter = std::set_intersection(aFacetsDescription1.begin(), aFacetsDescription1.end(), aFacetsDescription2.begin(), aFacetsDescription2.end(), result.begin());
-        size_t size = iter - result.begin();
-
-        return size >= n;
+        aResultFacetsDescription.resize(aFacetsDescription1.size());
+        auto iter = std::set_intersection(aFacetsDescription1.begin(), aFacetsDescription1.end(), aFacetsDescription2.begin(), aFacetsDescription2.end(), aResultFacetsDescription.begin()); 
     }
 
     /** @brief Initialize a new facets description result from the two input facets description aFacetsDescription1 an aFacetsDescription1 of two given vertices and an additional

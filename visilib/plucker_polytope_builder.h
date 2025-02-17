@@ -236,4 +236,41 @@ namespace visilib
             }
         }
     }
+
+
+inline void build()
+{
+    Lattice* myLattice;// = aPolytope->getLattice();
+     for (int k = 1; k < myLattice->getDimension(); k++)
+     {
+        auto children = myLattice->getElements(k-1);
+        for (auto iter1 = children.begin(); iter1 != children.end(); iter1++)
+        {
+            for (auto iter2 = iter1; iter2 != children.end(); iter2++)
+            {                
+                PluckerElement* child1 = *iter1;
+                PluckerElement* child2 = *iter2;
+                if (child1!=child2)
+                {
+                    std::vector<size_t> myTemp;
+                    MathCombinatorial::getCommonFacets(child1->getFacets(), child2->getFacets(), myTemp);
+                    if (myTemp.size() >= 4 - k)
+                    {
+                        PluckerElement* parent = new PluckerElement();
+                        parent->appendChildren(child1);
+                        parent->appendChildren(child2);
+                        child1->appendParent(parent);
+                        child2->appendParent(parent);
+                        myLattice->appendElement(parent,k);
+                    }
+                }
+            }
+            
+            
+        }
+        
+     }
+
+}
+
 }

@@ -40,12 +40,12 @@ namespace visilib
     Only the skeleton (vertices and edges) of the polytope is encoded .*/
 
     template<class P>
-    class PluckerPolytope
+    class PluckerPolytopeSkeleton
     {
     public:
-        PluckerPolytope<P>();
+        PluckerPolytopeSkeleton<P>();
 
-        ~PluckerPolytope<P>();
+        ~PluckerPolytopeSkeleton<P>();
 
         /** @brief Return an extremal stabbing line ESL of the polytope.
 
@@ -205,18 +205,18 @@ namespace visilib
     };
 
     template<class P>
-    PluckerPolytope<P>::PluckerPolytope()
+    PluckerPolytopeSkeleton<P>::PluckerPolytopeSkeleton()
         :    mRadius(0)
     {
     }
 
     template<class P>
-    PluckerPolytope<P>::~PluckerPolytope()
+    PluckerPolytopeSkeleton<P>::~PluckerPolytopeSkeleton()
     {
     }
 
     template<class P>
-    void PluckerPolytope<P>::addEdge(size_t aVertex0, size_t aVertex1, PluckerPolyhedron<P>* aPolyhedron)
+    void PluckerPolytopeSkeleton<P>::addEdge(size_t aVertex0, size_t aVertex1, PluckerPolyhedron<P>* aPolyhedron)
     {
         size_t min = aVertex0;
         size_t max = aVertex1;
@@ -243,7 +243,7 @@ namespace visilib
     }
 
     template<class P>
-    void PluckerPolytope<P>::getExtremalStabbingLinesBackTo3D(std::vector<std::pair<MathVector3d, MathVector3d>>& aStabbingLines, const MathPlane3d& aPlane1, const MathPlane3d& aPlane2)
+    void PluckerPolytopeSkeleton<P>::getExtremalStabbingLinesBackTo3D(std::vector<std::pair<MathVector3d, MathVector3d>>& aStabbingLines, const MathPlane3d& aPlane1, const MathPlane3d& aPlane2)
     {
         aStabbingLines.clear();
         V_ASSERT(mExtremalStabbingLines.size() > 0);
@@ -274,7 +274,7 @@ namespace visilib
     }
 
     template<class P>
-    void PluckerPolytope<P>::outputProperties(std::ostream& o, PluckerPolyhedron<P>* polyhedron)
+    void PluckerPolytopeSkeleton<P>::outputProperties(std::ostream& o, PluckerPolyhedron<P>* polyhedron)
     {
         o << "Polytope ESL: " << mExtremalStabbingLines.size() << std::endl;
         o << "Polytope Edges: " << mEdges.size() << std::endl;
@@ -321,7 +321,7 @@ namespace visilib
         
         }
     template<class P> template<class S>
-    bool PluckerPolytope<P>::removeCollapsedEdges(PluckerPolyhedron<P>* polyhedron, S tolerance)
+    bool PluckerPolytopeSkeleton<P>::removeCollapsedEdges(PluckerPolyhedron<P>* polyhedron, S tolerance)
     {
         std::vector<int> myEdgesTable;
         std::vector<int> myMergeTable;
@@ -424,7 +424,7 @@ namespace visilib
     }
 
     template<class P> template<class S>
-    bool PluckerPolytope<P>::hasSomeEdgesCollapsed(PluckerPolyhedron<P>* polyhedron, S tolerance)
+    bool PluckerPolytopeSkeleton<P>::hasSomeEdgesCollapsed(PluckerPolyhedron<P>* polyhedron, S tolerance)
     {
         for (auto iter = mEdges.begin(); iter != mEdges.end(); iter++)
         {
@@ -448,7 +448,7 @@ namespace visilib
     }
 
     template<class P> template<class S>
-    void PluckerPolytope<P>::computeExtremalStabbingLines(PluckerPolyhedron<P>* polyhedron, S tolerance)
+    void PluckerPolytopeSkeleton<P>::computeExtremalStabbingLines(PluckerPolyhedron<P>* polyhedron, S tolerance)
     {
         V_ASSERT(mExtremalStabbingLines.empty());
         V_ASSERT(!mEdgesIntersectingQuadric.empty());
@@ -486,7 +486,7 @@ namespace visilib
     }
 
     template<class P>
-    bool PluckerPolytope<P>::containsRealLines() const
+    bool PluckerPolytopeSkeleton<P>::containsRealLines() const
     {
         if (mEdgesIntersectingQuadric.size() == 0)
         {
@@ -506,7 +506,7 @@ namespace visilib
     }
 
     template<class P> template<class S>
-    bool PluckerPolytope<P>::isValid(PluckerPolyhedron<P>* polyhedron, bool normalization, S tolerance)
+    bool PluckerPolytopeSkeleton<P>::isValid(PluckerPolyhedron<P>* polyhedron, bool normalization, S tolerance)
     {
         bool isValid = true;
 
@@ -584,7 +584,7 @@ namespace visilib
     }
 
     template<class P> template<class S>
-    void PluckerPolytope<P>::computeEdgesIntersectingQuadric(PluckerPolyhedron<P>* polyhedron, S tolerance)
+    void PluckerPolytopeSkeleton<P>::computeEdgesIntersectingQuadric(PluckerPolyhedron<P>* polyhedron, S tolerance)
     {
         //Only compute if the function has not been called already
         if (mEdgesIntersectingQuadric.empty())
@@ -616,7 +616,7 @@ namespace visilib
         }
     }
     template<class P>
-    void PluckerPolytope<P>::getFacets(std::set<size_t>& facets, PluckerPolyhedron<P>* polyhedron)
+    void PluckerPolytopeSkeleton<P>::getFacets(std::set<size_t>& facets, PluckerPolyhedron<P>* polyhedron)
     {
         for (auto iter = mVertices.begin(); iter != mVertices.end(); iter++)
         {
