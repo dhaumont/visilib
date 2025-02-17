@@ -21,6 +21,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #pragma once
 
 #include <stack>
+#include <list>
 #include "math_plucker_6.h"
 
 namespace visilib
@@ -40,12 +41,31 @@ namespace visilib
     Currently only the initial polytope and the polyhedron in Pluker space are stored explicitely
     */
 
+
+    
     template<class P>
     class PluckerPolytopeComplex
     {
     public:
+    
+    enum EntityDimension
+    {
+        VERTEX = 0,
+        EDGE = 1,
+        FACET = 4
+        POLYTOPE = 5
+    };
+
+    static getFacetsCount(int dimension)
+    {
+        return {5, 4, 3, 2, 1, 0}[dimension];
+    }    
         
-        
+    static getArrayIndex(int dimension)
+    {
+        return {-1, 0, 1, 2, 3, 4}[dimension];
+    }    
+
     PluckerPolytopeComplex(int dimension)
     {
         mDimension = dimension;
@@ -84,11 +104,6 @@ namespace visilib
         return mVertices;
     }
 
-    void appendVertex(PluckerVertex* vertex)
-    {
-        mVertices.push_back(vertex);
-    }
-
     void deleteVertex(PluckerVertex* vertex)
     {
         mVertices.remove(vertex);
@@ -99,6 +114,17 @@ namespace visilib
         }
         delete vertex;
     }
+    
+    const size_t getElementsCount(size_t k)
+    {
+        if (k == 0)
+        {
+            return getVertices().size();
+        }
+
+        return mElements[getArrayIndex(k)].size();
+    }
+
 
     const std::list<PluckerElement*>& getElements(size_t k)
     {
@@ -107,17 +133,49 @@ namespace visilib
             return getVertices()
         }
 
-        return mElements[k - 1];
+        return mElements[getArrayIndex(k)];
     }
+    
+    void appendVertex(PluckerVertex* vertex)
+    {
+        mVertices.push_back(vertex);
+    }
+
+    void appendFacet(PluckerFacet* facet)
+    {        
+        mElements[getArrayIndex(k)].push_back(facet);
+    }
+
+    void appendEdge(PluckerEdge* edge)
+    {        
+        mElements[k].push_back(edge);
+    }
+
+    void appendPolytope(PluckerPolytope* polytope)
+    {
+        int k = POLYTOPE - 1;
+        mElements[k].push_back(polytope);
+    }
+
     void appendElement(PluckerElement* element, size_t k)
     {
-        if (k == 0)
+        switch(k)
         {
-            appendVertex(dynamic_cast<PluckerVertex*>(element));
-            return;
+            case VERTEX:
+                appendVertex(dynamic_cast<PluckerVertex*>(element));
+                break;
+            case EDGE:
+                appendEdge(dynamic_cast<PluckerEdge*>(element));
+                break;
+            case FACET:
+                appendFacet(dynamic_cast<PluckerFacet*>(element));
+                break;
+            case POLYTOPE:
+                appendFacet(dynamic_cast<PluckerPolytope*>(element));
+                break;
+            default:
+                mElements[k - 1].push_back(element);
         }
-
-        mElements[k - 1].push_back(element);
     }
 
     
@@ -146,20 +204,44 @@ namespace visilib
         set::list<PluckerVertex*> mVertices;
 };
 
+template<class P>
+class IPluckerPoint
+{
+    public:
+    P& getPlucker()
+    {
+        return mPlucker;
+    }
+    protected:
+        P mPlucker;
+};
 
 
 class PluckerElement
 {
 public:
     PluckerElement(int aRank)
+    : mRank(aRank)
     {
-        mRank = aRank;   
+          
     }
     ~PluckerElement()
     {
     }
 
-    virtual const std::list<PluckerElement*>& getChildren() const
+    static void link(PluckerElement* aParent, PluckerElement* aChild)
+    {
+        aParent->appendChildren(aChild);
+        aChild->appendParent(aParent);
+    }
+
+    static void unlink(PluckerElement* aParent, PluckerElement* aChild)
+    {
+        aParent->deleteChildren(aChild);
+        aChild->deleteParent(aParent);
+    }
+
+    static const std::list<PluckerElement*>& getChildren() const
     {
         return mEmptyChildren;
     }
@@ -182,8 +264,7 @@ public:
     
     void appendParent(PluckerElement* aParent)
     {
-        mParents.push_back(aParent);
-        aParent->appendChildren(this);
+        mParents.push_back(aParent);        
     }
 
     void deleteParent(PluckerElement* aParent)
@@ -212,36 +293,47 @@ public:
         std::list<PluckerElement*> mParents;
         std::vector<size_t> mFacets;
         int mRank;      
-        bool mIntersectingQuadric;
+        GeometryPositionType mPosition;
         static const std::list<PluckerElement*> mEmptyChildren;
 };
 
 class PluckerBoundingVolume
 {
-
+    virtual bool hasIntersection() = 0;
 };
+
 
 class PluckerBoundingSphere: public PluckerBoundingVolume
 {
-    MathVector3d mCenter;
-    double mRadius;
+    virtual bool hasIntersection();
+    private:
+        MathVector3d mCenter;
+        double mRadius;
 };
 
 class PluckerAABB : public PluckerBoundingVolume
 {
-    MathVector3d mMin;
-    MathVector3d mMax;
+    public:
+        virtual bool hasIntersection();
+    private:
+        MathVector3d mMin;
+        MathVector3d mMax;
 };
 
 class PluckerInnerNode : public PluckerElement
 {
-    void appendChildren(PluckerElement* aChild)
+    PluckerInnerNode(int aRank)
+    : PluckerElement(aRank),
+    mBoundingVolume(nullptr)
+    {
+
+    }
+    virtual void appendChildren(PluckerElement* aChild)
     {
         mChildren.push_back(aChild);
-        aChild->appendParent(this);
     }
 
-    void deleteChildren(PluckerElement* aChild)
+    virtual void deleteChildren(PluckerElement* aChild)
     {
         mChildren.remove(aChild);
     }
@@ -263,21 +355,28 @@ class PluckerInnerNode : public PluckerElement
     }   
 
     std::list<PluckerElement*> mChildren;
+    PluckerBoundingVolume* mBoundingVolume;
 };
 
-class PluckerVertex : public PluckerElement
-{
-    MathPlucker6<double>& getPlucker()
-    {
-        return mPlucker;
-    }
-    protected:
-        MathPlucker6<double> mPlucker;
 
+
+template<class P>
+class PluckerFacet : public PluckerInnerNode, IPluckerPoint<P>
+:: PluckerInnerNode(4)
+{
+    
+};
+
+template<class P>
+class PluckerVertex : public PluckerElement, IPluckerPoint<P>
+:: PluckerElement(0)
+{
+    
 };
 
 template<class P>
 class PluckerEdge : public PluckerInnerNode
+: PluckerInnerNode(1)
 {
     void getVertices(PluckerVertex*& aVertex0, PluckerVertex*& aVertex1)
     {
@@ -300,13 +399,21 @@ class PluckerEdge : public PluckerInnerNode
     }
     const P& getVertex1() const;    
     std::vector<P> mExtremalStabbingLines;
-    bool mIntersectsQudric;
+    bool mIntersectsQuadric;
 };
 
 template<class P>
-class PluckerPolytopeElement : public PluckerInnerNode
+class PluckerPolytopeElement : public PluckerInnerNode, IPluckerPoint<P>
 {
-    P mRepresentativeLine;
+    PluckerPolytopeElement()
+    : PluckerInnerNode(5)
+    {
+        
+    }
+    const P& getRepresentativeLine()
+    {
+        return getPlucker();
+    }
                                /** < @brief The ESL of the polytope, at the intersection of an edge and the Plucker Quadric*/
     std::unordered_set<Silhouette*> mSilhouettes;          /** < @brief The set of silhouettes associated to the polytope*/
 };
@@ -325,6 +432,52 @@ class PluckerInterpolatedVertex : public PluckerVertex
                                              mGeneratorEdge->getVertex1()->getPlucker(),
                                              tolerance);
     }
+};
+
+class PluckerElementFactory
+{
+    public:
+        template<class P>
+        static PluckerElement* createElement(int rank)
+        {
+            switch(rank)
+            {
+                case 0:
+                    return createVertex<P>();
+                case 1:
+                    return createEdge<P>();
+                case 4:
+                    return createFacet<P>();
+                case 5:
+                    return createPolytope<P>();
+                default:
+                    return new PluckerElement<P>(rank);
+            }
+        }
+
+        template<class P>
+        static PluckerElement* createPolytope()
+        {
+            return new PluckerPolytopeElement<P>();
+        }
+
+        template<class P>
+        static PluckerElement* createFacet()
+        {
+            return new PluckerFacet<P>();
+        }
+
+        template<class P>
+        static PluckerElement* createVertex()
+        {
+            return new PluckerVertex<P>();
+        }
+
+        template<class P>
+        static PluckerElement* createEdge()
+        {
+            return new PluckerEdge<P>();
+        }
 };
 
 } //namespace visilib

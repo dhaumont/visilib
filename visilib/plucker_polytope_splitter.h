@@ -390,12 +390,12 @@ inline void split(const P& aPlane, PluckerPolytopeComplex<P>& aComplex, SplitAlg
             {
                 PluckerElement* f = NULL;
                 
-                if (k==1) // edges
+                if (k==EntityDimension::EDGE) // edges
                 {
                     PluckerEdge* myEdge = static_cast<PluckerEdge*>(c);
                     PluckerInterpolatedVertex* v = new PluckerInterpolatedVertex(myEdge, 
-                                                      aStatus.getPosition(myEdge->getVertex0()), 
-                                                      aStatus.getPosition(myEdge->getVertex1()));
+                                                                                 aStatus.getPosition(myEdge->getVertex0()), 
+                                                                                 aStatus.getPosition(myEdge->getVertex1()));
                     newVertices.push_back(v);
                     f = v;
                  }
