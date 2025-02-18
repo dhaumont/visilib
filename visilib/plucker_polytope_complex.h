@@ -92,32 +92,10 @@ namespace visilib
         }
     }
         
-    const std::list<PluckerVertex*>& getVertices()
-    {
-        return mVertices;
-    }
-
-    const std::list<PluckerEdge*>& getEdges()
-    {
-        return mVertices;
-    }
-
-    void deleteVertex(PluckerVertex* vertex)
-    {
-        mVertices.remove(vertex);
-   
-        for (auto parent : vertex->getParents())
-        {
-            parent->deleteChildren(vertex);
-        }
-        delete vertex;
-    }
-    
     const size_t getElementsCount(size_t k)
     {
         return mElements[k].size();
     }
-
 
     const std::list<PluckerElement*>& getElements(size_t k)
     {
@@ -149,7 +127,6 @@ namespace visilib
         mElements[k].push_back(element);       
     }
 
-    
     void deleteElement(PluckerElement* element, size_t k)
     {           
         for (auto child : element->getChildren())
@@ -162,6 +139,166 @@ namespace visilib
         }
         mElements[k].remove(element);
         delete element;
+    }
+
+    void deleteVertex(PluckerVertex* vertex)
+    {
+        deleteElement(vertex,VERTEX);
+    }
+
+    void deleteEdge(PluckerEdge* edge)
+    {
+        deleteElement(edge,EDGE);
+    }
+
+    void deleteFacet(PluckerFacet* facet)
+    {
+        deleteElement(facet,FACET);
+    }
+
+    void deletePolytope(PluckerPolytope* polytope)
+    {
+        deleteElement(polytope,POLYTOPE);
+    }
+
+    struct VertexIterator
+    {
+        VertexIterator(std::list<PluckerElement*>::iterator aIterator)
+        :  mIterator(aIterator)
+        {            
+        }
+
+        PluckerVertex* operator*()
+        {
+            return static_cast<PluckerVertex*>(*mIterator);
+        }
+
+        void operator++()
+        {
+            mIterator++;
+        }
+
+        bool operator!=(const VertexIterator& aIterator)
+        {
+            return mIterator != aIterator.mIterator;
+        }
+        
+        std::list<PluckerElement*>::iterator mIterator;
+    };
+
+    struct EdgeIterator
+    {
+        EdgeIterator(std::list<PluckerElement*>::iterator aIterator)
+        :  mIterator(aIterator)
+        {            
+        }
+
+        PluckerEdge* operator*()
+        {
+            return static_cast<PluckerEdge*>(*mIterator);
+        }
+
+        void operator++()
+        {
+            mIterator++;
+        }
+
+        bool operator!=(const EdgeIterator& aIterator)
+        {
+            return mIterator != aIterator.mIterator;
+        }
+        
+        std::list<PluckerElement*>::iterator mIterator;
+    };
+
+
+    struct FacetIterator
+    {
+        FacetIterator(std::list<PluckerElement*>::iterator aIterator)
+        :  mIterator(aIterator)
+        {            
+        }
+
+        PluckerFacet* operator*()
+        {
+            return static_cast<PluckerFacet*>(*mIterator);
+        }
+
+        void operator++()
+        {
+            mIterator++;
+        }
+
+        bool operator!=(const FacetIterator& aIterator)
+        {
+            return mIterator != aIterator.mIterator;
+        }
+        
+        std::list<PluckerElement*>::iterator mIterator;
+    };
+
+    struct PolytopeIterator
+    {
+        PolytopeIterator(std::list<PluckerElement*>::iterator aIterator)
+        :  mIterator(aIterator)
+        {            
+        }
+
+        PluckerPolytope* operator*()
+        {
+            return static_cast<PluckerPolytope*>(*mIterator);
+        }
+
+        void operator++()
+        {
+            mIterator++;
+        }
+
+        bool operator!=(const PolytopeIterator& aIterator)
+        {
+            return mIterator != aIterator.mIterator;
+        }
+        
+        std::list<PluckerElement*>::iterator mIterator;
+    };
+    
+    VertexIterator beginVertices()
+    {
+        return VertexIterator(mElements[VERTEX].begin());
+    }
+    VertexIterator endVertices()
+    {
+        return VertexIterator(mElements[VERTEX].end());
+    }
+
+    EdgeIterator beginEdges()
+    {
+        return EdgeIterator(mElements[EDGE].begin());
+    }
+
+    EdgeIterator endEdges()
+    {
+        return EdgeIterator(mElements[EDGE].end());
+    }
+
+    FacetIterator beginFacets()
+    {
+        return FacetIterator(mElements[FACET].begin());
+    }
+
+    FacetIterator endFacets()
+    {
+        return FacetIterator(mElements[FACET].end());
+    }
+
+    PolytopeIterator beginPolytopes()
+    {
+        return PolytopeIterator(mElements[POLYTOPE].begin());
+    }
+
+    PolytopeIterator endPolytopes()
+    {
+        return PolytopeIterator(mElements[POLYTOPE].end());
     }
     private:        
         std::vector<std::list<PluckerElement*>> mElements;        
@@ -246,7 +383,7 @@ public:
 
     void setFacetDescription(const std::vector<size_t>& aFacets)
     {
-        mFacetDesciption = aFacets;
+        mFacetDescription = aFacets;
     }
 
     const std::vector<size_t>& getFacetDescription() const

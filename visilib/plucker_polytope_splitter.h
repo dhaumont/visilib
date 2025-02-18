@@ -367,14 +367,15 @@ private:
 template<class P, class S>
 inline void split(const P& aPlane, PluckerPolytopeComplex<P>& aComplex, SplitAlgorithmStatus<S>& aStatus)
 {           
-    for (auto v: aComplex.getVertices())
-    {        
+    for (auto iter = aComplex.beginVertices(); iter != aComplex.endVertices(); iter++)
+    {
+        PluckerVertex* v = *iter;
         S result = aPlane.dot(v.getPlucker());
         GeometryPositionType position = MathPredicates::getRelativePosition(S, tolerance);
         aStatus.setPlaneOffset(v,result);
         aStatus.setPosition(v,position);
     }
-
+    
     std::vector<PluckerInterpolatedVertex*> newVertices;
     
     for (int k = 1; k < aComplex.getDimension(); k++)
@@ -468,8 +469,10 @@ inline void reclassify(PluckerPolytopeComplex<P>& aComplex, SplitAlgorithmStatus
 {
     //Mark all the polytopes that have at least one vertex classified ON_BOUNDARY as unchecked
     
-    for (auto vertex: aComplex.getElements(0))
-    {   
+    for (auto iter = aComplex.beginVertices(); iter != aComplex.endVertices(); iter++)
+    {
+        PluckerVertex* vertex = *iter;
+    
         if (aStatus.getPosition(vertex) == ON_BOUNDARY)
         {
             std::stack<PluckerElement*> stack;

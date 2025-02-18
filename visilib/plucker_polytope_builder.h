@@ -230,22 +230,21 @@ namespace visilib
     {
         // We iterate through all the extremal stabbing lines, and creates and edge for the vertices that share at least three common facets
         // The complexity is O(n^2), and more optimized version could be devised but we keep this one for simplicity
-        auto myFacetsList  = polytope->getElements(4);
+        
         std::vector<PluckerFacet*> myFacetsVector;
         
-        PluckerPolytopeElement* polytope = new PluckerPolytopeElement();
-        polytope->appendPolytope(polytope);
+        PluckerPolytopeElement* myPolytope = new PluckerPolytopeElement();
+        polytope->appendPolytope(myPolytope);
 
-        for (auto iter = myFacetsList.begin(); iter != myFacetsList.end(); iter++)
+        for (auto iter = polytope->beginFacets(); iter != polytope->endFacets(); iter++)
         {
-            myFacetsVector.push_back(dynamic_cast<PluckerFacet*>(*iter));
-            PluckerElement::link(polytope, *iter);
+            myFacetsVector.push_back(*iter);
+            PluckerElement::link(myPolytope, *iter);
         }
 
         for (int k = 1; k < polytope->getDimension(); k++)
-        {
-            auto children = polytope->getElements(k-1);
-            for (auto iter1 = children.begin(); iter1 != children.end(); iter1++)
+        {            
+            for (auto iter1 : polytope->getElements(k-1))
             {
                 PluckerElement* child1 = *iter1;
 
@@ -287,11 +286,10 @@ namespace visilib
 
     template<class P, class S>
     inline void PluckerPolytopeBuilder<P, S>::addStabbingLinesToEdges(PluckerPolytopeComplex<P> * polytope)
-    {
-        auto edges = polytope->getElements(EDGE);
-        for (auto iter = edges.begin(); iter1 != edges.end(); iter1++)
+    {        
+        for (auto iter = polytope->beginEdges(); iter != polytope->endEdges(); iter++)
         {
-            PluckerEdge<P>* myEdge = dynamic_cast<PluckerEdge<P>*>(*iter);
+            PluckerEdge<P>* myEdge = *iter;
             myEdge->mExtremalStabbingLines.push_back(myEdge->getVertex0()->getPlucker());
             myEdge->mExtremalStabbingLines.push_back(myEdge->getVertex1()->getPlucker());
         }
