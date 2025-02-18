@@ -246,18 +246,18 @@ namespace visilib
         {            
             for (auto iter1 : aPolytopeComplex->getElements(k-1))
             {
-                PluckerElement* child1 = *iter1;
+                PluckerElement<P>* child1 = *iter1;
 
                 for (auto iter2 = iter1; iter2 != children.end(); iter2++)
                 {   
-                    PluckerElement* child2 = *iter2;
+                    PluckerElement<P>* child2 = *iter2;
                     V_ASSERT (child1!=child2)
                     
                     std::vector<size_t> myTemp;
                     MathCombinatorial::getCommonFacets(child1->getFacetDescription(), child2->getFacetDescription(), myTemp);
                     if (myTemp.size() >= getCombinatorialFacetsMaximumCount(k))
                     {
-                        PluckerElement* parent;                            
+                        PluckerElement<P>* parent;                            
 
                         if (k == FACET)
                         {
