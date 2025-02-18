@@ -179,7 +179,7 @@ namespace visilib
                 }
                 
                 PluckerVertex<P>* myVertex = new PluckerVertex<P>(myStabbingLine);
-                myVertex->mPosition = ON_BOUNDARY;
+                myVertex->setQuadricRelativePosition(ON_BOUNDARY);
                 polytope->appendVertex(myVertex);
 
                 if (count2 > 2)
@@ -196,7 +196,7 @@ namespace visilib
                     myTemp[2] = j + mySize1;
                     myTemp[3] = j + mySize1 + 1;
                 }
-                myEdge->mFacets = myTemp;
+                myEdge->setFacetDescription(myTemp);
                 
                 myStabbingNumber++;
             }
@@ -255,24 +255,24 @@ namespace visilib
                     V_ASSERT (child1!=child2)
                     
                     std::vector<size_t> myTemp;
-                    MathCombinatorial::getCommonFacets(child1->getFacets(), child2->getFacets(), myTemp);
-                    if (myTemp.size() >= getFacetsCount(k))
+                    MathCombinatorial::getCommonFacets(child1->getFacetDescription(), child2->getFacetDescription(), myTemp);
+                    if (myTemp.size() >= getCombinatorialFacetsMaximumCount(k))
                     {
                         PluckerElement* parent;                            
 
-                        if (k == EntityDimension::FACET)
+                        if (k == FACET)
                         {
                             V_ASSERT(myTemp.size() == 1);
 
                             parent = myFacetsVector[myTemp[0]];
                             
-                            V_ASSERT(myTemp[0] == parent->mFacets[0]);
+                            V_ASSERT(myTemp[0] == parent->getFacetDescription(0));
                         }
                         else
                         {
                             parent = PluckerElementFactory::createElement(k);
-                            parent->mFacets = myTemp;
-                            parent->mPosition = ON_BOUNDARY;
+                            parent->setFacetDescription(myTemp);
+                            parent->setQuadricRelativePosition(ON_BOUNDARY);
                         }
                         
                         PluckerElement::link(parent, child1);
@@ -288,7 +288,7 @@ namespace visilib
     template<class P, class S>
     inline void PluckerPolytopeBuilder<P, S>::addStabbingLinesToEdges(PluckerPolytopeComplex<P> * polytope)
     {
-        auto edges = polytope->getElements(1);
+        auto edges = polytope->getElements(EDGE);
         for (auto iter = edges.begin(); iter1 != edges.end(); iter1++)
         {
             PluckerEdge<P>* myEdge = dynamic_cast<PluckerEdge<P>*>(*iter);
