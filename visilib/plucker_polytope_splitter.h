@@ -336,12 +336,12 @@ public:
         return false;
     }
 
-    void setPlaneOffset(PluckerVertex* v, S result)
+    void setPlaneOffset(PluckerVertex<P>* v, S result)
     {
         mPlaneOffsets[v] = result;
     }
     
-    S getPosition(PluckerVertex* v) const
+    S getPosition(PluckerVertex<P>* v) const
     {
         auto myIter = mPlaneOffsets.find(v);
         if (myIter != mPlaneOffsets.end())
@@ -359,7 +359,7 @@ public:
 private:
         std::map<PluckerElement*, GeometryPositionType> mPositions;
         std::map<PluckerElement*, bool> mUnchecked;
-        std::map<PluckerVertex*, S> mPlaneOffsets;
+        std::map<PluckerVertex<P>*, S> mPlaneOffsets;
 };
 
 template<class P, class S>
@@ -367,7 +367,7 @@ inline void split(const P& aPlane, PluckerPolytopeComplex<P>& aComplex, SplitAlg
 {           
     for (auto iter = aComplex.beginVertices(); iter != aComplex.endVertices(); iter++)
     {
-        PluckerVertex* v = *iter;
+        PluckerVertex<P>* v = *iter;
         S result = aPlane.dot(v.getPlucker());
         GeometryPositionType position = MathPredicates::getRelativePosition(S, tolerance);
         aStatus.setPlaneOffset(v,result);
@@ -391,7 +391,7 @@ inline void split(const P& aPlane, PluckerPolytopeComplex<P>& aComplex, SplitAlg
                 
                 if (k==EntityDimension::EDGE) // edges
                 {
-                    PluckerEdge* myEdge = static_cast<PluckerEdge*>(c);
+                    PluckerEdge<P>* myEdge = static_cast<PluckerEdge<P>*>(c);
                     PluckerInterpolatedVertex* v = new PluckerInterpolatedVertex(myEdge, 
                                                                                  aStatus.getPosition(myEdge->getVertex0()), 
                                                                                  aStatus.getPosition(myEdge->getVertex1()));
@@ -469,7 +469,7 @@ inline void reclassify(PluckerPolytopeComplex<P>& aComplex, SplitAlgorithmStatus
     
     for (auto iter = aComplex.beginVertices(); iter != aComplex.endVertices(); iter++)
     {
-        PluckerVertex* vertex = *iter;
+        PluckerVertex<P>* vertex = *iter;
     
         if (aStatus.getPosition(vertex) == ON_BOUNDARY)
         {

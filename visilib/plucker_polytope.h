@@ -306,7 +306,7 @@ class PluckerEdge : public PluckerInnerNode
 
     }
 
-    void getVertices(PluckerVertex*& aVertex0, PluckerVertex*& aVertex1)
+    void getVertices(PluckerVertex<P>*& aVertex0, PluckerVertex<P>*& aVertex1)
     {
         auto iter = mChildren.begin();
         aVertex0 = *iter;
@@ -314,16 +314,16 @@ class PluckerEdge : public PluckerInnerNode
         aVertex1 = *iter;
     }
     
-    const PluckerVertex* getVertex0() const
+    const PluckerVertex<P>* getVertex0() const
     {
         assert(mChildren.size() == 2);
-        return static_cast<PluckerVertex*>(mChildren.front());
+        return static_cast<PluckerVertex<P>*>(mChildren.front());
     }
 
-    const PluckerVertex* getVertex1() const
+    const PluckerVertex<P>* getVertex1() const
     {
         assert(mChildren.size() == 2);
-        return static_cast<PluckerVertex*>(mChildren.back());
+        return static_cast<PluckerVertex<P>*>(mChildren.back());
     }
     const P& getVertex1() const;    
     std::vector<P> mExtremalStabbingLines;    
@@ -350,9 +350,16 @@ class PluckerPolytope : public PluckerInnerNode, IPluckerPoint<P>
         return getPlucker();
     }
     
-    void fillVertices(PluckerPolytopeComplex<P>* complex, std::vector<PluckerVertex<P>*>& aPolytopeVertices);
-    
+    template<class P>
+    const PluckerComplex<P>* getPolytopeComplex() const
+    {
+        assert(mParents.size() == 1);
+        return static_cast<PluckerVertex<P>*>(mParents.front());
+    }
 
+    template<class P>
+    void fillVertices(std::vector<PluckerVertex<P>*>& aPolytopeVertices);
+    
 
                                /** < @brief The ESL of the polytope, at the intersection of an edge and the Plucker Quadric*/
     std::unordered_set<Silhouette*> mSilhouettes;          /** < @brief The set of silhouettes associated to the polytope*/
@@ -387,7 +394,7 @@ class PluckerInterpolatedVertex : public PluckerVertex
 };
  
     template<class P>
-    class PluckerPolytopeComplex
+    class PluckerPolytopeComplex : public PluckerInnerNode
     {
     public:
     
@@ -439,22 +446,22 @@ class PluckerInterpolatedVertex : public PluckerVertex
         return mElements[k];
     }
     
-    void appendVertex(PluckerVertex* vertex)
+    void appendVertex(PluckerVertex<P>* vertex)
     {
         mElements[VERTEX].push_back(vertex);
     }
 
-    void appendFacet(PluckerFacet* facet)
+    void appendFacet(PluckerFacet<P>* facet)
     {        
         mElements[FACET].push_back(facet);
     }
 
-    void appendEdge(PluckerEdge* edge)
+    void appendEdge(PluckerEdge<P>* edge)
     {        
         mElements[EDGE].push_back(edge);
     }
 
-    void appendPolytope(PluckerPolytope* polytope)
+    void appendPolytope(PluckerPolytope<P>* polytope)
     {        
         mElements[POLYTOPE].push_back(polytope);
     }
@@ -478,22 +485,22 @@ class PluckerInterpolatedVertex : public PluckerVertex
         delete element;
     }
 
-    void deleteVertex(PluckerVertex* vertex)
+    void deleteVertex(PluckerVertex<P>* vertex)
     {
         deleteElement(vertex,VERTEX);
     }
 
-    void deleteEdge(PluckerEdge* edge)
+    void deleteEdge(PluckerEdge<P>* edge)
     {
         deleteElement(edge,EDGE);
     }
 
-    void deleteFacet(PluckerFacet* facet)
+    void deleteFacet(PluckerFacet<P>* facet)
     {
         deleteElement(facet,FACET);
     }
 
-    void deletePolytope(PluckerPolytope* polytope)
+    void deletePolytope(PluckerPolytope<P>* polytope)
     {
         deleteElement(polytope,POLYTOPE);
     }
@@ -630,8 +637,10 @@ class PluckerElementFactory
 };
 
 template<class P>
-void PluckerPolytope<P>::fillVertices(PluckerPolytopeComplex<P>* complex, std::vector<PluckerVertex<P>*>& aPolytopeVertices)
+void PluckerPolytope<P>::fillVertices(std::vector<PluckerVertex<P>*>& aPolytopeVertices)
 {
+    PluckerPolytopeComplex<P>* complex = getPolytopeComplex<P>();
+
     for (auto iter = complex->beginVertices(this); iter != complex->endVertices(this); iter++)
     {
         aPolytopeVertices.push_back(*iter);

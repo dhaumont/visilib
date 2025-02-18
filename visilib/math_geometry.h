@@ -890,7 +890,7 @@ namespace visilib
 
             for (auto v : aPolytopeVertices)
             {
-                PluckerVertex* myVertex = *v;
+                PluckerVertex<P>* myVertex = *v;
                 GeometryPositionType position = MathPredicates::getVertexPlaneRelativePosition(myHyperplane,myVertex->getPlucker(), tolerance);
                 if (position == ON_NEGATIVE_SIDE || position == ON_BOUNDARY)
                 {
