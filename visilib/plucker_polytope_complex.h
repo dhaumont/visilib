@@ -161,147 +161,89 @@ namespace visilib
         deleteElement(polytope,POLYTOPE);
     }
 
-    struct VertexIterator
+    template<class T>
+    struct ElementIterator
     {
-        VertexIterator(std::list<PluckerElement*>::iterator aIterator)
-        :  mIterator(aIterator)
+        ElementIterator(std::list<PluckerElement*>::iterator aIterator, PluckerElement* anAncestor = nullptr)
+        :  mIterator(aIterator),
+           mAncestor(anAncestor)            
         {            
         }
 
-        PluckerVertex* operator*()
+        T operator*()
         {
-            return static_cast<PluckerVertex*>(*mIterator);
+            return static_cast<T*>(*mIterator);
         }
 
         void operator++()
         {
-            mIterator++;
+            if (mAncestor == nullptr)
+            {
+                mIterator++;
+            }
+            else
+            {
+                while (mIterator != mElements.end() && (*mIterator)->getAncestor() != mAncestor)
+                {
+                    mIterator++;
+                }
+            }
         }
 
-        bool operator!=(const VertexIterator& aIterator)
+        bool operator!=(const T& aIterator)
         {
             return mIterator != aIterator.mIterator;
         }
         
-        std::list<PluckerElement*>::iterator mIterator;
+        std::list<T*>::iterator mIterator;
     };
 
-    struct EdgeIterator
-    {
-        EdgeIterator(std::list<PluckerElement*>::iterator aIterator)
-        :  mIterator(aIterator)
-        {            
-        }
+    typedef ElementIterator<PluckerVertex> VertexIterator;
+    typedef ElementIterator<PluckerEdge> EdgeIterator;
+    typedef ElementIterator<PluckerFacet> FacetIterator;
+    typedef ElementIterator<PluckerPolytope> PolytopeIterator;
 
-        PluckerEdge* operator*()
-        {
-            return static_cast<PluckerEdge*>(*mIterator);
-        }
-
-        void operator++()
-        {
-            mIterator++;
-        }
-
-        bool operator!=(const EdgeIterator& aIterator)
-        {
-            return mIterator != aIterator.mIterator;
-        }
-        
-        std::list<PluckerElement*>::iterator mIterator;
-    };
-
-
-    struct FacetIterator
-    {
-        FacetIterator(std::list<PluckerElement*>::iterator aIterator)
-        :  mIterator(aIterator)
-        {            
-        }
-
-        PluckerFacet* operator*()
-        {
-            return static_cast<PluckerFacet*>(*mIterator);
-        }
-
-        void operator++()
-        {
-            mIterator++;
-        }
-
-        bool operator!=(const FacetIterator& aIterator)
-        {
-            return mIterator != aIterator.mIterator;
-        }
-        
-        std::list<PluckerElement*>::iterator mIterator;
-    };
-
-    struct PolytopeIterator
-    {
-        PolytopeIterator(std::list<PluckerElement*>::iterator aIterator)
-        :  mIterator(aIterator)
-        {            
-        }
-
-        PluckerPolytope* operator*()
-        {
-            return static_cast<PluckerPolytope*>(*mIterator);
-        }
-
-        void operator++()
-        {
-            mIterator++;
-        }
-
-        bool operator!=(const PolytopeIterator& aIterator)
-        {
-            return mIterator != aIterator.mIterator;
-        }
-        
-        std::list<PluckerElement*>::iterator mIterator;
-    };
     
-    VertexIterator beginVertices()
+    VertexIterator beginVertices(PluckerElement* anAncestor = nullptr)
     {
-        return VertexIterator(mElements[VERTEX].begin());
+        return VertexIterator(mElements[VERTEX].begin(), anAncestor);
     }
-    VertexIterator endVertices()
+    VertexIterator endVertices(PluckerElement* anAncestor = nullptr)
     {
-        return VertexIterator(mElements[VERTEX].end());
-    }
-
-    EdgeIterator beginEdges()
-    {
-        return EdgeIterator(mElements[EDGE].begin());
+        return VertexIterator(mElements[VERTEX].end(), anAncestor);
     }
 
-    EdgeIterator endEdges()
+    EdgeIterator beginEdges(PluckerElement* anAncestor = nullptr)
     {
-        return EdgeIterator(mElements[EDGE].end());
+        return EdgeIterator(mElements[EDGE].begin(), anAncestor);
     }
 
-    FacetIterator beginFacets()
+    EdgeIterator endEdges(PluckerElement* anAncestor = nullptr)
     {
-        return FacetIterator(mElements[FACET].begin());
+        return EdgeIterator(mElements[EDGE].end(), anAncestor);
     }
 
-    FacetIterator endFacets()
+    FacetIterator beginFacets(PluckerElement* anAncestor = nullptr)
     {
-        return FacetIterator(mElements[FACET].end());
+        return FacetIterator(mElements[FACET].begin(), anAncestor);
     }
 
-    PolytopeIterator beginPolytopes()
+    FacetIterator endFacets(PluckerElement* anAncestor = nullptr)
     {
-        return PolytopeIterator(mElements[POLYTOPE].begin());
+        return FacetIterator(mElements[FACET].end(), anAncestor);
     }
 
-    PolytopeIterator endPolytopes()
+    PolytopeIterator beginPolytopes(PluckerElement* anAncestor = nullptr)
     {
-        return PolytopeIterator(mElements[POLYTOPE].end());
+        return PolytopeIterator(mElements[POLYTOPE].begin(), anAncestor);
+    }
+
+    PolytopeIterator endPolytopes(PluckerElement* anAncestor = nullptr)
+    {
+        return PolytopeIterator(mElements[POLYTOPE].end(), anAncestor);
     }
     private:        
-        std::vector<std::list<PluckerElement*>> mElements;        
+        std::vector<std::list<PluckerElement*>> mElements;
 };
 
 template<class P>
@@ -411,6 +353,27 @@ public:
         return mRank;
     }
 
+    bool hasAncestor(PluckerElement* anAncestor) const
+    {
+        std::stack<const PluckerElement*> stack;
+        stack.push(this);
+         
+        while (!stack.empty())
+        {
+            const PluckerElement* element = stack.top();
+            stack.pop();
+            
+            for (auto parent: element->getParents())
+            {
+                if (parent == anAncestor)
+                {
+                    return true;
+                }
+                stack.push(parent);
+            }
+        }
+        return false;
+    }
     private:
         
         std::list<PluckerElement*> mParents;

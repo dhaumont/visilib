@@ -46,9 +46,9 @@ namespace visilib
         template <class S>          static GeometryPositionType getRelativePosition(S dot, S epsilon);
         template <class P, class S> static GeometryPositionType getVertexPlaneRelativePosition(const P& plane, const P& point, S epsilon);
         template <class P, class S> static GeometryPositionType getQuadricRelativePosition(const P& point, S epsilon);
-        template <class P>          static bool                 hasPluckerPolytopeIntersectionWithQuadric(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron);
-        template <class P>          static GeometryPositionType getRelativePosition(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron, const P& aPlane0, const P& aPlane1, const P& aPlane2);
-        template <class P>          static GeometryPositionType getRelativePosition(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron, const P& aPlane);
+        template <class P>          static bool                 hasPluckerPolytopeIntersectionWithQuadric(PluckerPolytope<P>* polytope);
+        template <class P>          static GeometryPositionType getRelativePosition(PluckerPolytope<P>* polytope, const P& aPlane0, const P& aPlane1, const P& aPlane2);
+        template <class P>          static GeometryPositionType getRelativePosition(PluckerPolytope<P>* polytope, const P& aPlane);
 
         static GeometryPositionType getRelativePosition(const std::vector<MathVector3d>& points, const MathPlane3d& aPlane);
     };
@@ -93,7 +93,7 @@ namespace visilib
     }
 
     template <class P>
-    inline bool MathPredicates::hasPluckerPolytopeIntersectionWithQuadric(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron)
+    inline bool MathPredicates::hasPluckerPolytopeIntersectionWithQuadric(PluckerPolytope<P>* polytope)
     {
         bool hasPointOnTheLeft = false;
         bool hasPointOnTheRight = false;

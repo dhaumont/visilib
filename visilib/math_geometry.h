@@ -155,7 +155,7 @@ namespace visilib
         This procedure is not formally correct from a mathematical point of view: the gravity center in Pluker space do not correspond to a real line in 3D since the gravity center
          does not belongs to the Plucker quadric. However, it works well in practice to find an average polytope representative line
         */
-        template<class P, class S> static P computeRepresentativeLine(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron, S tolerance);
+        template<class P, class S> static P computeRepresentativeLine(PluckerPolytope<P>* polytope, S tolerance);
 
         /** @brief  Compute the intersection of an edge with a plane */
         static MathVector3_<double> getPlaneIntersectionWithEdge(const MathVector3_<double>& myV1, const MathVector3_<double>& myV2, const MathPlane3_<double>& aPlane);
@@ -165,7 +165,7 @@ namespace visilib
         template<class P, class S> static P getClosestQuadricPoint(const P& line);
 
         template<class P, class S>
-        bool static isEdgeInsidePolytope(const MathVector3d& a, const MathVector3d& b, PluckerPolytope<P>* aPolytope, const MathVector3d& approximateNormal, PluckerPolyhedron<P>* polyhedron, S tolerance);
+        bool static isEdgeInsidePolytope(const MathVector3d& a, const MathVector3d& b, PluckerPolytope<P>* aPolytope, const MathVector3d& approximateNormal, S tolerance);
         
         template<class S>
         static bool isBoxInsideConvexHull(const MathVector3_<S>& AABBMin, const MathVector3_<S>& AABBMax, const std::vector<MathPlane3_<S> >& convexHullPlanes);
@@ -872,7 +872,7 @@ namespace visilib
     }
 
     template<class P, class S>
-    bool  MathGeometry::isEdgeInsidePolytope(const MathVector3d& a, const MathVector3d& b, PluckerPolytope<P>* aPolytope, const MathVector3d& approximateNormal, PluckerPolyhedron<P>* polyhedron, S tolerance)
+    bool  MathGeometry::isEdgeInsidePolytope(const MathVector3d& a, const MathVector3d& b, PluckerPolytope<P>* aPolytope, const MathVector3d& approximateNormal, S tolerance)
     {
         MathVector3d e = b;
         e -= a;

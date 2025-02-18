@@ -93,7 +93,7 @@ public:
     }
     
     template<class P, class S>
-    static bool isOccluded(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron, const std::vector <Silhouette*>& aSilhouettes, const std::vector<P>& polytopeLines, S myTolerance)
+    static bool isOccluded(PluckerPolytope<P>* polytope, const std::vector <Silhouette*>& aSilhouettes, const std::vector<P>& polytopeLines, S myTolerance)
     {
         for (auto iter = aSilhouettes.begin(); iter != aSilhouettes.end(); iter++)
         {

@@ -31,7 +31,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include "math_predicates.h"
 #include "math_plucker_2.h"
 #include "math_vector_3.h"
-#include "plucker_polytope.h"
+#include "plucker_polytope_complex.h"
 #include "plucker_polytope_builder.h"
 #include "plucker_polytope_complex.h"
 #include "visibility_aperture_finder.h"
@@ -110,7 +110,7 @@ namespace visilib
         The occluder finding is done using a ray-tracing operation, the ray(s) direction used to perform the sampling beeing either a "representative line" of the polytope,
         or the extremal stabbing line of the polytope.
         */
-        bool collectAllOccluders(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron, std::vector<Silhouette*>& occluders, std::vector<P>& polytopeLines);
+        bool collectAllOccluders(PluckerPolytope<P>* polytope, std::vector<Silhouette*>& occluders, std::vector<P>& polytopeLines);
 
         /**@brief Attach a debugger to the query for visual inspection */
         void attachVisualisationDebugger(HelperVisualDebugger* aDebugger);
@@ -144,7 +144,7 @@ namespace visilib
         {
             return mApproximateNormal;
         }
-        bool isOccluded(PluckerPolytope<P> * polytope, PluckerPolyhedron<P>* polyhedron, const std::vector <Silhouette*> & silhouettes, const std::vector<P> & polytopeLines);
+        bool isOccluded(PluckerPolytope<P> * polytope, const std::vector <Silhouette*> & silhouettes, const std::vector<P> & polytopeLines);
 
         /**@brief Return the statistic collector */
         HelperStatisticCollector* getStatistic()
@@ -430,7 +430,7 @@ namespace visilib
     }
 
     template<class P, class S>
-    bool VisibilityExactQuery_<P, S>::isOccluded(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron, const std::vector <Silhouette*> & aSilhouettes, const std::vector<P> & polytopeLines)
+    bool VisibilityExactQuery_<P, S>::isOccluded(PluckerPolytope<P>* polytope, const std::vector <Silhouette*> & aSilhouettes, const std::vector<P> & polytopeLines)
     {   
         return SilhouetteContainer::isOccluded(polytope, polyhedron, aSilhouettes,polytopeLines,mTolerance);
     }
@@ -508,7 +508,7 @@ namespace visilib
     }
 
     template<class P, class S>
-    bool VisibilityExactQuery_<P, S>::collectAllOccluders(PluckerPolytope<P> * aPolytope, PluckerPolyhedron<P> * polyhedron, std::vector<Silhouette*> & occluders, std::vector<P> & polytopeLines)
+    bool VisibilityExactQuery_<P, S>::collectAllOccluders(PluckerPolytope<P> * aPolytope, std::vector<Silhouette*> & occluders, std::vector<P> & polytopeLines)
     {
         P myRepresentativeLine;
         {

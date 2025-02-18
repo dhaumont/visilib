@@ -59,7 +59,7 @@ namespace visilib
         VisibilityResult resolve();
     private:
         VisibilityResult resolveInternal(VisibilityResult& aGlobalResult, PluckerPolytope<P>* aPolytope, const std::string& occlusionTreeNodeSymbol, const std::vector<Silhouette*>& anOccluders, const std::vector<P>& aPolytopeLines, int depth);
-        void resize(size_t myInitiaLineCount, PluckerPolyhedron<P>* myPolyhedron, PluckerPolytope<P>* aPolytope);
+        void resize(size_t myInitiaLineCount, PluckerPolytope<P>* aPolytope);
         void extractStabbingLines(PluckerPolyhedron<P>* myPolyhedron, PluckerPolytope<P>* aPolytope);
             
 
@@ -90,7 +90,6 @@ namespace visilib
     template<class P, class S>
     VisibilityResult VisibilityApertureFinder<P, S>::resolveInternal(VisibilityResult& aGlobalResult, PluckerPolytope<P>* aPolytope, const std::string& occlusionTreeNodeSymbol, const std::vector<Silhouette*>& anOccluders, const std::vector<P>& aPolytopeLines, int aDepth)
     {
-        PluckerPolyhedron<P>* myPolyhedron = reinterpret_cast<PluckerPolyhedron<P>*> (VisibilitySolver<P, S>::mQuery->getComplex()->getPolyhedron());
         size_t myInitiaLineCount = myPolyhedron->getLinesCount();
 
 #ifdef OUTPUT_DEBUG_FILE
@@ -376,7 +375,7 @@ namespace visilib
     }
 
     template<class P, class S>
-    void VisibilityApertureFinder<P, S>::resize(size_t anInitiaLineCount, PluckerPolyhedron<P>* myPolyhedron, PluckerPolytope<P>* aPolytope)
+    void VisibilityApertureFinder<P, S>::resize(size_t anInitiaLineCount, PluckerPolytope<P>* aPolytope)
     {
         HelperScopedTimer timer(VisibilitySolver<P, S>::mQuery->getStatistic(), POLYTOPE_SPLIT);
 

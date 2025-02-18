@@ -49,8 +49,8 @@ set(MathSrc
     )
 
 set(PluckerSrc
-    plucker_polyhedron.h
-    plucker_polytope.h
+    #plucker_polyhedron.h
+    #plucker_polytope.h
     plucker_polytope_builder.h
     plucker_polytope_complex.h
     plucker_polytope_splitter.h

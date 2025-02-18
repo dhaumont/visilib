@@ -30,8 +30,6 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 
 namespace visilib
 {
-    template<class P>
-    class PluckerPolyhedron;
 
     class Silhouette;
 
@@ -102,7 +100,7 @@ namespace visilib
         @param aVertex1: the second vertex of the edge
         @param aPolyhedron: the polyhedron that contains the vertices equation
         */
-        void addEdge(size_t aVertex0, size_t aVertex1, PluckerPolyhedron<P>* aPolyhedron);
+        void addEdge(size_t aVertex0, size_t aVertex1);
 
 
         /** @brief Test if the polytope is valid (fast check)
@@ -157,14 +155,14 @@ namespace visilib
 
 
         /** @brief Output in the console the properties of the polytope.*/
-        void outputProperties(std::ostream& out, PluckerPolyhedron<P>* polyhedron = nullptr);
+        void outputProperties(std::ostream& out = nullptr);
 
 
         /** @brief Returns the list of all the faces (ie the equation of the hyperplane) defining the polytope.
         
         The hypeplanes are stored in a polyhedon , and their facets is represented as an index list inside the polyhedron
         */
-        void getFacets(std::set<size_t>& facets, PluckerPolyhedron<P>* polyhedron);
+        void getFacets(std::set<size_t>& facets);
 
         /** @brief Add a silhouette to the polyptope */
         void addSilhouette(Silhouette* silhouette)
@@ -216,7 +214,7 @@ namespace visilib
     }
 
     template<class P>
-    void PluckerPolytopeSkeleton<P>::addEdge(size_t aVertex0, size_t aVertex1, PluckerPolyhedron<P>* aPolyhedron)
+    void PluckerPolytopeSkeleton<P>::addEdge(size_t aVertex0, size_t aVertex1)
     {
         size_t min = aVertex0;
         size_t max = aVertex1;
@@ -274,7 +272,7 @@ namespace visilib
     }
 
     template<class P>
-    void PluckerPolytopeSkeleton<P>::outputProperties(std::ostream& o, PluckerPolyhedron<P>* polyhedron)
+    void PluckerPolytopeSkeleton<P>::outputProperties(std::ostream& o)
     {
         o << "Polytope ESL: " << mExtremalStabbingLines.size() << std::endl;
         o << "Polytope Edges: " << mEdges.size() << std::endl;
@@ -616,7 +614,7 @@ namespace visilib
         }
     }
     template<class P>
-    void PluckerPolytopeSkeleton<P>::getFacets(std::set<size_t>& facets, PluckerPolyhedron<P>* polyhedron)
+    void PluckerPolytopeSkeleton<P>::getFacets(std::set<size_t>& facets)
     {
         for (auto iter = mVertices.begin(); iter != mVertices.end(); iter++)
         {
