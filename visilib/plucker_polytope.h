@@ -81,29 +81,29 @@ public:
     {
     }
 
-    static void link(PluckerElement<P>* aParent, PluckerElement<P>* aChild)
+    static void link(PluckerElement* aParent, PluckerElement* aChild)
     {
         aParent->appendChildren(aChild);
         aChild->appendParent(aParent);
     }
 
-    static void unlink(PluckerElement<P>* aParent, PluckerElement<P>* aChild)
+    static void unlink(PluckerElement* aParent, PluckerElement* aChild)
     {
         aParent->deleteChildren(aChild);
         aChild->deleteParent(aParent);
     }
 
-    static const std::list<PluckerElement<P>*>& getChildren()
+    static const std::list<PluckerElement*>& getChildren()
     {
         return mEmptyChildren;
     }
     
-    virtual void appendChildren(PluckerElement<P>* aChild)
+    virtual void appendChildren(PluckerElement* aChild)
     {
     
     }
 
-    virtual void deleteChildren(PluckerElement<P>* aChild)
+    virtual void deleteChildren(PluckerElement* aChild)
     {
         
     }
@@ -113,17 +113,17 @@ public:
         return GeometryPositionType::ON_UNKNOWN_POSITION;
     }
     
-    void appendParent(PluckerElement<P>* aParent)
+    void appendParent(PluckerElement* aParent)
     {
         mParents.push_back(aParent);        
     }
 
-    void deleteParent(PluckerElement<P>* aParent)
+    void deleteParent(PluckerElement* aParent)
     {
         mParents.remove(aParent);
     }
 
-    const std::list<PluckerElement<P>*>& getParents() const
+    const std::list<PluckerElement*>& getParents() const
     {
         return mParents;
     }
@@ -158,14 +158,14 @@ public:
         return mRank;
     }
 
-    bool hasAncestor(PluckerElement<P>* anAncestor) const
+    bool hasAncestor(PluckerElement* anAncestor) const
     {
-        std::stack<const PluckerElement<P>*> stack;
+        std::stack<const PluckerElement*> stack;
         stack.push(this);
          
         while (!stack.empty())
         {
-            const PluckerElement<P>* element = stack.top();
+            const PluckerElement* element = stack.top();
             stack.pop();
             
             for (auto parent: element->getParents())
@@ -181,11 +181,11 @@ public:
     }
     private:
         
-        std::list<PluckerElement<P>*> mParents;
+        std::list<PluckerElement*> mParents;
         std::vector<size_t> mFacetDescription;
         int mRank;      
         GeometryPositionType mQuadricRelativePosition;
-        static const std::list<PluckerElement<P>*> mEmptyChildren;
+        static const std::list<PluckerElement*> mEmptyChildren;
 };
 
 class PluckerBoundingVolume
@@ -246,17 +246,17 @@ class PluckerInnerNode : public PluckerElement
     {
 
     }
-    virtual void appendChildren(PluckerElement<P>* aChild)
+    virtual void appendChildren(PluckerElement* aChild)
     {
         mChildren.push_back(aChild);
     }
 
-    virtual void deleteChildren(PluckerElement<P>* aChild)
+    virtual void deleteChildren(PluckerElement* aChild)
     {
         mChildren.remove(aChild);
     }
 
-    const std::list<PluckerElement<P>*>& getChildren() const
+    const std::list<PluckerElement*>& getChildren() const
     {
         return mChildren;
     }
@@ -272,7 +272,7 @@ class PluckerInnerNode : public PluckerElement
         return position;
     }   
 
-    std::list<PluckerElement<P>*> mChildren;
+    std::list<PluckerElement*> mChildren;
     PluckerBoundingVolume* mBoundingVolume;
 };
 
@@ -441,7 +441,7 @@ class PluckerInterpolatedVertex : public PluckerVertex
         return mElements[k].size();
     }
 
-    const std::list<PluckerElement<P>*>& getElements(size_t k)
+    const std::list<PluckerElement*>& getElements(size_t k)
     {
         return mElements[k];
     }
@@ -466,12 +466,12 @@ class PluckerInterpolatedVertex : public PluckerVertex
         mElements[POLYTOPE].push_back(polytope);
     }
 
-    void appendElement(PluckerElement<P>* element, size_t k)
+    void appendElement(PluckerElement* element, size_t k)
     {
         mElements[k].push_back(element);       
     }
 
-    void deleteElement(PluckerElement<P>* element, size_t k)
+    void deleteElement(PluckerElement* element, size_t k)
     {           
         for (auto child : element->getChildren())
         {
@@ -508,7 +508,7 @@ class PluckerInterpolatedVertex : public PluckerVertex
     template<class T>
     struct ElementIterator
     {
-        ElementIterator(std::list<PluckerElement<P>*>::iterator aIterator, PluckerElement<P>* anAncestor = nullptr)
+        ElementIterator(std::list<PluckerElement*>::iterator aIterator, PluckerElement* anAncestor = nullptr)
         :  mIterator(aIterator),
            mAncestor(anAncestor)            
         {            
@@ -548,53 +548,53 @@ class PluckerInterpolatedVertex : public PluckerVertex
     typedef ElementIterator<PluckerPolytope> PolytopeIterator;
 
     
-    VertexIterator beginVertices(PluckerElement<P>* anAncestor = nullptr)
+    VertexIterator beginVertices(PluckerElement* anAncestor = nullptr)
     {
         return VertexIterator(mElements[VERTEX].begin(), anAncestor);
     }
-    VertexIterator endVertices(PluckerElement<P>* anAncestor = nullptr)
+    VertexIterator endVertices(PluckerElement* anAncestor = nullptr)
     {
         return VertexIterator(mElements[VERTEX].end(), anAncestor);
     }
 
-    EdgeIterator beginEdges(PluckerElement<P>* anAncestor = nullptr)
+    EdgeIterator beginEdges(PluckerElement* anAncestor = nullptr)
     {
         return EdgeIterator(mElements[EDGE].begin(), anAncestor);
     }
 
-    EdgeIterator endEdges(PluckerElement<P>* anAncestor = nullptr)
+    EdgeIterator endEdges(PluckerElement* anAncestor = nullptr)
     {
         return EdgeIterator(mElements[EDGE].end(), anAncestor);
     }
 
-    FacetIterator beginFacets(PluckerElement<P>* anAncestor = nullptr)
+    FacetIterator beginFacets(PluckerElement* anAncestor = nullptr)
     {
         return FacetIterator(mElements[FACET].begin(), anAncestor);
     }
 
-    FacetIterator endFacets(PluckerElement<P>* anAncestor = nullptr)
+    FacetIterator endFacets(PluckerElement* anAncestor = nullptr)
     {
         return FacetIterator(mElements[FACET].end(), anAncestor);
     }
 
-    PolytopeIterator beginPolytopes(PluckerElement<P>* anAncestor = nullptr)
+    PolytopeIterator beginPolytopes(PluckerElement* anAncestor = nullptr)
     {
         return PolytopeIterator(mElements[POLYTOPE].begin(), anAncestor);
     }
 
-    PolytopeIterator endPolytopes(PluckerElement<P>* anAncestor = nullptr)
+    PolytopeIterator endPolytopes(PluckerElement* anAncestor = nullptr)
     {
         return PolytopeIterator(mElements[POLYTOPE].end(), anAncestor);
     }
     private:        
-        std::vector<std::list<PluckerElement<P>*>> mElements;
+        std::vector<std::list<PluckerElement*>> mElements;
 };
 
 class PluckerElementFactory
 {
     public:
         template<class P>
-        static PluckerElement<P>* createElement(int rank)
+        static PluckerElement* createElement(int rank)
         {
             switch(rank)
             {
@@ -607,30 +607,30 @@ class PluckerElementFactory
                 case POLYTOPE:
                     return createPolytope<P>();
                 default:
-                    return new PluckerElement<P>(rank);
+                    return new PluckerElement(rank);
             }
         }
 
         template<class P>
-        static PluckerElement<P>* createPolytope()
+        static PluckerElement* createPolytope()
         {
             return new PluckerPolytope<P>();
         }
 
         template<class P>
-        static PluckerElement<P>* createFacet()
+        static PluckerElement* createFacet()
         {
             return new PluckerFacet<P>();
         }
 
         template<class P>
-        static PluckerElement<P>* createVertex()
+        static PluckerElement* createVertex()
         {
             return new PluckerVertex<P>();
         }
 
         template<class P>
-        static PluckerElement<P>* createEdge()
+        static PluckerElement* createEdge()
         {
             return new PluckerEdge<P>();
         }

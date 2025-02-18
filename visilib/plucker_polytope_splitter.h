@@ -301,7 +301,7 @@ template<class S>
 class SplitAlgorithmStatus
 {
 public:
-    GeometryPositionType getPosition(PluckerElement<P>* aElement) const
+    GeometryPositionType getPosition(PluckerElement* aElement) const
     {
         auto myIter = mPositions.find(aElement);
         if (myIter != mPositions.end())
@@ -311,22 +311,22 @@ public:
         return GeometryPositionType::ON_UNKNOWN_POSITION;
     }
 
-    void setPosition(PluckerElement<P>* aElement, GeometryPositionType aPosition)
+    void setPosition(PluckerElement* aElement, GeometryPositionType aPosition)
     {
         mPositions[aElement] = aPosition;
     }
 
-    void setUnchecked(PluckerElement<P>* aElement)
+    void setUnchecked(PluckerElement* aElement)
     {
         mUnchecked[aElement] = true;
     }
 
-    void setChecked(PluckerElement<P>* aElement)
+    void setChecked(PluckerElement* aElement)
     {
         mUnchecked[aElement] = false;
     }
 
-    bool isUnchecked(PluckerElement<P>* aElement) const
+    bool isUnchecked(PluckerElement* aElement) const
     {
         auto myIter = mUnchecked.find(aElement);
         if (myIter != mUnchecked.end())
@@ -357,8 +357,8 @@ public:
         mUnchecked.clear();
     }
 private:
-        std::map<PluckerElement<P>*, GeometryPositionType> mPositions;
-        std::map<PluckerElement<P>*, bool> mUnchecked;
+        std::map<PluckerElement*, GeometryPositionType> mPositions;
+        std::map<PluckerElement*, bool> mUnchecked;
         std::map<PluckerVertex<P>*, S> mPlaneOffsets;
 };
 
@@ -378,8 +378,8 @@ inline void split(const P& aPlane, PluckerPolytopeComplex<P>& aComplex, SplitAlg
     
     for (int k = 1; k < aComplex.getDimension(); k++)
     {
-        std::vector<PluckerElement<P>*> newElements;
-        std::vector<PluckerElement<P>*> newChildren;
+        std::vector<PluckerElement*> newElements;
+        std::vector<PluckerElement*> newChildren;
         
         for (auto c: aComplex.getElements(k))
         {
@@ -387,7 +387,7 @@ inline void split(const P& aPlane, PluckerPolytopeComplex<P>& aComplex, SplitAlg
             aStatus.setPosition(c, myPositionC); 
             if (myPositionC == ON_BOUNDARY)
             {
-                PluckerElement<P>* f = NULL;
+                PluckerElement* f = NULL;
                 
                 if (k==EntityDimension::EDGE) // edges
                 {
@@ -413,8 +413,8 @@ inline void split(const P& aPlane, PluckerPolytopeComplex<P>& aComplex, SplitAlg
                    }
                 }
 
-                PluckerElement<P>* cp = new PluckerElement();
-                PluckerElement<P>* cm = new PluckerElement();
+                PluckerElement* cp = new PluckerElement();
+                PluckerElement* cm = new PluckerElement();
                 newChildren.push_back(cp);
                 newChildren.push_back(cm);
 
@@ -473,14 +473,14 @@ inline void reclassify(PluckerPolytopeComplex<P>& aComplex, SplitAlgorithmStatus
     
         if (aStatus.getPosition(vertex) == ON_BOUNDARY)
         {
-            std::stack<PluckerElement<P>*> stack;
+            std::stack<PluckerElement*> stack;
             for (auto parent: vertex->getParents())
             {
                 stack.push(parent);
             }
             while (!stack.empty())
             {
-                PluckerElement<P>* element = stack.top();
+                PluckerElement* element = stack.top();
                 stack.pop();
 
                 aStatus.setChecked(element);
@@ -508,14 +508,14 @@ inline void reclassify(PluckerPolytopeComplex<P>& aComplex, SplitAlgorithmStatus
                 if (false)
                 {
                     //classify all the vertices of c as ON_BOUNDARY
-                    std::stack<PluckerElement<P>*> stack;
+                    std::stack<PluckerElement*> stack;
                     for (auto child: c->getChildren())
                     {
                         stack.push(child);
                     }
                     while (!stack.empty())
                     {
-                        PluckerElement<P>* element = stack.top();
+                        PluckerElement* element = stack.top();
                         stack.pop();  
                         if (element->getRank() == 0)
                         {
