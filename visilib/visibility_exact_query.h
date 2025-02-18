@@ -31,9 +31,8 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include "math_predicates.h"
 #include "math_plucker_2.h"
 #include "math_vector_3.h"
-#include "plucker_polytope_complex.h"
 #include "plucker_polytope_builder.h"
-#include "plucker_polytope_complex.h"
+#include "plucker_polytope.h"
 #include "visibility_aperture_finder.h"
 #include "silhouette_container.h"
 #include "silhouette_processor.h"
@@ -514,7 +513,7 @@ namespace visilib
         {
              HelperScopedTimer timer(getStatistic(), STABBING_LINE_EXTRACTION);
 
-             myRepresentativeLine = MathGeometry::computeRepresentativeLine<P>(aPolytope, polyhedron, mTolerance);
+             myRepresentativeLine = MathGeometry::computeRepresentativeLine<P>(aPolytope, mTolerance);
              if (mConfiguration.hyperSphereNormalization)
                  myRepresentativeLine = myRepresentativeLine.getNormalized();
              polytopeLines.push_back(myRepresentativeLine);

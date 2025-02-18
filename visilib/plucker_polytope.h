@@ -23,7 +23,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include <stack>
 #include <list>
 #include "math_plucker_6.h"
-
+#include "geometry_position_type.h"
 namespace visilib
 {
     template<class S>
@@ -41,211 +41,16 @@ namespace visilib
     Currently only the initial polytope and the polyhedron in Pluker space are stored explicitely
     */
 
+   enum ELEMENT_TYPE
+   {
+       VERTEX = 0,
+       EDGE = 1,
+       FACET = 2,
+       POLYTOPE = 5,
+       MAXIMUM = 5
+   };
 
-    
-    template<class P>
-    class PluckerPolytopeComplex
-    {
-    public:
-    
-    static const VERTEX = 0;
-    static const EDGE = 1;
-    static const FACET = 2;
-    static const POLYTOPE = 5;
-    static const MAXIMUM = 5;
-
-
-    PluckerPolytopeComplex(int dimension = MAXIMUM)    
-    {
-        mElements.resize(dimension);
-    }
-
-    ~PluckerPolytopeComplex()
-    {
-        for (for auto myElementK: mElements)
-        {
-            for (auto element : myElementK)
-            {
-                delete element;
-            }
-        }
-    }
-
-    static getCombinatorialFacetsMaximumCount(int dimension)
-    {
-        return {5, 4, 3, 2, 1, 0}[dimension];
-    }    
-    
-    int getDimension() const
-    {
-        return mElements.size();
-    }
-
-    void reset()
-    {
-        for (for auto myElementK: mElements)
-        {
-            for (auto element : myElementK)
-            {
-                element->reset();
-            }
-        }
-    }
-        
-    const size_t getElementsCount(size_t k)
-    {
-        return mElements[k].size();
-    }
-
-    const std::list<PluckerElement*>& getElements(size_t k)
-    {
-        return mElements[k];
-    }
-    
-    void appendVertex(PluckerVertex* vertex)
-    {
-        mElements[VERTEX].push_back(vertex);
-    }
-
-    void appendFacet(PluckerFacet* facet)
-    {        
-        mElements[FACET].push_back(facet);
-    }
-
-    void appendEdge(PluckerEdge* edge)
-    {        
-        mElements[EDGE].push_back(edge);
-    }
-
-    void appendPolytope(PluckerPolytope* polytope)
-    {        
-        mElements[POLYTOPE].push_back(polytope);
-    }
-
-    void appendElement(PluckerElement* element, size_t k)
-    {
-        mElements[k].push_back(element);       
-    }
-
-    void deleteElement(PluckerElement* element, size_t k)
-    {           
-        for (auto child : element->getChildren())
-        {
-            child->deleteParent(element);
-        }
-        for (auto parent : element->getParents())
-        {
-            parent->deleteChildren(element);
-        }
-        mElements[k].remove(element);
-        delete element;
-    }
-
-    void deleteVertex(PluckerVertex* vertex)
-    {
-        deleteElement(vertex,VERTEX);
-    }
-
-    void deleteEdge(PluckerEdge* edge)
-    {
-        deleteElement(edge,EDGE);
-    }
-
-    void deleteFacet(PluckerFacet* facet)
-    {
-        deleteElement(facet,FACET);
-    }
-
-    void deletePolytope(PluckerPolytope* polytope)
-    {
-        deleteElement(polytope,POLYTOPE);
-    }
-
-    template<class T>
-    struct ElementIterator
-    {
-        ElementIterator(std::list<PluckerElement*>::iterator aIterator, PluckerElement* anAncestor = nullptr)
-        :  mIterator(aIterator),
-           mAncestor(anAncestor)            
-        {            
-        }
-
-        T operator*()
-        {
-            return static_cast<T*>(*mIterator);
-        }
-
-        void operator++()
-        {
-            if (mAncestor == nullptr)
-            {
-                mIterator++;
-            }
-            else
-            {
-                while (mIterator != mElements.end() && (*mIterator)->getAncestor() != mAncestor)
-                {
-                    mIterator++;
-                }
-            }
-        }
-
-        bool operator!=(const T& aIterator)
-        {
-            return mIterator != aIterator.mIterator;
-        }
-        
-        std::list<T*>::iterator mIterator;
-    };
-
-    typedef ElementIterator<PluckerVertex> VertexIterator;
-    typedef ElementIterator<PluckerEdge> EdgeIterator;
-    typedef ElementIterator<PluckerFacet> FacetIterator;
-    typedef ElementIterator<PluckerPolytope> PolytopeIterator;
-
-    
-    VertexIterator beginVertices(PluckerElement* anAncestor = nullptr)
-    {
-        return VertexIterator(mElements[VERTEX].begin(), anAncestor);
-    }
-    VertexIterator endVertices(PluckerElement* anAncestor = nullptr)
-    {
-        return VertexIterator(mElements[VERTEX].end(), anAncestor);
-    }
-
-    EdgeIterator beginEdges(PluckerElement* anAncestor = nullptr)
-    {
-        return EdgeIterator(mElements[EDGE].begin(), anAncestor);
-    }
-
-    EdgeIterator endEdges(PluckerElement* anAncestor = nullptr)
-    {
-        return EdgeIterator(mElements[EDGE].end(), anAncestor);
-    }
-
-    FacetIterator beginFacets(PluckerElement* anAncestor = nullptr)
-    {
-        return FacetIterator(mElements[FACET].begin(), anAncestor);
-    }
-
-    FacetIterator endFacets(PluckerElement* anAncestor = nullptr)
-    {
-        return FacetIterator(mElements[FACET].end(), anAncestor);
-    }
-
-    PolytopeIterator beginPolytopes(PluckerElement* anAncestor = nullptr)
-    {
-        return PolytopeIterator(mElements[POLYTOPE].begin(), anAncestor);
-    }
-
-    PolytopeIterator endPolytopes(PluckerElement* anAncestor = nullptr)
-    {
-        return PolytopeIterator(mElements[POLYTOPE].end(), anAncestor);
-    }
-    private:        
-        std::vector<std::list<PluckerElement*>> mElements;
-};
-
+       
 template<class P>
 class IPluckerPoint
 {
@@ -525,15 +330,18 @@ class PluckerEdge : public PluckerInnerNode
 };
 
 template<class P>
-class PluckerPolytopeElement : public PluckerInnerNode, IPluckerPoint<P>
+class PluckerPolytopeComplex;
+
+template<class P>
+class PluckerPolytope : public PluckerInnerNode, IPluckerPoint<P>
 {
-    PluckerPolytopeElement()
+    PluckerPolytope()
     : PluckerInnerNode(POLYTOPE)
     {
         
     }
 
-    ~PluckerPolytopeElement()
+    ~PluckerPolytope()
     {
         // TODO: delete mSilhouettes
     }
@@ -541,6 +349,11 @@ class PluckerPolytopeElement : public PluckerInnerNode, IPluckerPoint<P>
     {
         return getPlucker();
     }
+    
+    void fillVertices(PluckerPolytopeComplex<P>* complex, std::vector<PluckerVertex<P>*>& aPolytopeVertices);
+    
+
+
                                /** < @brief The ESL of the polytope, at the intersection of an edge and the Plucker Quadric*/
     std::unordered_set<Silhouette*> mSilhouettes;          /** < @brief The set of silhouettes associated to the polytope*/
 };
@@ -572,6 +385,203 @@ class PluckerInterpolatedVertex : public PluckerVertex
         double mAlpha, mBeta;
 
 };
+ 
+    template<class P>
+    class PluckerPolytopeComplex
+    {
+    public:
+    
+
+    PluckerPolytopeComplex(int dimension = MAXIMUM)    
+    {
+        mElements.resize(dimension);
+    }
+
+    ~PluckerPolytopeComplex()
+    {
+        for (auto myElementK: mElements)
+        {
+            for (auto element : myElementK)
+            {
+                delete element;
+            }
+        }
+    }
+
+    static getCombinatorialFacetsMaximumCount(int dimension)
+    {
+        return {5, 4, 3, 2, 1, 0}[dimension];
+    }    
+    
+    int getDimension() const
+    {
+        return mElements.size();
+    }
+
+    void reset()
+    {
+        for (for auto myElementK: mElements)
+        {
+            for (auto element : myElementK)
+            {
+                element->reset();
+            }
+        }
+    }
+        
+    const size_t getElementsCount(size_t k)
+    {
+        return mElements[k].size();
+    }
+
+    const std::list<PluckerElement*>& getElements(size_t k)
+    {
+        return mElements[k];
+    }
+    
+    void appendVertex(PluckerVertex* vertex)
+    {
+        mElements[VERTEX].push_back(vertex);
+    }
+
+    void appendFacet(PluckerFacet* facet)
+    {        
+        mElements[FACET].push_back(facet);
+    }
+
+    void appendEdge(PluckerEdge* edge)
+    {        
+        mElements[EDGE].push_back(edge);
+    }
+
+    void appendPolytope(PluckerPolytope* polytope)
+    {        
+        mElements[POLYTOPE].push_back(polytope);
+    }
+
+    void appendElement(PluckerElement* element, size_t k)
+    {
+        mElements[k].push_back(element);       
+    }
+
+    void deleteElement(PluckerElement* element, size_t k)
+    {           
+        for (auto child : element->getChildren())
+        {
+            child->deleteParent(element);
+        }
+        for (auto parent : element->getParents())
+        {
+            parent->deleteChildren(element);
+        }
+        mElements[k].remove(element);
+        delete element;
+    }
+
+    void deleteVertex(PluckerVertex* vertex)
+    {
+        deleteElement(vertex,VERTEX);
+    }
+
+    void deleteEdge(PluckerEdge* edge)
+    {
+        deleteElement(edge,EDGE);
+    }
+
+    void deleteFacet(PluckerFacet* facet)
+    {
+        deleteElement(facet,FACET);
+    }
+
+    void deletePolytope(PluckerPolytope* polytope)
+    {
+        deleteElement(polytope,POLYTOPE);
+    }
+
+    template<class T>
+    struct ElementIterator
+    {
+        ElementIterator(std::list<PluckerElement*>::iterator aIterator, PluckerElement* anAncestor = nullptr)
+        :  mIterator(aIterator),
+           mAncestor(anAncestor)            
+        {            
+        }
+
+        T operator*()
+        {
+            return static_cast<T*>(*mIterator);
+        }
+
+        void operator++()
+        {
+            if (mAncestor == nullptr)
+            {
+                mIterator++;
+            }
+            else
+            {
+                while (mIterator != mElements.end() && (*mIterator)->getAncestor() != mAncestor)
+                {
+                    mIterator++;
+                }
+            }
+        }
+
+        bool operator!=(const T& aIterator)
+        {
+            return mIterator != aIterator.mIterator;
+        }
+        
+        std::list<T*>::iterator mIterator;
+    };
+
+    typedef ElementIterator<PluckerVertex> VertexIterator;
+    typedef ElementIterator<PluckerEdge> EdgeIterator;
+    typedef ElementIterator<PluckerFacet> FacetIterator;
+    typedef ElementIterator<PluckerPolytope> PolytopeIterator;
+
+    
+    VertexIterator beginVertices(PluckerElement* anAncestor = nullptr)
+    {
+        return VertexIterator(mElements[VERTEX].begin(), anAncestor);
+    }
+    VertexIterator endVertices(PluckerElement* anAncestor = nullptr)
+    {
+        return VertexIterator(mElements[VERTEX].end(), anAncestor);
+    }
+
+    EdgeIterator beginEdges(PluckerElement* anAncestor = nullptr)
+    {
+        return EdgeIterator(mElements[EDGE].begin(), anAncestor);
+    }
+
+    EdgeIterator endEdges(PluckerElement* anAncestor = nullptr)
+    {
+        return EdgeIterator(mElements[EDGE].end(), anAncestor);
+    }
+
+    FacetIterator beginFacets(PluckerElement* anAncestor = nullptr)
+    {
+        return FacetIterator(mElements[FACET].begin(), anAncestor);
+    }
+
+    FacetIterator endFacets(PluckerElement* anAncestor = nullptr)
+    {
+        return FacetIterator(mElements[FACET].end(), anAncestor);
+    }
+
+    PolytopeIterator beginPolytopes(PluckerElement* anAncestor = nullptr)
+    {
+        return PolytopeIterator(mElements[POLYTOPE].begin(), anAncestor);
+    }
+
+    PolytopeIterator endPolytopes(PluckerElement* anAncestor = nullptr)
+    {
+        return PolytopeIterator(mElements[POLYTOPE].end(), anAncestor);
+    }
+    private:        
+        std::vector<std::list<PluckerElement*>> mElements;
+};
 
 class PluckerElementFactory
 {
@@ -597,7 +607,7 @@ class PluckerElementFactory
         template<class P>
         static PluckerElement* createPolytope()
         {
-            return new PluckerPolytopeElement<P>();
+            return new PluckerPolytope<P>();
         }
 
         template<class P>
@@ -618,6 +628,14 @@ class PluckerElementFactory
             return new PluckerEdge<P>();
         }
 };
+
+template<class P>
+void PluckerPolytope<P>::fillVertices(PluckerPolytopeComplex<P>* complex, std::vector<PluckerVertex<P>*>& aPolytopeVertices)
+{
+    for (auto iter = complex->beginVertices(this); iter != complex->endVertices(this); iter++)
+    {
+        aPolytopeVertices.push_back(*iter);
+    }    
 
 } //namespace visilib
 

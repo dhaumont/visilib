@@ -36,7 +36,6 @@ namespace visilib
     template<class S>
     class PluckerPolytope;
     template<class S>
-    class PluckerPolyhedron;
 
     /** @brief Provides geometrical functions.*/
 
@@ -165,7 +164,7 @@ namespace visilib
         template<class P, class S> static P getClosestQuadricPoint(const P& line);
 
         template<class P, class S>
-        bool static isEdgeInsidePolytope(const MathVector3d& a, const MathVector3d& b, PluckerPolytope<P>* aPolytope, const MathVector3d& approximateNormal, S tolerance);
+        bool static isEdgeInsidePolytope(const MathVector3d& a, const MathVector3d& b, const std::vector<PluckerVertex<P>*>& aPolytopeVertices, const MathVector3d& approximateNormal, S tolerance);
         
         template<class S>
         static bool isBoxInsideConvexHull(const MathVector3_<S>& AABBMin, const MathVector3_<S>& AABBMax, const std::vector<MathPlane3_<S> >& convexHullPlanes);
@@ -872,7 +871,9 @@ namespace visilib
     }
 
     template<class P, class S>
-    bool  MathGeometry::isEdgeInsidePolytope(const MathVector3d& a, const MathVector3d& b, PluckerPolytope<P>* aPolytope, const MathVector3d& approximateNormal, S tolerance)
+    bool  MathGeometry::isEdgeInsidePolytope(const MathVector3d& a, const MathVector3d& b, 
+                                             const std::vector<PluckerVertex<P>*>& aPolytopeVertices,
+                                             const MathVector3d& approximateNormal, S tolerance)
     {
         MathVector3d e = b;
         e -= a;
@@ -887,9 +888,10 @@ namespace visilib
         {
             P  myHyperplane(a, a + e1);
 
-            for (auto v : aPolytope->getVertices())
+            for (auto v : aPolytopeVertices)
             {
-                GeometryPositionType position = MathPredicates::getVertexPlaneRelativePosition(myHyperplane,polyhedron->get(v), tolerance);
+                PluckerVertex* myVertex = *v;
+                GeometryPositionType position = MathPredicates::getVertexPlaneRelativePosition(myHyperplane,myVertex->getPlucker(), tolerance);
                 if (position == ON_NEGATIVE_SIDE || position == ON_BOUNDARY)
                 {
                     hasPointInside1 = true;
@@ -902,7 +904,7 @@ namespace visilib
         {
             P  myHyperplane(b, b + e1);
 
-            for (auto v : aPolytope->getVertices())
+            for (auto v : aPolytopeVertices)
             {
                 GeometryPositionType position = MathPredicates::getVertexPlaneRelativePosition(myHyperplane, polyhedron->get(v), tolerance);
                 if (position == ON_POSITIVE_SIDE || position == ON_BOUNDARY)
@@ -917,15 +919,14 @@ namespace visilib
     }
 
     template<class P, class S>
-    inline P MathGeometry::computeRepresentativeLine(PluckerPolytope<P> * polytope, PluckerPolyhedron<P> * polyhedron, S tolerance)
+    inline P MathGeometry::computeRepresentativeLine(const std::vector<PluckerVertex<P>*>& aPolytopeVertices, S tolerance)
     {   
         P  myGravityCenterImaginary = P::Zero();
         auto myVertices = polytope->getVertices();
         
-        for (auto iter = myVertices.begin(); iter != myVertices.end(); iter++)
+        for (auto v : aPolytopeVertices)
         {
-            size_t v = *iter;
-            myGravityCenterImaginary += polyhedron->get(v);
+            myGravityCenterImaginary += v->getPlucker();
         }
         
         P myGravityCenterReal = getProjectionOnQuadric<P,S>(myGravityCenterImaginary);

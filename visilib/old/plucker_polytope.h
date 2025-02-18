@@ -26,7 +26,6 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include "math_geometry.h"
 #include "math_combinatorial.h"
 #include "geometry_position_type.h"
-#include "plucker_polyhedron.h"
 
 namespace visilib
 {

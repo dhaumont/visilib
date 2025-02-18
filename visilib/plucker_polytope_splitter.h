@@ -29,8 +29,6 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include "math_geometry.h"
 #include "math_combinatorial.h"
 #include "plucker_polytope.h"
-#include "plucker_polytope_complex.h"
-#include "plucker_polyhedron.h"
 
 namespace visilib
 {

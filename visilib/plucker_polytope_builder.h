@@ -23,7 +23,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include "math_predicates.h"
 #include "geometry_convex_polygon.h"
 #include "math_combinatorial.h"
-#include "plucker_polytope_complex.h"
+#include "plucker_polytope.h"
 
 namespace visilib
 {
@@ -232,7 +232,7 @@ namespace visilib
         
         std::vector<PluckerFacet*> myFacetsVector;
         
-        PluckerPolytopeElement* myPolytope = new PluckerPolytopeElement();
+        PluckerPolytope* myPolytope = new PluckerPolytope();
         polytope->appendPolytope(myPolytope);
 
         for (auto iter = polytope->beginFacets(); iter != polytope->endFacets(); iter++)

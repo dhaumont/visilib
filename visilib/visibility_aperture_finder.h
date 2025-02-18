@@ -27,9 +27,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include "silhouette_mesh_face.h"
 #include "math_plucker_2.h"
 #include "math_predicates.h"
-#include "plucker_polyhedron.h"
 #include "plucker_polytope.h"
-#include "plucker_polytope_complex.h"
 #include "plucker_polytope_splitter.h"
 #include "visibility_exact_query.h"
 #include "silhouette.h"
@@ -148,7 +146,7 @@ namespace visilib
 
 {
         HelperScopedTimer timer(VisibilitySolver<P, S>::mQuery->getStatistic(), OCCLUDER_TREATMENT);
-        if (VisibilitySolver<P, S>::mQuery->isOccluded(aPolytope, myPolyhedron, myOccluders, polytopeLines))
+        if (VisibilitySolver<P, S>::mQuery->isOccluded(aPolytope, myOccluders, polytopeLines))
         {
 #ifdef OUTPUT_DEBUG_FILE
             V_LOG(debugOutput, "COUNT: IS OCCLUDED", occlusionTreeNodeSymbol);

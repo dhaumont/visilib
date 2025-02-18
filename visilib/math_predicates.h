@@ -22,7 +22,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 
 #include "math_plucker_6.h"
 #include "geometry_position_type.h"
-
+#include "plucker_polytope.h"
 namespace visilib
 {
     class GeometryConvexPolygon;
@@ -46,9 +46,9 @@ namespace visilib
         template <class S>          static GeometryPositionType getRelativePosition(S dot, S epsilon);
         template <class P, class S> static GeometryPositionType getVertexPlaneRelativePosition(const P& plane, const P& point, S epsilon);
         template <class P, class S> static GeometryPositionType getQuadricRelativePosition(const P& point, S epsilon);
-        template <class P>          static bool                 hasPluckerPolytopeIntersectionWithQuadric(PluckerPolytope<P>* polytope);
-        template <class P>          static GeometryPositionType getRelativePosition(PluckerPolytope<P>* polytope, const P& aPlane0, const P& aPlane1, const P& aPlane2);
-        template <class P>          static GeometryPositionType getRelativePosition(PluckerPolytope<P>* polytope, const P& aPlane);
+        template <class P>          static bool                 hasPluckerPolytopeIntersectionWithQuadric(const std::vector<PluckerVertex<P>*>& aPolytopeVertices);
+        template <class P>          static GeometryPositionType getRelativePosition(const std::vector<PluckerVertex<P>*>& aPolytopeVertices, const P& aPlane0, const P& aPlane1, const P& aPlane2);
+        template <class P>          static GeometryPositionType getRelativePosition(const std::vector<PluckerVertex<P>*>& aPolytopeVertices, const P& aPlane);
 
         static GeometryPositionType getRelativePosition(const std::vector<MathVector3d>& points, const MathPlane3d& aPlane);
     };
@@ -93,17 +93,14 @@ namespace visilib
     }
 
     template <class P>
-    inline bool MathPredicates::hasPluckerPolytopeIntersectionWithQuadric(PluckerPolytope<P>* polytope)
+    inline bool MathPredicates::hasPluckerPolytopeIntersectionWithQuadric(const std::vector<PluckerVertex<P>*>& aPolytopeVertices)
     {
         bool hasPointOnTheLeft = false;
         bool hasPointOnTheRight = false;
 
-        auto myVertices = polytope->getVertices();
-
-        for (auto iter = myVertices.begin(); iter != myVertices.end(); iter++)
+        for (auto v : aPolytopeVertices)
         {
-            size_t v = *iter;
-            GeometryPositionType position = polyhedron->getQuadricRelativePosition(v);
+            GeometryPositionType position = v->getQuadricRelativePosition();
 
             if (position == ON_BOUNDARY)
             {
@@ -242,15 +239,15 @@ namespace visilib
     }
 
     template <class P>
-    inline GeometryPositionType MathPredicates::getRelativePosition(PluckerPolytope<P> * polytope, PluckerPolyhedron<P> * polyhedron, const P & aPlane0, const P & aPlane1, const P & aPlane2)
+    inline GeometryPositionType MathPredicates::getRelativePosition(const std::vector<PluckerVertex<P>*>& aPolytopeVertices, const P & aPlane0, const P & aPlane1, const P & aPlane2)
     {
-        GeometryPositionType position0 = getRelativePosition(polytope, polyhedron, aPlane0);
+        GeometryPositionType position0 = getRelativePosition(aPolytopeVertices, polyhedron, aPlane0);
         if (position0 == ON_POSITIVE_SIDE)
             return ON_POSITIVE_SIDE;
-        GeometryPositionType position1 = getRelativePosition(polytope, polyhedron, aPlane1);
+        GeometryPositionType position1 = getRelativePosition(aPolytopeVertices, polyhedron, aPlane1);
         if (position1 == ON_POSITIVE_SIDE)
             return ON_POSITIVE_SIDE;
-        GeometryPositionType position2 = getRelativePosition(polytope, polyhedron, aPlane2);
+        GeometryPositionType position2 = getRelativePosition(aPolytopeVertices, polyhedron, aPlane2);
         if (position2 == ON_POSITIVE_SIDE)
             return ON_POSITIVE_SIDE;
 
@@ -261,18 +258,16 @@ namespace visilib
     }
 
     template <class P>
-    inline GeometryPositionType MathPredicates::getRelativePosition(PluckerPolytope<P> * polytope, PluckerPolyhedron<P> * polyhedron, const P & aPlane)
+    inline GeometryPositionType MathPredicates::getRelativePosition(const std::vector<PluckerVertex<P>*>& aPolytopeVertices, const P & aPlane)
     {
         bool hasPointOnTheLeft = false;
         bool hasPointOnTheRight = false;
 
         auto myVertices = polytope->getVertices();
 
-        for (auto iter = myVertices.begin(); iter != myVertices.end(); iter++)
+        for (auto v : aPolytopeVertices)
         {
-            int v = *iter;
-
-            GeometryPositionType position = getRelativePosition(aPlane, polyhedron->get(v));
+            GeometryPositionType position = getRelativePosition(aPlane, v->getPlucker());
 
             if (position == ON_BOUNDARY)
             {
