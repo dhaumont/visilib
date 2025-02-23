@@ -1,651 +1,427 @@
 /*
-Visilib, an open source library for exact visibility computation.
-Copyright(C) 2021 by Denis Haumont
+   Visilib, an open source library for exact visibility computation.
+   Copyright(C) 2021 by Denis Haumont
 
-This file is part of Visilib.
+   This file is part of Visilib.
 
-Visilib is free software : you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+   Visilib is free software : you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
 
-Visilib is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
-GNU General Public License for more details.
+   Visilib is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+   GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with Visilib. If not, see <http://www.gnu.org/licenses/>
-*/
+   You should have received a copy of the GNU General Public License
+   along with Visilib. If not, see <http://www.gnu.org/licenses/>
+   */
 
 #pragma once
 
 #include <stack>
 #include <list>
 #include "math_plucker_6.h"
+#include "math_geometry.h"
+#include "math_combinatorial.h"
 #include "geometry_position_type.h"
+#include "plucker_element.h"
+#include "silhouette.h"
+
 namespace visilib
 {
-    template<class S>
-    class PluckerPolytope;
-    template<class S>
-    class PluckerPolyhedron;
-    class HelperStatisticCollector;
+
     template<class P, class S>
-    class VisibilityExactQuery_;
-    class GeometryConvexPolygon;
+    class PluckerPolytopeComplex;
 
-   
-    /** @brief Represents a complex of polytopes in Plucker space.
-
-    Currently only the initial polytope and the polyhedron in Pluker space are stored explicitely
-    */
-
-   enum ELEMENT_TYPE
-   {
-       VERTEX = 0,
-       EDGE = 1,
-       FACET = 2,
-       POLYTOPE = 5,
-       MAXIMUM = 5
-   };
-
-       
-template<class P>
-class IPluckerPoint
-{
+    template<class P, class S>
+    class PluckerPolytope : public PluckerInnerNode, public IPluckerPoint<P>
+    {
     public:
-    P& getPlucker()
-    {
-        return mPlucker;
-    }
-    const P& getPlucker() const
-    {
-        return mPlucker;
-    }
-    protected:
-        P mPlucker;
-};
-
-
-class PluckerElement
-{
-public:
-    PluckerElement(int aRank)
-    : mRank(aRank),
-      mQuadricRelativePosition(GeometryPositionType::ON_UNKNOWN_POSITION)
-    {
-          
-    }
-    ~PluckerElement()
-    {
-    }
-
-    static void link(PluckerElement* aParent, PluckerElement* aChild)
-    {
-        aParent->appendChildren(aChild);
-        aChild->appendParent(aParent);
-    }
-
-    static void unlink(PluckerElement* aParent, PluckerElement* aChild)
-    {
-        aParent->deleteChildren(aChild);
-        aChild->deleteParent(aParent);
-    }
-
-    static const std::list<PluckerElement*>& getChildren()
-    {
-        return mEmptyChildren;
-    }
-    
-    virtual void appendChildren(PluckerElement* aChild)
-    {
-    
-    }
-
-    virtual void deleteChildren(PluckerElement* aChild)
-    {
-        
-    }
-
-    virtual GeometryPositionType getChildrenPosition() const
-    {
-        return GeometryPositionType::ON_UNKNOWN_POSITION;
-    }
-    
-    void appendParent(PluckerElement* aParent)
-    {
-        mParents.push_back(aParent);        
-    }
-
-    void deleteParent(PluckerElement* aParent)
-    {
-        mParents.remove(aParent);
-    }
-
-    const std::list<PluckerElement*>& getParents() const
-    {
-        return mParents;
-    }
-
-    void setFacetDescription(const std::vector<size_t>& aFacets)
-    {
-        mFacetDescription = aFacets;
-    }
-
-    const std::vector<size_t>& getFacetDescription() const
-    {
-        return mFacetDescription;
-    }
-
-    const size_t setFacetDescription(size_t index) const
-    {
-        return mFacetDescription[index];
-    }
-
-    GeometryPositionType getQuadricRelativePosition() const
-    {
-        return mQuadricRelativePosition;
-    }
-
-    void setQuadricRelativePosition(GeometryPositionType aPosition)
-    {
-        mQuadricRelativePosition = aPosition;
-    }
-
-    int getRank() const
-    {
-        return mRank;
-    }
-
-    bool hasAncestor(PluckerElement* anAncestor) const
-    {
-        std::stack<const PluckerElement*> stack;
-        stack.push(this);
-         
-        while (!stack.empty())
+        PluckerPolytope()
+            : PluckerInnerNode(POLYTOPE)
         {
-            const PluckerElement* element = stack.top();
-            stack.pop();
-            
-            for (auto parent: element->getParents())
+
+        }
+
+        ~PluckerPolytope()
+        {
+            // TODO: delete mSilhouette<P>s
+        }
+
+        const P& getRepresentativeLine() const
+        {
+            return this->getPlucker();
+        }
+
+        const PluckerPolytopeComplex<P,S>* getPolytopeComplex() const
+        {
+            assert(mParents.size() == 1);
+            return static_cast<PluckerPolytopeComplex<P,S>*>(mParents.front());
+        }
+
+        void fillEdges(std::vector<PluckerEdge<P>*>& aPolytopeEdges);
+        void fillVertices(std::vector<PluckerVertex<P>*>& aPolytopeVertices);
+        bool containsRealLines() const;
+        void getExtremalStabbingLinesBackTo3D(std::vector<std::pair<MathVector3d, MathVector3d>>& aStabbingLines, const MathPlane3d& aPlane1, const MathPlane3d& aPlane2);
+        void computeEdgesIntersectingQuadric(S tolerance);
+    private:
+        /** < @brief The ESL of the polytope, at the intersection of an edge and the Plucker Quadric*/
+        std::unordered_set<Silhouette<P>*> mSilhouettes;          /** < @brief The set of silhouettes associated to the polytope*/
+    };
+
+
+
+    template<class P, class S>
+        class PluckerPolytopeComplex : public PluckerInnerNode
+    {
+        public:
+
+
+            PluckerPolytopeComplex(int dimension = MAXIMUM)    
             {
-                if (parent == anAncestor)
+                mElements.resize(dimension);
+            }
+
+            ~PluckerPolytopeComplex()
+            {
+                for (auto myElementK: mElements)
+                {
+                    for (auto element : myElementK)
+                    {
+                        delete element;
+                    }
+                }
+            }
+
+            int getCombinatorialFacetsMaximumCount(int dimension) const
+            {
+                return getDimension() - dimension;
+            }    
+
+            int getDimension() const
+            {
+                return mElements.size();
+            }
+
+            const size_t getElementsCount(size_t k)
+            {
+                return mElements[k].size();
+            }
+
+            const std::list<PluckerElement*>& getElements(size_t k)
+            {
+                return mElements[k];
+            }
+
+            void appendVertex(PluckerVertex<P>* vertex)
+            {
+                mElements[VERTEX].push_back(vertex);
+            }
+
+            void appendFacet(PluckerFacet<P>* facet)
+            {        
+                mElements[FACET].push_back(facet);
+            }
+
+            void appendEdge(PluckerEdge<P>* edge)
+            {        
+                mElements[EDGE].push_back(edge);
+            }
+
+            void appendPolytope(PluckerPolytope<P,S>* polytope)
+            {        
+                mElements[POLYTOPE].push_back(polytope);
+            }
+
+            void appendElement(PluckerElement* element, size_t k)
+            {
+                mElements[k].push_back(element);       
+            }
+
+            void deleteElement(PluckerElement* element, size_t k)
+            {           
+                for (auto child : element->getChildren())
+                {
+                    child->deleteParent(element);
+                }
+                for (auto parent : element->getParents())
+                {
+                    parent->deleteChildren(element);
+                }
+                mElements[k].remove(element);
+                delete element;
+            }
+
+            void deleteVertex(PluckerVertex<P>* vertex)
+            {
+                deleteElement(vertex,VERTEX);
+            }
+
+            void deleteEdge(PluckerEdge<P>* edge)
+            {
+                deleteElement(edge,EDGE);
+            }
+
+            void deleteFacet(PluckerFacet<P>* facet)
+            {
+                deleteElement(facet,FACET);
+            }
+
+            void deletePolytope(PluckerPolytope<P,S>* polytope)
+            {
+                deleteElement(polytope,POLYTOPE);
+            }
+
+            template<class T>
+                class ElementIterator
+                {
+                    public:
+                        ElementIterator(const std::list<PluckerElement*>::iterator& aIterator, PluckerElement* anAncestor = nullptr)
+                            :  mIterator(aIterator),
+                            mAncestor(anAncestor)            
+                    {            
+                    }
+
+                        T operator*()
+                        {
+                            return static_cast<T*>(*mIterator);
+                        }
+
+                        void operator++()
+                        {
+                            if (mAncestor == nullptr)
+                            {
+                                mIterator++;
+                            }
+                            else
+                            {
+                                while (mIterator != mElements.end() && (*mIterator)->getAncestor() != mAncestor)
+                                {
+                                    mIterator++;
+                                }
+                            }
+                        }
+
+                        bool operator!=(const T& aIterator)
+                        {
+                            return mIterator != aIterator.mIterator;
+                        }
+                    private:
+                        PluckerElement* mAncestor;
+                        typename std::list<T*>::iterator mIterator;
+                };
+
+            typedef ElementIterator<PluckerVertex<P>> VertexIterator;
+            typedef ElementIterator<PluckerEdge<P>> EdgeIterator;
+            typedef ElementIterator<PluckerFacet<P>> FacetIterator;
+            typedef ElementIterator<PluckerPolytope<P,S>> PolytopeIterator;
+
+
+            VertexIterator beginVertices(PluckerElement* anAncestor = nullptr)
+            {
+                return VertexIterator(mElements[VERTEX].begin(), anAncestor);
+            }
+            VertexIterator endVertices(PluckerElement* anAncestor = nullptr)
+            {
+                return VertexIterator(mElements[VERTEX].end(), anAncestor);
+            }
+
+            EdgeIterator beginEdges(PluckerElement* anAncestor = nullptr)
+            {
+                return EdgeIterator(mElements[EDGE].begin(), anAncestor);
+            }
+
+            EdgeIterator endEdges(PluckerElement* anAncestor = nullptr)
+            {
+                return EdgeIterator(mElements[EDGE].end(), anAncestor);
+            }
+
+            FacetIterator beginFacets(PluckerElement* anAncestor = nullptr)
+            {
+                return FacetIterator(mElements[FACET].begin(), anAncestor);
+            }
+
+            FacetIterator endFacets(PluckerElement* anAncestor = nullptr)
+            {
+                return FacetIterator(mElements[FACET].end(), anAncestor);
+            }
+
+            PolytopeIterator beginPolytopes(PluckerElement* anAncestor = nullptr)
+            {
+                return PolytopeIterator(mElements[POLYTOPE].begin(), anAncestor);
+            }
+
+            PolytopeIterator endPolytopes(PluckerElement* anAncestor = nullptr)
+            {
+                return PolytopeIterator(mElements[POLYTOPE].end(), anAncestor);
+            }
+        private:        
+            std::vector<std::list<PluckerElement*>> mElements;
+    };
+
+    class PluckerElementFactory
+    {
+        public:
+            template<class P, class S>
+                static PluckerElement* createElement(int rank)
+                {
+                    switch(rank)
+                    {
+                        case VERTEX:
+                            return createVertex<P>();
+                        case EDGE:
+                            return createEdge<P>();
+                        case FACET:
+                            return createFacet<P>();
+                        case POLYTOPE:
+                            return createPolytope<P>();
+                        default:
+                            return new PluckerElement(rank);
+                    }
+                }
+
+            template<class P, class S>
+                static PluckerElement* createPolytope()
+                {
+                    return new PluckerPolytope<P,S>();
+                }
+
+            template<class P>
+                static PluckerElement* createFacet()
+                {
+                    return new PluckerFacet<P>();
+                }
+
+            template<class P>
+                static PluckerElement* createVertex()
+                {
+                    return new PluckerVertex<P>();
+                }
+
+            template<class P>
+                static PluckerElement* createEdge()
+                {
+                    return new PluckerEdge<P>();
+                }
+    };
+
+        template<class P,class S>
+        void PluckerPolytope<P,S>::fillVertices(std::vector<PluckerVertex<P>*>& aPolytopeVertices)
+        {
+            PluckerPolytopeComplex<P,S>* complex = getPolytopeComplex();
+
+            for (auto iter = complex->beginVertices(this); iter != complex->endVertices(this); iter++)
+            {
+                aPolytopeVertices.push_back(*iter);
+            }    
+        }
+
+    template<class P, class S>
+        void PluckerPolytope<P,S>::fillEdges(std::vector<PluckerEdge<P>*>& aPolytopeEdges)
+        {
+            PluckerPolytopeComplex<P,S>* complex = getPolytopeComplex();
+
+            for (auto iter = complex->beginEdge(this); iter != complex->endEdge(this); iter++)
+            {
+                aPolytopeEdges.push_back(*iter);
+            }    
+        }
+
+        template<class P, class S>
+        bool PluckerPolytope<P,S>::containsRealLines() const
+        {
+            PluckerPolytopeComplex<P,S>* complex = getPolytopeComplex();
+
+            int myCount = 0;
+            for (auto iter = complex->beginEdges(this); iter != complex->endEdges(this); iter++)
+            {
+                PluckerEdge<P>* myEdge = *iter;
+
+                if (myEdge->getQuadricRelativePosition() == ON_BOUNDARY)
                 {
                     return true;
                 }
-                stack.push(parent);
+                myCount = myCount++;
             }
-        }
-        return false;
-    }
-    private:
-        
-        std::list<PluckerElement*> mParents;
-        std::vector<size_t> mFacetDescription;
-        int mRank;      
-        GeometryPositionType mQuadricRelativePosition;
-        static const std::list<PluckerElement*> mEmptyChildren;
-};
 
-class PluckerBoundingVolume
-{
-    virtual bool hasIntersection() = 0;
-};
+            return myCount > 0;
+        } 
 
-template<class P, class S>
-class PluckerBoundingSphere: public PluckerBoundingVolume
-{
-    public:
-        PluckerBoundingSphere()
-        : PluckerBoundingVolume()
+        template<class P, class S>
+        void PluckerPolytope<P,S>::getExtremalStabbingLinesBackTo3D(std::vector<std::pair<MathVector3d, MathVector3d>>& aStabbingLines, const MathPlane3d& aPlane1, const MathPlane3d& aPlane2)
         {
-            
-        }
-        virtual ~PluckerBoundingSphere()
-        {
-            
-        }
-    virtual bool hasIntersection()
-    {
-        return false;
-    }
-    private:
-        P mCenter;
-        S mRadius;
-};
+            aStabbingLines.clear();
 
-template<class P, class S>
-class PluckerAABB : public PluckerBoundingVolume
-{
-    public:
-        PluckerAABB()
-        : PluckerBoundingVolume()
-        {
-            
-        }
+            PluckerPolytopeComplex<P,S>* complex = getPolytopeComplex();
+            std::vector<PluckerEdge<P>*> myEdges;
+            fillEdges(myEdges);
 
-        virtual ~PluckerAABB()
-        {
-            
-        }
-        virtual bool hasIntersection()
-        {
-            return false;
-        }
-    private:
-        P mMin;
-        P mMax;
-};
-
-class PluckerInnerNode : public PluckerElement
-{
-    PluckerInnerNode(int aRank)
-    : PluckerElement(aRank),
-      mBoundingVolume(nullptr)
-    {
-
-    }
-    virtual void appendChildren(PluckerElement* aChild)
-    {
-        mChildren.push_back(aChild);
-    }
-
-    virtual void deleteChildren(PluckerElement* aChild)
-    {
-        mChildren.remove(aChild);
-    }
-
-    const std::list<PluckerElement*>& getChildren() const
-    {
-        return mChildren;
-    }
-    
-    GeometryPositionType getChildrenPosition() const
-    {
-        GeometryPositionType position = ON_BOUNDARY;
-
-        for (auto vertices = mChildren.begin(); vertices != mChildren.end(); vertices++)
-        {
-            
-        }
-        return position;
-    }   
-
-    std::list<PluckerElement*> mChildren;
-    PluckerBoundingVolume* mBoundingVolume;
-};
-
-
-
-template<class P>
-class PluckerFacet : public PluckerInnerNode, IPluckerPoint<P>
-:: PluckerInnerNode(FACET)
-{
-    
-};
-
-template<class P>
-class PluckerVertex : public PluckerElement, IPluckerPoint<P>
-:: PluckerElement(VERTEX)
-{
-    
-};
-
-template<class P>
-class PluckerEdge : public PluckerInnerNode
-{
-    PluckerEdge()
-    : PluckerInnerNode(EDGE)
-    {
-
-    }
-
-    ~PluckerEdge()
-    {
-
-    }
-
-    void getVertices(PluckerVertex<P>*& aVertex0, PluckerVertex<P>*& aVertex1)
-    {
-        auto iter = mChildren.begin();
-        aVertex0 = *iter;
-        iter = iter++;
-        aVertex1 = *iter;
-    }
-    
-    const PluckerVertex<P>* getVertex0() const
-    {
-        assert(mChildren.size() == 2);
-        return static_cast<PluckerVertex<P>*>(mChildren.front());
-    }
-
-    const PluckerVertex<P>* getVertex1() const
-    {
-        assert(mChildren.size() == 2);
-        return static_cast<PluckerVertex<P>*>(mChildren.back());
-    }
-    const P& getVertex1() const;    
-    std::vector<P> mExtremalStabbingLines;    
-};
-
-template<class P>
-class PluckerPolytopeComplex;
-
-template<class P>
-class PluckerPolytope : public PluckerInnerNode, IPluckerPoint<P>
-{
-    PluckerPolytope()
-    : PluckerInnerNode(POLYTOPE)
-    {
-        
-    }
-
-    ~PluckerPolytope()
-    {
-        // TODO: delete mSilhouettes
-    }
-    const P& getRepresentativeLine()
-    {
-        return getPlucker();
-    }
-    
-    template<class P>
-    const PluckerComplex<P>* getPolytopeComplex() const
-    {
-        assert(mParents.size() == 1);
-        return static_cast<PluckerVertex<P>*>(mParents.front());
-    }
-
-    template<class P>
-    void fillVertices(std::vector<PluckerVertex<P>*>& aPolytopeVertices);
-    
-
-                               /** < @brief The ESL of the polytope, at the intersection of an edge and the Plucker Quadric*/
-    std::unordered_set<Silhouette*> mSilhouettes;          /** < @brief The set of silhouettes associated to the polytope*/
-};
-
-template<class P, class S>
-class PluckerInterpolatedVertex : public PluckerVertex
-{
-    public:
-
-    PluckerInterpolatedVertex(PluckerEdge<P>* aGeneratorEdge, double aAlpha, double aBeta)
-    : PluckerVertex(),
-      mGeneratorEdge(aGeneratorEdge),
-      mAlpha(aAlpha),
-      mBeta(aBeta)
-    {
-     
-    }
-    template<class S>
-    void interpolate(S tolerance)
-    {
-        mPlucker = MathGeometry::interpolate(mAlpha,
-                                             mBeta,
-                                             mGeneratorEdge->getVertex0()->getPlucker(),
-                                             mGeneratorEdge->getVertex1()->getPlucker(),
-                                             tolerance);
-    }
-    private:
-        PluckerEdge<P>* mGeneratorEdge;  
-        double mAlpha, mBeta;
-
-};
- 
-    template<class P>
-    class PluckerPolytopeComplex : public PluckerInnerNode
-    {
-    public:
-    
-
-    PluckerPolytopeComplex(int dimension = MAXIMUM)    
-    {
-        mElements.resize(dimension);
-    }
-
-    ~PluckerPolytopeComplex()
-    {
-        for (auto myElementK: mElements)
-        {
-            for (auto element : myElementK)
+            for (auto iter : myEdges)
             {
-                delete element;
-            }
-        }
-    }
+                PluckerEdge<P>* myEdge = *iter;
 
-    static getCombinatorialFacetsMaximumCount(int dimension)
-    {
-        return {5, 4, 3, 2, 1, 0}[dimension];
-    }    
-    
-    int getDimension() const
-    {
-        return mElements.size();
-    }
-
-    void reset()
-    {
-        for (for auto myElementK: mElements)
-        {
-            for (auto element : myElementK)
-            {
-                element->reset();
-            }
-        }
-    }
-        
-    const size_t getElementsCount(size_t k)
-    {
-        return mElements[k].size();
-    }
-
-    const std::list<PluckerElement*>& getElements(size_t k)
-    {
-        return mElements[k];
-    }
-    
-    void appendVertex(PluckerVertex<P>* vertex)
-    {
-        mElements[VERTEX].push_back(vertex);
-    }
-
-    void appendFacet(PluckerFacet<P>* facet)
-    {        
-        mElements[FACET].push_back(facet);
-    }
-
-    void appendEdge(PluckerEdge<P>* edge)
-    {        
-        mElements[EDGE].push_back(edge);
-    }
-
-    void appendPolytope(PluckerPolytope<P>* polytope)
-    {        
-        mElements[POLYTOPE].push_back(polytope);
-    }
-
-    void appendElement(PluckerElement* element, size_t k)
-    {
-        mElements[k].push_back(element);       
-    }
-
-    void deleteElement(PluckerElement* element, size_t k)
-    {           
-        for (auto child : element->getChildren())
-        {
-            child->deleteParent(element);
-        }
-        for (auto parent : element->getParents())
-        {
-            parent->deleteChildren(element);
-        }
-        mElements[k].remove(element);
-        delete element;
-    }
-
-    void deleteVertex(PluckerVertex<P>* vertex)
-    {
-        deleteElement(vertex,VERTEX);
-    }
-
-    void deleteEdge(PluckerEdge<P>* edge)
-    {
-        deleteElement(edge,EDGE);
-    }
-
-    void deleteFacet(PluckerFacet<P>* facet)
-    {
-        deleteElement(facet,FACET);
-    }
-
-    void deletePolytope(PluckerPolytope<P>* polytope)
-    {
-        deleteElement(polytope,POLYTOPE);
-    }
-
-    template<class T>
-    struct ElementIterator
-    {
-        ElementIterator(std::list<PluckerElement*>::iterator aIterator, PluckerElement* anAncestor = nullptr)
-        :  mIterator(aIterator),
-           mAncestor(anAncestor)            
-        {            
-        }
-
-        T operator*()
-        {
-            return static_cast<T*>(*mIterator);
-        }
-
-        void operator++()
-        {
-            if (mAncestor == nullptr)
-            {
-                mIterator++;
-            }
-            else
-            {
-                while (mIterator != mElements.end() && (*mIterator)->getAncestor() != mAncestor)
+                if (myEdge->getQuadricRelativePosition() == ON_BOUNDARY)
                 {
-                    mIterator++;
+                    std::pair<MathVector3d, MathVector3d> r = MathGeometry::getBackTo3D(myEdge->getPluckerPoint(), aPlane1, aPlane2);
+                    aStabbingLines.push_back(r);
                 }
             }
-        }
 
-        bool operator!=(const T& aIterator)
-        {
-            return mIterator != aIterator.mIterator;
-        }
-        
-        std::list<T*>::iterator mIterator;
-    };
+#if 1
 
-    typedef ElementIterator<PluckerVertex> VertexIterator;
-    typedef ElementIterator<PluckerEdge> EdgeIterator;
-    typedef ElementIterator<PluckerFacet> FacetIterator;
-    typedef ElementIterator<PluckerPolytope> PolytopeIterator;
-
-    
-    VertexIterator beginVertices(PluckerElement* anAncestor = nullptr)
-    {
-        return VertexIterator(mElements[VERTEX].begin(), anAncestor);
-    }
-    VertexIterator endVertices(PluckerElement* anAncestor = nullptr)
-    {
-        return VertexIterator(mElements[VERTEX].end(), anAncestor);
-    }
-
-    EdgeIterator beginEdges(PluckerElement* anAncestor = nullptr)
-    {
-        return EdgeIterator(mElements[EDGE].begin(), anAncestor);
-    }
-
-    EdgeIterator endEdges(PluckerElement* anAncestor = nullptr)
-    {
-        return EdgeIterator(mElements[EDGE].end(), anAncestor);
-    }
-
-    FacetIterator beginFacets(PluckerElement* anAncestor = nullptr)
-    {
-        return FacetIterator(mElements[FACET].begin(), anAncestor);
-    }
-
-    FacetIterator endFacets(PluckerElement* anAncestor = nullptr)
-    {
-        return FacetIterator(mElements[FACET].end(), anAncestor);
-    }
-
-    PolytopeIterator beginPolytopes(PluckerElement* anAncestor = nullptr)
-    {
-        return PolytopeIterator(mElements[POLYTOPE].begin(), anAncestor);
-    }
-
-    PolytopeIterator endPolytopes(PluckerElement* anAncestor = nullptr)
-    {
-        return PolytopeIterator(mElements[POLYTOPE].end(), anAncestor);
-    }
-    private:        
-        std::vector<std::list<PluckerElement*>> mElements;
-};
-
-class PluckerElementFactory
-{
-    public:
-        template<class P>
-        static PluckerElement* createElement(int rank)
-        {
-            switch(rank)
+            for (size_t i = 0; i < myEdges.size(); i++)
             {
-                case VERTEX:
-                    return createVertex<P>();
-                case EDGE:
-                    return createEdge<P>();
-                case FACET:
-                    return createFacet<P>();
-                case POLYTOPE:
-                    return createPolytope<P>();
-                default:
-                    return new PluckerElement(rank);
+                for (size_t j = i + 1; j < myEdges.size(); j++)
+                {
+                    if (MathCombinatorial::haveAtLeastNCommonFacets(myEdges[i]->getFacetDescription(), myEdges[j]->getFacetDescription(), 3))
+                    {
+                        aStabbingLines.push_back(std::pair<MathVector3d, MathVector3d>( aStabbingLines[i].first,  aStabbingLines[j].first));
+                        aStabbingLines.push_back(std::pair<MathVector3d, MathVector3d>( aStabbingLines[i].second, aStabbingLines[j].second));
+                    }
+                }
             }
+#endif
+
+            V_ASSERT(aStabbingLines.size() > 0);
         }
 
-        template<class P>
-        static PluckerElement* createPolytope()
+    template<class P,class S>
+        void PluckerPolytope<P,S>::computeEdgesIntersectingQuadric(S tolerance)
         {
-            return new PluckerPolytope<P>();
-        }
+            std::vector<PluckerEdge<P>*> myEdges;
+            fillEdges(myEdges);
 
-        template<class P>
-        static PluckerElement* createFacet()
-        {
-            return new PluckerFacet<P>();
-        }
+            if (myEdges.size() > 0 && MathPredicates::hasPluckerPolytopeIntersectionWithQuadric(this))
+            {
+                for (auto iter : myEdges)
+                {
+                    PluckerEdge<P>* myEdge = *iter; 
+                    if (myEdge->getQuadricRelativePosition() == UNKNOWN)
+                    {
+                        //At least one
 
-        template<class P>
-        static PluckerElement* createVertex()
-        {
-            return new PluckerVertex<P>();
-        }
+                        {
+                            const P& v1 = polyhedron->get(iter->first);
+                            const P& v2 = polyhedron->get(iter->second);
+                            GeometryPositionType p1 = polyhedron->getQuadricRelativePosition(iter->first);
+                            GeometryPositionType p2 = polyhedron->getQuadricRelativePosition(iter->second);
+                            if (MathGeometry::hasPluckerEdgeWithQuadricIntersection(v1, v2, p1, p2, tolerance))
+                            {
+                                mEdgesIntersectingQuadric.insert(*iter);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        return;
+                    }
+                    if (!containsRealLines())
+                        return;
+                    V_ASSERT(mEdgesIntersectingQuadric.size() > 0);
+                }
+            }
 
-        template<class P>
-        static PluckerElement* createEdge()
-        {
-            return new PluckerEdge<P>();
-        }
-};
-
-template<class P>
-void PluckerPolytope<P>::fillVertices(std::vector<PluckerVertex<P>*>& aPolytopeVertices)
-{
-    PluckerPolytopeComplex<P>* complex = getPolytopeComplex<P>();
-
-    for (auto iter = complex->beginVertices(this); iter != complex->endVertices(this); iter++)
-    {
-        aPolytopeVertices.push_back(*iter);
-    }    
-
-} //namespace visilib
-
+        } //namespace visilib
 

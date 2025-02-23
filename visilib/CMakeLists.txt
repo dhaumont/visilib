@@ -49,7 +49,6 @@ set(MathSrc
     )
 
 set(PluckerSrc
-    #plucker_polyhedron.h
     plucker_polytope_builder.h
     plucker_polytope.h
     plucker_polytope_splitter.h
@@ -62,7 +61,7 @@ set(VisibilitySrc
 	visibility_ray.h
     )
 
-set(SilhouetteSrc
+set(Silhouette<P>Src
     silhouette_processor.h
     silhouette.h
     silhouette_container.h

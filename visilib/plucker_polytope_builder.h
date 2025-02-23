@@ -38,22 +38,21 @@ namespace visilib
         /** @brief Create the minimal polytope following Mora et al. An extermal stabbing line is created for each vertex pair of polygon a and b.
         @param a: first source polygon
         @param b: second source polygon
-        @param polyhedron: the polyhedron that will contains all the vertices of the polytope
         @return: the created polytope
         */
-        PluckerPolytopeComplex<P>* build(GeometryConvexPolygon& a, GeometryConvexPolygon& b);
+        PluckerPolytopeComplex<P,S>* build(GeometryConvexPolygon& a, GeometryConvexPolygon& b);
 
     private:
-        /** @brief Add the edges of polygon a and b as hyperplanes of the polyhedron. The approximate normal is used when the polygon is degenerated */
-        void addSourcePolygonEdgesAsHyperplanes(PluckerPolytopeComplex<P>* polytope, const GeometryConvexPolygon& aPolygon, bool clockWise, const MathVector3d& approximateNormal);
+        /** @brief Add the edges of polygon a and b as hyperplanes of the polyhetope. The approximate normal is used when the polygon is degenerated */
+        void addSourcePolygonEdgesAsHyperplanes(PluckerPolytopeComplex<P,S>* polytope, const GeometryConvexPolygon& aPolygon, bool clockWise, const MathVector3d& approximateNormal);
 
-        /** @brief Add the extremal stabbing lines of a and b as hyperplanes of the polyhedron */
-        void addExtremalStabbingLines(PluckerPolytopeComplex<P>* polytope, GeometryConvexPolygon& a, GeometryConvexPolygon& b);
+        /** @brief Add the extremal stabbing lines of a and b as hyperplanes of the polyope */
+        void addExtremalStabbingLines(PluckerPolytopeComplex<P,S>* polytope, GeometryConvexPolygon& a, GeometryConvexPolygon& b);
 
         /** @brief Create the edges from the facets representation to obtain the polytope skeleton*/
-        void addElements(PluckerPolytopeComplex<P>* polytope);
+        void addElements(PluckerPolytopeComplex<P,S>* polytope);
 
-        void addStabbingLinesToEdges(PluckerPolytopeComplex<P> * polytope);
+        void addStabbingLinesToEdges(PluckerPolytopeComplex<P,S> * polytope);
 
         bool mNormalization;  /** < @brief Normalization activated or not*/
         S mTolerance;         /** < @brief Tolerance used to compute the intersection with the Plucker quadric */
@@ -67,7 +66,7 @@ namespace visilib
     }
 
     template<class P, class S>
-    inline void PluckerPolytopeBuilder<P, S>::addSourcePolygonEdgesAsHyperplanes(PluckerPolytopeComplex<P>* polytope, const GeometryConvexPolygon& aPolygon, bool clockWise, const MathVector3d& approximateNormal)
+    inline void PluckerPolytopeBuilder<P, S>::addSourcePolygonEdgesAsHyperplanes(PluckerPolytopeComplex<P,S>* polytope, const GeometryConvexPolygon& aPolygon, bool clockWise, const MathVector3d& approximateNormal)
     {
         size_t n = aPolygon.getVertexCount();
         std::vector<MathVector3d> v;
@@ -134,7 +133,7 @@ namespace visilib
     }
 
     template<class P, class S>
-    inline void PluckerPolytopeBuilder<P, S>::addExtremalStabbingLines(PluckerPolytopeComplex<P> * polytope, GeometryConvexPolygon & a, GeometryConvexPolygon & b)
+    inline void PluckerPolytopeBuilder<P, S>::addExtremalStabbingLines(PluckerPolytopeComplex<P,S> * polytope, GeometryConvexPolygon & a, GeometryConvexPolygon & b)
     {
         // There is an extremal stabbing line passing through each vertex of polygon a and each vertex of polygon b.
         // This procedure initialize the facets of each stabbing line, which is the list of edges incident to the lines in 3D space. In Plucker space, it is list of hyperplanes that meet at
@@ -195,7 +194,7 @@ namespace visilib
                     myTemp[2] = j + mySize1;
                     myTemp[3] = j + mySize1 + 1;
                 }
-                myEdge->setFacetDescription(myTemp);
+                myVertex->setFacetDescription(myTemp);
                 
                 myStabbingNumber++;
             }
@@ -203,9 +202,9 @@ namespace visilib
     }
 
     template<class P, class S>
-    inline PluckerPolytopeComplex<P>* PluckerPolytopeBuilder<P, S>::build(GeometryConvexPolygon & a, GeometryConvexPolygon & b)
+    inline PluckerPolytopeComplex<P,S>* PluckerPolytopeBuilder<P, S>::build(GeometryConvexPolygon & a, GeometryConvexPolygon & b)
     {
-        PluckerPolytopeComplex<P>* myPolytopeComplex = new PluckerPolytopeComplex<P>();
+        PluckerPolytopeComplex<P,S>* myPolytopeComplex = new PluckerPolytopeComplex<P,S>();
 
         // The gravity centers are used to compute an approximated normal vector, that will be used when polygons are degenerated
         MathVector3d ga = MathGeometry::getGravityCenter(a);
@@ -219,20 +218,20 @@ namespace visilib
 
 
         myPolytopeComplex->computeEdgesIntersectingQuadric(mTolerance);
-        V_ASSERT(myPolytopeComplex->isValid(aPolyhedron, mNormalization, mTolerance));
+        V_ASSERT(myPolytopeComplex->isValid(mNormalization, mTolerance));
 
         return myPolytopeComplex;
     }
 
     template<class P, class S>
-    inline void PluckerPolytopeBuilder<P, S>::addElements(PluckerPolytopeComplex<P> * aPolytopeComplex)
+    inline void PluckerPolytopeBuilder<P, S>::addElements(PluckerPolytopeComplex<P,S> * aPolytopeComplex)
     {
         // We iterate through all the extremal stabbing lines, and creates and edge for the vertices that share at least three common facets
         // The complexity is O(n^2), and more optimized version could be devised but we keep this one for simplicity
         
         std::vector<PluckerFacet<P>*> myFacetsVector;
         
-        PluckerPolytope<P>* myPolytope = new PluckerPolytope();
+        PluckerPolytope<P,S>* myPolytope = new PluckerPolytope();
         aPolytopeComplex->appendPolytope(myPolytope);
         PluckerElement::link(aPolytopeComplex, myPolytope);
 
@@ -250,14 +249,14 @@ namespace visilib
 
                 for (auto iter2 = iter1; iter2 != children.end(); iter2++)
                 {   
-                    PluckerElement* child2 = *iter2;
+                    PluckerElement<P>* child2 = *iter2;
                     V_ASSERT (child1!=child2)
                     
                     std::vector<size_t> myTemp;
                     MathCombinatorial::getCommonFacets(child1->getFacetDescription(), child2->getFacetDescription(), myTemp);
                     if (myTemp.size() >= getCombinatorialFacetsMaximumCount(k))
                     {
-                        PluckerElement* parent;                            
+                        PluckerElement<P>* parent;                            
 
                         if (k == FACET)
                         {
@@ -269,7 +268,7 @@ namespace visilib
                         }
                         else
                         {
-                            parent = PluckerElementFactory::createElement(k);
+                            parent = PluckerElementFactory::createElement<P,S>(k);
                             parent->setFacetDescription(myTemp);
                             parent->setQuadricRelativePosition(ON_BOUNDARY);
                         }
@@ -285,7 +284,7 @@ namespace visilib
     }
 
     template<class P, class S>
-    inline void PluckerPolytopeBuilder<P, S>::addStabbingLinesToEdges(PluckerPolytopeComplex<P> * polytope)
+    inline void PluckerPolytopeBuilder<P, S>::addStabbingLinesToEdges(PluckerPolytopeComplex<P,S> * polytope)
     {        
         for (auto iter = polytope->beginEdges(); iter != polytope->endEdges(); iter++)
         {

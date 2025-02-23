@@ -200,76 +200,7 @@ namespace visilib
         double mRadius;
         P mRepresentativeLine;
     };
-
-    template<class P>
-    PluckerPolytopeSkeleton<P>::PluckerPolytopeSkeleton()
-        :    mRadius(0)
-    {
-    }
-
-    template<class P>
-    PluckerPolytopeSkeleton<P>::~PluckerPolytopeSkeleton()
-    {
-    }
-
-    template<class P>
-    void PluckerPolytopeSkeleton<P>::addEdge(size_t aVertex0, size_t aVertex1)
-    {
-        size_t min = aVertex0;
-        size_t max = aVertex1;
-        if (aVertex0 > aVertex1)
-        {
-            min = aVertex1;
-            max = aVertex0;
-        }
-        V_ASSERT(aVertex0 != aVertex1);
-        V_ASSERT(MathCombinatorial::haveAtLeastNCommonFacets(aPolyhedron->getFacetsDescription(aVertex0), aPolyhedron->getFacetsDescription(aVertex1)));
-        if (mEdges.find(std::pair<size_t, size_t>(min, max)) == mEdges.end())
-        {
-            mEdges.insert(std::pair<size_t, size_t>(min, max));
-        }
-
-        if (mVertices.find(aVertex0) == mVertices.end())
-        {
-            mVertices.insert(aVertex0);
-        }
-        if (mVertices.find(aVertex1) == mVertices.end())
-        {
-            mVertices.insert(aVertex1);
-        }
-    }
-
-    template<class P>
-    void PluckerPolytopeSkeleton<P>::getExtremalStabbingLinesBackTo3D(std::vector<std::pair<MathVector3d, MathVector3d>>& aStabbingLines, const MathPlane3d& aPlane1, const MathPlane3d& aPlane2)
-    {
-        aStabbingLines.clear();
-        V_ASSERT(mExtremalStabbingLines.size() > 0);
-        for (size_t i = 0; i < mExtremalStabbingLines.size(); i++)
-        {
-            std::pair<MathVector3d, MathVector3d> r = MathGeometry::getBackTo3D(mExtremalStabbingLines[i], aPlane1, aPlane2);
-            aStabbingLines.push_back(r);
-        }
-
-#if 1
-
-        if (mExtremalStabbingLinesFacets.size() == 0)
-            return;
-        for (size_t i = 0; i < mExtremalStabbingLines.size(); i++)
-        {
-            for (size_t j = i + 1; j < mExtremalStabbingLines.size(); j++)
-            {
-                if (MathCombinatorial::haveAtLeastNCommonFacets(mExtremalStabbingLinesFacets[i], mExtremalStabbingLinesFacets[j], 3))
-                {
-                    aStabbingLines.push_back(std::pair<MathVector3d, MathVector3d>( aStabbingLines[i].first,  aStabbingLines[j].first));
-                    aStabbingLines.push_back(std::pair<MathVector3d, MathVector3d>( aStabbingLines[i].second, aStabbingLines[j].second));
-                }
-            }
-        }
-#endif
-
-        V_ASSERT(aStabbingLines.size() > 0);
-    }
-
+   
     template<class P>
     void PluckerPolytopeSkeleton<P>::outputProperties(std::ostream& o)
     {
@@ -482,25 +413,8 @@ namespace visilib
         }        
     }
 
-    template<class P>
-    bool PluckerPolytopeSkeleton<P>::containsRealLines() const
-    {
-        if (mEdgesIntersectingQuadric.size() == 0)
-        {
-            return false;
-        }
+    
 
-        if (mEdges.size() == 0)
-        {
-            return false;
-        }
-        if (mEdges.size() > 5000)
-        {
-            V_ASSERT(0);
-            return false;
-        }
-        return true;
-    }
 
     template<class P> template<class S>
     bool PluckerPolytopeSkeleton<P>::isValid(PluckerPolyhedron<P>* polyhedron, bool normalization, S tolerance)
@@ -580,39 +494,9 @@ namespace visilib
         return isValid;
     }
 
-    template<class P> template<class S>
-    void PluckerPolytopeSkeleton<P>::computeEdgesIntersectingQuadric(PluckerPolyhedron<P>* polyhedron, S tolerance)
-    {
-        //Only compute if the function has not been called already
-        if (mEdgesIntersectingQuadric.empty())
-        {
-            //At least one
-            if (mEdges.size() > 0 && MathPredicates::hasPluckerPolytopeIntersectionWithQuadric(this, polyhedron))
-            {
-                V_ASSERT(mEdgesIntersectingQuadric.empty());
 
-                for (auto iter = mEdges.begin(); iter != mEdges.end(); iter++)
-                {
-                    const P& v1 = polyhedron->get(iter->first);
-                    const P& v2 = polyhedron->get(iter->second);
-                    GeometryPositionType p1 = polyhedron->getQuadricRelativePosition(iter->first);
-                    GeometryPositionType p2 = polyhedron->getQuadricRelativePosition(iter->second);
-                    if (MathGeometry::hasPluckerEdgeWithQuadricIntersection(v1, v2, p1, p2, tolerance))
-                    {
-                        mEdgesIntersectingQuadric.insert(*iter);
-                    }
-                }
-            }
-            else
-            {
-                return;
-            }
-            if (!containsRealLines())
-                return;
-            V_ASSERT(mEdgesIntersectingQuadric.size() > 0);
-        }
-    }
-    template<class P>
+
+   template<class P>
     void PluckerPolytopeSkeleton<P>::getFacets(std::set<size_t>& facets)
     {
         for (auto iter = mVertices.begin(); iter != mVertices.end(); iter++)

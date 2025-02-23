@@ -22,15 +22,12 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 
 #include "math_plucker_6.h"
 #include "geometry_position_type.h"
-#include "plucker_polytope.h"
+#include "plucker_element.h"
 namespace visilib
 {
     class GeometryConvexPolygon;
-    template<class S>
-    class PluckerPolytope;
-
-    template<class S>
-    class PluckerPolyhedron;
+    //template<class S>
+    //class PluckerPolytope;
 
     /** @brief Contains geometry predicates function */
 
@@ -241,13 +238,13 @@ namespace visilib
     template <class P>
     inline GeometryPositionType MathPredicates::getRelativePosition(const std::vector<PluckerVertex<P>*>& aPolytopeVertices, const P & aPlane0, const P & aPlane1, const P & aPlane2)
     {
-        GeometryPositionType position0 = getRelativePosition(aPolytopeVertices, polyhedron, aPlane0);
+        GeometryPositionType position0 = getRelativePosition(aPolytopeVertices, aPlane0);
         if (position0 == ON_POSITIVE_SIDE)
             return ON_POSITIVE_SIDE;
-        GeometryPositionType position1 = getRelativePosition(aPolytopeVertices, polyhedron, aPlane1);
+        GeometryPositionType position1 = getRelativePosition(aPolytopeVertices, aPlane1);
         if (position1 == ON_POSITIVE_SIDE)
             return ON_POSITIVE_SIDE;
-        GeometryPositionType position2 = getRelativePosition(aPolytopeVertices, polyhedron, aPlane2);
+        GeometryPositionType position2 = getRelativePosition(aPolytopeVertices, aPlane2);
         if (position2 == ON_POSITIVE_SIDE)
             return ON_POSITIVE_SIDE;
 
@@ -262,8 +259,6 @@ namespace visilib
     {
         bool hasPointOnTheLeft = false;
         bool hasPointOnTheRight = false;
-
-        auto myVertices = polytope->getVertices();
 
         for (auto v : aPolytopeVertices)
         {

@@ -33,10 +33,9 @@ namespace visilib
 {
     class GeometryRay;
     class GeometryAABB;
-    template<class S>
+    template<class P, class S>
     class PluckerPolytope;
-    template<class S>
-
+    
     /** @brief Provides geometrical functions.*/
 
     class MathGeometry
@@ -154,7 +153,7 @@ namespace visilib
         This procedure is not formally correct from a mathematical point of view: the gravity center in Pluker space do not correspond to a real line in 3D since the gravity center
          does not belongs to the Plucker quadric. However, it works well in practice to find an average polytope representative line
         */
-        template<class P, class S> static P computeRepresentativeLine(PluckerPolytope<P>* polytope, S tolerance);
+        template<class P, class S> static P computeRepresentativeLine(PluckerPolytope<P,S>* polytope, S tolerance);
 
         /** @brief  Compute the intersection of an edge with a plane */
         static MathVector3_<double> getPlaneIntersectionWithEdge(const MathVector3_<double>& myV1, const MathVector3_<double>& myV2, const MathPlane3_<double>& aPlane);
@@ -906,7 +905,8 @@ namespace visilib
 
             for (auto v : aPolytopeVertices)
             {
-                GeometryPositionType position = MathPredicates::getVertexPlaneRelativePosition(myHyperplane, polyhedron->get(v), tolerance);
+                PluckerVertex<P>* myVertex = *v;
+                GeometryPositionType position = MathPredicates::getVertexPlaneRelativePosition(myHyperplane, myVertex->getPlucker(), tolerance);
                 if (position == ON_POSITIVE_SIDE || position == ON_BOUNDARY)
                 {
                     hasPointInside2 = true;
@@ -919,12 +919,14 @@ namespace visilib
     }
 
     template<class P, class S>
-    inline P MathGeometry::computeRepresentativeLine(const std::vector<PluckerVertex<P>*>& aPolytopeVertices, S tolerance)
+    inline P MathGeometry::computeRepresentativeLine(PluckerPolytope<P,S>* polytope, S tolerance)
     {   
         P  myGravityCenterImaginary = P::Zero();
-        auto myVertices = polytope->getVertices();
         
-        for (auto v : aPolytopeVertices)
+        std::vector<PluckerVertex<P>*> myVertices;
+        polytope->fillVertices(myVertices);
+
+        for (auto v : myVertices)
         {
             myGravityCenterImaginary += v->getPlucker();
         }

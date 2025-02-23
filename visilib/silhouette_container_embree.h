@@ -33,13 +33,13 @@ namespace visilib
     This class is performance oriented, and is intended to provide the fastest possible occluder ray intersection, by using a modern ray tracing engine.
     */
 
-    class SilhouetteContainerEmbree : public SilhouetteContainer
+    class Silhouette<P>ContainerEmbree : public Silhouette<P>Container
     {
     public:
 
-        SilhouetteContainerEmbree();
+        Silhouette<P>ContainerEmbree();
 
-        virtual ~SilhouetteContainerEmbree();
+        virtual ~Silhouette<P>ContainerEmbree();
 
         /** @brief Intersect the ray with the geometry 
         
@@ -60,8 +60,8 @@ namespace visilib
         std::unordered_map<unsigned int, std::pair<size_t, size_t>> ids;     
     };
 
-    inline SilhouetteContainerEmbree::SilhouetteContainerEmbree()
-        :SilhouetteContainer()
+    inline Silhouette<P>ContainerEmbree::Silhouette<P>ContainerEmbree()
+        :Silhouette<P>Container()
     {
         if (mDevice == nullptr)
         {
@@ -79,7 +79,7 @@ namespace visilib
         rtcSetSceneFlags(mScene, RTC_SCENE_FLAG_CONTEXT_FILTER_FUNCTION);  
     }
 
-    inline SilhouetteContainerEmbree::~SilhouetteContainerEmbree()
+    inline Silhouette<P>ContainerEmbree::~Silhouette<P>ContainerEmbree()
     {
         rtcReleaseScene(mScene);        
     }
@@ -147,7 +147,7 @@ namespace visilib
        
         valid[0] = 0;
   }
-    inline bool SilhouetteContainerEmbree::intersect(VisibilityRay* aRay)
+    inline bool Silhouette<P>ContainerEmbree::intersect(VisibilityRay* aRay)
     {
         GeometryRayMultiHit ray;
         ray.firstHit = 0;
@@ -179,13 +179,13 @@ namespace visilib
         return ray.lastHit > ray.firstHit;
      }
 
-    inline void SilhouetteContainerEmbree::prepare()
+    inline void Silhouette<P>ContainerEmbree::prepare()
     {
-        for (auto s:getSilhouettes())
+        for (auto s:getSilhouette<P>s())
         {
             size_t id = s->getGeometryId();
             const auto& myMeshFaces = s->getMeshFaces();
-            for (size_t faceIndex : s->getSilhouetteFaces())
+            for (size_t faceIndex : s->getSilhouette<P>Faces())
             {
                 RTCGeometry mesh = rtcNewGeometry(mDevice, RTC_GEOMETRY_TYPE_TRIANGLE);
              

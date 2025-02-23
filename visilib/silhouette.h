@@ -31,26 +31,28 @@ namespace visilib
     class VisibilityExactQuery_;
 
     class GeometryConvexPolygon;
-    template <class S>
+    template <class P, class S>
     class PluckerPolytope;
     class SilhouetteMeshFace;
-
+    template <class S>
+    class PluckerFacet;
     /** @brief
    Store a silhouette edge, containing the mesh face and the support hyperplane 
    */
 
+    template<class P>
     struct SilhouetteEdge
     {
-        SilhouetteEdge(SilhouetteMeshFace* aFace, size_t anEdgeIndex, size_t anHyperplaneIndex)
+        SilhouetteEdge(SilhouetteMeshFace* aFace, size_t anEdgeIndex, PluckerFacet<P>* aFacet = nullptr)
             : mEdgeIndex(anEdgeIndex),
             mFace(aFace),
-            mHyperPlaneIndex(anHyperplaneIndex),
+            mPluckerFacet(aFacet),
             mScore(-1.0),
             mIsActive(true)
         {
         }
 
-        size_t mHyperPlaneIndex;
+        PluckerFacet<P>* mPluckerFacet;
         SilhouetteMeshFace* mFace;
         size_t mEdgeIndex;
         double mScore;
@@ -63,6 +65,7 @@ namespace visilib
     In turn, each face of the occluder mesh stores a reference to the silhouette it belongs to.
     */
 
+    template<class P>
     class Silhouette
     {
         /**@brief A hash associated to a silhouette edge for storage in the silhouette */
@@ -104,9 +107,9 @@ namespace visilib
    //     bool hasEdge(ConnectedMeshElement* face, size_t edgeIndex) const;
 
         /**@brief Get the edges of the silhouette*/
-        const std::vector<SilhouetteEdge>& getEdges() const { return mEdges; }
+        const std::vector<SilhouetteEdge<P>>& getEdges() const { return mEdges; }
 
-        std::vector<SilhouetteEdge>& getEdges() { return mEdges; }
+        std::vector<SilhouetteEdge<P>>& getEdges() { return mEdges; }
 
         /**@brief Add an edge to the silhouette*/
         void addEdge(SilhouetteMeshFace* aFace, size_t anEdgeIndex, size_t anHyperplaneIndex);
@@ -116,7 +119,7 @@ namespace visilib
             mSilhouetteFaces.push_back(face.getFaceIndex());
         }
 
-        SilhouetteEdge& getEdge(size_t edgeIndex)
+        SilhouetteEdge<P>& getEdge(size_t edgeIndex)
         {
             return mEdges[edgeIndex];
         }
@@ -125,7 +128,7 @@ namespace visilib
 
         void setEdgeActive(size_t edgeIndex, bool isActive)
         {
-            SilhouetteEdge& edge = getEdge(edgeIndex);
+            SilhouetteEdge<P>& edge = getEdge(edgeIndex);
             V_ASSERT(edge.mIsActive != isActive);
 
             edge.mIsActive = isActive;
@@ -161,7 +164,7 @@ namespace visilib
             return mGeometryId;
         }
     private:
-        std::vector<SilhouetteEdge> mEdges;   /**<@brief The list of edges of the silhouette, encoded as pointer to a face and an edge index in the face*/
+        std::vector<SilhouetteEdge<P>> mEdges;   /**<@brief The list of edges of the silhouette, encoded as pointer to a face and an edge index in the face*/
         std::vector<size_t> mEdgesProcessed;
         std::vector<size_t> mSilhouetteFaces;
         const std::vector<SilhouetteMeshFace>& mMeshFaces;
@@ -170,9 +173,10 @@ namespace visilib
     };
 
 
-    inline void Silhouette::addEdge(SilhouetteMeshFace* aFace, size_t anEdgeIndex, size_t anHyperplaneIndex)
+    template<class P>
+    inline void Silhouette<P>::addEdge(SilhouetteMeshFace* aFace, size_t anEdgeIndex, size_t anHyperplaneIndex)
     {
-        mEdges.push_back(SilhouetteEdge(aFace, anEdgeIndex,anHyperplaneIndex));
+        mEdges.push_back(SilhouetteEdge<P>(aFace, anEdgeIndex,anHyperplaneIndex));
         mAvailableEdgeCount++;
     }
 

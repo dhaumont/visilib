@@ -31,8 +31,8 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include "math_predicates.h"
 #include "math_plucker_2.h"
 #include "math_vector_3.h"
-#include "plucker_polytope_builder.h"
 #include "plucker_polytope.h"
+#include "plucker_polytope_builder.h"
 #include "visibility_aperture_finder.h"
 #include "silhouette_container.h"
 #include "silhouette_processor.h"
@@ -49,8 +49,8 @@ namespace visilib
     class SilhouetteMeshFace;
     class GeometryOccluderSet;
     struct VisibilityRay;
-    class Silhouette;
-    class SilhouetteProcessor;
+    class Silhouette<P>;
+    class Silhouette<P>Processor;
 
     template <class S>
     class PluckerPolytope;
@@ -90,7 +90,7 @@ namespace visilib
         }
 
         /**@brief Return the polytope complex encoding the occlusion tree */
-        PluckerPolytopeComplex<P>* getComplex()
+        PluckerPolytopeComplex<P,S>* getComplex()
         {
             return mComplex;
         }
@@ -100,16 +100,16 @@ namespace visilib
         When an intersection is found, the silhouette are extracted from the intersected face and the silhouette is linked to the polytope
         The links is used for occluder selection.
         */
-        bool findSceneIntersection(const MathVector3d& aBegin, const MathVector3d& anEnd, std::set<SilhouetteMeshFace*>& intersectedFaces, const S& aDistance = 0, PluckerPolytope<P>* aPolytope = nullptr);
+        bool findSceneIntersection(const MathVector3d& aBegin, const MathVector3d& anEnd, std::set<SilhouetteMeshFace*>& intersectedFaces, const S& aDistance = 0, PluckerPolytope<P,S>* aPolytope = nullptr);
         
-        void extractAllSilhouettes();
+        void extractAllSilhouette<P>s();
 
         /**@brief Given a polytope, finds a set of occluders that is intersected by the set of lines that the polytope represents.
 
         The occluder finding is done using a ray-tracing operation, the ray(s) direction used to perform the sampling beeing either a "representative line" of the polytope,
         or the extremal stabbing line of the polytope.
         */
-        bool collectAllOccluders(PluckerPolytope<P>* polytope, std::vector<Silhouette*>& occluders, std::vector<P>& polytopeLines);
+        bool collectAllOccluders(PluckerPolytope<P,S>* polytope, std::vector<Silhouette<P>*>& occluders, std::vector<P>& polytopeLines);
 
         /**@brief Attach a debugger to the query for visual inspection */
         void attachVisualisationDebugger(HelperVisualDebugger* aDebugger);
@@ -117,21 +117,21 @@ namespace visilib
         /**@brief Compute a visibility query to determine if the two polygons given as input are mutually visible or not */
         VisibilityResult arePolygonsVisible(const float* vertices0, size_t numVertices0, const float* vertices1, size_t numVertices1);
         /*
-        const std::unordered_set<PluckerPolytope<P>*>& getPolytopes(VisibilitySilhouette* silhouette)
+        const std::unordered_set<PluckerPolytope<P,S>*>& getPolytopes(VisibilitySilhouette<P>* silhouette)
         {
             return mSilhouetteToPolytopeDictionary.find(silhouette)->second;
         }
 
-        bool hasSilhouette(PluckerPolytope<P>* polytope)
+        bool hasSilhouette<P>(PluckerPolytope<P,S>* polytope)
         {
-            return mPolytopeToSilhouetteDictionary.find(polytope) != mPolytopeToSilhouetteDictionary.end();
+            return mPolytopeToSilhouette<P>Dictionary.find(polytope) != mPolytopeToSilhouette<P>Dictionary.end();
         }
         */
        
         
         /**@brief Find the next edge to be processed by the query
         */
-        bool findNextEdge(size_t& aSilhouetteEdgeIndex, Silhouette * &aSilhouette, PluckerPolytope<P> * polytope, const std::string & occlusionTreeNodeSymbol);
+        bool findNextEdge(size_t& aSilhouette<P>EdgeIndex, Silhouette<P> * &aSilhouette<P>, PluckerPolytope<P,S> * polytope, const std::string & occlusionTreeNodeSymbol);
 
 
         void setApproximateNormal(const MathVector3d & a)
@@ -143,7 +143,7 @@ namespace visilib
         {
             return mApproximateNormal;
         }
-        bool isOccluded(PluckerPolytope<P> * polytope, const std::vector <Silhouette*> & silhouettes, const std::vector<P> & polytopeLines);
+        bool isOccluded(PluckerPolytope<P,S> * polytope, const std::vector <Silhouette<P>*> & silhouettes, const std::vector<P> & polytopeLines);
 
         /**@brief Return the statistic collector */
         HelperStatisticCollector* getStatistic()
@@ -166,35 +166,32 @@ namespace visilib
         bool createInitialPolygons(const float* vertices0, size_t numVertices0, const float* vertices1, size_t numVertices1, bool normalization);
 
         VisibilityExactQueryConfiguration mConfiguration;                     /**< @brief The configuration parameters of the query*/
-        PluckerPolytopeComplex<P>* mComplex;                   /**< @brief The polytope complex encoding the occlusion tree*/
+        PluckerPolytopeComplex<P,S>* mComplex;                   /**< @brief The polytope complex encoding the occlusion tree*/
         GeometryOccluderSet* mScene;                                         /**< @brief The scene containing the triangle mesh occluders*/
         GeometryConvexPolygon* mQueryPolygon[2];               /**< @brief The two convex polygonal sources*/
         HelperVisualDebugger* mDebugger;                             /**< @brief The visual debugging information of the query*/
         HelperStatisticCollector mStatistic;                   /**< @brief The statistics of the query*/
-        SilhouetteProcessor* mSilhouetteProcessor;   /**< @brief The silhouette processor for silhouette optimization heuristic*/
+        Silhouette<P>Processor* mSilhouetteProcessor;   /**< @brief The silhouette processor for silhouette optimization heuristic*/
 
         S mTolerance;                                           /**< @brief The tolerance parameter used during computation*/
         MathVector3d mApproximateNormal;
         /** @brief The links between the polytopes and the silhouettes*/
- //      std::unordered_map<VisibilitySilhouette*, std::unordered_set<PluckerPolytope<P>*>> mSilhouetteToPolytopeDictionary;
+ //      std::unordered_map<VisibilitySilhouette<P>*, std::unordered_set<PluckerPolytope<P,S>*>> mSilhouetteToPolytopeDictionary;
 
-        SilhouetteContainer* mSilhouetteContainer;
+        Silhouette<P>Container* mSilhouetteContainer;
         /** @brief The links between the silhouettes and the polytopes*/
-    //    std::unordered_map<PluckerPolytope<P>*, std::unordered_set<VisibilitySilhouette*>> mPolytopeToSilhouetteDictionary;
+    //    std::unordered_map<PluckerPolytope<P,S>*, std::unordered_set<VisibilitySilhouette<P>*>> mPolytopeToSilhouette<P>Dictionary;
     };
 
     template<class P, class S>
     VisibilityExactQuery_<P, S>::VisibilityExactQuery_(GeometryOccluderSet * aScene, const VisibilityExactQueryConfiguration & aConfiguration, S aTolerance)
         : mScene(aScene),
         mConfiguration(aConfiguration),
-        mDebugger(nullptr)
+        mDebugger(nullptr),
+        mComplex(nullptr)
     {
-        mComplex = new PluckerPolytopeComplex<P>();
-
-        {       
-            HelperScopedTimer timer(getStatistic(), SILHOUETTE_PROCESSING);
-            mSilhouetteProcessor = new SilhouetteProcessor(&mStatistic);
-        }
+        mSilhouetteProcessor = new Silhouette<P>Processor(&mStatistic);
+     
         mQueryPolygon[0] = nullptr;
         mQueryPolygon[1] = nullptr;
 
@@ -202,12 +199,12 @@ namespace visilib
  #if EMBREE       
         if (aConfiguration.useEmbree)
         {
-            mSilhouetteContainer = new SilhouetteContainerEmbree();
+            mSilhouetteContainer = new Silhouette<P>ContainerEmbree();
         }
         else
 #endif
         {
-            mSilhouetteContainer = new SilhouetteContainer();
+            mSilhouetteContainer = new Silhouette<P>Container();
         }
     }
 
@@ -318,7 +315,7 @@ namespace visilib
                 //mScene->get()->restoreFacesGeometry(mScene);
 
                 mSilhouetteProcessor->init(*mQueryPolygon[0], *mQueryPolygon[1]);
-                extractAllSilhouettes();
+                extractAllSilhouette<P>s();
             }
             {
                 HelperScopedTimer timer(getStatistic(), RAY_INTERSECTION);
@@ -329,8 +326,7 @@ namespace visilib
                 HelperScopedTimer timerBuild(&mStatistic, POLYTOPE_BUILD);
 
                 PluckerPolytopeBuilder<P, S> builder(mConfiguration.hyperSphereNormalization, mTolerance);
-                PluckerPolytope<P>* myPolytope = builder.build(*mQueryPolygon[0], *mQueryPolygon[1], getComplex()->getPolyhedron());
-                getComplex()->setRoot(myPolytope);
+                mComplex = builder.build(*mQueryPolygon[0], *mQueryPolygon[1]);                
             }
             VisibilitySolver<P, S>* solver;
 
@@ -355,7 +351,7 @@ namespace visilib
     }
 
     template<class P, class S>
-    bool VisibilityExactQuery_<P, S>::findNextEdge(size_t& aSilhouetteEdgeIndex, Silhouette * &aSilhouette, PluckerPolytope<P> * aPolytope, const std::string & occlusionTreeNodeSymbol)
+    bool VisibilityExactQuery_<P, S>::findNextEdge(size_t& aSilhouette<P>EdgeIndex, Silhouette<P> * &aSilhouette<P>, PluckerPolytope<P,S> * aPolytope, const std::string & occlusionTreeNodeSymbol)
     {
         HelperScopedTimer timer(getStatistic(), OCCLUDER_TREATMENT);
 #ifdef OUTPUT_DEBUG_FILE
@@ -363,25 +359,25 @@ namespace visilib
         V_LOG(debugOutput, "VisibilityExactQuery<P, S>::findTheBestValidEdge BEGIN", occlusionTreeNodeSymbol);
 #endif
 
-        const std::unordered_set<Silhouette*>& mySilhouettes = mSilhouetteContainer->getSilhouettes();
+        const std::unordered_set<Silhouette<P>*>& mySilhouette<P>s = mSilhouetteContainer->getSilhouette<P>s();
 
         double myScore = 1e32;
         bool found = false;
         
-        Silhouette* mySilhouette = nullptr;
+        Silhouette<P>* mySilhouette<P> = nullptr;
 
         MathPlane3d aPlane0 = getQueryPolygon(0)->getPlane();
    
         const MathPlane3d& myPlane = getQueryPolygon(0)->getPlane();
-        for (auto iter = mySilhouettes.begin(); iter != mySilhouettes.end(); iter++)
+        for (auto iter = mySilhouette<P>s.begin(); iter != mySilhouette<P>s.end(); iter++)
         {
-            Silhouette* s = (*iter);
+            Silhouette<P>* s = (*iter);
 
             auto& edges = s->getEdges();
 
             for (size_t silhouetteEdgeIndex = 0; silhouetteEdgeIndex < edges.size(); silhouetteEdgeIndex++)
             {
-                SilhouetteEdge& edge = edges[silhouetteEdgeIndex];
+                Silhouette<P>Edge<P>& edge = edges[silhouetteEdgeIndex];
                 if (edge.mIsActive)
                 {
                     /*
@@ -397,8 +393,8 @@ namespace visilib
                     {
                         found = true;
                         myScore = edge.mScore;
-                        aSilhouetteEdgeIndex = silhouetteEdgeIndex;
-                        mySilhouette = s;
+                        aSilhouette<P>EdgeIndex = silhouetteEdgeIndex;
+                        mySilhouette<P> = s;
                     }
                 }
                 if (found)
@@ -416,7 +412,7 @@ namespace visilib
             ss << "VisibilityExactQuery<P, S>::findTheBestValidEdge END return True (Edge found)";
             V_LOG(debugOutput, ss.str(), occlusionTreeNodeSymbol);
 #endif
-            aSilhouette = mySilhouette;
+            aSilhouette<P> = mySilhouette<P>;
 
         }
         else
@@ -429,13 +425,13 @@ namespace visilib
     }
 
     template<class P, class S>
-    bool VisibilityExactQuery_<P, S>::isOccluded(PluckerPolytope<P>* polytope, const std::vector <Silhouette*> & aSilhouettes, const std::vector<P> & polytopeLines)
+    bool VisibilityExactQuery_<P, S>::isOccluded(PluckerPolytope<P,S>* polytope, const std::vector <Silhouette<P>*> & aSilhouette<P>s, const std::vector<P> & polytopeLines)
     {   
-        return SilhouetteContainer::isOccluded(polytope, polyhedron, aSilhouettes,polytopeLines,mTolerance);
+        return Silhouette<P>Container::isOccluded(polytope, polyhedron, aSilhouette<P>s,polytopeLines,mTolerance);
     }
 
     template<class P, class S>
-    bool VisibilityExactQuery_<P, S>::findSceneIntersection(const MathVector3d & aBegin, const MathVector3d & anEnd, std::set<SilhouetteMeshFace*> & anIntersectedFaces, const S& aDistance, PluckerPolytope<P> * aPolytope)
+    bool VisibilityExactQuery_<P, S>::findSceneIntersection(const MathVector3d & aBegin, const MathVector3d & anEnd, std::set<SilhouetteMeshFace*> & anIntersectedFaces, const S& aDistance, PluckerPolytope<P,S> * aPolytope)
     {
         MathVector3d myBegin = aBegin;
         MathVector3d myDir = anEnd - aBegin;
@@ -489,25 +485,25 @@ namespace visilib
     }
 
     template<class P, class S>
-    void VisibilityExactQuery_<P, S>::extractAllSilhouettes()
+    void VisibilityExactQuery_<P, S>::extractAllSilhouette<P>s()
     {
         for (size_t geometryId = 0; geometryId < mScene->getOccluderCount(); geometryId++)
         {
-            std::vector<Silhouette*> silhouettes;
+            std::vector<Silhouette<P>*> silhouettes;
             std::vector<SilhouetteMeshFace>* myFaces = mScene->getOccluderConnectedFaces(geometryId);
 
-            mSilhouetteProcessor->extractSilhouette(geometryId, *myFaces, mConfiguration.silhouetteOptimization, silhouettes);
+            mSilhouetteProcessor->extractSilhouette<P>(geometryId, *myFaces, mConfiguration.silhouetteOptimization, silhouettes);
             
             for (auto s:silhouettes)
             {
-                mSilhouetteContainer->addSilhouette(s);
+                mSilhouetteContainer->addSilhouette<P>(s);
             }
             
         }
     }
 
     template<class P, class S>
-    bool VisibilityExactQuery_<P, S>::collectAllOccluders(PluckerPolytope<P> * aPolytope, std::vector<Silhouette*> & occluders, std::vector<P> & polytopeLines)
+    bool VisibilityExactQuery_<P, S>::collectAllOccluders(PluckerPolytope<P,S> * aPolytope, std::vector<Silhouette<P>*> & occluders, std::vector<P> & polytopeLines)
     {
         P myRepresentativeLine;
         {
@@ -570,7 +566,7 @@ namespace visilib
         }            
         for (auto myFace : intersectedFaces)
         {
-            Silhouette* s = mSilhouetteProcessor->findSilhouette(myFace);
+            Silhouette<P>* s = mSilhouetteProcessor->findSilhouette<P>(myFace);
             //   V_ASSERT(s);
             if (s)
                 occluders.push_back(s);
