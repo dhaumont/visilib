@@ -79,7 +79,7 @@ namespace visilib
         public:
 
 
-            PluckerPolytopeComplex(int dimension = MAXIMUM)    
+            PluckerPolytopeComplex(int dimension = MAXIMUM) 
             {
                 mElements.resize(dimension);
             }
@@ -98,7 +98,7 @@ namespace visilib
             int getCombinatorialFacetsMaximumCount(int dimension) const
             {
                 return getDimension() - dimension;
-            }    
+            } 
 
             int getDimension() const
             {
@@ -121,27 +121,27 @@ namespace visilib
             }
 
             void appendFacet(PluckerFacet<P>* facet)
-            {        
+            { 
                 mElements[FACET].push_back(facet);
             }
 
             void appendEdge(PluckerEdge<P>* edge)
-            {        
+            { 
                 mElements[EDGE].push_back(edge);
             }
 
             void appendPolytope(PluckerPolytope<P,S>* polytope)
-            {        
+            { 
                 mElements[POLYTOPE].push_back(polytope);
             }
 
             void appendElement(PluckerElement* element, size_t k)
             {
-                mElements[k].push_back(element);       
+                mElements[k].push_back(element); 
             }
 
             void deleteElement(PluckerElement* element, size_t k)
-            {           
+            { 
                 for (auto child : element->getChildren())
                 {
                     child->deleteParent(element);
@@ -180,8 +180,8 @@ namespace visilib
                     public:
                         ElementIterator(const std::list<PluckerElement*>::iterator& aIterator, PluckerElement* anAncestor = nullptr)
                             :  mIterator(aIterator),
-                            mAncestor(anAncestor)            
-                    {            
+                            mAncestor(anAncestor) 
+                    { 
                     }
 
                         T operator*()
@@ -257,7 +257,7 @@ namespace visilib
             {
                 return PolytopeIterator(mElements[POLYTOPE].end(), anAncestor);
             }
-        private:        
+        private: 
             std::vector<std::list<PluckerElement*>> mElements;
     };
 
@@ -315,7 +315,7 @@ namespace visilib
             for (auto iter = complex->beginVertices(this); iter != complex->endVertices(this); iter++)
             {
                 aPolytopeVertices.push_back(*iter);
-            }    
+            } 
         }
 
     template<class P, class S>
@@ -326,7 +326,7 @@ namespace visilib
             for (auto iter = complex->beginEdge(this); iter != complex->endEdge(this); iter++)
             {
                 aPolytopeEdges.push_back(*iter);
-            }    
+            } 
         }
 
     template<class P, class S>
@@ -401,7 +401,7 @@ namespace visilib
                     if (myEdge->getQuadricRelativePosition() == UNKNOWN)
                     {
                         //At least one
-                        PluckerVertex<P>* vertex0 = myEdge->getVertex0();     
+                        PluckerVertex<P>* vertex0 = myEdge->getVertex0(); 
                         PluckerVertex<P>* vertex1 = myEdge->getVertex1(); 
                         {
                             const P& v0 = vertex0->getPlucker();

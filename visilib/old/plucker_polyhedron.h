@@ -30,7 +30,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 namespace visilib
 {
     /** @brief Container containing the line coordinates in Plucker space, as well as the facets description of each line. 
-    
+ 
     The facets description of a line is the list of edges incident to the lines in 3D space.
     In Plucker space, it is list of hyperplanes that meet at the Plucker point of the line.
     For efficiency and precision reasons, the PluckerPolyhedron also store if each line is normalized and its relative position relative to the Plucker quadric
@@ -51,7 +51,7 @@ namespace visilib
         }
 
         /**@brief Return a point stored in the polyhedron 
-        
+ 
         @param aNumber: the index of the point
         */
         const P& get(size_t aNumber) const
@@ -60,7 +60,7 @@ namespace visilib
         }
 
         /**@brief Return the position of a point with respect to the Plucker Quadric
-        
+ 
         @param aNumber: the index of the point
         */
         GeometryPositionType getQuadricRelativePosition(size_t aNumber) const
@@ -77,7 +77,7 @@ namespace visilib
         }
 
         /**@brief Add a point to the polyhedron
-        
+ 
         @param aLine: the point in Plucker space
         @param aPosition: the relative position of the point with respect to the Plucker Quadric
         @param aLine: the normalization status of the point
@@ -93,7 +93,7 @@ namespace visilib
         }
 
         /** @brief Add a facet (index of an hyperplane) to the combinatorial description of a vertex
-        
+ 
         @param aVertice: the index of the vertex
         @param aFace: the index of the facet (index of the hyperplane in mLines)
         */
@@ -125,7 +125,7 @@ namespace visilib
 
     private:
         /**@brief Check that the vertex has a valid facet description 
-        
+ 
         The check verify that the facet description is sorted
         */
         bool isValid(size_t aVertice);
@@ -238,7 +238,7 @@ namespace visilib
         std::vector<size_t>& facets = getFacetsDescription(aVertice);
         return std::is_sorted(facets.begin(), facets.end());
     }
-    
+ 
     template<class P>
     bool PluckerPolyhedron<P>::containsOtherLinesWithSameFacetsDescription(size_t aVerticeDestination) const
     {

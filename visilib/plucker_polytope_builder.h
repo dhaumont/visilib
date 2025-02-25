@@ -129,7 +129,7 @@ namespace visilib
             PluckerFacet<P>* myFacet = new PluckerFacet<P>(line);
             myFacet->setFacet(polytope->getElementsCount(FACET));
  
-            polytope->appendFacet(myFacet);           
+            polytope->appendFacet(myFacet); 
         }
     }
 
@@ -139,7 +139,7 @@ namespace visilib
         // There is an extremal stabbing line passing through each vertex of polygon a and each vertex of polygon b.
         // This procedure initialize the facets of each stabbing line, which is the list of edges incident to the lines in 3D space. In Plucker space, it is list of hyperplanes that meet at
         // the Plucker point corresponding to the stabbing line
-                
+ 
         size_t count1 = a.getVertexCount();
         size_t count2 = b.getVertexCount();
 
@@ -176,7 +176,7 @@ namespace visilib
                 {
                     myStabbingLine = myStabbingLine.getNormalized();
                 }
-                
+ 
                 PluckerVertex<P>* myVertex = new PluckerVertex<P>(myStabbingLine);
                 myVertex->setQuadricRelativePosition(ON_BOUNDARY);
                 polytope->appendVertex(myVertex);
@@ -196,7 +196,7 @@ namespace visilib
                     myTemp[3] = j + mySize1 + 1;
                 }
                 myVertex->setFacetDescription(myTemp);
-                
+ 
                 myStabbingNumber++;
             }
         }
@@ -229,9 +229,9 @@ namespace visilib
     {
         // We iterate through all the extremal stabbing lines, and creates and edge for the vertices that share at least three common facets
         // The complexity is O(n^2), and more optimized version could be devised but we keep this one for simplicity
-        
+ 
         std::vector<PluckerFacet<P>*> myFacetsVector;
-        
+ 
         PluckerPolytope<P,S>* myPolytope = new PluckerPolytope<P,S>();
         aPolytopeComplex->appendPolytope(myPolytope);
         PluckerElement::link(aPolytopeComplex, myPolytope);
@@ -243,29 +243,29 @@ namespace visilib
         }
 
         for (int k = 1; k < aPolytopeComplex->getDimension(); k++)
-        {            
+        { 
             std::list<PluckerElement*>& elements = aPolytopeComplex->getElements(k-1);
             for (auto iter1 = elements.begin(); iter1 != elements.end(); iter1++)
             {
                 PluckerElement* child1 = *iter1;
 
                 for (auto iter2 = iter1; iter2 != elements.end(); iter2++)
-                {   
+                { 
                     PluckerElement* child2 = *iter2;
                     V_ASSERT (child1!=child2);
-                    
+ 
                     std::vector<size_t> myTemp;
                     MathCombinatorial::getCommonFacets(child1->getFacetDescription(), child2->getFacetDescription(), myTemp);
                     if (myTemp.size() >= aPolytopeComplex->getCombinatorialFacetsMaximumCount(k))
                     {
-                        PluckerElement* parent;                            
+                        PluckerElement* parent; 
 
                         if (k == FACET)
                         {
                             V_ASSERT(myTemp.size() == 1);
 
                             parent = myFacetsVector[myTemp[0]];
-                            
+ 
                             V_ASSERT(myTemp[0] == parent->getFacetDescription(0));
                         }
                         else
@@ -274,12 +274,12 @@ namespace visilib
                             parent->setFacetDescription(myTemp);
                             parent->setQuadricRelativePosition(ON_BOUNDARY);
                         }
-                        
+ 
                         PluckerElement::link(parent, child1);
                         PluckerElement::link(parent, child2);
                         aPolytopeComplex->appendElement(parent,k);
                     }
-                
+ 
                 }
             }
         }
@@ -287,7 +287,7 @@ namespace visilib
 
     template<class P, class S>
     inline void PluckerPolytopeBuilder<P, S>::addStabbingLinesToEdges(PluckerPolytopeComplex<P,S> * polytope)
-    {        
+    { 
         for (auto iter = polytope->beginEdges(); iter != polytope->endEdges(); iter++)
         {
             PluckerEdge<P>* myEdge = *iter;

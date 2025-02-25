@@ -197,7 +197,7 @@ namespace visilib
         S getDistance(const MathPlucker6<S>& other) const
         {
             S myDiv = MathVector3_<S>::cross(getDirection(),other.getDirection()).getNorm();
-            
+ 
             if (MathArithmetic<S>::getAbs(myDiv) > MathArithmetic<S>::Tolerance())
             {
                 return MathArithmetic<S>::getAbs(dot(other)) / myDiv;
@@ -211,11 +211,11 @@ namespace visilib
                 S s = l2 * sqrt(l1l1);
                 MathVector3_<S> l = other.getLocation();
                 l /= s;
-                return MathVector3_<S>::cross(getDirection(),getLocation() - l).getNorm() * l1l1;                 
+                return MathVector3_<S>::cross(getDirection(),getLocation() - l).getNorm() * l1l1; 
             }
         }
 
-       
+ 
         /**@brief Origin point in Plucker space*/
         static MathPlucker6<S>  Zero()
         {

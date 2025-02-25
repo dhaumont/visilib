@@ -228,14 +228,14 @@ void DemoConfiguration::displaySettings()
     std::cout << "  [Early stop: " << getStatusString(detectApertureOnly) << "]";
     std::cout << "[Silhouette: " << getStatusString(silhouetteOptimisation) << "]";
     std::cout << "[Normalization: " << getStatusString(normalization) << "]" << std::endl;
-    
-#if EXACT_ARITHMETIC            
+ 
+#if EXACT_ARITHMETIC 
     if (precisionType == VisibilityExactQueryConfiguration::EXACT)
         std::cout << "  [Exact arithmetic: ON]";
     else
 #endif
         std::cout << "  [Exact arithmetic: OFF]";
-#if EMBREE           
+#if EMBREE 
     std::cout << "[Embree:" << getStatusString(embree) << "]" << std::endl;
 #endif
 

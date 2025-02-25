@@ -59,7 +59,7 @@ namespace visilib
         VisibilityResult resolveInternal(VisibilityResult& aGlobalResult, PluckerPolytope<P,S>* aPolytope, const std::string& occlusionTreeNodeSymbol, const std::vector<Silhouette<P>*>& anOccluders, const std::vector<P>& aPolytopeLines, int depth);
         void resize(size_t myInitiaLineCount, PluckerPolytope<P,S>* aPolytope);
         void extractStabbingLines(PluckerPolyhedron<P>* myPolyhedron, PluckerPolytope<P,S>* aPolytope);
-            
+ 
 
         bool mNormalization;
         bool mDetectApertureOnly;
@@ -91,7 +91,7 @@ namespace visilib
         size_t myInitiaLineCount = myPolyhedron->getLinesCount();
 
 #ifdef OUTPUT_DEBUG_FILE
-        std::ofstream& debugOutput = VisibilitySolver<P, S>::mDebugger->getDebugOutput();    
+        std::ofstream& debugOutput = VisibilitySolver<P, S>::mDebugger->getDebugOutput(); 
         V_LOG(debugOutput, "Resolve internal ", occlusionTreeNodeSymbol);
         aPolytope->outputProperties(debugOutput, myPolyhedron);
 #endif
@@ -209,7 +209,7 @@ namespace visilib
                 }
 
                 P myHyperplane = myPolyhedron->get(myPolyhedronFace);
-                
+ 
                 GeometryPositionType myResult = ON_NEGATIVE_SIDE;
 
                 PluckerPolytope<P,S>* myPolytopeLeft = new PluckerPolytope<P,S>();
@@ -321,7 +321,7 @@ namespace visilib
             {
 
                 std::stringstream ss;
-#ifdef OUTPUT_DEBUG_FILE              
+#ifdef OUTPUT_DEBUG_FILE 
                 ss << occlusionTreeNodeSymbol << "|" << face->getFaceIndex() << "-" << myVisibilitySilhouette<P>Edge.mEdgeIndex << "*";
 #endif
                 VisibilityResult result = resolveInternal(aGlobalResult, aPolytope, ss.str(), anOccluders, aPolytopeLines, aDepth + 1);
@@ -403,7 +403,7 @@ namespace visilib
         }
 
         if (VisibilitySolver<P, S>::mDebugger != nullptr)
-        {  
+        { 
             std::vector<std::pair<MathVector3d, MathVector3d>> lines;
             aPolytope->getExtremalStabbingLinesBackTo3D(lines, aPlane0, aPlane1);
             for (auto line : lines)

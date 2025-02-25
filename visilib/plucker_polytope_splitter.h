@@ -122,7 +122,7 @@ namespace visilib
 
     template<class P, class S>
         inline void PluckerPolytopeSplitter<P,S>::split(const P& aPlane, PluckerPolytopeComplex<P,S>& aComplex, SplitAlgorithmStatus<P,S>& aStatus, S aTolerance)
-        {           
+        { 
             for (auto iter = aComplex.beginVertices(); iter != aComplex.endVertices(); iter++)
             {
                 PluckerVertex<P>* v = *iter;
@@ -191,8 +191,8 @@ namespace visilib
                             if (myPositionKm1== ON_NEGATIVE_SIDE)
                             {
                                 cm->appendParent(f);
-                            }                                              
-                            else if (myPositionKm1 == ON_POSITIVE_SIDE)                    
+                            }
+                            else if (myPositionKm1 == ON_POSITIVE_SIDE)
                             {
                                 cp->appendParent(f);
                             }
@@ -202,13 +202,13 @@ namespace visilib
 
                         for (auto element: newChildren)
                         {
-                            aComplex.appendElement(element,k-1);                    
+                            aComplex.appendElement(element,k-1); 
 
                         }
                         for (auto element: newElements)
                         {
                             aComplex.appendElement(element,k);
-                        }              
+                        } 
                     }
                 }
 
@@ -245,9 +245,9 @@ namespace visilib
                         for (auto parent: element->getParents())
                         {
                             stack.push(parent);
-                        }                
+                        }
                     }
-                }        
+                }
             }
 
             for (int k = 1; k < myLattice->getDimension(); k++)
@@ -274,7 +274,7 @@ namespace visilib
                             while (!stack.empty())
                             {
                                 PluckerElement* element = stack.top();
-                                stack.pop();  
+                                stack.pop(); 
                                 if (element->getRank() == 0)
                                 {
                                     aStatus.setPosition(element, ON_BOUNDARY);
@@ -284,7 +284,7 @@ namespace visilib
                                     for (auto child: element->getChildren())
                                     {
                                         stack.push(child);
-                                    }  
+                                    } 
                                 }
                             }
 

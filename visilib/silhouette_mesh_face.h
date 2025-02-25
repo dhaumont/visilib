@@ -37,8 +37,8 @@ namespace visilib
         {
             mVertices.resize(n,nullptr);
             mNeighbours.resize(n,-1);
-          
-            mFaceIndex = 0;            
+ 
+            mFaceIndex = 0; 
         }
 
         SilhouetteMeshFace(const SilhouetteMeshFace& other)
@@ -58,7 +58,7 @@ namespace visilib
         {
             const MathVector3f* myVertices = (MathVector3f*)aMesh->vertexArray;
             std::vector<int> myIndices = aMesh->getIndices(aFace);
-     
+ 
             for (size_t i = 0; i < myIndices.size(); i++)
             {
                 mVertices[i] = (MathVector3f*)& myVertices[myIndices[i]];

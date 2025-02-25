@@ -76,7 +76,7 @@ namespace visilib
         }
 
         /** @brief Remove the degenerated triangles of the mesh
-        
+ 
         A triangle is degenerated if one of its edge is smaller than the provided threshold
         @param threshold: the threshold used to test the edges length
         */

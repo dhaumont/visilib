@@ -126,7 +126,7 @@ namespace visilib
             std::cout <<"  ["<< header << percent(time, totalTime) << "%]";
         }
 
-        
+ 
         void display() 
         {
             std::cout << "Query : " << mTimers[VISIBILITY_QUERY] << "sec. (" << 1.0 / mTimers[VISIBILITY_QUERY] << " queries/sec.)" << std::endl;
@@ -158,7 +158,7 @@ namespace visilib
     };
 
     /** @brief A high precision timer, that measures the time ellapsed during the execution of the function inside the scope of the time.
-    
+ 
     The timer measurement is started at the creation of the timer and stopped at desctruction of the timer.
     */
     class HelperScopedTimer
@@ -170,8 +170,8 @@ namespace visilib
         {
 #ifdef WIN32
             QueryPerformanceCounter((LARGE_INTEGER*)mStartTime);
-#else        
-           mStartTime = clock();            
+#else 
+           mStartTime = clock(); 
 #endif
            mCollector->setTimerIsRunning(mTimer, true);
         }
@@ -186,7 +186,7 @@ namespace visilib
 #else
             mCollector->incrementTime(mTimer, (double) (clock()- mStartTime)); 
 #endif
-                       
+ 
             mCollector->setTimerIsRunning(mTimer, false);
         }
 

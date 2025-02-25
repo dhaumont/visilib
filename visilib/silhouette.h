@@ -90,7 +90,7 @@ namespace visilib
             mGeometryId(aGeometryId),
             mAvailableEdgeCount(0)
         {
-           
+ 
         }
 
         ~Silhouette()
@@ -123,7 +123,7 @@ namespace visilib
         {
             return mEdges[edgeIndex];
         }
-        
+ 
         const std::vector<size_t>& getEdgesProcessed() { return mEdgesProcessed; }
 
         void setEdgeActive(size_t edgeIndex, bool isActive)

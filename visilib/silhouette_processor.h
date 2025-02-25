@@ -229,10 +229,10 @@ namespace visilib
 
             Silhouette* s = new Silhouette(meshFaces, geometryId);
             silhouettes.push_back(s);
-            
+ 
             while (!stack.empty())
             {
-                int myIndex = stack.top();                
+                int myIndex = stack.top(); 
                 stack.pop();
                 if (processed[myIndex])
                     continue;
@@ -276,7 +276,7 @@ namespace visilib
                         {
                             mDebugger->addRemovedTriangle(face->getVertex(0), face->getVertex(1), face->getVertex(2));
                         }
-                        
+ 
                         s->addFace(*face);
 
                         mHelperStatisticCollector->inc(OCCLUDER_TRIANGLE_COUNT);

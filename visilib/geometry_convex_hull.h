@@ -51,7 +51,7 @@ namespace visilib
         static GeometryConvexHull* build(const std::vector<MathVector3d>& inputVertices0, const std::vector<MathVector3d>& inputVertices1);
     private:
 
-     
+ 
         static bool compute(const std::vector<MathVector3d>& inputVertices0, const std::vector<MathVector3d>& inputVertices1, std::vector<MathPlane3d>& outputFaces);
     };
 

@@ -18,7 +18,7 @@
 
 if (EXISTS "$ENV{LEDA_DIR}/incl/LEDA/numbers/real.h" AND EXISTS "$ENV{LEDA_DIR}/leda_mt.lib" )
     message("LEDA found: "  $ENV{LEDA_DIR})
-    
+ 
     set (LEDA_INCLUDE_DIR $ENV{LEDA_DIR}/incl)
     set (LEDA_LIBRARY $ENV{LEDA_DIR}/leda_mt.lib)
     set(LEDA_FOUND True)

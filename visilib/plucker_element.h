@@ -275,7 +275,7 @@ namespace visilib
 
             }
             return position;
-        }   
+        } 
 
         std::list<PluckerElement*> mChildren;
         PluckerBoundingVolume* mBoundingVolume;
@@ -291,7 +291,7 @@ namespace visilib
             }
 
             void setFacet(size_t aFacet)
-            {   
+            { 
                 std::vector<size_t> myFacets={aFacet};
                 setFacetDescription(myFacets);
             }
@@ -363,7 +363,7 @@ namespace visilib
             void interpolate(S tolerance);
 
         private:
-            PluckerEdge<P>* mGeneratorEdge;  
+            PluckerEdge<P>* mGeneratorEdge; 
             S mAlpha, mBeta;
 
     };

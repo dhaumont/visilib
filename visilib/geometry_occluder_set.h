@@ -33,7 +33,7 @@ namespace visilib
 {
     struct GeometryDiscreteMeshDescription;
     class SilhouetteMeshFace;
-   
+ 
     /** @brief Stores the occluders against which visibility is tested. The occluders are stored under the form of a connected set of faces, that are used for efficient silhouette detection.
     Connectivity information of the occluders is computed in a lazy way, only when required.*/
 
@@ -115,11 +115,11 @@ namespace visilib
     inline std::vector<SilhouetteMeshFace>* GeometryOccluderSet::getOccluderConnectedFaces(size_t geometryId)
     {
         std::vector<SilhouetteMeshFace>* myFaces;
-      
+ 
         if (mConnectedFacesCache[geometryId] == nullptr)
-        {  
+        { 
             GeometryDiscreteMeshDescription* mesh = mOccluders[geometryId];
-     
+ 
             myFaces = new std::vector<SilhouetteMeshFace>();
             extractConnectedMeshFaces(mesh, *myFaces);
             mConnectedFacesCache[geometryId] = myFaces;
@@ -133,7 +133,7 @@ namespace visilib
         for (size_t geometryId = 0; geometryId < mConnectedFacesCache.size(); geometryId++)
         {
             GeometryDiscreteMeshDescription* mesh = mOccluders[geometryId];
-          
+ 
             setOccluderConnectedFaces(mesh, *mConnectedFacesCache[geometryId]);
         }
     }

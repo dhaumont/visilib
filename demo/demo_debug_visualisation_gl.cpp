@@ -244,11 +244,11 @@ size_t DemoDebugVisualisationGl::display(HelperVisualDebugger * debugger, const 
     glPointSize(3);
     DemoDebugVisualisationGl::drawPolygonPoints(v0);
     DemoDebugVisualisationGl::drawPolygonPoints(v1);
-    
+ 
     glLineWidth(1);
     glColor3f(0.0f, 255.0f, 255.0f);
     DemoDebugVisualisationGl::drawLines(debugger->getStabbingLines());
-    
+ 
     glColor3f(0.0f, 255.0f, 0.0f);
     DemoDebugVisualisationGl::drawLines(debugger->getExtremalStabbingLines());
 

@@ -85,7 +85,7 @@ namespace visilibDemo
 
             delete meshContainer;
             meshContainer = DemoHelper::createScene(s, mDemoConfiguration.globalScaling);
-            
+ 
             delete occluderSet;
             occluderSet = DemoHelper::createOccluderSet(meshContainer);
 
@@ -239,15 +239,15 @@ namespace visilibDemo
 
                 break;
 
-            case '[':                
+            case '[': 
                 mDemoConfiguration.tolerance = mDemoConfiguration.tolerance == -1 ? 1e-8 : mDemoConfiguration.tolerance/2;
-                forceDisplay = true;                                
+                forceDisplay = true; 
 
                 break;
 
             case ']':
                 mDemoConfiguration.tolerance = mDemoConfiguration.tolerance == -1 ? 1e-8 : mDemoConfiguration.tolerance*2;
-                forceDisplay = true;                
+                forceDisplay = true; 
                 break;
 
             case 'h':

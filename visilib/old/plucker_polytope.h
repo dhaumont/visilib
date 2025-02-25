@@ -109,7 +109,7 @@ namespace visilib
         bool containsRealLines() const;
 
         /** @brief Test if the polytope is degenerated (the length of all edges are below the given tolerance).
-        
+ 
         @param polyhedron: the polyhedron containing all the vertices definition
         @param S: the tolerance against which the length of the edges is tested
         */
@@ -117,14 +117,14 @@ namespace visilib
         template<class S> bool hasSomeEdgesCollapsed(PluckerPolyhedron<P>* polyhedron, S Tolerance);
 
         /** @brief Remove the collasped edge (the length of all edges are below the given tolerance).
-        
+ 
         @param polyhedron: the polyhedron containing all the vertices definition
         @param S: the tolerance against which the length of the edges is tested
         */
 
         template<class S> bool removeCollapsedEdges(PluckerPolyhedron<P>* polyhedron, S Tolerance);
 
-        
+ 
         /** @brief Compute the extremal stabbing lines of the polytope*/
         template<class S> void computeExtremalStabbingLines(PluckerPolyhedron<P>* polyhedron, S Tolerance);
 
@@ -158,7 +158,7 @@ namespace visilib
 
 
         /** @brief Returns the list of all the faces (ie the equation of the hyperplane) defining the polytope.
-        
+ 
         The hypeplanes are stored in a polyhedon , and their facets is represented as an index list inside the polyhedron
         */
         void getFacets(std::set<size_t>& facets);
@@ -183,13 +183,13 @@ namespace visilib
         }
 
         /** @brief Test if the polytope is valid (complete check)
-        
+ 
         The test performs a complete validation of the validity of the polytope 
         */
         template<class S> bool isValid(PluckerPolyhedron<P>* polyhedron, bool normalization, S tolerance);
 
     private:
-        
+ 
         std::set<std::pair<size_t, size_t> > mEdges;                      /** < @brief The edges of the polytope, each edge is defined by the indices of the two vertices supporting it*/
         std::set<std::pair<size_t, size_t> > mEdgesProcessed;
         std::vector<P> mExtremalStabbingLines;                           /** < @brief The ESL of the polytope, at the intersection of an edge and the Plucker Quadric*/
@@ -200,7 +200,7 @@ namespace visilib
         double mRadius;
         P mRepresentativeLine;
     };
-   
+ 
     template<class P>
     void PluckerPolytopeSkeleton<P>::outputProperties(std::ostream& o)
     {
@@ -213,7 +213,7 @@ namespace visilib
             o << "Polyhedron Lines:" << polyhedron->getLinesCount() << std::endl;
             std::set<size_t> myFacets;
             getFacets(myFacets, polyhedron);
-        
+ 
             o << "Facets: {";
 
             for (auto i = myFacets.begin(); i != myFacets.end(); i++)
@@ -246,27 +246,27 @@ namespace visilib
                 o << " e[" << iter->first << "," << iter->second << "]";
             }
             o << std::endl;
-        
+ 
         }
     template<class P> template<class S>
     bool PluckerPolytopeSkeleton<P>::removeCollapsedEdges(PluckerPolyhedron<P>* polyhedron, S tolerance)
     {
         std::vector<int> myEdgesTable;
         std::vector<int> myMergeTable;
-        
+ 
         for (auto iter = mEdges.begin(); iter != mEdges.end();iter++)
         {
             size_t i1 = iter->first;
-            size_t i2 = iter->second;                
-        
+            size_t i2 = iter->second; 
+ 
             const P& v1 = polyhedron->get(i1);
             const P& v2 = polyhedron->get(i2);
 
-                        
+ 
             if (MathPredicates::isEdgeCollapsed(v1, v2, tolerance))
             {
                 std::cout << "collapsed edge dected: " << v1-v2 << "; tolerance: "<< 0.5 *tolerance<<std::endl;
-                myMergeTable.push_back(i1);                
+                myMergeTable.push_back(i1); 
                 myMergeTable.push_back(i2);
             }
             else
@@ -278,7 +278,7 @@ namespace visilib
 
         if (myMergeTable.empty())
         {
-            return false;            
+            return false; 
         }
 
         std::cout << "EDGE TO BE MERGED DETECTED!" << std::endl;
@@ -320,10 +320,10 @@ namespace visilib
 
                 const std::vector<size_t>& facetsI1 = polyhedron->getFacetsDescription(merge_left);
                 const std::vector<size_t>& facetsI2 = polyhedron->getFacetsDescription(merge_right);
-         
+ 
                 std::vector<size_t> myFacets;
                 MathCombinatorial::initFacets(facetsI1, 
-                                              facetsI2,                                               
+                                              facetsI2, 
                                               myFacets);
                 polyhedron->initFacetsDescription(merge_left, myFacets);
             }
@@ -340,7 +340,7 @@ namespace visilib
         {
             std::cout<<myEdgesTable[i]<<" ";
         }
-        std::cout<<std::endl;   
+        std::cout<<std::endl; 
 
         outputProperties(std::cout,polyhedron);
         mEdges.clear();
@@ -410,10 +410,10 @@ namespace visilib
             {
                 V_ASSERT(MathGeometry::hasPluckerEdgeWithQuadricIntersection(v1, v2, p1, p2, tolerance));
             }
-        }        
+        } 
     }
 
-    
+ 
 
 
     template<class P> template<class S>

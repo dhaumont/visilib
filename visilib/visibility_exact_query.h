@@ -101,7 +101,7 @@ namespace visilib
         The links is used for occluder selection.
         */
         bool findSceneIntersection(const MathVector3d& aBegin, const MathVector3d& anEnd, std::set<SilhouetteMeshFace*>& intersectedFaces, const S& aDistance = 0, PluckerPolytope<P,S>* aPolytope = nullptr);
-        
+ 
         void extractAllSilhouette<P>s();
 
         /**@brief Given a polytope, finds a set of occluders that is intersected by the set of lines that the polytope represents.
@@ -127,8 +127,8 @@ namespace visilib
             return mPolytopeToSilhouette<P>Dictionary.find(polytope) != mPolytopeToSilhouette<P>Dictionary.end();
         }
         */
-       
-        
+ 
+ 
         /**@brief Find the next edge to be processed by the query
         */
         bool findNextEdge(size_t& aSilhouette<P>EdgeIndex, Silhouette<P> * &aSilhouette<P>, PluckerPolytope<P,S> * polytope, const std::string & occlusionTreeNodeSymbol);
@@ -191,12 +191,12 @@ namespace visilib
         mComplex(nullptr)
     {
         mSilhouetteProcessor = new Silhouette<P>Processor(&mStatistic);
-     
+ 
         mQueryPolygon[0] = nullptr;
         mQueryPolygon[1] = nullptr;
 
         mTolerance = aTolerance;
- #if EMBREE       
+ #if EMBREE 
         if (aConfiguration.useEmbree)
         {
             mSilhouetteContainer = new SilhouetteContainerEmbree();
@@ -309,7 +309,7 @@ namespace visilib
             result = findSceneIntersection(mQueryPolygon[0]->getVertex(0), mQueryPolygon[1]->getVertex(0), intersectedFaces) ? HIDDEN : VISIBLE;
         }
         else
-        {   
+        { 
             {
                 HelperScopedTimer timer(getStatistic(), SILHOUETTE_PROCESSING);
                 //mScene->get()->restoreFacesGeometry(mScene);
@@ -326,7 +326,7 @@ namespace visilib
                 HelperScopedTimer timerBuild(&mStatistic, POLYTOPE_BUILD);
 
                 PluckerPolytopeBuilder<P, S> builder(mConfiguration.hyperSphereNormalization, mTolerance);
-                mComplex = builder.build(*mQueryPolygon[0], *mQueryPolygon[1]);                
+                mComplex = builder.build(*mQueryPolygon[0], *mQueryPolygon[1]); 
             }
             VisibilitySolver<P, S>* solver;
 
@@ -363,11 +363,11 @@ namespace visilib
 
         double myScore = 1e32;
         bool found = false;
-        
+ 
         Silhouette<P>* mySilhouette<P> = nullptr;
 
         MathPlane3d aPlane0 = getQueryPolygon(0)->getPlane();
-   
+ 
         const MathPlane3d& myPlane = getQueryPolygon(0)->getPlane();
         for (auto iter = mySilhouette<P>s.begin(); iter != mySilhouette<P>s.end(); iter++)
         {
@@ -419,14 +419,14 @@ namespace visilib
         {
 #ifdef OUTPUT_DEBUG_FILE
             V_LOG(debugOutput, "VisibilityExactQuery<P, S>::findTheBestValidEdge END return False (No edge found)", occlusionTreeNodeSymbol);
-#endif  
+#endif 
         }
         return found;
     }
 
     template<class P, class S>
     bool VisibilityExactQuery_<P, S>::isOccluded(PluckerPolytope<P,S>* polytope, const std::vector <Silhouette<P>*> & aSilhouette<P>s, const std::vector<P> & polytopeLines)
-    {   
+    { 
         return SilhouetteContainer::isOccluded(polytope, polyhedron, aSilhouette<P>s,polytopeLines,mTolerance);
     }
 
@@ -457,7 +457,7 @@ namespace visilib
         {
             HelperScopedTimer timer(getStatistic(), RAY_INTERSECTION);
             getStatistic()->inc(RAY_COUNT);
-            
+ 
             intersect = mSilhouetteContainer->intersect(&myRay, aDistance);
         }
 
@@ -493,12 +493,12 @@ namespace visilib
             std::vector<SilhouetteMeshFace>* myFaces = mScene->getOccluderConnectedFaces(geometryId);
 
             mSilhouetteProcessor->extractSilhouette<P>(geometryId, *myFaces, mConfiguration.silhouetteOptimization, silhouettes);
-            
+ 
             for (auto s:silhouettes)
             {
                 mSilhouetteContainer->addSilhouette<P>(s);
             }
-            
+ 
         }
     }
 
@@ -520,10 +520,10 @@ namespace visilib
         const MathPlane3d& aPlane1 = getQueryPolygon(1)->getPlane();
 
         std::pair<MathVector3d, MathVector3d> centerLine = MathGeometry::getBackTo3D(myRepresentativeLine, aPlane0, aPlane1);
-           
+ 
         std::set<SilhouetteMeshFace*> intersectedFaces;
         bool hit = findSceneIntersection(centerLine.first, centerLine.second, intersectedFaces, 0, aPolytope);
-    
+ 
         if (!hit && !mConfiguration.detectApertureOnly)
         {
             {
@@ -563,7 +563,7 @@ namespace visilib
             }
             myMaxDistance = MathArithmetic<S>::getSqrt(myMaxDistance);
             findSceneIntersection(centerLine.first, centerLine.second, intersectedFaces, myMaxDistance, aPolytope);
-        }            
+        } 
         for (auto myFace : intersectedFaces)
         {
             Silhouette<P>* s = mSilhouetteProcessor->findSilhouette<P>(myFace);
@@ -572,6 +572,6 @@ namespace visilib
                 occluders.push_back(s);
         }
         return hit;
-    }    
-    
+    } 
+ 
 }

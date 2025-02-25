@@ -18,9 +18,9 @@
 
  if (EXISTS "$ENV{EMBREE_INSTALL_DIR}/include/embree3/rtcore.h" AND EXISTS "$ENV{EMBREE_INSTALL_DIR}/lib/embree3.lib" )
     message("Embree found: "  $ENV{EMBREE_INSTALL_DIR})
-    set(EMBREE_INCLUDE_DIRS $ENV{EMBREE_INSTALL_DIR}/include)	
-    set(EMBREE_LIBRARY $ENV{EMBREE_INSTALL_DIR}/lib/embree3.lib)	    
-    set(embree_FOUND True)        
+    set(EMBREE_INCLUDE_DIRS $ENV{EMBREE_INSTALL_DIR}/include) 
+    set(EMBREE_LIBRARY $ENV{EMBREE_INSTALL_DIR}/lib/embree3.lib) 
+    set(embree_FOUND True) 
 else()
     message("Could not locate embree at " $ENV{EMBREE_INSTALL_DIR})
  

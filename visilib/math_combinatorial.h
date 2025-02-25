@@ -39,7 +39,7 @@ namespace visilib
     };
 
     /** @brief Determine if the intersection of the facets lists of the two Plucker Points have at least n common elements. 
-    
+ 
     This function is used to determine if two vertices of a Polytope have to be linked by an edge during polytope manipulation routines.
     n is 3 by default for Plucker line in 3D space.*/
 
@@ -47,7 +47,7 @@ namespace visilib
     {
         std::vector<size_t> result;
         getCommonFacets(aFacetsDescription1, aFacetsDescription2, result); 
-        size_t size = result.size();        
+        size_t size = result.size(); 
         return size >= n;
     }
 
@@ -105,7 +105,7 @@ namespace visilib
             }
             else
             { 
-                i++;j++;                
+                i++;j++; 
             }
         }
 

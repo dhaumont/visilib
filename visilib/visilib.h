@@ -28,7 +28,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 
 
 namespace visilib
-{  
+{ 
     /** @brief Configuration of a visibility query.*/
 
     struct VisibilityExactQueryConfiguration
@@ -38,7 +38,7 @@ namespace visilib
         {
             FLOAT,       /**< @brief Single floating point aritmetic*/
             DOUBLE       /**< @brief Double floating point aritmetic*/
-#ifdef EXACT_ARITHMETIC  
+#ifdef EXACT_ARITHMETIC 
             , EXACT      /**< @brief Exact arithmetic (based on CGAL and LEDA)*/
 #endif
         };
@@ -65,8 +65,8 @@ namespace visilib
 
         bool silhouetteOptimization;                  /**< @brief Use silhouette optimization*/
         bool hyperSphereNormalization;                /**< @brief Normalize the Plucker point (projection on unit hypersphere)*/ 
-        PrecisionType precision;                      /**< @brief Arithmetic model precision t*/  
-        bool detectApertureOnly;                      /**< @brief Stop the query as soon as a visible line has been found*/  
+        PrecisionType precision;                      /**< @brief Arithmetic model precision t*/ 
+        bool detectApertureOnly;                      /**< @brief Stop the query as soon as a visible line has been found*/ 
         bool useEmbree;
         double tolerance;
     };

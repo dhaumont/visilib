@@ -29,7 +29,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 namespace visilib
 {
     /** @brief Represents a set of silhouettes, using Embree library from Intel to perform ray-tracing against those silhouettes.
-    
+ 
     This class is performance oriented, and is intended to provide the fastest possible occluder ray intersection, by using a modern ray tracing engine.
     */
 
@@ -42,22 +42,22 @@ namespace visilib
         virtual ~SilhouetteContainerEmbree();
 
         /** @brief Intersect the ray with the geometry 
-        
+ 
         The function calls embree to perform the intersection
         */
         virtual bool intersect(VisibilityRay* aRay) override;
 
 
         /** @brief Prepare the scene before ray tracing
-        
+ 
         The function commits the scene geometry to embree
         */
         virtual void prepare();
     private:
-     
+ 
         RTCScene mScene;            /**< @brief The Embree scene*/
         static RTCDevice mDevice;   /**< @brief The Embree device*/
-        std::unordered_map<unsigned int, std::pair<size_t, size_t>> ids;     
+        std::unordered_map<unsigned int, std::pair<size_t, size_t>> ids; 
     };
 
     inline SilhouetteContainerEmbree::SilhouetteContainerEmbree()
@@ -76,12 +76,12 @@ namespace visilib
     //    rtcSetSceneFlags(mScene, RTC_SCENE_FLAG_ROBUST);
         //rtcSetSceneFlags(mScene, RTC_CONFIG_BACKFACE_CULLING);
         rtcSetSceneFlags(mScene, RTC_SCENE_FLAG_ROBUST);
-        rtcSetSceneFlags(mScene, RTC_SCENE_FLAG_CONTEXT_FILTER_FUNCTION);  
+        rtcSetSceneFlags(mScene, RTC_SCENE_FLAG_CONTEXT_FILTER_FUNCTION); 
     }
 
     inline SilhouetteContainerEmbree::~SilhouetteContainerEmbree()
     {
-        rtcReleaseScene(mScene);        
+        rtcReleaseScene(mScene); 
     }
 
 
@@ -94,7 +94,7 @@ namespace visilib
 
         // we remember up to 16 hits to ignore duplicate hits
         unsigned int firstHit, lastHit;
-        unsigned int hit_geomIDs[HIT_LIST_LENGTH];      
+        unsigned int hit_geomIDs[HIT_LIST_LENGTH]; 
     };
 
     struct GeometryIntersectContextMultiHit
@@ -124,7 +124,7 @@ namespace visilib
         assert(args->N == 1);
         int* valid = args->valid;
         RTCHit * hit = (RTCHit*)args->hit;
-        
+ 
         /* ignore inactive rays */
         if (valid[0] != -1) return;
 
@@ -144,14 +144,14 @@ namespace visilib
         ray->lastHit++;
         if (ray->lastHit - ray->firstHit >= HIT_LIST_LENGTH)
             ray->firstHit++;
-       
+ 
         valid[0] = 0;
   }
     inline bool SilhouetteContainerEmbree::intersect(VisibilityRay* aRay)
     {
         GeometryRayMultiHit ray;
         ray.firstHit = 0;
-        ray.lastHit = 0;    
+        ray.lastHit = 0; 
         ray.rayHit.ray.org_x = aRay->org[0];  ray.rayHit.ray.org_y = aRay->org[1]; ray.rayHit.ray.org_z = aRay->org[2];
         ray.rayHit.ray.dir_x = aRay->dir[0];  ray.rayHit.ray.dir_y = aRay->dir[1]; ray.rayHit.ray.dir_z = aRay->dir[2];
         ray.rayHit.ray.tnear = aRay->tnear;
@@ -188,7 +188,7 @@ namespace visilib
             for (size_t faceIndex : s->getSilhouette<P>Faces())
             {
                 RTCGeometry mesh = rtcNewGeometry(mDevice, RTC_GEOMETRY_TYPE_TRIANGLE);
-             
+ 
                 MathVector3f* vertices = (MathVector3f*)rtcSetNewGeometryBuffer(mesh, RTC_BUFFER_TYPE_VERTEX, 0, RTC_FORMAT_FLOAT3, sizeof(MathVector3f), 3);
                 for (int i = 0; i < 3; i++)
                 {
@@ -214,14 +214,14 @@ namespace visilib
             //    triangles[5] = 1;
 
                 rtcSetGeometryIntersectFilterFunction(mesh, occlusionFilter);
-       
+ 
                 rtcCommitGeometry(mesh);
                 unsigned int geomID = rtcAttachGeometry(mScene, mesh);
                 ids[geomID] = std::pair<size_t, size_t>(id, faceIndex); 
                 rtcReleaseGeometry(mesh);
             }
         }
-        
+ 
         rtcCommitScene(mScene);
     }
 

@@ -1,0 +1,433 @@
+mkdir: cannot create directory 'debug': File exists
+CMake Warning:
+  Ignoring extra path from command line:
+
+   "/home/dhaumont/code/visilib/bajaj/debug/cmake"
+
+
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/dhaumont/code/visilib/bajaj/debug
+[  0%] Built target visilib
+[ 11%] Building CXX object demo/CMakeFiles/visilibDemo.dir/demo_debug_visualisation_gl.cpp.o
+In file included from /home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:31,
+                 from /home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_exact_query.h:36,
+                 from /home/dhaumont/code/visilib/bajaj/demo/../visilib/visilib.hpp:24,
+                 from /home/dhaumont/code/visilib/bajaj/demo/../visilib/visilib.h:103,
+                 from /home/dhaumont/code/visilib/bajaj/demo/demo_debug_visualisation_gl.h:23,
+                 from /home/dhaumont/code/visilib/bajaj/demo/demo_debug_visualisation_gl.cpp:35:
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/plucker_polytope_splitter.h:224:21: error: ‘template<class P, class S> class visilib::PluckerPolytopeSplitter’ used without template arguments
+  224 |         inline void PluckerPolytopeSplitter::reclassify(PluckerPolytopeComplex<P,S>& aComplex, SplitAlgorithmStatus<S>& aStatus)
+      |                     ^~~~~~~~~~~~~~~~~~~~~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/plucker_polytope_splitter.h:224:118: error: wrong number of template arguments (1, should be 2)
+  224 |         inline void PluckerPolytopeSplitter::reclassify(PluckerPolytopeComplex<P,S>& aComplex, SplitAlgorithmStatus<S>& aStatus)
+      |                                                                                                                      ^
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/plucker_polytope_splitter.h:36:15: note: provided for ‘template<class P, class S> class visilib::SplitAlgorithmStatus’
+   36 |         class SplitAlgorithmStatus
+      |               ^~~~~~~~~~~~~~~~~~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/plucker_polytope_splitter.h: In function ‘void visilib::reclassify(PluckerPolytopeComplex<P, S>&, int&)’:
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/plucker_polytope_splitter.h:232:29: error: request for member ‘getPosition’ in ‘aStatus’, which is of non-class type ‘int’
+  232 |                 if (aStatus.getPosition(vertex) == ON_BOUNDARY)
+      |                             ^~~~~~~~~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/plucker_polytope_splitter.h:244:33: error: request for member ‘setChecked’ in ‘aStatus’, which is of non-class type ‘int’
+  244 |                         aStatus.setChecked(element);
+      |                                 ^~~~~~~~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/plucker_polytope_splitter.h:253:33: error: ‘myLattice’ was not declared in this scope
+  253 |             for (int k = 1; k < myLattice->getDimension(); k++)
+      |                                 ^~~~~~~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/plucker_polytope_splitter.h:259:33: error: request for member ‘isUnchecked’ in ‘aStatus’, which is of non-class type ‘int’
+  259 |                     if (aStatus.isUnchecked(c))
+      |                                 ^~~~~~~~~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/plucker_polytope_splitter.h:262:33: error: request for member ‘setChecked’ in ‘aStatus’, which is of non-class type ‘int’
+  262 |                         aStatus.setChecked(c);
+      |                                 ^~~~~~~~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/plucker_polytope_splitter.h:264:33: error: request for member ‘setPosition’ in ‘aStatus’, which is of non-class type ‘int’
+  264 |                         aStatus.setPosition(c,position);
+      |                                 ^~~~~~~~~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/plucker_polytope_splitter.h:280:45: error: request for member ‘setPosition’ in ‘aStatus’, which is of non-class type ‘int’
+  280 |                                     aStatus.setPosition(element, ON_BOUNDARY);
+      |                                             ^~~~~~~~~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/plucker_polytope_splitter.h:294:41: error: request for member ‘setUnchecked’ in ‘aStatus’, which is of non-class type ‘int’
+  294 |                                 aStatus.setUnchecked(child)
+      |                                         ^~~~~~~~~~~~
+In file included from /home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:35:
+/usr/include/c++/12/sstream: At global scope:
+/usr/include/c++/12/sstream:72:51: error: expected template-name before ‘<’ token
+   72 |     class basic_stringbuf : public basic_streambuf<_CharT, _Traits>
+      |                                                   ^
+/usr/include/c++/12/sstream:72:51: error: expected ‘{’ before ‘<’ token
+/usr/include/c++/12/sstream:537:53: error: expected template-name before ‘<’ token
+  537 |     class basic_istringstream : public basic_istream<_CharT, _Traits>
+      |                                                     ^
+/usr/include/c++/12/sstream:537:53: error: expected ‘{’ before ‘<’ token
+/usr/include/c++/12/sstream:758:53: error: expected template-name before ‘<’ token
+  758 |     class basic_ostringstream : public basic_ostream<_CharT, _Traits>
+      |                                                     ^
+/usr/include/c++/12/sstream:758:53: error: expected ‘{’ before ‘<’ token
+/usr/include/c++/12/sstream:979:53: error: expected template-name before ‘<’ token
+  979 |     class basic_stringstream : public basic_iostream<_CharT, _Traits>
+      |                                                     ^
+/usr/include/c++/12/sstream:979:53: error: expected ‘{’ before ‘<’ token
+In file included from /usr/include/c++/12/sstream:1218:
+/usr/include/c++/12/bits/sstream.tcc:44:14: error: expected nested-name-specifier before ‘basic_stringbuf’
+   44 |     typename basic_stringbuf<_CharT, _Traits, _Alloc>::int_type
+      |              ^~~~~~~~~~~~~~~
+/usr/include/c++/12/bits/sstream.tcc:44:29: error: expected initializer before ‘<’ token
+   44 |     typename basic_stringbuf<_CharT, _Traits, _Alloc>::int_type
+      |                             ^
+/usr/include/c++/12/bits/sstream.tcc:78:14: error: expected nested-name-specifier before ‘basic_stringbuf’
+   78 |     typename basic_stringbuf<_CharT, _Traits, _Alloc>::int_type
+      |              ^~~~~~~~~~~~~~~
+/usr/include/c++/12/bits/sstream.tcc:78:29: error: expected initializer before ‘<’ token
+   78 |     typename basic_stringbuf<_CharT, _Traits, _Alloc>::int_type
+      |                             ^
+/usr/include/c++/12/bits/sstream.tcc:148:14: error: expected nested-name-specifier before ‘basic_stringbuf’
+  148 |     typename basic_stringbuf<_CharT, _Traits, _Alloc>::int_type
+      |              ^~~~~~~~~~~~~~~
+/usr/include/c++/12/bits/sstream.tcc:148:29: error: expected initializer before ‘<’ token
+  148 |     typename basic_stringbuf<_CharT, _Traits, _Alloc>::int_type
+      |                             ^
+/usr/include/c++/12/bits/sstream.tcc:166:14: error: expected nested-name-specifier before ‘basic_stringbuf’
+  166 |     typename basic_stringbuf<_CharT, _Traits, _Alloc>::pos_type
+      |              ^~~~~~~~~~~~~~~
+/usr/include/c++/12/bits/sstream.tcc:166:29: error: expected initializer before ‘<’ token
+  166 |     typename basic_stringbuf<_CharT, _Traits, _Alloc>::pos_type
+      |                             ^
+/usr/include/c++/12/bits/sstream.tcc:214:14: error: expected nested-name-specifier before ‘basic_stringbuf’
+  214 |     typename basic_stringbuf<_CharT, _Traits, _Alloc>::pos_type
+      |              ^~~~~~~~~~~~~~~
+/usr/include/c++/12/bits/sstream.tcc:214:29: error: expected initializer before ‘<’ token
+  214 |     typename basic_stringbuf<_CharT, _Traits, _Alloc>::pos_type
+      |                             ^
+/usr/include/c++/12/bits/sstream.tcc:245:20: error: expected initializer before ‘<’ token
+  245 |     basic_stringbuf<_CharT, _Traits, _Alloc>::
+      |                    ^
+/usr/include/c++/12/bits/sstream.tcc:276:20: error: expected initializer before ‘<’ token
+  276 |     basic_stringbuf<_CharT, _Traits, _Alloc>::
+      |                    ^
+/usr/include/c++/12/bits/sstream.tcc:291:25: error: ‘basic_stringbuf’ is not a class template
+  291 |   extern template class basic_stringbuf<char>;
+      |                         ^~~~~~~~~~~~~~~
+/usr/include/c++/12/bits/sstream.tcc:291:25: error: explicit instantiation of non-template type ‘visilib::std::basic_stringbuf’
+/usr/include/c++/12/bits/sstream.tcc:292:25: error: ‘basic_istringstream’ is not a class template
+  292 |   extern template class basic_istringstream<char>;
+      |                         ^~~~~~~~~~~~~~~~~~~
+/usr/include/c++/12/bits/sstream.tcc:292:25: error: explicit instantiation of non-template type ‘visilib::std::basic_istringstream’
+/usr/include/c++/12/bits/sstream.tcc:293:25: error: ‘basic_ostringstream’ is not a class template
+  293 |   extern template class basic_ostringstream<char>;
+      |                         ^~~~~~~~~~~~~~~~~~~
+/usr/include/c++/12/bits/sstream.tcc:293:25: error: explicit instantiation of non-template type ‘visilib::std::basic_ostringstream’
+/usr/include/c++/12/bits/sstream.tcc:294:25: error: ‘basic_stringstream’ is not a class template
+  294 |   extern template class basic_stringstream<char>;
+      |                         ^~~~~~~~~~~~~~~~~~
+/usr/include/c++/12/bits/sstream.tcc:294:25: error: explicit instantiation of non-template type ‘visilib::std::basic_stringstream’
+/usr/include/c++/12/bits/sstream.tcc:297:25: error: ‘basic_stringbuf’ is not a class template
+  297 |   extern template class basic_stringbuf<wchar_t>;
+      |                         ^~~~~~~~~~~~~~~
+/usr/include/c++/12/bits/sstream.tcc:297:25: error: explicit instantiation of non-template type ‘visilib::std::basic_stringbuf’
+/usr/include/c++/12/bits/sstream.tcc:298:25: error: ‘basic_istringstream’ is not a class template
+  298 |   extern template class basic_istringstream<wchar_t>;
+      |                         ^~~~~~~~~~~~~~~~~~~
+/usr/include/c++/12/bits/sstream.tcc:298:25: error: explicit instantiation of non-template type ‘visilib::std::basic_istringstream’
+/usr/include/c++/12/bits/sstream.tcc:299:25: error: ‘basic_ostringstream’ is not a class template
+  299 |   extern template class basic_ostringstream<wchar_t>;
+      |                         ^~~~~~~~~~~~~~~~~~~
+/usr/include/c++/12/bits/sstream.tcc:299:25: error: explicit instantiation of non-template type ‘visilib::std::basic_ostringstream’
+/usr/include/c++/12/bits/sstream.tcc:300:25: error: ‘basic_stringstream’ is not a class template
+  300 |   extern template class basic_stringstream<wchar_t>;
+      |                         ^~~~~~~~~~~~~~~~~~
+/usr/include/c++/12/bits/sstream.tcc:300:25: error: explicit instantiation of non-template type ‘visilib::std::basic_stringstream’
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:59:94: error: wrong number of template arguments (2, should be 1)
+   59 |         VisibilityResult resolveInternal(VisibilityResult& aGlobalResult, PluckerPolytope<P,S>* aPolytope, const std::string& occlusionTreeNodeSymbol, const std::vector<Silhouette<P>*>& anOccluders, const std::vector<P>& aPolytopeLines, int depth);
+      |                                                                                              ^
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:40:12: note: provided for ‘template<class P> class visilib::visilib::PluckerPolytope’
+   40 |     class  PluckerPolytope;
+      |            ^~~~~~~~~~~~~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:59:119: error: ‘string’ in namespace ‘visilib::std’ does not name a type
+   59 |         VisibilityResult resolveInternal(VisibilityResult& aGlobalResult, PluckerPolytope<P,S>* aPolytope, const std::string& occlusionTreeNodeSymbol, const std::vector<Silhouette<P>*>& anOccluders, const std::vector<P>& aPolytopeLines, int depth);
+      |                                                                                                                       ^~~~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:59:163: error: ‘vector’ in namespace ‘visilib::std’ does not name a template type
+   59 |         VisibilityResult resolveInternal(VisibilityResult& aGlobalResult, PluckerPolytope<P,S>* aPolytope, const std::string& occlusionTreeNodeSymbol, const std::vector<Silhouette<P>*>& anOccluders, const std::vector<P>& aPolytopeLines, int depth);
+      |                                                                                                                                                                   ^~~~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:59:169: error: expected ‘,’ or ‘...’ before ‘<’ token
+   59 |         VisibilityResult resolveInternal(VisibilityResult& aGlobalResult, PluckerPolytope<P,S>* aPolytope, const std::string& occlusionTreeNodeSymbol, const std::vector<Silhouette<P>*>& anOccluders, const std::vector<P>& aPolytopeLines, int depth);
+      |                                                                                                                                                                         ^
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:60:66: error: wrong number of template arguments (2, should be 1)
+   60 |         void resize(size_t myInitiaLineCount, PluckerPolytope<P,S>* aPolytope);
+      |                                                                  ^
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:40:12: note: provided for ‘template<class P> class visilib::visilib::PluckerPolytope’
+   40 |     class  PluckerPolytope;
+      |            ^~~~~~~~~~~~~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:61:35: error: ‘PluckerPolyhedron’ has not been declared
+   61 |         void extractStabbingLines(PluckerPolyhedron<P>* myPolyhedron, PluckerPolytope<P,S>* aPolytope);
+      |                                   ^~~~~~~~~~~~~~~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:61:52: error: expected ‘,’ or ‘...’ before ‘<’ token
+   61 |         void extractStabbingLines(PluckerPolyhedron<P>* myPolyhedron, PluckerPolytope<P,S>* aPolytope);
+      |                                                    ^
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h: In member function ‘visilib::VisibilityResult visilib::visilib::VisibilityApertureFinder<P, S>::resolve()’:
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:83:77: error: wrong number of template arguments (2, should be 1)
+   83 |         resolveInternal(myGlobalResult, reinterpret_cast<PluckerPolytope<P,S>*>(VisibilitySolver<P, S>::mQuery->getComplex()->getRoot()), "*", std::vector<Silhouette<P>*>(), std::vector<P>(), 0);
+      |                                                                             ^
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:40:12: note: provided for ‘template<class P> class visilib::visilib::PluckerPolytope’
+   40 |     class  PluckerPolytope;
+      |            ^~~~~~~~~~~~~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:83:78: error: expected ‘>’ before ‘*’ token
+   83 |         resolveInternal(myGlobalResult, reinterpret_cast<PluckerPolytope<P,S>*>(VisibilitySolver<P, S>::mQuery->getComplex()->getRoot()), "*", std::vector<Silhouette<P>*>(), std::vector<P>(), 0);
+      |                                                                              ^
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:83:78: error: expected ‘(’ before ‘*’ token
+   83 |         resolveInternal(myGlobalResult, reinterpret_cast<PluckerPolytope<P,S>*>(VisibilitySolver<P, S>::mQuery->getComplex()->getRoot()), "*", std::vector<Silhouette<P>*>(), std::vector<P>(), 0);
+      |                                                                              ^
+      |                                                                              (
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:83:79: error: expected primary-expression before ‘>’ token
+   83 |         resolveInternal(myGlobalResult, reinterpret_cast<PluckerPolytope<P,S>*>(VisibilitySolver<P, S>::mQuery->getComplex()->getRoot()), "*", std::vector<Silhouette<P>*>(), std::vector<P>(), 0);
+      |                                                                               ^
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:83:149: error: ‘vector’ is not a member of ‘visilib::std’; did you mean ‘std::vector’?
+   83 |         resolveInternal(myGlobalResult, reinterpret_cast<PluckerPolytope<P,S>*>(VisibilitySolver<P, S>::mQuery->getComplex()->getRoot()), "*", std::vector<Silhouette<P>*>(), std::vector<P>(), 0);
+      |                                                                                                                                                     ^~~~~~
+In file included from /usr/include/c++/12/vector:64,
+                 from /home/dhaumont/code/visilib/bajaj/demo/../visilib/visilib.h:24:
+/usr/include/c++/12/bits/stl_vector.h:423:11: note: ‘std::vector’ declared here
+  423 |     class vector : protected _Vector_base<_Tp, _Alloc>
+      |           ^~~~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:83:169: error: expected primary-expression before ‘*’ token
+   83 |         resolveInternal(myGlobalResult, reinterpret_cast<PluckerPolytope<P,S>*>(VisibilitySolver<P, S>::mQuery->getComplex()->getRoot()), "*", std::vector<Silhouette<P>*>(), std::vector<P>(), 0);
+      |                                                                                                                                                                         ^
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:83:170: error: expected primary-expression before ‘>’ token
+   83 |         resolveInternal(myGlobalResult, reinterpret_cast<PluckerPolytope<P,S>*>(VisibilitySolver<P, S>::mQuery->getComplex()->getRoot()), "*", std::vector<Silhouette<P>*>(), std::vector<P>(), 0);
+      |                                                                                                                                                                          ^
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:83:172: error: expected primary-expression before ‘)’ token
+   83 |         resolveInternal(myGlobalResult, reinterpret_cast<PluckerPolytope<P,S>*>(VisibilitySolver<P, S>::mQuery->getComplex()->getRoot()), "*", std::vector<Silhouette<P>*>(), std::vector<P>(), 0);
+      |                                                                                                                                                                            ^
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:83:180: error: ‘vector’ is not a member of ‘visilib::std’; did you mean ‘std::vector’?
+   83 |         resolveInternal(myGlobalResult, reinterpret_cast<PluckerPolytope<P,S>*>(VisibilitySolver<P, S>::mQuery->getComplex()->getRoot()), "*", std::vector<Silhouette<P>*>(), std::vector<P>(), 0);
+      |                                                                                                                                                                                    ^~~~~~
+/usr/include/c++/12/bits/stl_vector.h:423:11: note: ‘std::vector’ declared here
+  423 |     class vector : protected _Vector_base<_Tp, _Alloc>
+      |           ^~~~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:83:188: error: expected primary-expression before ‘>’ token
+   83 |         resolveInternal(myGlobalResult, reinterpret_cast<PluckerPolytope<P,S>*>(VisibilitySolver<P, S>::mQuery->getComplex()->getRoot()), "*", std::vector<Silhouette<P>*>(), std::vector<P>(), 0);
+      |                                                                                                                                                                                            ^
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:83:190: error: expected primary-expression before ‘)’ token
+   83 |         resolveInternal(myGlobalResult, reinterpret_cast<PluckerPolytope<P,S>*>(VisibilitySolver<P, S>::mQuery->getComplex()->getRoot()), "*", std::vector<Silhouette<P>*>(), std::vector<P>(), 0);
+      |                                                                                                                                                                                              ^
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h: At global scope:
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:89:122: error: wrong number of template arguments (2, should be 1)
+   89 |     VisibilityResult VisibilityApertureFinder<P, S>::resolveInternal(VisibilityResult& aGlobalResult, PluckerPolytope<P,S>* aPolytope, const std::string& occlusionTreeNodeSymbol, const std::vector<Silhouette<P>*>& anOccluders, const std::vector<P>& aPolytopeLines, int aDepth)
+      |                                                                                                                          ^
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:40:12: note: provided for ‘template<class P> class visilib::visilib::PluckerPolytope’
+   40 |     class  PluckerPolytope;
+      |            ^~~~~~~~~~~~~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:89:147: error: ‘string’ in namespace ‘visilib::std’ does not name a type
+   89 |     VisibilityResult VisibilityApertureFinder<P, S>::resolveInternal(VisibilityResult& aGlobalResult, PluckerPolytope<P,S>* aPolytope, const std::string& occlusionTreeNodeSymbol, const std::vector<Silhouette<P>*>& anOccluders, const std::vector<P>& aPolytopeLines, int aDepth)
+      |                                                                                                                                                   ^~~~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:89:191: error: ‘vector’ in namespace ‘visilib::std’ does not name a template type
+   89 |     VisibilityResult VisibilityApertureFinder<P, S>::resolveInternal(VisibilityResult& aGlobalResult, PluckerPolytope<P,S>* aPolytope, const std::string& occlusionTreeNodeSymbol, const std::vector<Silhouette<P>*>& anOccluders, const std::vector<P>& aPolytopeLines, int aDepth)
+      |                                                                                                                                                                                               ^~~~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:89:197: error: expected ‘,’ or ‘...’ before ‘<’ token
+   89 |     VisibilityResult VisibilityApertureFinder<P, S>::resolveInternal(VisibilityResult& aGlobalResult, PluckerPolytope<P,S>* aPolytope, const std::string& occlusionTreeNodeSymbol, const std::vector<Silhouette<P>*>& anOccluders, const std::vector<P>& aPolytopeLines, int aDepth)
+      |                                                                                                                                                                                                     ^
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h: In member function ‘visilib::VisibilityResult visilib::visilib::VisibilityApertureFinder<P, S>::resolveInternal(visilib::VisibilityResult&, int*, const int&, int)’:
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:91:36: error: ‘myPolyhedron’ was not declared in this scope
+   91 |         size_t myInitiaLineCount = myPolyhedron->getLinesCount();
+      |                                    ^~~~~~~~~~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:98:13: error: ‘aDepth’ was not declared in this scope
+   98 |         if (aDepth > 2000)
+      |             ^~~~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:100:18: error: ‘cerr’ is not a member of ‘visilib::std’; did you mean ‘std::cerr’?
+  100 |             std::cerr << "Overflow detected: more than 200 recursive calls...." << std::endl;
+      |                  ^~~~
+In file included from /home/dhaumont/code/visilib/bajaj/demo/../visilib/math_vector_2.h:25,
+                 from /home/dhaumont/code/visilib/bajaj/demo/../visilib/silhouette_mesh_face.h:25,
+                 from /home/dhaumont/code/visilib/bajaj/demo/../visilib/geometry_occluder_set.h:28,
+                 from /home/dhaumont/code/visilib/bajaj/demo/../visilib/visilib.h:26:
+/usr/include/c++/12/iostream:62:18: note: ‘std::cerr’ declared here
+   62 |   extern ostream cerr;          /// Linked to standard error (unbuffered)
+      |                  ^~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:100:89: error: ‘endl’ is not a member of ‘visilib::std’; did you mean ‘std::endl’?
+  100 |             std::cerr << "Overflow detected: more than 200 recursive calls...." << std::endl;
+      |                                                                                         ^~~~
+In file included from /usr/include/c++/12/iostream:39:
+/usr/include/c++/12/ostream:688:5: note: ‘std::endl’ declared here
+  688 |     endl(basic_ostream<_CharT, _Traits>& __os)
+      |     ^~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:109:24: error: request for member ‘computeEdgesIntersectingQuadric’ in ‘aPolytope->’, which is of non-class type ‘int’
+  109 |             aPolytope->computeEdgesIntersectingQuadric(mTolerance);
+      |                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:111:25: error: request for member ‘containsRealLines’ in ‘aPolytope->’, which is of non-class type ‘int’
+  111 |         if (!aPolytope->containsRealLines())
+      |                         ^~~~~~~~~~~~~~~~~
+In file included from /home/dhaumont/code/visilib/bajaj/demo/../visilib/visilib_core.h:31,
+                 from /home/dhaumont/code/visilib/bajaj/demo/../visilib/math_arithmetic.h:27,
+                 from /home/dhaumont/code/visilib/bajaj/demo/../visilib/math_vector_3.h:23,
+                 from /home/dhaumont/code/visilib/bajaj/demo/../visilib/silhouette_mesh_face.h:26:
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:119:29: error: request for member ‘isValid’ in ‘aPolytope->’, which is of non-class type ‘int’
+  119 |         V_ASSERT(aPolytope->isValid(myPolyhedron, mNormalization, mTolerance));
+      |                             ^~~~~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:119:9: note: in expansion of macro ‘V_ASSERT’
+  119 |         V_ASSERT(aPolytope->isValid(myPolyhedron, mNormalization, mTolerance));
+      |         ^~~~~~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:122:14: error: ‘vector’ is not a member of ‘visilib::std’; did you mean ‘std::vector’?
+  122 |         std::vector<Silhouette<P>*> myOccluders = anOccluders;
+      |              ^~~~~~
+/usr/include/c++/12/bits/stl_vector.h:423:11: note: ‘std::vector’ declared here
+  423 |     class vector : protected _Vector_base<_Tp, _Alloc>
+      |           ^~~~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:122:34: error: expected primary-expression before ‘*’ token
+  122 |         std::vector<Silhouette<P>*> myOccluders = anOccluders;
+      |                                  ^
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:122:35: error: expected primary-expression before ‘>’ token
+  122 |         std::vector<Silhouette<P>*> myOccluders = anOccluders;
+      |                                   ^
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:122:37: error: ‘myOccluders’ was not declared in this scope
+  122 |         std::vector<Silhouette<P>*> myOccluders = anOccluders;
+      |                                     ^~~~~~~~~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:122:51: error: ‘anOccluders’ was not declared in this scope
+  122 |         std::vector<Silhouette<P>*> myOccluders = anOccluders;
+      |                                                   ^~~~~~~~~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:123:14: error: ‘vector’ is not a member of ‘visilib::std’; did you mean ‘std::vector’?
+  123 |         std::vector<P> polytopeLines = aPolytopeLines;
+      |              ^~~~~~
+/usr/include/c++/12/bits/stl_vector.h:423:11: note: ‘std::vector’ declared here
+  423 |     class vector : protected _Vector_base<_Tp, _Alloc>
+      |           ^~~~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:123:22: error: expected primary-expression before ‘>’ token
+  123 |         std::vector<P> polytopeLines = aPolytopeLines;
+      |                      ^
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:123:24: error: ‘polytopeLines’ was not declared in this scope
+  123 |         std::vector<P> polytopeLines = aPolytopeLines;
+      |                        ^~~~~~~~~~~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:123:40: error: ‘aPolytopeLines’ was not declared in this scope; did you mean ‘aPolytope’?
+  123 |         std::vector<P> polytopeLines = aPolytopeLines;
+      |                                        ^~~~~~~~~~~~~~
+      |                                        aPolytope
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:164:36: error: expected initializer before ‘<’ token
+  164 |         Silhouette<P>* mySilhouette<P> = nullptr;
+      |                                    ^
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:169:87: error: ‘mySilhouette’ was not declared in this scope; did you mean ‘Silhouette’?
+  169 |         hasEdge = VisibilitySolver<P, S>::mQuery->findNextEdge(mySilhouetteEdgeIndex, mySilhouette<P>, aPolytope, occlusionTreeNodeSymbol);
+      |                                                                                       ^~~~~~~~~~~~
+      |                                                                                       Silhouette
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:169:101: error: expected primary-expression before ‘>’ token
+  169 |         hasEdge = VisibilitySolver<P, S>::mQuery->findNextEdge(mySilhouetteEdgeIndex, mySilhouette<P>, aPolytope, occlusionTreeNodeSymbol);
+      |                                                                                                     ^
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:169:102: error: expected primary-expression before ‘,’ token
+  169 |         hasEdge = VisibilitySolver<P, S>::mQuery->findNextEdge(mySilhouetteEdgeIndex, mySilhouette<P>, aPolytope, occlusionTreeNodeSymbol);
+      |                                                                                                      ^
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:173:30: error: expected initializer before ‘&’ token
+  173 |             Silhouette<P>Edge& myVisibilitySilhouette<P>Edge = mySilhouette<P>->getEdge(mySilhouetteEdgeIndex);
+      |                              ^
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:174:40: error: ‘myVisibilitySilhouette’ was not declared in this scope
+  174 |             SilhouetteMeshFace* face = myVisibilitySilhouette<P>Edge.mFace;
+      |                                        ^~~~~~~~~~~~~~~~~~~~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:174:64: error: expected primary-expression before ‘>’ token
+  174 |             SilhouetteMeshFace* face = myVisibilitySilhouette<P>Edge.mFace;
+      |                                                                ^
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:174:65: error: ‘Edge’ was not declared in this scope
+  174 |             SilhouetteMeshFace* face = myVisibilitySilhouette<P>Edge.mFace;
+      |                                                                 ^~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:176:46: error: expected primary-expression before ‘>’ token
+  176 |             V_ASSERT(myVisibilitySilhouette<P>Edge.mIsActive);
+      |                                              ^
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:176:13: note: in expansion of macro ‘V_ASSERT’
+  176 |             V_ASSERT(myVisibilitySilhouette<P>Edge.mIsActive);
+      |             ^~~~~~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:178:27: error: expected primary-expression before ‘>’ token
+  178 |             mySilhouette<P>->setEdgeActive(mySilhouetteEdgeIndex, false);
+      |                           ^
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:178:28: error: expected primary-expression before ‘->’ token
+  178 |             mySilhouette<P>->setEdgeActive(mySilhouetteEdgeIndex, false);
+      |                            ^~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:180:71: error: expected primary-expression before ‘>’ token
+  180 |             MathVector2i edge = face->getEdge(myVisibilitySilhouette<P>Edge.mEdgeIndex);
+      |                                                                       ^
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:198:67: error: expected primary-expression before ‘>’ token
+  198 |                 size_t myPolyhedronFace = myVisibilitySilhouette<P>Edge.mHyperPlaneIndex;
+      |                                                                   ^
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:208:45: error: expected primary-expression before ‘>’ token
+  208 |                     myVisibilitySilhouette<P>Edge.mHyperPlaneIndex = myPolyhedronFace;
+      |                                             ^
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:215:36: error: wrong number of template arguments (2, should be 1)
+  215 |                 PluckerPolytope<P,S>* myPolytopeLeft = new PluckerPolytope<P,S>();
+      |                                    ^
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:40:12: note: provided for ‘template<class P> class visilib::visilib::PluckerPolytope’
+   40 |     class  PluckerPolytope;
+      |            ^~~~~~~~~~~~~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:215:79: error: wrong number of template arguments (2, should be 1)
+  215 |                 PluckerPolytope<P,S>* myPolytopeLeft = new PluckerPolytope<P,S>();
+      |                                                                               ^
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:40:12: note: provided for ‘template<class P> class visilib::visilib::PluckerPolytope’
+   40 |     class  PluckerPolytope;
+      |            ^~~~~~~~~~~~~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:216:36: error: wrong number of template arguments (2, should be 1)
+  216 |                 PluckerPolytope<P,S>* myPolytopeRight = new PluckerPolytope<P,S>();
+      |                                    ^
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:40:12: note: provided for ‘template<class P> class visilib::visilib::PluckerPolytope’
+   40 |     class  PluckerPolytope;
+      |            ^~~~~~~~~~~~~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:216:80: error: wrong number of template arguments (2, should be 1)
+  216 |                 PluckerPolytope<P,S>* myPolytopeRight = new PluckerPolytope<P,S>();
+      |                                                                                ^
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:40:12: note: provided for ‘template<class P> class visilib::visilib::PluckerPolytope’
+   40 |     class  PluckerPolytope;
+      |            ^~~~~~~~~~~~~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:230:30: error: ‘cout’ is not a member of ‘visilib::std’; did you mean ‘std::cout’?
+  230 |                         std::cout << std::endl;
+      |                              ^~~~
+/usr/include/c++/12/iostream:61:18: note: ‘std::cout’ declared here
+   61 |   extern ostream cout;          /// Linked to standard output
+      |                  ^~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:230:43: error: ‘endl’ is not a member of ‘visilib::std’; did you mean ‘std::endl’?
+  230 |                         std::cout << std::endl;
+      |                                           ^~~~
+/usr/include/c++/12/ostream:688:5: note: ‘std::endl’ declared here
+  688 |     endl(basic_ostream<_CharT, _Traits>& __os)
+      |     ^~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:234:22: error: ‘vector’ is not a member of ‘visilib::std’; did you mean ‘std::vector’?
+  234 |                 std::vector <PluckerPolytope<P,S>*> myPolytopes;
+      |                      ^~~~~~
+/usr/include/c++/12/bits/stl_vector.h:423:11: note: ‘std::vector’ declared here
+  423 |     class vector : protected _Vector_base<_Tp, _Alloc>
+      |           ^~~~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:234:49: error: wrong number of template arguments (2, should be 1)
+  234 |                 std::vector <PluckerPolytope<P,S>*> myPolytopes;
+      |                                                 ^
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:40:12: note: provided for ‘template<class P> class visilib::visilib::PluckerPolytope’
+   40 |     class  PluckerPolytope;
+      |            ^~~~~~~~~~~~~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:234:51: error: expected primary-expression before ‘>’ token
+  234 |                 std::vector <PluckerPolytope<P,S>*> myPolytopes;
+      |                                                   ^
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:234:53: error: ‘myPolytopes’ was not declared in this scope; did you mean ‘aPolytope’?
+  234 |                 std::vector <PluckerPolytope<P,S>*> myPolytopes;
+      |                                                     ^~~~~~~~~~~
+      |                                                     aPolytope
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:235:22: error: ‘vector’ is not a member of ‘visilib::std’; did you mean ‘std::vector’?
+  235 |                 std::vector <std::string> postFix;
+      |                      ^~~~~~
+/usr/include/c++/12/bits/stl_vector.h:423:11: note: ‘std::vector’ declared here
+  423 |     class vector : protected _Vector_base<_Tp, _Alloc>
+      |           ^~~~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:235:35: error: ‘string’ is not a member of ‘visilib::std’; did you mean ‘std::string’?
+  235 |                 std::vector <std::string> postFix;
+      |                                   ^~~~~~
+In file included from /usr/include/c++/12/iosfwd:39,
+                 from /usr/include/c++/12/ios:38,
+                 from /usr/include/c++/12/ostream:38:
+/usr/include/c++/12/bits/stringfwd.h:77:33: note: ‘std::string’ declared here
+   77 |   typedef basic_string<char>    string;
+      |                                 ^~~~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:235:43: error: ‘postFix’ was not declared in this scope
+  235 |                 std::vector <std::string> postFix;
+      |                                           ^~~~~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:236:22: error: ‘vector’ is not a member of ‘visilib::std’; did you mean ‘std::vector’?
+  236 |                 std::vector<bool> reuseOccluders;
+      |                      ^~~~~~
+/usr/include/c++/12/bits/stl_vector.h:423:11: note: ‘std::vector’ declared here
+  423 |     class vector : protected _Vector_base<_Tp, _Alloc>
+      |           ^~~~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:236:29: error: expected primary-expression before ‘bool’
+  236 |                 std::vector<bool> reuseOccluders;
+      |                             ^~~~
+/home/dhaumont/code/visilib/bajaj/demo/../visilib/visibility_aperture_finder.h:247:21: error: ‘reuseOccluders’ was not declared in this scope
+  247 |                     reuseOccluders.push_back(position != ON_POSITIVE_SIDE);
+      |                     ^~~~~~~~~~~~~~

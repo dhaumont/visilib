@@ -15,23 +15,23 @@ set(CGAL_DIR_DESCRIPTION "directory containing CGALConfig.cmake. This is either 
 set(CGAL_DIR_MESSAGE     "CGAL not found.  Set the CGAL_DIR cmake variable or environment variable to the ${CGAL_DIR_DESCRIPTION}")
  
 if ( NOT CGAL_DIR )
-  
+ 
   # Get the system search path as a list.
   if(UNIX)
     string(REGEX MATCHALL "[^:]+" CGAL_DIR_SEARCH1 "$ENV{PATH}")
   else()
     string(REGEX REPLACE "\\\\" "/" CGAL_DIR_SEARCH1 "$ENV{PATH}")
   endif()
-  
+ 
   string(REGEX REPLACE "/;" ";" CGAL_DIR_SEARCH2 "${CGAL_DIR_SEARCH1}")
 
   # Construct a set of paths relative to the system search path.
   set(CGAL_DIR_SEARCH "")
-  
+ 
   foreach(dir ${CGAL_DIR_SEARCH2})
-  
+ 
     set(CGAL_DIR_SEARCH ${CGAL_DIR_SEARCH} ${dir}/../lib/CGAL )
-      
+ 
   endforeach()
 
 
@@ -66,11 +66,11 @@ if ( NOT CGAL_DIR )
     # Help the user find it if we cannot.
     DOC "The ${CGAL_DIR_DESCRIPTION}"
   )
-  
+ 
 endif()
 
 if ( CGAL_DIR )
-  
+ 
   if ( EXISTS "${CGAL_DIR}/CGALConfig.cmake" )
     include( "${CGAL_DIR}/CGALConfig.cmake" )
     set( CGAL_FOUND TRUE )

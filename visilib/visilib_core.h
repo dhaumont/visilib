@@ -43,5 +43,5 @@ namespace visilib
     {
                out << "["<<prefix<<"] " << message << std::endl;
     }
-#endif    
+#endif 
 }

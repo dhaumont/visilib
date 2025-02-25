@@ -109,8 +109,8 @@ if(NOT WIN32)
     include_directories(${OpenGL_INCLUDE_DIRS})
     link_directories(${OpenGL_LIBRARY_DIRS})
     add_definitions(${OpenGL_DEFINITIONS})
-   
-   
+ 
+ 
     set(LIBS ${LIBS} ${OPENGL_LIBRARIES})
     if(NOT OPENGL_FOUND)
         message(ERROR " OPENGL not found!")
