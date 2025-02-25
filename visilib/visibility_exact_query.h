@@ -359,17 +359,17 @@ namespace visilib
         V_LOG(debugOutput, "VisibilityExactQuery<P, S>::findTheBestValidEdge BEGIN", occlusionTreeNodeSymbol);
 #endif
 
-        const std::unordered_set<Silhouette<P>*>& mySilhouette<P>s = mSilhouetteContainer->getSilhouette<P>s();
+        const std::unordered_set<Silhouette<P>*>& mySilhouettes = mSilhouetteContainer->getSilhouette<P>s();
 
         double myScore = 1e32;
         bool found = false;
  
-        Silhouette<P>* mySilhouette<P> = nullptr;
+        Silhouette<P>* mySilhouette = nullptr;
 
         MathPlane3d aPlane0 = getQueryPolygon(0)->getPlane();
  
         const MathPlane3d& myPlane = getQueryPolygon(0)->getPlane();
-        for (auto iter = mySilhouette<P>s.begin(); iter != mySilhouette<P>s.end(); iter++)
+        for (auto iter = mySilhouettes.begin(); iter != mySilhouettes.end(); iter++)
         {
             Silhouette<P>* s = (*iter);
 
@@ -394,7 +394,7 @@ namespace visilib
                         found = true;
                         myScore = edge.mScore;
                         aSilhouette<P>EdgeIndex = silhouetteEdgeIndex;
-                        mySilhouette<P> = s;
+                        mySilhouette = s;
                     }
                 }
                 if (found)
@@ -412,7 +412,7 @@ namespace visilib
             ss << "VisibilityExactQuery<P, S>::findTheBestValidEdge END return True (Edge found)";
             V_LOG(debugOutput, ss.str(), occlusionTreeNodeSymbol);
 #endif
-            aSilhouette<P> = mySilhouette<P>;
+            aSilhouette<P> = mySilhouette;
 
         }
         else

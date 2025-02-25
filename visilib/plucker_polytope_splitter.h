@@ -118,6 +118,7 @@ namespace visilib
                   @param aRight: the resulting splitted polytope at the positive side of the hyperplane  (must be instanciated before calling the function)
                   */
                 static void split(const P& aPlane, PluckerPolytopeComplex<P,S>& aComplex, SplitAlgorithmStatus<P,S>& aStatus, S aTolerance);
+                static void reclassify(PluckerPolytopeComplex<P,S>& aComplex, SplitAlgorithmStatus<P,S>& aStatus);
         };
 
     template<class P, class S>
@@ -221,7 +222,7 @@ namespace visilib
         }
 
     template<class P, class S>
-        inline void PluckerPolytopeSplitter<P,S>::reclassify(PluckerPolytopeComplex<P,S>& aComplex, SplitAlgorithmStatus<S>& aStatus)
+        inline void PluckerPolytopeSplitter<P,S>::reclassify(PluckerPolytopeComplex<P,S>& aComplex, SplitAlgorithmStatus<P,S>& aStatus)
         {
             //Mark all the polytopes that have at least one vertex classified ON_BOUNDARY as unchecked
 
@@ -250,10 +251,10 @@ namespace visilib
                 }
             }
 
-            for (int k = 1; k < myLattice->getDimension(); k++)
+            for (int k = 1; k < aComplex.getDimension(); k++)
             {
                 //for each polytope c of intrinsic dimension k ...
-                for (auto c: myLattice->getElements(k))
+                for (auto c: aComplex.getElements(k))
                 {
                     // ... that is unchecked
                     if (aStatus.isUnchecked(c))
