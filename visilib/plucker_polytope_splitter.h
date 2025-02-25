@@ -157,7 +157,7 @@ namespace visilib
                         }
                         else
                         {
-                            f = PluckerElementFactory::createElement(k-1);
+                            f = PluckerElementFactory::createElement<P,S>(k-1);
 ;
                         }
                         newChildren.push_back(f);
@@ -221,7 +221,7 @@ namespace visilib
         }
 
     template<class P, class S>
-        inline void PluckerPolytopeSplitter::reclassify(PluckerPolytopeComplex<P,S>& aComplex, SplitAlgorithmStatus<S>& aStatus)
+        inline void PluckerPolytopeSplitter<P,S>::reclassify(PluckerPolytopeComplex<P,S>& aComplex, SplitAlgorithmStatus<S>& aStatus)
         {
             //Mark all the polytopes that have at least one vertex classified ON_BOUNDARY as unchecked
 
