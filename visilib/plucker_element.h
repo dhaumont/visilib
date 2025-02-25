@@ -1,22 +1,22 @@
 /*
-Visilib, an open source library for exact visibility computation.
-Copyright(C) 2021 by Denis Haumont
+   Visilib, an open source library for exact visibility computation.
+   Copyright(C) 2021 by Denis Haumont
 
-This file is part of Visilib.
+   This file is part of Visilib.
 
-Visilib is free software : you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+   Visilib is free software : you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
 
-Visilib is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
-GNU General Public License for more details.
+   Visilib is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+   GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with Visilib. If not, see <http://www.gnu.org/licenses/>
-*/
+   You should have received a copy of the GNU General Public License
+   along with Visilib. If not, see <http://www.gnu.org/licenses/>
+   */
 
 #pragma once
 
@@ -32,7 +32,7 @@ namespace visilib
 
     /** @brief Represents a complex of polytopes in Plucker space.
 
-    */
+*/
 
     enum ELEMENT_TYPE
     {
@@ -44,258 +44,276 @@ namespace visilib
     };
 
     template <class P>
-    class IPluckerPoint
-    {
-    public:
-        IPluckerPoint()
+        class IPluckerPoint
         {
-            mPlucker.setZero();
-        }
-        P &getPlucker()
-        {
-            return mPlucker;
-        }
-        const P &getPlucker() const
-        {
-            return mPlucker;
-        }
+            public:
+                IPluckerPoint()
+                {
+                    mPlucker.setZero();
+                }
+                P &getPlucker()
+                {
+                    return mPlucker;
+                }
+                const P &getPlucker() const
+                {
+                    return mPlucker;
+                }
 
-    protected:
-        P mPlucker;
-    };
+                void setPlucker(const P& a)
+                {
+                    mPlucker = a;
+                }
+
+            private:
+                P mPlucker;
+        };
 
     class PluckerElement
     {
-    public:
-        PluckerElement(int aRank)
-            : mRank(aRank),
-              mQuadricRelativePosition(GeometryPositionType::ON_UNKNOWN_POSITION)
+        public:
+            PluckerElement(int aRank)
+                : mRank(aRank),
+                mQuadricRelativePosition(GeometryPositionType::ON_UNKNOWN_POSITION)
         {
         }
-        ~PluckerElement()
-        {
-        }
-
-        static void link(PluckerElement *aParent, PluckerElement *aChild)
-        {
-            aParent->appendChildren(aChild);
-            aChild->appendParent(aParent);
-        }
-
-        static void unlink(PluckerElement *aParent, PluckerElement *aChild)
-        {
-            aParent->deleteChildren(aChild);
-            aChild->deleteParent(aParent);
-        }
-
-        static const std::list<PluckerElement *> &getChildren()
-        {
-            return mEmptyChildren;
-        }
-
-        virtual void appendChildren(PluckerElement *aChild)
-        {
-        }
-
-        virtual void deleteChildren(PluckerElement *aChild)
-        {
-        }
-
-        virtual GeometryPositionType getChildrenPosition() const
-        {
-            return GeometryPositionType::ON_UNKNOWN_POSITION;
-        }
-
-        void appendParent(PluckerElement *aParent)
-        {
-            mParents.push_back(aParent);
-        }
-
-        void deleteParent(PluckerElement *aParent)
-        {
-            mParents.remove(aParent);
-        }
-
-        const std::list<PluckerElement *> &getParents() const
-        {
-            return mParents;
-        }
-
-        void setFacetDescription(const std::vector<size_t> &aFacets)
-        {
-            mFacetDescription = aFacets;
-        }
-
-        const std::vector<size_t> &getFacetDescription() const
-        {
-            return mFacetDescription;
-        }
-
-        const size_t getFacetDescription(size_t index) const
-        {
-            return mFacetDescription[index];
-        }
-
-        GeometryPositionType getQuadricRelativePosition() const
-        {
-            return mQuadricRelativePosition;
-        }
-
-        void setQuadricRelativePosition(GeometryPositionType aPosition)
-        {
-            mQuadricRelativePosition = aPosition;
-        }
-
-        int getRank() const
-        {
-            return mRank;
-        }
-
-        bool hasAncestor(PluckerElement *anAncestor) const
-        {
-            std::stack<const PluckerElement *> stack;
-            stack.push(this);
-
-            while (!stack.empty())
+            ~PluckerElement()
             {
-                const PluckerElement *element = stack.top();
-                stack.pop();
-
-                for (auto parent : element->getParents())
-                {
-                    if (parent == anAncestor)
-                    {
-                        return true;
-                    }
-                    stack.push(parent);
-                }
             }
-            return false;
-        }
 
-    private:
-        std::list<PluckerElement *> mParents;
-        std::vector<size_t> mFacetDescription;
-        int mRank;
-        GeometryPositionType mQuadricRelativePosition;
-        static const std::list<PluckerElement *> mEmptyChildren;
+            static void link(PluckerElement *aParent, PluckerElement *aChild)
+            {
+                aParent->appendChildren(aChild);
+                aChild->appendParent(aParent);
+            }
+
+            static void unlink(PluckerElement *aParent, PluckerElement *aChild)
+            {
+                aParent->deleteChildren(aChild);
+                aChild->deleteParent(aParent);
+            }
+
+            static const std::list<PluckerElement *> &getChildren()
+            {
+                return mEmptyChildren;
+            }
+
+            virtual void appendChildren(PluckerElement *aChild)
+            {
+            }
+
+            virtual void deleteChildren(PluckerElement *aChild)
+            {
+            }
+
+            virtual GeometryPositionType getChildrenPosition() const
+            {
+                return GeometryPositionType::ON_UNKNOWN_POSITION;
+            }
+
+            void appendParent(PluckerElement *aParent)
+            {
+                mParents.push_back(aParent);
+            }
+
+            void deleteParent(PluckerElement *aParent)
+            {
+                mParents.remove(aParent);
+            }
+
+            const std::list<PluckerElement *> &getParents() const
+            {
+                return mParents;
+            }
+
+            void setFacetDescription(const std::vector<size_t> &aFacets)
+            {
+                mFacetDescription = aFacets;
+            }
+
+            const std::vector<size_t> &getFacetDescription() const
+            {
+                return mFacetDescription;
+            }
+
+            const size_t getFacetDescription(size_t index) const
+            {
+                return mFacetDescription[index];
+            }
+
+            GeometryPositionType getQuadricRelativePosition() const
+            {
+                return mQuadricRelativePosition;
+            }
+
+            void setQuadricRelativePosition(GeometryPositionType aPosition)
+            {
+                mQuadricRelativePosition = aPosition;
+            }
+
+            int getRank() const
+            {
+                return mRank;
+            }
+
+            bool hasAncestor(PluckerElement *anAncestor) const
+            {
+                std::stack<const PluckerElement *> stack;
+                stack.push(this);
+
+                while (!stack.empty())
+                {
+                    const PluckerElement *element = stack.top();
+                    stack.pop();
+
+                    for (auto parent : element->getParents())
+                    {
+                        if (parent == anAncestor)
+                        {
+                            return true;
+                        }
+                        stack.push(parent);
+                    }
+                }
+                return false;
+            }
+
+        private:
+            std::list<PluckerElement *> mParents;
+            std::vector<size_t> mFacetDescription;
+            int mRank;
+            GeometryPositionType mQuadricRelativePosition;
+            static const std::list<PluckerElement *> mEmptyChildren;
     };
 
 
-class PluckerBoundingVolume
-{
-    virtual bool hasIntersection() = 0;
-};
+    class PluckerBoundingVolume
+    {
+        virtual bool hasIntersection() = 0;
+    };
 
-template<class P, class S>
-class PluckerBoundingSphere: public PluckerBoundingVolume
-{
-    public:
-        PluckerBoundingSphere()
-        : PluckerBoundingVolume()
+    template<class P, class S>
+        class PluckerBoundingSphere: public PluckerBoundingVolume
+    {
+        public:
+            PluckerBoundingSphere()
+                : PluckerBoundingVolume()
+            {
+
+            }
+            virtual ~PluckerBoundingSphere()
+            {
+
+            }
+            virtual bool hasIntersection()
+            {
+                return false;
+            }
+        private:
+            P mCenter;
+            S mRadius;
+    };
+
+    template<class P, class S>
+        class PluckerAABB : public PluckerBoundingVolume
+    {
+        public:
+            PluckerAABB()
+                : PluckerBoundingVolume()
+            {
+
+            }
+
+            virtual ~PluckerAABB()
+            {
+
+            }
+            virtual bool hasIntersection()
+            {
+                return false;
+            }
+        private:
+            P mMin;
+            P mMax;
+    };
+
+    class PluckerInnerNode : public PluckerElement
+    {
+        PluckerInnerNode(int aRank)
+            : PluckerElement(aRank),
+            mBoundingVolume(nullptr)
         {
-            
+
         }
-        virtual ~PluckerBoundingSphere()
+        PluckerInnerNode(ELEMENT_TYPE aType)
+            : PluckerElement(static_cast<int>(aType)),
+            mBoundingVolume(nullptr)
         {
-            
-        }
-    virtual bool hasIntersection()
-    {
-        return false;
-    }
-    private:
-        P mCenter;
-        S mRadius;
-};
 
-template<class P, class S>
-class PluckerAABB : public PluckerBoundingVolume
-{
-    public:
-        PluckerAABB()
-        : PluckerBoundingVolume()
+        }
+        virtual void appendChildren(PluckerElement* aChild)
         {
-            
+            mChildren.push_back(aChild);
         }
 
-        virtual ~PluckerAABB()
+        virtual void deleteChildren(PluckerElement* aChild)
         {
-            
+            mChildren.remove(aChild);
         }
-        virtual bool hasIntersection()
+
+        const std::list<PluckerElement*>& getChildren() const
         {
-            return false;
+            return mChildren;
         }
-    private:
-        P mMin;
-        P mMax;
-};
 
-class PluckerInnerNode : public PluckerElement
-{
-    PluckerInnerNode(int aRank)
-    : PluckerElement(aRank),
-      mBoundingVolume(nullptr)
-    {
-
-    }
-    PluckerInnerNode(ELEMENT_TYPE aType)
-    : PluckerElement(static_cast<int>(aType)),
-      mBoundingVolume(nullptr)
-    {
-
-    }
-    virtual void appendChildren(PluckerElement* aChild)
-    {
-        mChildren.push_back(aChild);
-    }
-
-    virtual void deleteChildren(PluckerElement* aChild)
-    {
-        mChildren.remove(aChild);
-    }
-
-    const std::list<PluckerElement*>& getChildren() const
-    {
-        return mChildren;
-    }
-    
-    GeometryPositionType getChildrenPosition() const
-    {
-        GeometryPositionType position = ON_BOUNDARY;
-
-        for (auto vertices = mChildren.begin(); vertices != mChildren.end(); vertices++)
+        GeometryPositionType getChildrenPosition() const
         {
-            
-        }
-        return position;
-    }   
+            GeometryPositionType position = ON_BOUNDARY;
 
-    std::list<PluckerElement*> mChildren;
-    PluckerBoundingVolume* mBoundingVolume;
-};
+            for (auto vertices = mChildren.begin(); vertices != mChildren.end(); vertices++)
+            {
+
+            }
+            return position;
+        }   
+
+        std::list<PluckerElement*> mChildren;
+        PluckerBoundingVolume* mBoundingVolume;
+    };
 
     template <class P>
-    class PluckerFacet : public PluckerInnerNode, public IPluckerPoint<P>
+        class PluckerFacet : public PluckerInnerNode, public IPluckerPoint<P>
     {
-        PluckerFacet()
-            : PluckerInnerNode(FACET)
+        public:
+            PluckerFacet()
+                : PluckerInnerNode(FACET)
+            {
+            }
+
+            void setFacet(size_t aFacet)
+            {   
+                std::vector<size_t> myFacets={aFacet};
+                setFacetDescription(myFacets);
+            }
+
+            size_t getFacet() const
+            {
+                return mFacetDescription[0];
+            }
+
+    };
+
+    template <class P>
+        class PluckerVertex : public PluckerElement, public IPluckerPoint<P>
+    {
+        PluckerVertex()
+            : PluckerElement(VERTEX)
         {
         }
     };
 
     template <class P>
-    class PluckerVertex : public PluckerElement, public IPluckerPoint<P>
-    {
-       PluckerVertex()
-           : PluckerElement(VERTEX)
-       {
-       }
-    };
-
-    template <class P>
-    class PluckerEdge : public PluckerInnerNode
+        class PluckerEdge : public PluckerInnerNode
     {
         PluckerEdge()
             : PluckerInnerNode(EDGE)
@@ -325,8 +343,28 @@ class PluckerInnerNode : public PluckerElement
             assert(mChildren.size() == 2);
             return static_cast<PluckerVertex<P> *>(mChildren.back());
         }
-        
+
         std::vector<P> mExtremalStabbingLines;
     };
 
+    template<class P, class S>
+        class PluckerInterpolatedVertex : public PluckerVertex<P>
+    {
+        public:
+
+            PluckerInterpolatedVertex(PluckerEdge<P>* aGeneratorEdge, S aAlpha, S aBeta)
+                : PluckerVertex<P>(),
+                mGeneratorEdge(aGeneratorEdge),
+                mAlpha(aAlpha),
+                mBeta(aBeta)
+        {
+
+        }
+            void interpolate(S tolerance);
+
+        private:
+            PluckerEdge<P>* mGeneratorEdge;  
+            S mAlpha, mBeta;
+
+    };
 } // namespace visilib

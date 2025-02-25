@@ -127,9 +127,10 @@ namespace visilib
                 V_ASSERT((MathPredicates::isNormalized(line, mTolerance)));
             }
             PluckerFacet<P>* myFacet = new PluckerFacet<P>(line);
-            myFacet.mFacets.push_back(polytope->getElementsCount(4)}
-            polytope->appendFacet(myFacet);
-            
+            myFacet->setFacet(polytope->getElementsCount(FACET));
+ 
+            polytope->appendFacet(myFacet);           
+        }
     }
 
     template<class P, class S>
@@ -231,7 +232,7 @@ namespace visilib
         
         std::vector<PluckerFacet<P>*> myFacetsVector;
         
-        PluckerPolytope<P,S>* myPolytope = new PluckerPolytope();
+        PluckerPolytope<P,S>* myPolytope = new PluckerPolytope<P,S>();
         aPolytopeComplex->appendPolytope(myPolytope);
         PluckerElement::link(aPolytopeComplex, myPolytope);
 
@@ -243,20 +244,21 @@ namespace visilib
 
         for (int k = 1; k < aPolytopeComplex->getDimension(); k++)
         {            
-            for (auto iter1 : aPolytopeComplex->getElements(k-1))
+            std::list<PluckerElement*>& elements = aPolytopeComplex->getElements(k-1);
+            for (auto iter1 = elements.begin(); iter1 != elements.end(); iter1++)
             {
                 PluckerElement* child1 = *iter1;
 
-                for (auto iter2 = iter1; iter2 != children.end(); iter2++)
+                for (auto iter2 = iter1; iter2 != elements.end(); iter2++)
                 {   
-                    PluckerElement<P>* child2 = *iter2;
-                    V_ASSERT (child1!=child2)
+                    PluckerElement* child2 = *iter2;
+                    V_ASSERT (child1!=child2);
                     
                     std::vector<size_t> myTemp;
                     MathCombinatorial::getCommonFacets(child1->getFacetDescription(), child2->getFacetDescription(), myTemp);
-                    if (myTemp.size() >= getCombinatorialFacetsMaximumCount(k))
+                    if (myTemp.size() >= aPolytopeComplex->getCombinatorialFacetsMaximumCount(k))
                     {
-                        PluckerElement<P>* parent;                            
+                        PluckerElement* parent;                            
 
                         if (k == FACET)
                         {

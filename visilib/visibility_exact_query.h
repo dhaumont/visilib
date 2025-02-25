@@ -178,7 +178,7 @@ namespace visilib
         /** @brief The links between the polytopes and the silhouettes*/
  //      std::unordered_map<VisibilitySilhouette<P>*, std::unordered_set<PluckerPolytope<P,S>*>> mSilhouetteToPolytopeDictionary;
 
-        Silhouette<P>Container* mSilhouetteContainer;
+        SilhouetteContainer* mSilhouetteContainer;
         /** @brief The links between the silhouettes and the polytopes*/
     //    std::unordered_map<PluckerPolytope<P,S>*, std::unordered_set<VisibilitySilhouette<P>*>> mPolytopeToSilhouette<P>Dictionary;
     };
@@ -199,12 +199,12 @@ namespace visilib
  #if EMBREE       
         if (aConfiguration.useEmbree)
         {
-            mSilhouetteContainer = new Silhouette<P>ContainerEmbree();
+            mSilhouetteContainer = new SilhouetteContainerEmbree();
         }
         else
 #endif
         {
-            mSilhouetteContainer = new Silhouette<P>Container();
+            mSilhouetteContainer = new SilhouetteContainer();
         }
     }
 
@@ -427,7 +427,7 @@ namespace visilib
     template<class P, class S>
     bool VisibilityExactQuery_<P, S>::isOccluded(PluckerPolytope<P,S>* polytope, const std::vector <Silhouette<P>*> & aSilhouette<P>s, const std::vector<P> & polytopeLines)
     {   
-        return Silhouette<P>Container::isOccluded(polytope, polyhedron, aSilhouette<P>s,polytopeLines,mTolerance);
+        return SilhouetteContainer::isOccluded(polytope, polyhedron, aSilhouette<P>s,polytopeLines,mTolerance);
     }
 
     template<class P, class S>

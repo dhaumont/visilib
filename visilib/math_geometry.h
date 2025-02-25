@@ -1115,5 +1115,16 @@ namespace visilib
         anIntersection = convert<MathVector3f>(myIntersection);
         return result;
     }
+    
 
+    template<class P, class S>
+    void PluckerInterpolatedVertex<P,S>::interpolate(S tolerance)
+    {
+        this->setPlucker(MathGeometry::interpolate(mAlpha,
+                                                   mBeta,
+                                                   mGeneratorEdge->getVertex0()->getPlucker(),
+                                                   mGeneratorEdge->getVertex1()->getPlucker(),
+                                                   tolerance));
+    }
+ 
 }

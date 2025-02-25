@@ -33,42 +33,42 @@ namespace visilib
 {
 
     template<class P, class S>
-    class PluckerPolytopeComplex;
+        class PluckerPolytopeComplex;
 
     template<class P, class S>
-    class PluckerPolytope : public PluckerInnerNode, public IPluckerPoint<P>
+        class PluckerPolytope : public PluckerInnerNode, public IPluckerPoint<P>
     {
-    public:
-        PluckerPolytope()
-            : PluckerInnerNode(POLYTOPE)
-        {
+        public:
+            PluckerPolytope()
+                : PluckerInnerNode(POLYTOPE)
+            {
 
-        }
+            }
 
-        ~PluckerPolytope()
-        {
-            // TODO: delete mSilhouette<P>s
-        }
+            ~PluckerPolytope()
+            {
+                // TODO: delete mSilhouette<P>s
+            }
 
-        const P& getRepresentativeLine() const
-        {
-            return this->getPlucker();
-        }
+            const P& getRepresentativeLine() const
+            {
+                return this->getPlucker();
+            }
 
-        const PluckerPolytopeComplex<P,S>* getPolytopeComplex() const
-        {
-            assert(mParents.size() == 1);
-            return static_cast<PluckerPolytopeComplex<P,S>*>(mParents.front());
-        }
+            const PluckerPolytopeComplex<P,S>* getPolytopeComplex() const
+            {
+                assert(mParents.size() == 1);
+                return static_cast<PluckerPolytopeComplex<P,S>*>(mParents.front());
+            }
 
-        void fillEdges(std::vector<PluckerEdge<P>*>& aPolytopeEdges);
-        void fillVertices(std::vector<PluckerVertex<P>*>& aPolytopeVertices);
-        bool containsRealLines() const;
-        void getExtremalStabbingLinesBackTo3D(std::vector<std::pair<MathVector3d, MathVector3d>>& aStabbingLines, const MathPlane3d& aPlane1, const MathPlane3d& aPlane2);
-        void computeEdgesIntersectingQuadric(S tolerance);
-    private:
-        /** < @brief The ESL of the polytope, at the intersection of an edge and the Plucker Quadric*/
-        std::unordered_set<Silhouette<P>*> mSilhouettes;          /** < @brief The set of silhouettes associated to the polytope*/
+            void fillEdges(std::vector<PluckerEdge<P>*>& aPolytopeEdges);
+            void fillVertices(std::vector<PluckerVertex<P>*>& aPolytopeVertices);
+            bool containsRealLines() const;
+            void getExtremalStabbingLinesBackTo3D(std::vector<std::pair<MathVector3d, MathVector3d>>& aStabbingLines, const MathPlane3d& aPlane1, const MathPlane3d& aPlane2);
+            void computeEdgesIntersectingQuadric(S tolerance);
+        private:
+            /** < @brief The ESL of the polytope, at the intersection of an edge and the Plucker Quadric*/
+            std::unordered_set<Silhouette<P>*> mSilhouettes;          /** < @brief The set of silhouettes associated to the polytope*/
     };
 
 
@@ -307,7 +307,7 @@ namespace visilib
                 }
     };
 
-        template<class P,class S>
+    template<class P,class S>
         void PluckerPolytope<P,S>::fillVertices(std::vector<PluckerVertex<P>*>& aPolytopeVertices)
         {
             PluckerPolytopeComplex<P,S>* complex = getPolytopeComplex();
@@ -329,7 +329,7 @@ namespace visilib
             }    
         }
 
-        template<class P, class S>
+    template<class P, class S>
         bool PluckerPolytope<P,S>::containsRealLines() const
         {
             PluckerPolytopeComplex<P,S>* complex = getPolytopeComplex();
@@ -349,7 +349,7 @@ namespace visilib
             return myCount > 0;
         } 
 
-        template<class P, class S>
+    template<class P, class S>
         void PluckerPolytope<P,S>::getExtremalStabbingLinesBackTo3D(std::vector<std::pair<MathVector3d, MathVector3d>>& aStabbingLines, const MathPlane3d& aPlane1, const MathPlane3d& aPlane2)
         {
             aStabbingLines.clear();
@@ -401,27 +401,21 @@ namespace visilib
                     if (myEdge->getQuadricRelativePosition() == UNKNOWN)
                     {
                         //At least one
-
+                        PluckerVertex<P>* vertex0 = myEdge->getVertex0();     
+                        PluckerVertex<P>* vertex1 = myEdge->getVertex1(); 
                         {
-                            const P& v1 = polyhedron->get(iter->first);
-                            const P& v2 = polyhedron->get(iter->second);
-                            GeometryPositionType p1 = polyhedron->getQuadricRelativePosition(iter->first);
-                            GeometryPositionType p2 = polyhedron->getQuadricRelativePosition(iter->second);
-                            if (MathGeometry::hasPluckerEdgeWithQuadricIntersection(v1, v2, p1, p2, tolerance))
+                            const P& v0 = vertex0->getPlucker();
+                            const P& v1 = vertex1->getPlucker();
+                            GeometryPositionType p0 = vertex0->getQuadricRelativePosition();
+                            GeometryPositionType p1 = vertex1->getQuadricRelativePosition();
+                            if (MathGeometry::hasPluckerEdgeWithQuadricIntersection(v0, v1, p0, p1, tolerance))
                             {
-                                mEdgesIntersectingQuadric.insert(*iter);
+                                myEdge->setQuadricRelativePosition(ON_BOUNDARY);
                             }
                         }
                     }
-                    else
-                    {
-                        return;
-                    }
-                    if (!containsRealLines())
-                        return;
-                    V_ASSERT(mEdgesIntersectingQuadric.size() > 0);
                 }
             }
-
-        } //namespace visilib
+        }
+} //namespace visilib
 

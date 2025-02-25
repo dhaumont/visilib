@@ -162,20 +162,20 @@ namespace visilib
         }
 }
         Silhouette<P>* mySilhouette<P> = nullptr;
-        size_t mySilhouette<P>EdgeIndex = 0;
+        size_t mySilhouetteEdgeIndex = 0;
 
         bool hasEdge = false;
         bool isVisible = false;
-        hasEdge = VisibilitySolver<P, S>::mQuery->findNextEdge(mySilhouette<P>EdgeIndex, mySilhouette<P>, aPolytope, occlusionTreeNodeSymbol);
+        hasEdge = VisibilitySolver<P, S>::mQuery->findNextEdge(mySilhouetteEdgeIndex, mySilhouette<P>, aPolytope, occlusionTreeNodeSymbol);
 
         if (hasEdge) // a candidate edge has been found. we will split the polytope with the hyperplane of this edge.
         {
-            Silhouette<P>Edge& myVisibilitySilhouette<P>Edge = mySilhouette<P>->getEdge(mySilhouette<P>EdgeIndex);
+            Silhouette<P>Edge& myVisibilitySilhouette<P>Edge = mySilhouette<P>->getEdge(mySilhouetteEdgeIndex);
             SilhouetteMeshFace* face = myVisibilitySilhouette<P>Edge.mFace;
 
             V_ASSERT(myVisibilitySilhouette<P>Edge.mIsActive);
             // deactivate the candidate edge for further recursion
-            mySilhouette<P>->setEdgeActive(mySilhouette<P>EdgeIndex, false);
+            mySilhouette<P>->setEdgeActive(mySilhouetteEdgeIndex, false);
 
             MathVector2i edge = face->getEdge(myVisibilitySilhouette<P>Edge.mEdgeIndex);
 
@@ -271,7 +271,7 @@ namespace visilib
 
                     if (myResult == ON_BOUNDARY && i == 0 || myResult == ON_NEGATIVE_SIDE)
                     {
-                        mySilhouette<P>->pushEdgeProcessed(mySilhouette<P>EdgeIndex);
+                        mySilhouette<P>->pushEdgeProcessed(mySilhouetteEdgeIndex);
                         hasBeenAdded = true;
                     }
 
@@ -310,7 +310,7 @@ namespace visilib
                         }
                     }
                     if (hasBeenAdded)
-                        mySilhouette<P>->popEdgeProcessed(mySilhouette<P>EdgeIndex);
+                        mySilhouette<P>->popEdgeProcessed(mySilhouetteEdgeIndex);
 
                 }
                 delete myPolytopeLeft;  myPolytopeLeft = nullptr;
@@ -339,7 +339,7 @@ namespace visilib
             }
             // reactivate the  edge
 
-            mySilhouette<P>->setEdgeActive(mySilhouette<P>EdgeIndex, true);
+            mySilhouette<P>->setEdgeActive(mySilhouetteEdgeIndex, true);
         }
 
         // No valid candidate edge has been found in the occluder set: all the set of lines represented by the polytope are blocked by at least one occluder: the recursion can stops.
