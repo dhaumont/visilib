@@ -32,8 +32,8 @@ namespace visilib
 {
     class HelperTriangleMeshContainer;
 
-    /** @brief An helper class allowing to read triangle mesh stored in the ".obj" file format 
-    
+    /** @brief An helper class allowing to read triangle mesh stored in the ".obj" file format
+
     The obj reader code is inspired from Meshlab implementation http://meshlab.sourceforge.net/
     */
 

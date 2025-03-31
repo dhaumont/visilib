@@ -51,7 +51,7 @@ namespace visilib
         static GeometryConvexHull* build(const std::vector<MathVector3d>& inputVertices0, const std::vector<MathVector3d>& inputVertices1);
     private:
 
-     
+
         static bool compute(const std::vector<MathVector3d>& inputVertices0, const std::vector<MathVector3d>& inputVertices1, std::vector<MathPlane3d>& outputFaces);
     };
 
@@ -60,7 +60,7 @@ namespace visilib
         std::vector<MathPlane3d> myFaces;
         GeometryConvexHull* convexHull = nullptr;
 
-        if (compute(inputVertices0, inputVertices1, myFaces)&& 
+        if (compute(inputVertices0, inputVertices1, myFaces)&&
             compute(inputVertices1, inputVertices0, myFaces))
         {
             convexHull = new GeometryConvexHull();

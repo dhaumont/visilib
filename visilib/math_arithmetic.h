@@ -46,7 +46,7 @@ namespace visilib
 
         /** @brief Compute the axis aligned bounding box of a set of points.*/
         static void getMinMax(const std::vector<MathVector3_<S> >& aPoints, MathVector3_<S>& aMin, MathVector3_<S>& aMax);
-      
+
         /** @brief Compute the axis aligned bounding box of a set of points.*/
         static void getMinMax(const S* aPoints, size_t pointCount, MathVector3_<S>& aMin, MathVector3_<S>& aMax);
 
@@ -172,7 +172,7 @@ namespace visilib
         const MathVector3_<S>* p = reinterpret_cast<const MathVector3_<S>*>(aPoints);
         aMin = MathVector3_<S>( FLT_MAX,  FLT_MAX,  FLT_MAX);
         aMax = MathVector3_<S>(-FLT_MAX, -FLT_MAX, -FLT_MAX);
-        
+
         for (size_t i = 0; i < aPointCount; i++)
         {
             if (p[i].x < aMin.x) aMin.x = p[i].x;
@@ -184,7 +184,7 @@ namespace visilib
             if (p[i].z > aMax.z) aMax.z = p[i].z;
         }
     }
-    
+
     template<class S>
     inline void  MathArithmetic<S>::getMinMax(const std::vector<MathVector3_<S>>& aPoints, MathVector3_<S>& aMin, MathVector3_<S>& aMax)
     {

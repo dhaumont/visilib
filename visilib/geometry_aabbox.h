@@ -63,7 +63,7 @@ namespace visilib
             mMin = aMin; mMax = aMax;
         }
 
-       
+
     private:
         MathVector3f mMin;
         MathVector3f mMax;

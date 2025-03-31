@@ -37,8 +37,8 @@ namespace visilib
         static bool hasFacet(const std::vector<size_t>& facets, size_t aFace);
     };
 
-    /** @brief Determine if the intersection of the facets lists of the two Plucker Points have at least n common elements. 
-    
+    /** @brief Determine if the intersection of the facets lists of the two Plucker Points have at least n common elements.
+
     This function is used to determine if two vertices of a Polytope have to be linked by an edge during polytope manipulation routines.
     n is 3 by default for Plucker line in 3D space.*/
 
@@ -55,7 +55,7 @@ namespace visilib
     }
 
     /** @brief Initialize a new facets description result from the two input facets description aFacetsDescription1 an aFacetsDescription1 of two given vertices and an additional
-    facet anHyperplane. 
+    facet anHyperplane.
     The resulting facets description is a sorted list of facets, containing the intersection set of the two input facets descriptions list and the additional facet anHyperplane.
     Remark: the precondition is that the input facets list are sorted, that they have at least n common facets and that anHyperplane is greater than the facets of the lists.*/
 
@@ -98,8 +98,8 @@ namespace visilib
                 result.push_back(aFacetsDescription2[j++]);
             }
             else
-            { 
-                i++;j++;                
+            {
+                i++;j++;
             }
         }
 

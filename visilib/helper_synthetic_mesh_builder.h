@@ -37,7 +37,7 @@ namespace visilib
     class HelperTriangleMesh;
 
     /** @brief An helper class allowing to generate procedural triangle mesh such as grid, cube, sphere, etc.
-    
+
     This class is mainly used when writing test or demo code, to generate different occluders
     */
     class HelperSyntheticMeshBuilder
@@ -53,7 +53,7 @@ namespace visilib
             OneInside,
             ThreeOutside
         };
-    
+
 
         /** @brief Generate a regular grid of edge size 1 in the xy plane centered around the origin*/
         static HelperTriangleMesh* generateRegularGrid(int subdivision);
@@ -72,7 +72,7 @@ namespace visilib
 
         /** @brief Generate the vertices of a regular polygon*/
         static void generateRegularPolygon(std::vector<MathVector3f>& vertices, size_t vertexCount);
-   
+
         /** @brief Generate the vertices of a slot*/
         static void generateSlot(std::vector<int>& indices, std::vector<MathVector3f>& vertices, float x0, float y0,float xSize, float ySize);
 
@@ -309,7 +309,7 @@ namespace visilib
         vertices.push_back(MathVector3f(x0+x, y0+y, 0));
         vertices.push_back(MathVector3f(x0+x, y0-y, 0));
         vertices.push_back(MathVector3f(x0-x, y0-y, 0));
-     
+
         indices.push_back(0); indices.push_back(1);     indices.push_back(8);
         indices.push_back(1); indices.push_back(9);     indices.push_back(8);
         indices.push_back(1); indices.push_back(2);     indices.push_back(9);
@@ -338,7 +338,7 @@ namespace visilib
             vertices.push_back(MathVector3f(1, 0, 0));
         }
         else
-        {   
+        {
             float theta = 0;
             float dt = - 2.f * (float) M_PI / (float)vertexCount;
 

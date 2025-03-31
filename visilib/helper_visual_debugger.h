@@ -76,7 +76,7 @@ namespace visilib
 
 #ifdef OUTPUT_DEBUG_FILE
         std::ofstream& getDebugOutput() { return mDebugOutput; };
-#endif       
+#endif
     private:
         std::vector<MathVector3f> mSplittingEdgeArray;   /** <@brief The array of edges that have been processed*/
         std::vector<MathVector3f> mRemovedTriangleArray; /** <@brief The array of triangles that have been processed*/

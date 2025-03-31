@@ -26,7 +26,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include "math_vector_3.h"
 namespace visilib
 {
-    /** < @brief Storage of the connectivity between mesh faces of the occluder geometry. Each occluder is stored as a set of SilhouetteMeshFace. 
+    /** < @brief Storage of the connectivity between mesh faces of the occluder geometry. Each occluder is stored as a set of SilhouetteMeshFace.
     Each SilhouetteMeshFace contains the definition of the vertices of the face as well as a pointer to the neigbour faces.
     */
 
@@ -37,8 +37,8 @@ namespace visilib
         {
             mVertices.resize(n,nullptr);
             mNeighbours.resize(n,-1);
-          
-            mFaceIndex = 0;            
+
+            mFaceIndex = 0;
         }
 
         SilhouetteMeshFace(const SilhouetteMeshFace& other)
@@ -58,7 +58,7 @@ namespace visilib
         {
             const MathVector3f* myVertices = (MathVector3f*)aMesh->vertexArray;
             std::vector<int> myIndices = aMesh->getIndices(aFace);
-     
+
             for (size_t i = 0; i < myIndices.size(); i++)
             {
                 mVertices[i] = (MathVector3f*)& myVertices[myIndices[i]];

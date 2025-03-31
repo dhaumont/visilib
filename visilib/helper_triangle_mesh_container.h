@@ -77,7 +77,7 @@ namespace visilib
         }
 
     protected:
-     
+
         std::vector<HelperTriangleMesh*> mMeshArray;  /**< @brief The list of triangle meshes representing the occluders set*/
         std::vector<size_t> mGeometryIds;       /**< @brief The ids of the triangle meshes*/
     };

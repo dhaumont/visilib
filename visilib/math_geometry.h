@@ -48,7 +48,7 @@ namespace visilib
         static bool isPointInsidePolygon(const GeometryConvexPolygon& aPolygon, const MathVector3d& aPoint, double tolerance);
 
         /** @brief  Compute if a ray has an intersection with a triangle
-        
+
         The ray triangle intersection is computed using code from "Watertight ray/triangle intersection" in Journal of Graphics Tools
         http://jcgt.org/published/0002/01/05/paper.pdf
         */
@@ -56,8 +56,8 @@ namespace visilib
 
         template <class S> static bool hitsCylinder(const GeometryRay& ray, const S& distance, const MathVector3_<S>& v0, const MathVector3_<S>& v1, const MathVector3_<S>& v2);
 
-        /** @brief  Compute if a ray has an intersection with a bounding box 
-        
+        /** @brief  Compute if a ray has an intersection with a bounding box
+
         Plane/axis aligned box intersection code from David Eberly
         http://www.geometrictools.com/LibMathematics/Intersection/Intersection.html
         */
@@ -69,11 +69,11 @@ namespace visilib
         /** @brief  Test if an edge is potentially inside the shaft */
         static bool isEdgePotentiallyInsideShaft(const std::vector<MathPlane3d>& aShaftPlanes, const MathVector3f& a, const MathVector3f& b, bool exclude);
 
-        /** @brief  Interpolate two vertices given two weights parameters 
-        
+        /** @brief  Interpolate two vertices given two weights parameters
+
         The method implement the method described in "Splitting aComplex of Convex Polytopes In Any Dimension" by Bajaj and Patucci
         http://www.cs.utexas.edu/~bajaj/cvc/papers/1996/conference/p88-bajaj.pdf
-       
+
         @param anOffset1: the weight of the first vertex
         @param anOffset2: the weight of the second vertex
         @param aVertice1: the first vertex
@@ -82,14 +82,14 @@ namespace visilib
         */
         template<class P, class S> static P interpolate(S anOffset1, S anOffset2, const P& aVertice1, const P& aVertice2, S tolerance);
 
-        /** @brief  Get the 3D anchor point of a Plucker point 
-        
+        /** @brief  Get the 3D anchor point of a Plucker point
+
          p105 Jiry Bittner's PHD Thesis
          A (ax, ay, az) = Dl x Ll / ||Dl||^2 where Dl is the directional part and Ll the locational part
         */
         template<class P> static MathVector3d getAnchorPoint(const P& line);
 
-        /** @brief Compute the intersections of an edge in Plucker space with the Plucker Quadric  
+        /** @brief Compute the intersections of an edge in Plucker space with the Plucker Quadric
         @param v1: first vertex of the edge
         @param v2: first vertex of the edge
         @param p1: position of v1 with respect to the Plucker Quadric (ie the sign of v1.dot(v1))
@@ -107,19 +107,19 @@ namespace visilib
 
         /** @brief Compute the supporting plane of a convex polygon */
         static MathPlane3d computePlane(const GeometryConvexPolygon& polygon);
-     
+
         /** @brief Compute the supporting plane of a convex polygon using an approximate normal heuristic*/
         static MathPlane3d computePlaneFromApproximateNormal(const GeometryConvexPolygon& polygon, const MathVector3d& approximateNormal);
 
         /** @brief Compute the supporting plane of a triangle */
         template<class S>
         static MathPlane3_<S> computePlane(const MathVector3_<S>& v0, const MathVector3_<S>& v1, const MathVector3_<S>& v2);
-    
+
         /** @brief  Clip a polygon following a plane equation, with an epsilon guard band */
         static bool clipWithGardBand(GeometryConvexPolygon& polygon, const MathPlane3d& aPlane, double anEpsilon);
 
         /** @brief Compute the 3D line of a Plucker point using two input 3D planes
-        
+
         The method intersects the Plucker line with two planes, and return the two intersection points defining the 3D line.
         */
         template<class P> static std::pair<MathVector3d, MathVector3d> getBackTo3D(const P& aPoint, const MathPlane3d& aPlane1, const MathPlane3d& aPlane2);
@@ -139,7 +139,7 @@ namespace visilib
 
         /** @brief Compute if a polygon is intersected by a plane */
         static bool intersect(const GeometryConvexPolygon& polygon, const MathPlane3d& aPlane);
-       
+
         /** @brief  Compute the gravity center of a polygon */
         static MathVector3d getGravityCenter(const GeometryConvexPolygon& polygon);
 
@@ -151,7 +151,7 @@ namespace visilib
         static bool hasVertexOutsidePlane(const MathPlane3d& plane, SilhouetteMeshFace* face);
 
         /** @brief  Compute a Plucker line that is representative of a polytope
-        
+
         This procedure is not formally correct from a mathematical point of view: the gravity center in Pluker space do not correspond to a real line in 3D since the gravity center
          does not belongs to the Plucker quadric. However, it works well in practice to find an average polytope representative line
         */
@@ -159,14 +159,14 @@ namespace visilib
 
         /** @brief  Compute the intersection of an edge with a plane */
         static MathVector3_<double> getPlaneIntersectionWithEdge(const MathVector3_<double>& myV1, const MathVector3_<double>& myV2, const MathPlane3_<double>& aPlane);
-   
+
 
         template<class P, class S> static P getProjectionOnQuadric(const P& line);
         template<class P, class S> static P getClosestQuadricPoint(const P& line);
 
         template<class P, class S>
         bool static isEdgeInsidePolytope(const MathVector3d& a, const MathVector3d& b, PluckerPolytope<P>* aPolytope, const MathVector3d& approximateNormal, PluckerPolyhedron<P>* polyhedron, S tolerance);
-        
+
         template<class S>
         static bool isBoxInsideConvexHull(const MathVector3_<S>& AABBMin, const MathVector3_<S>& AABBMax, const std::vector<MathPlane3_<S> >& convexHullPlanes);
  };
@@ -221,12 +221,12 @@ namespace visilib
         MathVector3f radiusVector = b;
         radiusVector -= a;
         double radius = radiusVector.getNorm()*0.5;
-        
+
         MathVector3d  myCenterD = convert<MathVector3d>(myCenter);
         for (size_t i = 0; i < aShaftPlanes.size(); i++)
         {
             double d = aShaftPlanes[i].dot(myCenterD);
-    
+
             if (exclude)
             {
                 if (d < -radius)
@@ -276,10 +276,10 @@ namespace visilib
     template<class S>
     inline MathVector3_<S> MathGeometry::getGravityCenter(const MathVector3_<S>& v0, const MathVector3_<S>& v1, const MathVector3_<S> & v2)
     {
-        MathVector3_<S> center(v0);        
+        MathVector3_<S> center(v0);
         center+=v1;
         center+=v2;
-        
+
         center *= (1. / 3.);
 
         return center;
@@ -399,7 +399,7 @@ namespace visilib
     inline bool MathGeometry::findPluckerEdgeWithQuadricIntersection(const P & v1, const P & v2, GeometryPositionType p1, GeometryPositionType p2, std::vector<P> & result, bool newtonRaphson, S tolerance)
     {
         result.clear();
-        
+
         if (p1 == ON_BOUNDARY)
         {
             result.push_back(v1);
@@ -846,9 +846,9 @@ namespace visilib
 
 
     template<class S>
-    inline bool MathGeometry::hitsCylinder(const GeometryRay & ray, const S& distance, 
+    inline bool MathGeometry::hitsCylinder(const GeometryRay & ray, const S& distance,
                                            const MathVector3_<S> & v0,
-                                           const MathVector3_<S> & v1, 
+                                           const MathVector3_<S> & v1,
                                            const MathVector3_<S> & v2)
     {
         const S epsilon = MathArithmetic<S>::Tolerance();
@@ -859,9 +859,9 @@ namespace visilib
         bool hit = getPlaneIntersection(myPlane, ray.getStart(), ray.getDirection(), myRayPiercingPointInPlane, epsilon);
         if (!hit)
             return false;
-        
+
         MathVector3_<S> gravityCenter = getGravityCenter(v0,v1,v2);
-        
+
         S enclosingCircleRadius = (gravityCenter-v0).getSquaredNorm();
         enclosingCircleRadius = std::max(enclosingCircleRadius, (gravityCenter -v1).getSquaredNorm());
         enclosingCircleRadius = std::max(enclosingCircleRadius, (gravityCenter -v2).getSquaredNorm());
@@ -918,16 +918,16 @@ namespace visilib
 
     template<class P, class S>
     inline P MathGeometry::computeRepresentativeLine(PluckerPolytope<P> * polytope, PluckerPolyhedron<P> * polyhedron, S tolerance)
-    {   
+    {
         P  myGravityCenterImaginary = P::Zero();
         auto myVertices = polytope->getVertices();
-        
+
         for (auto iter = myVertices.begin(); iter != myVertices.end(); iter++)
         {
             size_t v = *iter;
             myGravityCenterImaginary += polyhedron->get(v);
         }
-        
+
         P myGravityCenterReal = getProjectionOnQuadric<P,S>(myGravityCenterImaginary);
 //        P myGravityCenterReal = getClosestQuadricPoint<P,S>(myGravityCenterImaginary);
         V_ASSERT(MathPredicates::getQuadricRelativePosition(myGravityCenterReal, tolerance) == ON_BOUNDARY);
@@ -1036,7 +1036,7 @@ namespace visilib
         return false;
     }
 
-    template<class P, class S> 
+    template<class P, class S>
     inline P MathGeometry::getProjectionOnQuadric(const P& line)
     {
         const MathVector3_<S>& a = line.getDirection();
@@ -1049,12 +1049,12 @@ namespace visilib
         return P((a.x - mu * b.x), (a.y - mu * b.y), (a.z - mu * b.z), (b.x - mu * a.x), (b.y - mu * a.y), (b.z - mu * a.z));
     }
 
-    /** @brief Return the closest Plucker point on the Plucker quadric 
+    /** @brief Return the closest Plucker point on the Plucker quadric
         Solve the Plucker correction problem as described in the paper
-        "Plücker Correction Problem: Analysis and Improvements in Efficiency"*/        
-    template<class P, class S> 
+        "Plücker Correction Problem: Analysis and Improvements in Efficiency"*/
+    template<class P, class S>
     inline P MathGeometry::getClosestQuadricPoint(const P& line)
-    {            
+    {
         const MathVector3_<S>& a = line.getDirection();
         const MathVector3_<S>& b = line.getLocation();
         const S a1 = a.x, a2 = a.y, a3 = a.z;
@@ -1064,10 +1064,10 @@ namespace visilib
         const S q = a1*a1 + a2*a2 + a3*a3 + b1*b1 + b2*b2 + b3*b3;
         const S mu = 2*p/(q+MathArithmetic<S>::getSqrt(q*q-4*p*p));
         const S u_ = 1/(1-mu*mu);
-        
+
         const S x1 = (a1-mu*b1)*u_, x2 = (a2-mu*b2)*u_, x3 = (a3-mu*b3)*u_;
         const S y1 = (b1-mu*a1)*u_, y2 = (b2-mu*a2)*u_, y3 = (b3-mu*a3)*u_;
-        
+
         return P(x1, x2, x3, y1, y2, y3);
     }
 
@@ -1076,9 +1076,9 @@ namespace visilib
     {
             for (const auto& plane: convexHullPlanes)
             {
-                double d = std::max(AABBMin.x * plane.getNormal().x, AABBMax.x * plane.getNormal().x) 
-                         + std::max(AABBMin.y * plane.getNormal().y, AABBMax.y * plane.getNormal().y) 
-                         + std::max(AABBMin.z * plane.getNormal().z, AABBMax.z * plane.getNormal().z) 
+                double d = std::max(AABBMin.x * plane.getNormal().x, AABBMax.x * plane.getNormal().x)
+                         + std::max(AABBMin.y * plane.getNormal().y, AABBMax.y * plane.getNormal().y)
+                         + std::max(AABBMin.z * plane.getNormal().z, AABBMax.z * plane.getNormal().z)
                          + plane.d;
 
                 if (d>0)  return false;
