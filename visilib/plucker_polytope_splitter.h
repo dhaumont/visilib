@@ -111,7 +111,6 @@ namespace visilib
                   @param polyhedron: the polyhedron containing the vertices of the polytopes
                   @param aPlane: the splitting hyperplane equation
                   @param aPolytope: the input polytope
-                  @param aPlaneId: the hyperplane facet number (index of the hyperplane in the polyhedron)
                   @param aNormalization: boolean to perform a normalization or not
                   @param tolerance: a tolerance to determine  wheter a point lies on the splitting hyperplane or not
                   @param aLeft: the resulting splitted polytope at the negative side of the hyperplane (must be instanciated before calling the function)
@@ -292,7 +291,7 @@ namespace visilib
                             // Mark all the faces of c as unchecked
                             for (auto child: c->getChildren())
                             {
-                                aStatus.setUnchecked(child)
+                                aStatus.setUnchecked(child);
                             }
 
                             //set k=0 and continue to step 2 (we set k =1 for to re-enter the for loop)

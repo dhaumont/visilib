@@ -52,7 +52,7 @@ namespace visilib
     class Silhouette<P>;
     class Silhouette<P>Processor;
 
-    template <class S>
+    template <class P,class S>
     class PluckerPolytope;
 
     /**@brief Exact visibility query interface class
@@ -427,7 +427,7 @@ namespace visilib
     template<class P, class S>
     bool VisibilityExactQuery_<P, S>::isOccluded(PluckerPolytope<P,S>* polytope, const std::vector <Silhouette<P>*> & aSilhouette<P>s, const std::vector<P> & polytopeLines)
     {
-        return SilhouetteContainer::isOccluded(polytope, polyhedron, aSilhouette<P>s,polytopeLines,mTolerance);
+        return SilhouetteContainer::isOccluded(polytope, aSilhouette<P>s,polytopeLines,mTolerance);
     }
 
     template<class P, class S>
@@ -531,7 +531,7 @@ namespace visilib
 
                     if (aPolytope->getExtremalStabbingLinesCount() == 0)
                     {
-                        aPolytope->computeExtremalStabbingLines(polyhedron, mTolerance);
+//                        aPolytope->computeExtremalStabbingLines(polyhedron, mTolerance);
                     }
             }
 

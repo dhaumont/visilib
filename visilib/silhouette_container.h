@@ -110,8 +110,9 @@ public:
                     size_t hyperplaneIndex = silhouetteEdge.mHyperPlaneIndex;
                     V_ASSERT(hyperplaneIndex > 0);
 
-                    const P& myHyperplane = polyhedron->get(hyperplaneIndex);
-
+//                    const P& myHyperplane = polyhedron->get(hyperplaneIndex);
+                    const P& myHyperplane = polytopeLines[0];
+                    assert(0);
                     for (auto line : polytopeLines)
                     {
                         GeometryPositionType position = MathPredicates::getVertexPlaneRelativePosition(myHyperplane, line, myTolerance);
