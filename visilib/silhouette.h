@@ -37,7 +37,7 @@ namespace visilib
     template <class S>
     class PluckerFacet;
     /** @brief
-   Store a silhouette edge, containing the mesh face and the support hyperplane 
+   Store a silhouette edge, containing the mesh face and the support hyperplane
    */
 
     template<class P>
@@ -61,7 +61,7 @@ namespace visilib
 
 
     /** @brief Store a silhouette, representing an occluder as seen from the sources. The silhouettes are stored under the form of a list of silhouette edges. A s
-    They are extracted by the silhouette processor class. Each face of the occluder mesh belongs to a single silhouette at any time. 
+    They are extracted by the silhouette processor class. Each face of the occluder mesh belongs to a single silhouette at any time.
     In turn, each face of the occluder mesh stores a reference to the silhouette it belongs to.
     */
 
@@ -90,7 +90,7 @@ namespace visilib
             mGeometryId(aGeometryId),
             mAvailableEdgeCount(0)
         {
- 
+
         }
 
         ~Silhouette()
@@ -123,7 +123,7 @@ namespace visilib
         {
             return mEdges[edgeIndex];
         }
- 
+
         const std::vector<size_t>& getEdgesProcessed() { return mEdgesProcessed; }
 
         void setEdgeActive(size_t edgeIndex, bool isActive)

@@ -99,7 +99,7 @@ namespace visilib
         };
 
 
-    /** @brief Split a convex polytope into two polytopes, following an hyperplane. 
+    /** @brief Split a convex polytope into two polytopes, following an hyperplane.
 
       The polytopes are represented by their skeleton (myVertices and edges) only. The splitting is based on the combinatorial facet description of the vertices and edges */
 
@@ -123,7 +123,7 @@ namespace visilib
 
     template<class P, class S>
         inline void PluckerPolytopeSplitter<P,S>::split(const P& aPlane, PluckerPolytopeComplex<P,S>& aComplex, SplitAlgorithmStatus<P,S>& aStatus, S aTolerance)
-        { 
+        {
             for (auto iter = aComplex.beginVertices(); iter != aComplex.endVertices(); iter++)
             {
                 PluckerVertex<P>* v = *iter;
@@ -143,15 +143,15 @@ namespace visilib
                 for (auto c: aComplex.getElements(k))
                 {
                     GeometryPositionType myPositionC = c->getChildrenPosition();
-                    aStatus.setPosition(c, myPositionC); 
+                    aStatus.setPosition(c, myPositionC);
                     if (myPositionC == ON_BOUNDARY)
                     {
                         PluckerElement* f = nullptr;
                         if (k==EDGE) // edges
                         {
                             PluckerEdge<P>* myEdge = static_cast<PluckerEdge<P>*>(c);
-                            PluckerInterpolatedVertex<P,S>* v = new PluckerInterpolatedVertex<P,S>(myEdge, 
-                                    aStatus.getPosition(myEdge->getVertex0()), 
+                            PluckerInterpolatedVertex<P,S>* v = new PluckerInterpolatedVertex<P,S>(myEdge,
+                                    aStatus.getPosition(myEdge->getVertex0()),
                                     aStatus.getPosition(myEdge->getVertex1()));
                             newVertices.push_back(v);
                             f = v;
@@ -177,7 +177,7 @@ namespace visilib
                         newChildren.push_back(cp);
                         newChildren.push_back(cm);
 
-                        cp->appendChildren(f); 
+                        cp->appendChildren(f);
                         cm->appendChildren(f);
 
                         for (auto kp1: c->getParents())
@@ -203,13 +203,13 @@ namespace visilib
 
                         for (auto element: newChildren)
                         {
-                            aComplex.appendElement(element,k-1); 
+                            aComplex.appendElement(element,k-1);
 
                         }
                         for (auto element: newElements)
                         {
                             aComplex.appendElement(element,k);
-                        } 
+                        }
                     }
                 }
 
@@ -275,7 +275,7 @@ namespace visilib
                             while (!stack.empty())
                             {
                                 PluckerElement* element = stack.top();
-                                stack.pop(); 
+                                stack.pop();
                                 if (element->getRank() == 0)
                                 {
                                     aStatus.setPosition(element, ON_BOUNDARY);
@@ -285,7 +285,7 @@ namespace visilib
                                     for (auto child: element->getChildren())
                                     {
                                         stack.push(child);
-                                    } 
+                                    }
                                 }
                             }
 
