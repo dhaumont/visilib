@@ -31,6 +31,7 @@ namespace visilib
    Store a set of silhouettes, representing occluder surfaces as seen from the sources. The silhouettes are used to compute ray intersection during visibility computation.
 */
 
+template<class P>
 class SilhouetteContainer
 {
 public:
@@ -44,12 +45,12 @@ public:
             delete s;
     }
 
-    const std::unordered_set<Silhouette*>& getSilhouettes()
+    const std::unordered_set<Silhouette<P>*>& getSilhouettes()
     {
         return mSilhouettes;
     }
 
-    void addSilhouette(Silhouette* aSilhouette)
+    void addSilhouette(Silhouette<P>* aSilhouette)
     {
         if (mSilhouettes.find(aSilhouette) == mSilhouettes.end())
             mSilhouettes.insert(aSilhouette);
@@ -92,12 +93,12 @@ public:
         return hasIntersection;
     }
 
-    template<class P, class S>
-    static bool isOccluded(PluckerPolytope<P,S>* polytope, const std::vector <Silhouette*>& aSilhouettes, const std::vector<P>& polytopeLines, S myTolerance)
+    template<class S>
+    static bool isOccluded(PluckerPolytope<P,S>* polytope, const std::vector <Silhouette<P>*>& aSilhouettes, const std::vector<P>& polytopeLines, S myTolerance)
     {
         for (auto iter = aSilhouettes.begin(); iter != aSilhouettes.end(); iter++)
         {
-            Silhouette* s = (*iter);
+            Silhouette<P>* s = (*iter);
             const auto& edgesProcessed = s->getEdgesProcessed();
 
             if (s->getAvailableEdgeCount() == 0)
@@ -135,7 +136,7 @@ public:
 
     virtual void prepare() {};
 private:
-    std::unordered_set<Silhouette*> mSilhouettes;
+    std::unordered_set<Silhouette<P>*> mSilhouettes;
 };
 }
 

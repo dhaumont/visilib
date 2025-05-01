@@ -59,7 +59,7 @@ namespace visilib
 
         VisibilityResult resolve();
     private:
-        VisibilityResult resolveInternal(VisibilityResult& aGlobalResult, PluckerPolytope<P,S>* aPolytope, const std::string& occlusionTreeNodeSymbol, const std::vector<Silhouette*>& anOccluders, const std::vector<P>& aPolytopeLines, int depth);
+        VisibilityResult resolveInternal(VisibilityResult& aGlobalResult, PluckerPolytope<P,S>* aPolytope, const std::string& occlusionTreeNodeSymbol, const std::vector<Silhouette<P>*>& anOccluders, const std::vector<P>& aPolytopeLines, int depth);
         void extractStabbingLines(PluckerPolytope<P,S>* aPolytope);
 
 
@@ -171,14 +171,14 @@ namespace visilib
 
         if (hasEdge) // a candidate edge has been found. we will split the polytope with the hyperplane of this edge.
         {
-            Silhouette<P>Edge& myVisibilitySilhouette<P>Edge = mySilhouette->getEdge(mySilhouetteEdgeIndex);
-            SilhouetteMeshFace* face = myVisibilitySilhouette<P>Edge.mFace;
+            SilhouetteEdge<P>& myVisibilitySilhouetteEdge = mySilhouette->getEdge(mySilhouetteEdgeIndex);
+            SilhouetteMeshFace* face = myVisibilitySilhouetteEdge.mFace;
 
-            V_ASSERT(myVisibilitySilhouette<P>Edge.mIsActive);
+            V_ASSERT(myVisibilitySilhouetteEdge.mIsActive);
             // deactivate the candidate edge for further recursion
             mySilhouette->setEdgeActive(mySilhouetteEdgeIndex, false);
 
-            MathVector2i edge = face->getEdge(myVisibilitySilhouette<P>Edge.mEdgeIndex);
+            MathVector2i edge = face->getEdge(myVisibilitySilhouetteEdge.mEdgeIndex);
 
             MathVector3d a = convert<MathVector3d>(face->getVertex(edge.x));
             MathVector3d b = convert<MathVector3d>(face->getVertex(edge.y));
@@ -196,20 +196,7 @@ namespace visilib
                     VisibilitySolver<P, S>::mDebugger->addRemovedEdge(face->getVertex(edge.x), face->getVertex(edge.y));
                 }
 
-                size_t myPolyhedronFace = myVisibilitySilhouette<P>Edge.mHyperPlaneIndex;
-                assert(0);
-                /*if (myPolyhedronFace == 0)*/
-                /*{*/
-                /*    P myHyperplane(a, b);*/
-                /*    if (mNormalization)*/
-                /*    {*/
-                /*        myHyperplane = myHyperplane.getNormalized();*/
-                /*    }*/
-                /*    myPolyhedronFace = myPolyhedron->add(myHyperplane, ON_BOUNDARY, mNormalization, mTolerance);*/
-                /*    myVisibilitySilhouette<P>Edge.mHyperPlaneIndex = myPolyhedronFace;*/
-                /*}*/
-
-                /*P myHyperplane = myPolyhedron->get(myPolyhedronFace);*/
+                P* myHyperplane = &myVisibilitySilhouetteEdge.getPlucker();
 
                 GeometryPositionType myResult = ON_NEGATIVE_SIDE;
 
@@ -223,7 +210,9 @@ namespace visilib
 #ifdef OUTPUT_DEBUG_FILE
                     V_LOG(debugOutput, "PERFORM THE SPLIT", occlusionTreeNodeSymbol);
 #endif
-                    myResult = PluckerPolytopeSplitter<P, S>::split(myHyperplane, aPolytope, myPolytopeLeft, myPolytopeRight, myPolyhedronFace, mNormalization, mTolerance);
+                   SplitAlgorithmStatus<P,S> myStatus;
+                   PluckerPolytopeComplex* myComplex = NULL;
+                   PluckerPolytopeSplitter<P, S>::split(myHyperplane, myComplex, myStatus, mTolerance);
 
                     if (VisibilitySolver<P, S>::mQuery->getStatistic()->get(POLYTOPE_SPLIT_COUNT) % 10000 == 0)
                     {
@@ -279,7 +268,7 @@ namespace visilib
 
                     std::stringstream ss;
 #ifdef OUTPUT_DEBUG_FILE
-                    ss << occlusionTreeNodeSymbol << "|" << face->getFaceIndex() << "-" << myVisibilitySilhouette<P>Edge.mEdgeIndex << postFix[i];
+                    ss << occlusionTreeNodeSymbol << "|" << face->getFaceIndex() << "-" << myVisibilitySilhouetteEdge.mEdgeIndex << postFix[i];
 #endif
                     VisibilityResult result;
 
@@ -323,7 +312,7 @@ namespace visilib
 
                 std::stringstream ss;
 #ifdef OUTPUT_DEBUG_FILE
-                ss << occlusionTreeNodeSymbol << "|" << face->getFaceIndex() << "-" << myVisibilitySilhouette<P>Edge.mEdgeIndex << "*";
+                ss << occlusionTreeNodeSymbol << "|" << face->getFaceIndex() << "-" << myVisibilitySilhouetteEdge.mEdgeIndex << "*";
 #endif
                 VisibilityResult result = resolveInternal(aGlobalResult, aPolytope, ss.str(), anOccluders, aPolytopeLines, aDepth + 1);
                 if (result == FAILURE)

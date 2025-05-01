@@ -49,8 +49,8 @@ namespace visilib
     class SilhouetteMeshFace;
     class GeometryOccluderSet;
     struct VisibilityRay;
-    class Silhouette<P>;
-    class Silhouette<P>Processor;
+    template<class P> class Silhouette<P>;
+    template<class P> class SilhouetteProcessor;
 
     template <class P,class S>
     class PluckerPolytope;
@@ -131,7 +131,7 @@ namespace visilib
 
         /**@brief Find the next edge to be processed by the query
         */
-        bool findNextEdge(size_t& aSilhouette<P>EdgeIndex, Silhouette<P> * &aSilhouette<P>, PluckerPolytope<P,S> * polytope, const std::string & occlusionTreeNodeSymbol);
+        bool findNextEdge(size_t& aSilhouetteEdgeIndex, Silhouette<P> * &aSilhouette<P>, PluckerPolytope<P,S> * polytope, const std::string & occlusionTreeNodeSymbol);
 
 
         void setApproximateNormal(const MathVector3d & a)
@@ -351,7 +351,7 @@ namespace visilib
     }
 
     template<class P, class S>
-    bool VisibilityExactQuery_<P, S>::findNextEdge(size_t& aSilhouette<P>EdgeIndex, Silhouette<P> * &aSilhouette<P>, PluckerPolytope<P,S> * aPolytope, const std::string & occlusionTreeNodeSymbol)
+    bool VisibilityExactQuery_<P, S>::findNextEdge(size_t& aSilhouetteEdgeIndex, Silhouette<P> * &aSilhouette<P>, PluckerPolytope<P,S> * aPolytope, const std::string & occlusionTreeNodeSymbol)
     {
         HelperScopedTimer timer(getStatistic(), OCCLUDER_TREATMENT);
 #ifdef OUTPUT_DEBUG_FILE
@@ -377,7 +377,7 @@ namespace visilib
 
             for (size_t silhouetteEdgeIndex = 0; silhouetteEdgeIndex < edges.size(); silhouetteEdgeIndex++)
             {
-                Silhouette<P>Edge<P>& edge = edges[silhouetteEdgeIndex];
+                SilhouetteEdge<P>& edge = edges[silhouetteEdgeIndex];
                 if (edge.mIsActive)
                 {
                     /*
@@ -393,7 +393,7 @@ namespace visilib
                     {
                         found = true;
                         myScore = edge.mScore;
-                        aSilhouette<P>EdgeIndex = silhouetteEdgeIndex;
+                        aSilhouetteEdgeIndex = silhouetteEdgeIndex;
                         mySilhouette = s;
                     }
                 }

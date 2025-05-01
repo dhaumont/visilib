@@ -97,21 +97,21 @@ namespace visilib
         {
         }
 
-        /**@brief Return the number of edges of the silhouette*/
+        /**@brief Return the number of edges of the Silhouette<P>*/
         int getAvailableEdgeCount() const
         {
             return mAvailableEdgeCount;
         }
 
-        /**@brief Return if the given edge of a given faces belongs to the silhouette*/
+        /**@brief Return if the given edge of a given faces belongs to the Silhouette<P>*/
    //     bool hasEdge(ConnectedMeshElement* face, size_t edgeIndex) const;
 
-        /**@brief Get the edges of the silhouette*/
+        /**@brief Get the edges of the Silhouette<P>*/
         const std::vector<SilhouetteEdge<P>>& getEdges() const { return mEdges; }
 
         std::vector<SilhouetteEdge<P>>& getEdges() { return mEdges; }
 
-        /**@brief Add an edge to the silhouette*/
+        /**@brief Add an edge to the Silhouette<P>*/
         void addEdge(SilhouetteMeshFace* aFace, size_t anEdgeIndex, size_t anHyperplaneIndex);
 
         void addFace(const SilhouetteMeshFace& face)
