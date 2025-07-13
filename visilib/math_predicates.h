@@ -25,10 +25,6 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include "plucker_element.h"
 namespace visilib
 {
-    class GeometryConvexPolygon;
-    //template<class S>
-    //class PluckerPolytope;
-
     /** @brief Contains geometry predicates function */
 
     class MathPredicates

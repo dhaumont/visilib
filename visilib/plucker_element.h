@@ -49,7 +49,7 @@ namespace visilib
             public:
                 IPluckerPoint()
                 {
-                    mPlucker.setZero();
+                    mPlucker = P::Zero();
                 }
                 P &getPlucker()
                 {
@@ -239,6 +239,7 @@ namespace visilib
 
     class PluckerInnerNode : public PluckerElement
     {
+        public:
         PluckerInnerNode(int aRank)
             : PluckerElement(aRank),
             mBoundingVolume(nullptr)
@@ -306,6 +307,7 @@ namespace visilib
     template <class P>
         class PluckerVertex : public PluckerElement, public IPluckerPoint<P>
     {
+        public: 
         PluckerVertex()
             : PluckerElement(VERTEX)
         {
@@ -315,6 +317,7 @@ namespace visilib
     template <class P>
         class PluckerEdge : public PluckerInnerNode
     {
+        public: 
         PluckerEdge()
             : PluckerInnerNode(EDGE)
         {

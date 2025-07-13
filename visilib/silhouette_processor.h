@@ -25,6 +25,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include <math.h>
 #include <stack>
 
+#include "helper_statistic_collector.h"
 #include "math_vector_2.h"
 #include "math_vector_3.h"
 #include "math_plane_3.h"
@@ -34,7 +35,6 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include "geometry_convex_polygon.h"
 #include "silhouette_mesh_face.h"
 #include "geometry_convex_hull.h"
-#include "helper_statistic_collector.h"
 #include "silhouette.h"
 #include "visilib_core.h"
 
@@ -49,6 +49,7 @@ namespace visilib
     During the visit, the potential silhouette edges are detected and added to the silhouette. The resulting silhouette is attached to all the visited faces for later use.
     */
 
+    template<class P>
     class SilhouetteProcessor
     {
     public:
@@ -110,21 +111,24 @@ namespace visilib
         HelperStatisticCollector* mHelperStatisticCollector;                           /**< @brief A statistic collector collecting statistics during silhouette extraction */
     };
 
-    inline SilhouetteProcessor::SilhouetteProcessor(HelperStatisticCollector* aHelperStatisticCollector)
+    template<class P>
+    inline SilhouetteProcessor<P>::SilhouetteProcessor(HelperStatisticCollector* aHelperStatisticCollector)
         : mDebugger(nullptr),
         mConvexHull(nullptr),
         mHelperStatisticCollector(aHelperStatisticCollector)
     {
     }
 
-    inline void SilhouetteProcessor::init(const GeometryConvexPolygon& aSource1, const GeometryConvexPolygon& aSource2)
+    template<class P>
+    inline void SilhouetteProcessor<P>::init(const GeometryConvexPolygon& aSource1, const GeometryConvexPolygon& aSource2)
     {
         mSource[0] = &aSource1;
         mSource[1] = &aSource2;
         initConvexHull();
     }
 
-    inline void SilhouetteProcessor::initConvexHull()
+    template<class P>
+    inline void SilhouetteProcessor<P>::initConvexHull()
     {
         mConvexHull = GeometryConvexHullBuilder::build(mSource[0]->getVertices(), mSource[1]->getVertices());
 
@@ -136,7 +140,8 @@ namespace visilib
     // Hybrid Software and Umbra Software
     //--------------------------------------------------------------------------------------
 
-    inline bool SilhouetteProcessor::isPolygonBetweenSourcePlanes(SilhouetteMeshFace * face)
+    template<class P>
+    inline bool SilhouetteProcessor<P>::isPolygonBetweenSourcePlanes(SilhouetteMeshFace * face)
     {
         auto iter = mPolygonBetweenSourcePlanesCache.find(face);
         if (iter != mPolygonBetweenSourcePlanesCache.end())
@@ -157,14 +162,15 @@ namespace visilib
         return inside;
     }
 
-    static inline size_t getKey(SilhouetteMeshFace * face0, SilhouetteMeshFace * face1)
+    static inline size_t LOCAL_getKey(SilhouetteMeshFace * face0, SilhouetteMeshFace * face1)
     {
         return ((size_t)(face0)+(size_t)(face1));
     }
 
-    inline bool SilhouetteProcessor::isPotentialSilhouetteEdge(SilhouetteMeshFace * face0, SilhouetteMeshFace * face1)
+    template<class P>
+    inline bool SilhouetteProcessor<P>::isPotentialSilhouetteEdge(SilhouetteMeshFace * face0, SilhouetteMeshFace * face1)
     {
-        size_t key = getKey(face0, face1);
+        size_t key = LOCAL_getKey(face0, face1);
         auto iter = mPotentialSilhouetteEdgeCache.find(key);
         if (iter != mPotentialSilhouetteEdgeCache.end())
             return iter->second;
@@ -179,7 +185,8 @@ namespace visilib
         return MathPredicates::getRelativePosition(polygon.getVertices(), aPlane) == ON_BOUNDARY;
     }
 
-    inline bool SilhouetteProcessor::isPotentialSilhouetteEdgeInternal(SilhouetteMeshFace * face0, SilhouetteMeshFace * face1)
+    template<class P>
+    inline bool SilhouetteProcessor<P>::isPotentialSilhouetteEdgeInternal(SilhouetteMeshFace * face0, SilhouetteMeshFace * face1)
     {
         if (!isPolygonBetweenSourcePlanes(face0) || !isPolygonBetweenSourcePlanes(face1))
         {
@@ -217,7 +224,8 @@ namespace visilib
         return false;
     }
 
-    inline void SilhouetteProcessor::extractSilhouette(size_t geometryId, const std::vector<SilhouetteMeshFace> & meshFaces, bool silhouetteOptimization, std::vector<Silhouette<P>*> & silhouettes)
+    template<class P>
+    inline void SilhouetteProcessor<P>::extractSilhouette(size_t geometryId, const std::vector<SilhouetteMeshFace> & meshFaces, bool silhouetteOptimization, std::vector<Silhouette<P>*> & silhouettes)
     {
         std::vector<bool> processed;
         processed.resize(meshFaces.size());
@@ -230,7 +238,7 @@ namespace visilib
             std::stack<int> stack;
             stack.push((int)faceIndex);
 
-            Silhouette<P>* s = new Silhouette(meshFaces, geometryId);
+            Silhouette<P>* s = new Silhouette<P>(meshFaces, geometryId);
             silhouettes.push_back(s);
 
             while (!stack.empty())

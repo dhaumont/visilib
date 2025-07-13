@@ -181,7 +181,7 @@ namespace visilib
 
     inline void SilhouetteContainerEmbree::prepare()
     {
-        for (auto s:getSilhouette<P>s())
+        for (auto s:getSilhouettes())
         {
             size_t id = s->getGeometryId();
             const auto& myMeshFaces = s->getMeshFaces();

@@ -30,7 +30,6 @@ namespace visilib
     template <class P, class S>
     class VisibilityExactQuery_;
 
-    class GeometryConvexPolygon;
     template <class P, class S>
     class PluckerPolytope;
     class SilhouetteMeshFace;

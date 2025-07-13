@@ -61,7 +61,7 @@ set(VisibilitySrc
 	visibility_ray.h
     )
 
-set(Silhouette<P>Src
+set(Silhouettesrc
     silhouette_processor.h
     silhouette.h
     silhouette_container.h

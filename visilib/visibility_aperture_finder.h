@@ -211,7 +211,7 @@ namespace visilib
                     V_LOG(debugOutput, "PERFORM THE SPLIT", occlusionTreeNodeSymbol);
 #endif
                    SplitAlgorithmStatus<P,S> myStatus;
-                   PluckerPolytopeComplex* myComplex = NULL;
+                   PluckerPolytopeComplex<P,S>* myComplex = NULL;
                    PluckerPolytopeSplitter<P, S>::split(myHyperplane, myComplex, myStatus, mTolerance);
 
                     if (VisibilitySolver<P, S>::mQuery->getStatistic()->get(POLYTOPE_SPLIT_COUNT) % 10000 == 0)
@@ -354,12 +354,6 @@ namespace visilib
 
         return UNKNOWN;
 
-    }
-
-    template<class P, class S>
-    void VisibilityApertureFinder<P, S>::resize(size_t anInitiaLineCount, PluckerPolytope<P,S>* aPolytope)
-    {
-        HelperScopedTimer timer(VisibilitySolver<P, S>::mQuery->getStatistic(), POLYTOPE_SPLIT);
     }
 
     template<class P, class S>

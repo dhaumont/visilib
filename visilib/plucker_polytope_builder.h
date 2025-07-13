@@ -126,7 +126,7 @@ namespace visilib
 
                 V_ASSERT((MathPredicates::isNormalized(line, mTolerance)));
             }
-            PluckerFacet<P>* myFacet = new PluckerFacet<P>(line);
+            PluckerFacet<P>* myFacet = new PluckerFacet<P>();
             myFacet->setFacet(polytope->getElementsCount(FACET));
 
             polytope->appendFacet(myFacet);
@@ -177,7 +177,7 @@ namespace visilib
                     myStabbingLine = myStabbingLine.getNormalized();
                 }
 
-                PluckerVertex<P>* myVertex = new PluckerVertex<P>(myStabbingLine);
+                PluckerVertex<P>* myVertex = new PluckerVertex<P>();
                 myVertex->setQuadricRelativePosition(ON_BOUNDARY);
                 polytope->appendVertex(myVertex);
 
@@ -244,7 +244,7 @@ namespace visilib
 
         for (int k = 1; k < aPolytopeComplex->getDimension(); k++)
         {
-            std::list<PluckerElement*>& elements = aPolytopeComplex->getElements(k-1);
+            const std::list<PluckerElement*>& elements = aPolytopeComplex->getElements(k-1);
             for (auto iter1 = elements.begin(); iter1 != elements.end(); iter1++)
             {
                 PluckerElement* child1 = *iter1;

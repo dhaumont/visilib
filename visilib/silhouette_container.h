@@ -107,9 +107,9 @@ public:
 
                 for (size_t edgeIndex : edgesProcessed)
                 {
-                    SilhouetteEdge silhouetteEdge = s->getEdge(edgeIndex);
-                    size_t hyperplaneIndex = silhouetteEdge.mHyperPlaneIndex;
-                    V_ASSERT(hyperplaneIndex > 0);
+                    SilhouetteEdge<P> silhouetteEdge = s->getEdge(edgeIndex);
+//                    size_t hyperplaneIndex = silhouetteEdge.mHyperPlaneIndex;
+ //                   V_ASSERT(hyperplaneIndex > 0);
 
 //                    const P& myHyperplane = polyhedron->get(hyperplaneIndex);
                     const P& myHyperplane = polytopeLines[0];

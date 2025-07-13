@@ -47,7 +47,7 @@ namespace visilib
 
             ~PluckerPolytope()
             {
-                // TODO: delete mSilhouette<P>s
+                // TODO: delete mSilhouettes
             }
 
             const P& getRepresentativeLine() const
@@ -204,13 +204,18 @@ namespace visilib
                             }
                         }
 
+                        PluckerElement* getAncestor() const
+                        {
+                            return mAncestor;
+                        }
+
                         bool operator!=(const T& aIterator)
                         {
                             return mIterator != aIterator.mIterator;
                         }
                     private:
                         PluckerElement* mAncestor;
-                        typename std::list<T*>::iterator mIterator;
+                        typename std::list<PluckerElement*>::iterator mIterator;
                 };
 
             typedef ElementIterator<PluckerVertex<P>> VertexIterator;
