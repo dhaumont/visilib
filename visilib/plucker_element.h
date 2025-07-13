@@ -51,6 +51,11 @@ namespace visilib
                 {
                     mPlucker = P::Zero();
                 }
+                IPluckerPoint(const IPluckerPoint& other)
+                {
+                    mPlucker = other.mPlucker;
+                }
+
                 P &getPlucker()
                 {
                     return mPlucker;
@@ -75,8 +80,17 @@ namespace visilib
             PluckerElement(int aRank)
                 : mRank(aRank),
                 mQuadricRelativePosition(GeometryPositionType::ON_UNKNOWN_POSITION)
-        {
-        }
+            {
+            }
+
+            PluckerElement(const PluckerElement& other)
+            {
+                mParents = other.mParents;
+                mFacetDescription = other.mFacetDescription;
+                mRank = other. mRank;
+                mQuadricRelativePosition = other.mQuadricRelativePosition;
+            }
+
             ~PluckerElement()
             {
             }
@@ -201,6 +215,11 @@ namespace visilib
             {
 
             }
+            PluckerBoundingSphere(const PluckerBoundingSphere& other)
+            {
+                mCenter = other.mCenter;
+                mRadius = other.mRadius;
+            }
             virtual ~PluckerBoundingSphere()
             {
 
@@ -223,6 +242,13 @@ namespace visilib
             {
 
             }
+
+            PluckerAABB(const PluckerAABB& other)
+            {
+                mMin = other.mMin;
+                mMax = other.mMax;
+            }
+
 
             virtual ~PluckerAABB()
             {
@@ -252,6 +278,13 @@ namespace visilib
         {
 
         }
+
+        PluckerInnerNode(const PluckerInnerNode& other)
+        {
+            mChildren = other.;
+            mBoundingVolume = other.mBoundingVolume;
+        }
+
         virtual void appendChildren(PluckerElement* aChild)
         {
             mChildren.push_back(aChild);
@@ -291,6 +324,7 @@ namespace visilib
             {
             }
 
+
             void setFacet(size_t aFacet)
             {
                 std::vector<size_t> myFacets={aFacet};
@@ -307,7 +341,7 @@ namespace visilib
     template <class P>
         class PluckerVertex : public PluckerElement, public IPluckerPoint<P>
     {
-        public: 
+        public:
         PluckerVertex()
             : PluckerElement(VERTEX)
         {
@@ -317,10 +351,16 @@ namespace visilib
     template <class P>
         class PluckerEdge : public PluckerInnerNode
     {
-        public: 
+        public:
         PluckerEdge()
             : PluckerInnerNode(EDGE)
         {
+        }
+
+        PluckerEdge(const PluckerEdge& other)
+            : PluckerInnerNode(other)
+        {
+            mExtremalStabbingLines = other.mExtremalStabbingLines;
         }
 
         ~PluckerEdge()
@@ -363,6 +403,13 @@ namespace visilib
         {
 
         }
+            PluckerInterpolatedVertex(const PluckerInterpolatedVertex& other)
+                : PluckerVertex(other)
+            {
+                mGeneratorEdge = other.mGeneratorEdge;
+                mAlpha = other.mAlpha;
+                mBeta = other.mBeta;
+            }
             void interpolate(S tolerance);
 
         private:

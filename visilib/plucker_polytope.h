@@ -45,9 +45,18 @@ namespace visilib
 
             }
 
+            PluckerPolytope(const PluckerPolytope& other)
+                : PluckerInnerNode(POLYTOPE)
+            {
+                mSilhouettes = other.mSilhouettes;
+            }
+
             ~PluckerPolytope()
             {
-                // TODO: delete mSilhouettes
+                for (auto s:mSilhouettes)
+                {
+                    delete s;
+                }
             }
 
             const P& getRepresentativeLine() const
@@ -83,6 +92,12 @@ namespace visilib
             {
                 mElements.resize(dimension);
             }
+
+            PluckerPolytopeComplex(const PluckerPolytopeComplex& other)
+            {
+                mElements = other.mElements;
+            }
+
 
             ~PluckerPolytopeComplex()
             {
@@ -178,9 +193,10 @@ namespace visilib
                 class ElementIterator
                 {
                     public:
-                        ElementIterator(const std::list<PluckerElement*>::iterator& aIterator, PluckerElement* anAncestor = nullptr)
+                        ElementIterator(std::list<PluckerElement*>& aList, const std::list<PluckerElement*>::iterator& aIterator, PluckerElement* anAncestor = nullptr)
                             :  mIterator(aIterator),
-                            mAncestor(anAncestor)
+                            mAncestor(anAncestor),
+                            mList(&aList)
                     {
                     }
 
@@ -197,7 +213,7 @@ namespace visilib
                             }
                             else
                             {
-                                while (mIterator != mElements.end() && (*mIterator)->getAncestor() != mAncestor)
+                                while (mIterator != mList->end() && (*mIterator)->getAncestor() != mAncestor)
                                 {
                                     mIterator++;
                                 }
@@ -215,6 +231,7 @@ namespace visilib
                         }
                     private:
                         PluckerElement* mAncestor;
+                        std::list<PluckerElement*>* mList;
                         typename std::list<PluckerElement*>::iterator mIterator;
                 };
 
@@ -226,41 +243,41 @@ namespace visilib
 
             VertexIterator beginVertices(PluckerElement* anAncestor = nullptr)
             {
-                return VertexIterator(mElements[VERTEX].begin(), anAncestor);
+                return VertexIterator(mElements[VERTEX], mElements[VERTEX].begin(), anAncestor);
             }
             VertexIterator endVertices(PluckerElement* anAncestor = nullptr)
             {
-                return VertexIterator(mElements[VERTEX].end(), anAncestor);
+                return VertexIterator(mElements[VERTEX], mElements[VERTEX].end(), anAncestor);
             }
 
             EdgeIterator beginEdges(PluckerElement* anAncestor = nullptr)
             {
-                return EdgeIterator(mElements[EDGE].begin(), anAncestor);
+                return EdgeIterator(mElements[EDGE], mElements[EDGE].begin(), anAncestor);
             }
 
             EdgeIterator endEdges(PluckerElement* anAncestor = nullptr)
             {
-                return EdgeIterator(mElements[EDGE].end(), anAncestor);
+                return EdgeIterator(mElements[EDGE], mElements[EDGE].end(), anAncestor);
             }
 
             FacetIterator beginFacets(PluckerElement* anAncestor = nullptr)
             {
-                return FacetIterator(mElements[FACET].begin(), anAncestor);
+                return FacetIterator(mElements[FACET], mElements[FACET].begin(), anAncestor);
             }
 
             FacetIterator endFacets(PluckerElement* anAncestor = nullptr)
             {
-                return FacetIterator(mElements[FACET].end(), anAncestor);
+                return FacetIterator(mElements[FACET], mElements[FACET].end(), anAncestor);
             }
 
             PolytopeIterator beginPolytopes(PluckerElement* anAncestor = nullptr)
             {
-                return PolytopeIterator(mElements[POLYTOPE].begin(), anAncestor);
+                return PolytopeIterator(mElements[POLYTOPE], mElements[POLYTOPE].begin(), anAncestor);
             }
 
             PolytopeIterator endPolytopes(PluckerElement* anAncestor = nullptr)
             {
-                return PolytopeIterator(mElements[POLYTOPE].end(), anAncestor);
+                return PolytopeIterator(mElements[POLYTOPE], mElements[POLYTOPE].end(), anAncestor);
             }
         private:
             std::vector<std::list<PluckerElement*>> mElements;
