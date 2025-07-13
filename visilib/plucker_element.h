@@ -95,12 +95,6 @@ namespace visilib
             {
             }
 
-            static void link(PluckerElement *aParent, PluckerElement *aChild)
-            {
-                aParent->appendChildren(aChild);
-                aChild->appendParent(aParent);
-            }
-
             static void unlink(PluckerElement *aParent, PluckerElement *aChild)
             {
                 aParent->deleteChildren(aChild);
@@ -165,6 +159,13 @@ namespace visilib
                 mQuadricRelativePosition = aPosition;
             }
 
+            static void link(PluckerElement *aParent, PluckerElement *aChild)
+            {
+                aParent->appendChildren(aChild);
+                aChild->appendParent(aParent);
+            }
+
+
             int getRank() const
             {
                 return mRank;
@@ -216,6 +217,7 @@ namespace visilib
 
             }
             PluckerBoundingSphere(const PluckerBoundingSphere& other)
+                : PluckerBoundingVolume(other)
             {
                 mCenter = other.mCenter;
                 mRadius = other.mRadius;
@@ -244,6 +246,7 @@ namespace visilib
             }
 
             PluckerAABB(const PluckerAABB& other)
+                : PluckerBoundingVolume(other)
             {
                 mMin = other.mMin;
                 mMax = other.mMax;
@@ -280,8 +283,9 @@ namespace visilib
         }
 
         PluckerInnerNode(const PluckerInnerNode& other)
+            : PluckerElement(other)
         {
-            mChildren = other.;
+            mChildren = other.mChildren;
             mBoundingVolume = other.mBoundingVolume;
         }
 
@@ -324,6 +328,11 @@ namespace visilib
             {
             }
 
+            PluckerFacet(const PluckerFacet& other)
+                : PluckerInnerNode(other),
+                IPluckerPoint<P>(other)
+            {
+            }
 
             void setFacet(size_t aFacet)
             {
@@ -345,6 +354,13 @@ namespace visilib
         PluckerVertex()
             : PluckerElement(VERTEX)
         {
+        }
+
+        PluckerVertex(const PluckerVertex& other)
+            : PluckerElement(other),
+            IPluckerPoint<P>(other)
+        {
+
         }
     };
 
@@ -404,7 +420,7 @@ namespace visilib
 
         }
             PluckerInterpolatedVertex(const PluckerInterpolatedVertex& other)
-                : PluckerVertex(other)
+                : PluckerVertex<P>(other)
             {
                 mGeneratorEdge = other.mGeneratorEdge;
                 mAlpha = other.mAlpha;

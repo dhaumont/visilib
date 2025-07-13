@@ -238,8 +238,9 @@ namespace visilib
 
         for (auto iter = aPolytopeComplex->beginFacets(); iter != aPolytopeComplex->endFacets(); iter++)
         {
-            myFacetsVector.push_back(*iter);
-            PluckerElement::link(aPolytopeComplex, *iter);
+            PluckerFacet* myFacet = *(iter);
+            myFacetsVector.push_back(myFacet);
+            PluckerElement::link(aPolytopeComplex, myFacet);
         }
 
         for (int k = 1; k < aPolytopeComplex->getDimension(); k++)

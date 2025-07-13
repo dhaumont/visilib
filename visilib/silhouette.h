@@ -111,7 +111,7 @@ namespace visilib
         std::vector<SilhouetteEdge<P>>& getEdges() { return mEdges; }
 
         /**@brief Add an edge to the Silhouette<P>*/
-        void addEdge(SilhouetteMeshFace* aFace, size_t anEdgeIndex, size_t anHyperplaneIndex);
+        void addEdge(SilhouetteMeshFace* aFace, size_t anEdgeIndex,PluckerFacet<P>* aFacet = nullptr);
 
         void addFace(const SilhouetteMeshFace& face)
         {
@@ -173,9 +173,9 @@ namespace visilib
 
 
     template<class P>
-    inline void Silhouette<P>::addEdge(SilhouetteMeshFace* aFace, size_t anEdgeIndex, size_t anHyperplaneIndex)
+    inline void Silhouette<P>::addEdge(SilhouetteMeshFace* aFace, size_t anEdgeIndex, PluckerFacet<P>* aFacet)
     {
-        mEdges.push_back(SilhouetteEdge<P>(aFace, anEdgeIndex,anHyperplaneIndex));
+        mEdges.push_back(SilhouetteEdge<P>(aFace, anEdgeIndex,aFacet));
         mAvailableEdgeCount++;
     }
 
