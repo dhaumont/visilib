@@ -85,7 +85,7 @@ namespace visilibDemo
 
             delete meshContainer;
             meshContainer = DemoHelper::createScene(s, mDemoConfiguration.globalScaling);
-            
+
             delete occluderSet;
             occluderSet = DemoHelper::createOccluderSet(meshContainer);
 
@@ -101,7 +101,7 @@ namespace visilibDemo
 
             config.detectApertureOnly = mDemoConfiguration.detectApertureOnly;
             config.tolerance = mDemoConfiguration.tolerance;
-#if EMBREE 
+#if EMBREE
             config.useEmbree = mDemoConfiguration.embree;
 #endif
             result = visilib::areVisible(occluderSet, &v0[0], v0.size() / 3, &v1[0], v1.size() / 3, config, debugger);
@@ -239,15 +239,15 @@ namespace visilibDemo
 
                 break;
 
-            case '[':                
+            case '[':
                 mDemoConfiguration.tolerance = mDemoConfiguration.tolerance == -1 ? 1e-8 : mDemoConfiguration.tolerance/2;
-                forceDisplay = true;                                
+                forceDisplay = true;
 
                 break;
 
             case ']':
                 mDemoConfiguration.tolerance = mDemoConfiguration.tolerance == -1 ? 1e-8 : mDemoConfiguration.tolerance*2;
-                forceDisplay = true;                
+                forceDisplay = true;
                 break;
 
             case 'h':
