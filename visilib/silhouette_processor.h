@@ -112,6 +112,8 @@ namespace visilib
         mConvexHull(nullptr),
         mHelperStatisticCollector(aHelperStatisticCollector)
     {
+        mSource[0] = nullptr;
+        mSource[1] = nullptr;
     }
 
     inline void SilhouetteProcessor::init(const GeometryConvexPolygon& aSource1, const GeometryConvexPolygon& aSource2)
