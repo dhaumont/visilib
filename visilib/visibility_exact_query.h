@@ -463,7 +463,7 @@ namespace visilib
             HelperScopedTimer timer(getStatistic(), RAY_INTERSECTION);
             getStatistic()->inc(RAY_COUNT);
 
-            intersect = mSilhouetteContainer->intersect(&myRay, aDistance);
+            intersect = mSilhouetteContainer->intersect(&myRay, to_double(aDistance));
         }
 
         if (intersect)
