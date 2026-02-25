@@ -134,7 +134,7 @@ namespace visilib
         return MathVector3d(f.x, f.y, f.z);
     }
 
-#ifdef EXACT_ARITHMETIC
+#ifdef ENABLE_CGAL_LEDA
     template<>
     inline MathVector3d convert(const MathVector3_<exact> & f)
     {
@@ -147,6 +147,48 @@ namespace visilib
         return MathVector3_<exact>(f.x, f.y, f.z);
     }
 #endif
+
+#if ENABLE_GMP
+    template<>
+    inline MathVector3d convert(const MathVector3_<GmpFloat>& f)
+    {
+        return MathVector3d(to_double(f.x), to_double(f.y), to_double(f.z));
+    }
+
+    template<>
+    inline MathVector3_<GmpFloat> convert(const MathVector3d& f)
+    {
+        return MathVector3_<GmpFloat>(f.x, f.y, f.z);
+    }
+
+    template<>
+    inline MathVector3d convert(const MathVector3_<GmpRational>& f)
+    {
+        return MathVector3d(to_double(f.x), to_double(f.y), to_double(f.z));
+    }
+
+    template<>
+    inline MathVector3_<GmpRational> convert(const MathVector3d& f)
+    {
+        return MathVector3_<GmpRational>(f.x, f.y, f.z);
+    }
+#endif
+
+
+#if ENABLE_MPFR
+    template<>
+    inline MathVector3d convert(const MathVector3_<Mpfr>& f)
+    {
+        return MathVector3d(to_double(f.x), to_double(f.y), to_double(f.z));
+    }
+
+    template<>
+    inline MathVector3_<Mpfr> convert(const MathVector3d& f)
+    {
+        return MathVector3_<Mpfr>(f.x, f.y, f.z);
+    }
+#endif
+
 
     template<class S>
     inline bool MathVector3_<S>::isZero(S anEps)const

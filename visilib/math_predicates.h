@@ -163,9 +163,30 @@ namespace visilib
         return a.getDirection().isZero() && a.getLocation().isZero();
     }
 
-#ifdef EXACT_ARITHMETIC
+#ifdef ENABLE_CGAL_LEDA
     template <>
     inline bool MathPredicates::isZero(const MathPlucker6<exact> & a, exact epsilon)
+    {
+        return a.getDirection().isZero(epsilon) && a.getLocation().isZero(epsilon);
+    }
+#endif
+
+#ifdef ENABLE_GMP
+    template <>
+    inline bool MathPredicates::isZero(const MathPlucker6<GmpFloat>& a, GmpFloat epsilon)
+    {
+        return a.getDirection().isZero(epsilon) && a.getLocation().isZero(epsilon);
+    }
+    template <>
+    inline bool MathPredicates::isZero(const MathPlucker6<GmpRational>& a, GmpRational epsilon)
+    {
+        return a.getDirection().isZero(epsilon) && a.getLocation().isZero(epsilon);
+    }
+#endif
+
+#ifdef ENABLE_MPFR
+    template <>
+    inline bool MathPredicates::isZero(const MathPlucker6<Mpfr>& a, Mpfr epsilon)
     {
         return a.getDirection().isZero(epsilon) && a.getLocation().isZero(epsilon);
     }
@@ -183,13 +204,43 @@ namespace visilib
         return MathArithmetic<float>::getAbs(scalar) <= tolerance;
     }
 
-#ifdef EXACT_ARITHMETIC
+#ifdef ENABLE_CGAL_LEDA
     template <>
     inline bool MathPredicates::isZero(exact scalar, exact tolerance)
     {
         return CGAL::is_zero(scalar);
     }
 #endif
+
+#ifdef ENABLE_GMP
+    template <>
+    inline bool MathPredicates::isZero(GmpFloat scalar, GmpFloat tolerance)
+    {
+        mpf_t a;
+        mpf_abs(a, scalar.v);
+        return mpf_cmp(a, tolerance.v) < 0;
+    }
+    template <>
+    inline bool MathPredicates::isZero(GmpRational scalar, GmpRational tolerance)
+    {
+        mpq_t a;
+        mpq_abs(a, scalar.v);
+        return mpq_cmp(a, tolerance.v) < 0;
+    }
+#endif
+
+#ifdef ENABLE_MPFR
+    template <>
+    inline bool MathPredicates::isZero(Mpfr scalar, Mpfr tolerance)
+    {
+        return scalar.isZero();
+    }
+#endif
+
+    inline double to_double(double v)
+    {
+        return v;
+    }
 
     template<typename P, class S>
     inline bool MathPredicates::isNormalized(const P & a, S tolerance)

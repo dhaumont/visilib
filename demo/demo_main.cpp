@@ -156,7 +156,7 @@ namespace visilibDemo
 
             std::cout << "  s: enable/disable silhouette optimisation" << std::endl;
             std::cout << "  n: enable/disable nomalization" << std::endl;
-#if EXACT_ARITHMETIC
+#if ENABLE_CGAL_LEDA
             std::cout << "  e: enable/disable exact arithmetic" << std::endl;
 #endif
 #if EMBREE
@@ -275,7 +275,7 @@ namespace visilibDemo
                 break;
 
 
-#ifdef EXACT_ARITHMETIC
+#ifdef ENABLE_CGAL_LEDA
             case 'e':
                 mDemoConfiguration.precisionType = mDemoConfiguration.precisionType == VisibilityExactQueryConfiguration::DOUBLE ? VisibilityExactQueryConfiguration::EXACT : VisibilityExactQueryConfiguration::DOUBLE;
                 forceDisplay = true;

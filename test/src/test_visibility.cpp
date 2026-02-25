@@ -32,8 +32,8 @@ bool testConfiguration(const DemoConfiguration& configuration, VisibilityResult 
     )
 {
     std::vector<float> v0, v1;
-    
-   
+
+
     DemoHelper::generatePolygon(v0, configuration.vertexCount0, configuration.scaling, configuration.phi - 3.14519f, configuration.globalScaling);
     DemoHelper::generatePolygon(v1, configuration.vertexCount1, configuration.scaling, configuration.phi, configuration.globalScaling);
 
@@ -52,17 +52,21 @@ bool testConfiguration(const DemoConfiguration& configuration, VisibilityResult 
 }
 
 bool VisibilityTest(std::string& )
-{  
+{
     std::vector<VisibilityExactQueryConfiguration::PrecisionType> precisions = { VisibilityExactQueryConfiguration::DOUBLE };
-#ifdef EXACT_ARITHMETIC
+#ifdef ENABLE_CGAL_LEDA
     precisions.push_back(VisibilityExactQueryConfiguration::EXACT);
+#endif
+#ifdef ENABLE_GMP
+    precisions.push_back(VisibilityExactQueryConfiguration::GMP_FLOAT);
+    precisions.push_back(VisibilityExactQueryConfiguration::GMP_RATIONAL);
 #endif
     std::vector<float> globalScalings = {0.05f, 0.1f, 1.f, 5.0f };
     std::vector<size_t> vertexCount = { 1,2,3,5,7,9,11 };
     std::vector<bool> normalizations = { true,false };
     std::vector<float> phis = { 0.0};
     bool result = true;
-  
+
     for (auto precision : precisions)
     {
         for (auto globalScaling : globalScalings)
@@ -99,6 +103,6 @@ bool VisibilityTest(std::string& )
             }
         }
     }
- 
+
     return result;
 }

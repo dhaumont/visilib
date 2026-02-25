@@ -71,32 +71,59 @@ namespace visilib
 
     template<> inline double MathArithmetic<double>::Tolerance() { return  1e-11; }
     template<> inline float MathArithmetic<float>::Tolerance() { return 1e-6f; }
+#ifdef ENABLE_CGAL_LEDA
+    template<> inline exact MathArithmetic<exact>::Tolerance() { return leda_real(1e-20); }
+#endif
+#ifdef ENABLE_GMP
+    template<> inline GmpFloat MathArithmetic<GmpFloat>::Tolerance() { return  GmpFloat::tolerance();  }
+    template<> inline GmpRational MathArithmetic<GmpRational>::Tolerance() { return  GmpRational::tolerance(); }
+#endif
+#ifdef ENABLE_MPFR
+    template<> inline Mpfr MathArithmetic<Mpfr>::Tolerance() { return  Mpfr::tolerance(); }
+#endif
     template<> inline double MathArithmetic<double>::GuardBandClipping() { return 1e-12; };
     template<> inline float MathArithmetic<float>::GuardBandClipping() { return 1e-6f; };
 
     template<> inline double MathArithmetic<double>::getAbs(double s);
     template<> inline float MathArithmetic<float>::getAbs(float s);
 
-#ifdef EXACT_ARITHMETIC
+#ifdef ENABLE_CGAL_LEDA
     template<> exact MathArithmetic<exact>::getAbs(exact s);
+#endif
+#ifdef ENABLE_GMP
+    template<> inline GmpFloat MathArithmetic<GmpFloat>::getAbs(GmpFloat  s);
+    template<> inline GmpRational MathArithmetic<GmpRational>::getAbs(GmpRational  s);
+#endif
+#ifdef ENABLE_MPFR
+    template<> inline Mpfr MathArithmetic<Mpfr>::getAbs(Mpfr  s);
 #endif
 
     template<> inline double MathArithmetic<double>::getSqrt(double s);
     template<> inline float MathArithmetic<float>::getSqrt(float s);
 
-#ifdef EXACT_ARITHMETIC
+#ifdef ENABLE_CGAL_LEDA
     template<> exact MathArithmetic<exact>::getSqrt(exact s);
+#endif
+#ifdef ENABLE_GMP
+    template<> inline GmpFloat MathArithmetic<GmpFloat>::getSqrt(GmpFloat  s);
+    template<> inline GmpRational MathArithmetic<GmpRational>::getSqrt(GmpRational  s);
+#endif
+#ifdef ENABLE_MPFR
+    template<> inline Mpfr MathArithmetic<Mpfr>::getSqrt(Mpfr s);
 #endif
 
     template<> inline bool MathArithmetic<double>::isFinite(double s);
 
     template<> inline bool MathArithmetic<float>::isFinite(float s);
-#ifdef EXACT_ARITHMETIC
+#ifdef ENABLE_CGAL_LEDA
     template<> inline bool MathArithmetic<exact>::isFinite(exact s);
 #endif
-
-#ifdef EXACT_ARITHMETIC
-    template<> inline exact MathArithmetic<exact>::Tolerance() { return leda_real(1e-20); }
+#ifdef ENABLE_GMP
+    template<> inline bool MathArithmetic<GmpFloat>::isFinite(GmpFloat s);
+    template<> inline bool MathArithmetic<GmpRational>::isFinite(GmpRational  s);
+#endif
+#ifdef ENABLE_MPFR
+    template<> inline bool MathArithmetic<Mpfr>::isFinite(Mpfr s);
 #endif
 
     template<>
@@ -111,11 +138,31 @@ namespace visilib
         return std::fabs(s);
     }
 
-#ifdef EXACT_ARITHMETIC
+#ifdef ENABLE_CGAL_LEDA
     template<>
     inline exact MathArithmetic<exact>::getAbs(exact s)
     {
         return CGAL::abs(s);
+    }
+#endif
+#ifdef ENABLE_GMP
+    template<>
+    inline GmpFloat MathArithmetic<GmpFloat>::getAbs(GmpFloat  s)
+    {
+        return s.abs();
+    }
+
+    template<>
+    inline GmpRational MathArithmetic<GmpRational>::getAbs(GmpRational s)
+    {
+        return s.abs();
+    }
+#endif
+#ifdef ENABLE_MPFR
+    template<>
+    inline Mpfr MathArithmetic<Mpfr>::getAbs(Mpfr s)
+    {
+        return s.abs();
     }
 #endif
 
@@ -131,12 +178,33 @@ namespace visilib
         return sqrt(s);
     }
 
-#ifdef EXACT_ARITHMETIC
+#ifdef ENABLE_CGAL_LEDA
     template<>
     inline exact MathArithmetic<exact>::getSqrt(exact s)
     {
         //return approximate_sqrt(s);0
         return CGAL::sqrt(s);
+    }
+#endif
+
+#ifdef ENABLE_GMP
+    template<>
+    inline GmpFloat MathArithmetic<GmpFloat>::getSqrt(GmpFloat s)
+    {
+        return s.sqrt();
+    }
+    template<>
+    inline GmpRational MathArithmetic<GmpRational>::getSqrt(GmpRational  s)
+    {
+        return s.sqrt();
+    }
+#endif
+
+#ifdef ENABLE_MPFR
+    template<>
+    inline Mpfr MathArithmetic<Mpfr>::getSqrt(Mpfr s)
+    {
+        return sqrt(s);
     }
 #endif
 
@@ -152,11 +220,30 @@ namespace visilib
         return isfinite(s);
     }
 
-#ifdef EXACT_ARITHMETIC
+#ifdef ENABLE_CGAL_LEDA
     template<>
     inline bool MathArithmetic<exact>::isFinite(exact s)
     {
         return CGAL::is_finite(s);
+    }
+#endif
+#ifdef ENABLE_GMP
+    template<>
+    inline bool MathArithmetic<GmpFloat>::isFinite(GmpFloat s)
+    {
+        return s.isfinite();
+    }
+    template<>
+    inline bool MathArithmetic<GmpRational>::isFinite(GmpRational s)
+    {
+        return s.isfinite();
+    }
+#endif
+#ifdef ENABLE_MPFR
+    template<>
+    inline bool MathArithmetic<Mpfr>::isFinite(Mpfr s)
+    {
+        return s.isfinite();
     }
 #endif
 

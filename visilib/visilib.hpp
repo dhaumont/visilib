@@ -25,6 +25,10 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include "geometry_convex_polygon.h"
 #include "geometry_occluder_set.h"
 
+#ifdef ENABLE_GMP
+#include <gmp.h>
+#endif
+
 using namespace visilib;
 
 inline VisibilityResult visilib::areVisible(GeometryOccluderSet* scene, const float* vertices0, size_t numVertices0, const float* vertices1, size_t numVertices1,
@@ -51,10 +55,23 @@ inline VisibilityResult visilib::areVisible(GeometryOccluderSet* scene, const fl
 
     switch (configuration.precision)
     {
-#ifdef EXACT_ARITHMETIC
+#ifdef ENABLE_CGAL_LEDA
     case VisibilityExactQueryConfiguration::EXACT:
         exact tolerance = configuration.tolerance == -1 ?  MathArithmetic<exact>::Tolerance() : configuration.tolerance;
         query = new VisibilityExactQuery_<MathPlucker6<exact>, exact>(scene, configuration, MathArithmetic<exact>::Tolerance());
+        break;
+#endif
+#ifdef ENABLE_GMP
+    case VisibilityExactQueryConfiguration::GMP_FLOAT:
+        query = new VisibilityExactQuery_<MathPlucker6<GmpFloat>, GmpFloat>(scene, configuration, MathArithmetic<GmpFloat>::Tolerance());
+        break;
+    case VisibilityExactQueryConfiguration::GMP_RATIONAL:
+        query = new VisibilityExactQuery_<MathPlucker6<GmpRational>, GmpRational>(scene, configuration, MathArithmetic<GmpRational>::Tolerance());
+        break;
+#endif
+#ifdef ENABLE_MPFR
+    case VisibilityExactQueryConfiguration::MPFR:
+        query = new VisibilityExactQuery_<MathPlucker6<Mpfr>, Mpfr>(scene, configuration, MathArithmetic<Mpfr>::Tolerance());
         break;
 #endif
     case VisibilityExactQueryConfiguration::DOUBLE:

@@ -46,6 +46,10 @@ set(MathSrc
     math_vector_2.h
     math_vector_3.h
     math_plane_3.h
+	math_gmp_float.h
+	math_gmp_rational.h
+	math_real_expr.h
+	math_mpfr.h
     )
 
 set(PluckerSrc
@@ -90,7 +94,7 @@ source_group( external FILES ${ConvexHullSrc} )
 source_group( include FILES ${Headers} )
 source_group( src FILES ${Sources} )
 
-add_library( ${VISILIB_LIB_NAME} INTERFACE
+add_library( ${VISILIB_LIB_NAME} STATIC
     ${GeometrySrc}
     ${GeometryHeader}
     ${HelperSrc}

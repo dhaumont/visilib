@@ -20,7 +20,7 @@
 # top-level CMakeLists.txt
 # !! To be run from 'cmakeout' subdirectory !!
 
-cmake_minimum_required (VERSION 3.1 FATAL_ERROR)
+cmake_minimum_required (VERSION 3.24.2 FATAL_ERROR)
 
 set( VISILIB_LIB_NAME "visilib" )
 set( VISILIB_DEMO_NAME "visilibDemo" )
@@ -40,8 +40,19 @@ endif()
 #Set USE_EMBREE flag to True to enable fast raytracing using Intel Embree library (default: false)
 set (USE_EMBREE False)
 
-#Set USE_EXACT_ARITHMETIC flag to True to enable exact arithmetic computation with CGAL library (default:false) 
-set (USE_EXACT_ARITHMETIC False)
+#Set USE_ENABLE_CGAL_LEDA flag to True to enable exact arithmetic computation with CGAL library (default:false) 
+set (USE_ENABLE_CGAL_LEDA False)
+
+add_definitions(-DENABLE_GMP)
+include_directories("E:/External/gmp/dist/include")
+link_directories("E:/External/gmp/dist/lib")
+set(LIBS ${LIBS} libgmpd-13.lib libgmpxxd-9.lib)
+
+
+add_definitions(-DENABLE_MPFR)
+include_directories("E:/External/vcpkg/packages/mpfr_x64-windows/include")
+link_directories("E:/External/vcpkg/packages/mpfr_x64-windows/lib")
+set(LIBS ${LIBS} MPFR.lib)
 
 #Comment the following line to disable the sanity integrity checks performed during computations in debug mode (default: checks are activated)
 add_definitions(-DINTEGRITY_CHECK)
@@ -65,7 +76,7 @@ else()
 endif()
 
 #optional usage of CGAL library
-if (USE_EXACT_ARITHMETIC)
+if (USE_ENABLE_CGAL_LEDA)
     #CGAL library
     find_package(CGAL)
     if (CGAL_FOUND)
@@ -88,7 +99,7 @@ if (USE_EXACT_ARITHMETIC)
     endif()
 
     if (Boost_FOUND AND LEDA_FOUND AND CGAL_FOUND)
-        add_definitions(-DEXACT_ARITHMETIC)
+        add_definitions(-DENABLE_CGAL_LEDA)
         add_definitions(-DLEDA_DLL)
         add_definitions(-DCGAL_USE_LEDA)
     endif()

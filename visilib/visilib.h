@@ -38,8 +38,15 @@ namespace visilib
         {
             FLOAT,       /**< @brief Single floating point aritmetic*/
             DOUBLE       /**< @brief Double floating point aritmetic*/
-#ifdef EXACT_ARITHMETIC
+#ifdef ENABLE_CGAL_LEDA
             , EXACT      /**< @brief Exact arithmetic (based on CGAL and LEDA)*/
+#endif
+#ifdef ENABLE_GMP
+            , GMP_FLOAT     /**< @brief Extended precision arithmetic (based on GMP) */
+            , GMP_RATIONAL  /**< @brief Rational arithmetic (based on GMP) */
+#endif
+#ifdef ENABLE_MPFR
+            , MPFR
 #endif
         };
 
