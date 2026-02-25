@@ -1,6 +1,4 @@
 #pragma once
-#ifndef _MATH_MPFR_H_
-#define _MATH_MPFR_H_
 
 #include <mpfr.h>
 
@@ -153,4 +151,3 @@ inline double to_double(const Mpfr& rhs)
     return mpfr_get_d(rhs.v, MPFR_RNDN);
 }
 
-#endif // _MATH_MPFR_H_

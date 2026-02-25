@@ -1,6 +1,4 @@
 #pragma once
-#ifndef _MATH_GMP_RATIONAL_H_
-#define _MATH_GMP_RATIONAL_H_
 
 #include <gmp.h>
 struct GmpRational;
@@ -149,4 +147,3 @@ inline double to_double(const GmpRational& rhs)
     return mpq_get_d(rhs.v);
 }
 
-#endif _MATH_GMP_RATIONAL_H_

@@ -1,6 +1,4 @@
 #pragma once
-#ifndef _MATH_GMP_FLOAT_H_
-#define _MATH_GMP_FLOAT_H_
 
 #include <gmp.h>
 struct GmpFloat;
@@ -148,5 +146,3 @@ inline double to_double(const GmpFloat& rhs)
 {
     return mpf_get_d(rhs.v);
 }
-
-#endif _MATH_GMP_FLOAT_H_
