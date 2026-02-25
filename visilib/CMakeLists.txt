@@ -46,10 +46,9 @@ set(MathSrc
     math_vector_2.h
     math_vector_3.h
     math_plane_3.h
-	math_gmp_float.h
-	math_gmp_rational.h
-	math_real_expr.h
-	math_mpfr.h
+    math_gmp_float.h
+    math_gmp_rational.h
+    math_mpfr.h
     )
 
 set(PluckerSrc
