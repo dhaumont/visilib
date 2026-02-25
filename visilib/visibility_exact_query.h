@@ -288,7 +288,7 @@ namespace visilib
     template<class P, class S>
     VisibilityResult VisibilityExactQuery_<P, S>::arePolygonsVisible(const float* vertices0, size_t numVertices0, const float* vertices1, size_t numVertices1)
     {
-        VisibilityResult result;
+        VisibilityResult result = UNKNOWN;
 
         HelperScopedTimer timer(&mStatistic, VISIBILITY_QUERY);
 
