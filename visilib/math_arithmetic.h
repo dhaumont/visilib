@@ -21,6 +21,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #pragma once
 
 #include <vector>
+#include <limits>
 #include <math.h>
 #include <float.h>
 
@@ -62,13 +63,20 @@ namespace visilib
         /** @brief Tolerance value when clipping a polygon.*/
         static S GuardBandClipping();
 
+        static inline int bitsCount();
+
+        static inline int validDecimalsCount();
         /** @brief Test is a point is finite (not a NaN).*/
         static bool isFinite(S a);
 
         /** @brief Test is a vector is finite (not containing NaN).*/
         static bool isFinite(MathVector3_<S> a);
     };
-
+    template <> inline int MathArithmetic<double>::validDecimalsCount()  { return std::numeric_limits<double>::digits10 + 1; }
+    template <> inline int MathArithmetic<float>::validDecimalsCount()  { return std::numeric_limits<float>::digits10 + 1; }
+#ifdef ENABLE_MPFR
+    template <> inline int MathArithmetic<Mpfr>::validDecimalsCount()  { return 200; }
+#endif
     template<> inline double MathArithmetic<double>::Tolerance() { return  1e-11; }
     template<> inline float MathArithmetic<float>::Tolerance() { return 1e-6f; }
 #ifdef ENABLE_CGAL_LEDA
@@ -79,13 +87,27 @@ namespace visilib
     template<> inline GmpRational MathArithmetic<GmpRational>::Tolerance() { return  GmpRational::tolerance(); }
 #endif
 #ifdef ENABLE_MPFR
-    template<> inline Mpfr MathArithmetic<Mpfr>::Tolerance() { return  Mpfr::tolerance(); }
+    template<> inline Mpfr MathArithmetic<Mpfr>::Tolerance() 
+    {
+       int basis(10.0);
+       int precision(MathArithmetic<Mpfr>::validDecimalsCount()-1);
+       return pow(basis, -precision);
+    }
 #endif
     template<> inline double MathArithmetic<double>::GuardBandClipping() { return 1e-12; };
     template<> inline float MathArithmetic<float>::GuardBandClipping() { return 1e-6f; };
 
     template<> inline double MathArithmetic<double>::getAbs(double s);
     template<> inline float MathArithmetic<float>::getAbs(float s);
+
+    template <> inline int MathArithmetic<double>::bitsCount()  { return 64; }
+    template <> inline int MathArithmetic<float>::bitsCount()  { return 32; }
+#ifdef ENABLE_MPFR
+    template <> inline int MathArithmetic<Mpfr>::bitsCount()
+    {
+      return Mpfr::digits2bits(MathArithmetic<Mpfr>::validDecimalsCount());
+    }
+#endif
 
 #ifdef ENABLE_CGAL_LEDA
     template<> exact MathArithmetic<exact>::getAbs(exact s);

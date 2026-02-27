@@ -1,7 +1,7 @@
 #pragma once
 
 #include <mpfr.h>
-
+#include <cmath>
 struct Mpfr;
 
 inline std::ostream& operator<< (std::ostream& stream, const Mpfr& val);
@@ -99,9 +99,6 @@ struct Mpfr {
         mpfr_sqrt(tmp.v, v, MPFR_RNDN);
         return tmp;
     }
-    static Mpfr tolerance() {
-        return Mpfr(1e-64);
-    }
     inline bool isZero() const {
         return mpfr_zero_p(v);
     }
@@ -127,6 +124,13 @@ struct Mpfr {
     {
         mpfr_set_default_rounding_mode(rnd_mode);
     }
+
+    inline static mp_prec_t digits2bits(int d)
+    {
+        const double LOG2_10 = 3.3219280948873624;
+        return mp_prec_t(std::ceil( d * LOG2_10 ));
+    }
+
 };
 
 inline Mpfr sqrt(const Mpfr & x)

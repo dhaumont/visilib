@@ -98,9 +98,6 @@ struct GmpFloat {
         mpf_sqrt(tmp.v, v);
         return tmp;
     }
-    static GmpFloat tolerance() {
-        return GmpFloat(1e-11);
-    }
     inline bool isInfinite() const {
         return false;
     }

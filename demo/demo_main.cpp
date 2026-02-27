@@ -104,6 +104,10 @@ namespace visilibDemo
 #if EMBREE
             config.useEmbree = mDemoConfiguration.embree;
 #endif
+#if USE_MPFR
+            MPfr::set_default_precision(ExactArithnetric<Mpfr>::bitsCount());
+#endif
+
             result = visilib::areVisible(occluderSet, &v0[0], v0.size() / 3, &v1[0], v1.size() / 3, config, debugger);
         }
 

@@ -98,9 +98,6 @@ struct GmpRational {
         mpq_set_d(tmp.v, std::sqrt(mpq_get_d(v)));
         return tmp;
     }
-    static GmpRational tolerance() {
-        return GmpRational(1e-11);
-    }
     inline bool isInfinite() const {
         return false;
     }

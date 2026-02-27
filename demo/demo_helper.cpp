@@ -21,6 +21,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include <math.h>
 #include "demo_helper.h"
 #include "math_vector_3.h"
+#include "math_arithmetic.h"
 #include "helper_triangle_mesh_container.h"
 #include "helper_geometry_scene_reader.h"
 #include "helper_synthetic_mesh_builder.h"
@@ -304,7 +305,7 @@ const std::string DemoConfiguration::toStr(VisibilityExactQueryConfiguration::Pr
 #endif
 #ifdef ENABLE_MPFR
     case VisibilityExactQueryConfiguration::MPFR:
-        return "MPFR ";
+        return "MPFR " + std::to_string(MathArithmetic<Mpfr>::bitsCount());
 #endif
     default:
         return "UNKNOWN";

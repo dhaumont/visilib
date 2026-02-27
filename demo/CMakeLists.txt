@@ -32,8 +32,6 @@ add_executable( ${VISILIB_DEMO_NAME}  ${Src})
 target_link_libraries(${VISILIB_DEMO_NAME} ${LIBS} )
 
 if (USE_MPFR)
-  #add_definitions(-DENABLE_MPFR)
   target_link_libraries (${VISILIB_DEMO_NAME} mpfr)
-    # set(LIBS ${LIBS} mpfr)
 endif()
 
