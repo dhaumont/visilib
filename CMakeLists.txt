@@ -42,18 +42,22 @@ set (USE_EMBREE False)
 
 #Set USE_ENABLE_CGAL_LEDA flag to True to enable exact arithmetic computation with CGAL library (default:false) 
 set (USE_ENABLE_CGAL_LEDA False)
+set (USE_GMP False)
+set (USE_MFPR False)
 
-add_definitions(-DENABLE_GMP)
-include_directories("E:/External/gmp/dist/include")
-link_directories("E:/External/gmp/dist/lib")
-set(LIBS ${LIBS} libgmpd-13.lib libgmpxxd-9.lib)
+if (USE_GMP)
+   add_definitions(-DENABLE_GMP)
+   include_directories("E:/External/gmp/dist/include")
+   link_directories("E:/External/gmp/dist/lib")
+   set(LIBS ${LIBS} libgmpd-13.lib libgmpxxd-9.lib)
+endif()
 
-
-add_definitions(-DENABLE_MPFR)
-include_directories("E:/External/vcpkg/packages/mpfr_x64-windows/include")
-link_directories("E:/External/vcpkg/packages/mpfr_x64-windows/lib")
-set(LIBS ${LIBS} MPFR.lib)
-
+if (USE_MPFR)
+    add_definitions(-DENABLE_MPFR)
+    include_directories("E:/External/vcpkg/packages/mpfr_x64-windows/include")
+    link_directories("E:/External/vcpkg/packages/mpfr_x64-windows/lib")
+    set(LIBS ${LIBS} MPFR.lib)
+endif()
 #Comment the following line to disable the sanity integrity checks performed during computations in debug mode (default: checks are activated)
 add_definitions(-DINTEGRITY_CHECK)
 
