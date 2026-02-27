@@ -50,6 +50,7 @@ namespace visilibDemo
         void readConfig(const std::string& filename);
         void writeConfig(const std::string& filename);
         void displaySummary();
+        static const std::string toStr(VisibilityExactQueryConfiguration::PrecisionType p);
     };
 
     class DemoHelper
