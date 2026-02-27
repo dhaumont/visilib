@@ -14,7 +14,7 @@ struct Mpfr {
     mpfr_t v;
     void init()
     {
-        mpfr_init2(v, 256);
+        mpfr_init2(v, get_default_precision());
     }
     inline void copy(const Mpfr& rhs)
     {
@@ -110,6 +110,22 @@ struct Mpfr {
     }
     inline bool isfinite() const {
         return !isInfinite();
+    }
+    inline static mp_rnd_t get_default_rounding_mode()
+    {
+       return (mp_rnd_t)(mpfr_get_default_rounding_mode());
+    }
+    inline static mp_prec_t get_default_precision()
+    {
+      return mpfr_get_default_prec();
+    }
+    inline static void set_default_precision(mp_prec_t prec)
+    {
+        mpfr_set_default_prec(prec);
+    }
+    inline static void set_default_rounding_mode(mp_rnd_t rnd_mode)
+    {
+        mpfr_set_default_rounding_mode(rnd_mode);
     }
 };
 

@@ -33,6 +33,10 @@ add_executable(visilibTest ${Tests})
 
 target_link_libraries(visilibTest ${LIBS})
 
+if (USE_MPFR)
+  target_link_libraries (visilibTest mpfr)
+endif()
+
 #add_test(NAME stc_test_math COMMAND ${KIT}CxxTests stc_test_math})
 add_test(NAME visilibTest COMMAND visilibTest)
 

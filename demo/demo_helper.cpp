@@ -227,9 +227,9 @@ void DemoConfiguration::displaySettings()
 
     std::cout << "  [Early stop: " << getStatusString(detectApertureOnly) << "]";
     std::cout << "[Silhouette: " << getStatusString(silhouetteOptimisation) << "]";
-    std::cout << "[Normalization: " << getStatusString(normalization) << "]" << std::endl;
+    std::cout << "[Normalization: " << getStatusString(normalization) << "]";
 
-    std::cout << "  [Arithmetic: " << toStr(precisionType) << "]";
+    std::cout << "  [Arithmetic: " << toStr(precisionType) << "]" << std::endl;
 #if EMBREE
     std::cout << "[Embree:" << getStatusString(embree) << "]" << std::endl;
 #endif
@@ -301,6 +301,10 @@ const std::string DemoConfiguration::toStr(VisibilityExactQueryConfiguration::Pr
         return "GMP_FLOAT";
     case VisibilityExactQueryConfiguration::GMP_RATIONAL:
         return "GMP_RATIONAL";
+#endif
+#ifdef ENABLE_MPFR
+    case VisibilityExactQueryConfiguration::MPFR:
+        return "MPFR ";
 #endif
     default:
         return "UNKNOWN";

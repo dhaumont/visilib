@@ -40,10 +40,10 @@ endif()
 #Set USE_EMBREE flag to True to enable fast raytracing using Intel Embree library (default: false)
 set (USE_EMBREE False)
 
-#Set USE_ENABLE_CGAL_LEDA flag to True to enable exact arithmetic computation with CGAL library (default:false) 
+#Set USE_ENABLE_CGAL_LEDA flag to True to enable exact arithmetic computation with CGAL library (default:false)
 set (USE_ENABLE_CGAL_LEDA False)
 set (USE_GMP False)
-set (USE_MFPR False)
+set (USE_MPFR True)
 
 if (USE_GMP)
    add_definitions(-DENABLE_GMP)
@@ -51,12 +51,8 @@ if (USE_GMP)
    link_directories("E:/External/gmp/dist/lib")
    set(LIBS ${LIBS} libgmpd-13.lib libgmpxxd-9.lib)
 endif()
-
 if (USE_MPFR)
-    add_definitions(-DENABLE_MPFR)
-    include_directories("E:/External/vcpkg/packages/mpfr_x64-windows/include")
-    link_directories("E:/External/vcpkg/packages/mpfr_x64-windows/lib")
-    set(LIBS ${LIBS} MPFR.lib)
+  add_definitions(-DENABLE_MPFR)
 endif()
 #Comment the following line to disable the sanity integrity checks performed during computations in debug mode (default: checks are activated)
 add_definitions(-DINTEGRITY_CHECK)
@@ -124,8 +120,8 @@ if(NOT WIN32)
     include_directories(${OpenGL_INCLUDE_DIRS})
     link_directories(${OpenGL_LIBRARY_DIRS})
     add_definitions(${OpenGL_DEFINITIONS})
-   
-   
+
+
     set(LIBS ${LIBS} ${OPENGL_LIBRARIES})
     if(NOT OPENGL_FOUND)
         message(ERROR " OPENGL not found!")

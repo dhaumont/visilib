@@ -275,9 +275,9 @@ namespace visilibDemo
                 break;
 
 
-#ifdef ENABLE_CGAL_LEDA
+#ifdef ENABLE_MPFR
             case 'e':
-                mDemoConfiguration.precisionType = mDemoConfiguration.precisionType == VisibilityExactQueryConfiguration::DOUBLE ? VisibilityExactQueryConfiguration::EXACT : VisibilityExactQueryConfiguration::DOUBLE;
+                mDemoConfiguration.precisionType = mDemoConfiguration.precisionType == VisibilityExactQueryConfiguration::DOUBLE ? VisibilityExactQueryConfiguration::MPFR : VisibilityExactQueryConfiguration::DOUBLE;
                 forceDisplay = true;
 #endif
                 break;
