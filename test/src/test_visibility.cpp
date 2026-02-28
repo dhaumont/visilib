@@ -55,7 +55,7 @@ bool VisibilityTest(std::string& )
 {
     std::vector<VisibilityExactQueryConfiguration::PrecisionType> precisions = { VisibilityExactQueryConfiguration::DOUBLE };
 #ifdef ENABLE_CGAL_LEDA
-    precisions.push_back(VisibilityExactQueryConfiguration::EXACT);
+    precisions.push_back(VisibilityExactQueryConfiguration::CGAL_LEDA);
 #endif
 #ifdef ENABLE_GMP
     precisions.push_back(VisibilityExactQueryConfiguration::GMP_FLOAT);

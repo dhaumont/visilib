@@ -40,8 +40,8 @@ endif()
 #Set USE_EMBREE flag to True to enable fast raytracing using Intel Embree library (default: false)
 set (USE_EMBREE False)
 
-#Set USE_ENABLE_CGAL_LEDA flag to True to enable exact arithmetic computation with CGAL library (default:false)
-set (USE_ENABLE_CGAL_LEDA False)
+#Set USE_CGAL_LEDA flag to True to enable exact arithmetic computation with CGAL library (default:false)
+set (USE_CGAL_LEDA True)
 set (USE_GMP True)
 set (USE_MPFR True)
 
@@ -73,7 +73,7 @@ else()
 endif()
 
 #optional usage of CGAL library
-if (USE_ENABLE_CGAL_LEDA)
+if (USE_CGAL_LEDA)
     #CGAL library
     find_package(CGAL)
     if (CGAL_FOUND)

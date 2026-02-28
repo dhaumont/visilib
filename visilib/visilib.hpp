@@ -56,7 +56,7 @@ inline VisibilityResult visilib::areVisible(GeometryOccluderSet* scene, const fl
     switch (configuration.precision)
     {
 #ifdef ENABLE_CGAL_LEDA
-    case VisibilityExactQueryConfiguration::EXACT:
+    case VisibilityExactQueryConfiguration::CGAL_LEDA
         exact tolerance = configuration.tolerance == -1 ?  MathArithmeticMathCgalLeda::Tolerance() : configuration.tolerance;
         query = new VisibilityExactQuery_<MathPlucker6MathCgalLeda, exact>(scene, configuration, MathArithmeticMathCgalLeda::Tolerance());
         break;

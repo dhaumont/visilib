@@ -39,7 +39,7 @@ namespace visilib
             FLOAT,       /**< @brief Single floating point aritmetic*/
             DOUBLE       /**< @brief Double floating point aritmetic*/
 #ifdef ENABLE_CGAL_LEDA
-            , EXACT      /**< @brief Exact arithmetic (based on CGAL and LEDA)*/
+            , CGAL_LEDA      /**< @brief Exact arithmetic (based on CGAL and LEDA)*/
 #endif
 #ifdef ENABLE_GMP
             , GMP_FLOAT     /**< @brief Extended precision arithmetic (based on GMP) */
