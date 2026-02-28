@@ -122,11 +122,6 @@ struct MathGmpFloat {
 
 };
 
-inline MathGmpFloat sqrt(const MathGmpFloat & x)
-{
-    return x.sqrt();
-}
-
 inline std::ostream& operator<< (std::ostream& stream, const MathGmpFloat& val)
 {
     return stream << mpf_get_d(val.v);

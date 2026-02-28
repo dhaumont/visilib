@@ -244,7 +244,7 @@ namespace visilib
     template<>
     inline MathMpfr MathArithmetic<MathMpfr>::getSqrt(MathMpfr s)
     {
-        return sqrt(s);
+        return s.sqrt();
     }
 #endif
 

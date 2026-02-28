@@ -351,14 +351,14 @@ namespace visilib
         if (eta >= tolerance || gamma >= tolerance)
         {
             V_ASSERT(MathArithmetic<S>::getAbs(sum2) > tolerance);
-            S div = 1.f / (sum2);
+            S div = S(1) / (sum2);
             alpha = gamma * div;
             beta = sum * div;
         }
 
         else
         {
-            alpha = beta = 0.5f;
+            alpha = beta = S(0.5);
         }
 
         myVector1 *= alpha;
@@ -388,9 +388,9 @@ namespace visilib
 
 #ifdef ENABLE_CGAL_LEDA
     template<>
-    inline bool MathGeometry::findPluckerEdgeWithQuadricIntersection<MathPlucker6MathCgalLeda, exact>(const MathPlucker6MathCgalLeda & v1, const MathPlucker6MathCgalLeda & v2, GeometryPositionType p1, GeometryPositionType p2, std::vector<MathPlucker6MathCgalLeda > & result, exact tolerance)
+    inline bool MathGeometry::findPluckerEdgeWithQuadricIntersection<MatPlucker6<MathCgalLeda>, MathCgalLeda>(const MatPlucker6<MathCgalLeda> & v1, const MatPlucker6<MathCgalLeda> & v2, GeometryPositionType p1, GeometryPositionType p2, std::vector<MatPlucker6<MathCgalLeda> > & result, MathCgalLeda tolerance)
     {
-        return findPluckerEdgeWithQuadricIntersection<MathPlucker6MathCgalLeda, exact>(v1, v2, p1, p2, result, false, tolerance);
+        return findPluckerEdgeWithQuadricIntersection<MatPlucker6<MathCgalLeda>, MathCgalLeda>(v1, v2, p1, p2, result, true, tolerance);
     }
 
 #endif
@@ -399,13 +399,13 @@ namespace visilib
     template<>
     inline bool MathGeometry::findPluckerEdgeWithQuadricIntersection<MathPlucker6<MathGmpFloat>, MathGmpFloat>(const MathPlucker6<MathGmpFloat>& v1, const MathPlucker6<MathGmpFloat>& v2, GeometryPositionType p1, GeometryPositionType p2, std::vector<MathPlucker6<MathGmpFloat>>& result, const MathGmpFloat & tolerance)
     {
-        return findPluckerEdgeWithQuadricIntersection<MathPlucker6<MathGmpFloat>, MathGmpFloat>(v1, v2, p1, p2, result, false, tolerance);
+        return findPluckerEdgeWithQuadricIntersection<MathPlucker6<MathGmpFloat>, MathGmpFloat>(v1, v2, p1, p2, result, true, tolerance);
     }
 
     template<>
     inline bool MathGeometry::findPluckerEdgeWithQuadricIntersection<MathPlucker6<MathGmpRational>, MathGmpRational>(const MathPlucker6<MathGmpRational>& v1, const MathPlucker6<MathGmpRational>& v2, GeometryPositionType p1, GeometryPositionType p2, std::vector<MathPlucker6<MathGmpRational>>& result, const MathGmpRational & tolerance)
     {
-        return findPluckerEdgeWithQuadricIntersection<MathPlucker6<MathGmpRational>, MathGmpRational>(v1, v2, p1, p2, result, false, tolerance);
+        return findPluckerEdgeWithQuadricIntersection<MathPlucker6<MathGmpRational>, MathGmpRational>(v1, v2, p1, p2, result, true, tolerance);
     }
 #endif
 
@@ -413,7 +413,7 @@ namespace visilib
     template<>
     inline bool MathGeometry::findPluckerEdgeWithQuadricIntersection<MathPlucker6<MathMpfr>, MathMpfr>(const MathPlucker6<MathMpfr>& v1, const MathPlucker6<MathMpfr>& v2, GeometryPositionType p1, GeometryPositionType p2, std::vector<MathPlucker6<MathMpfr>>& result, const MathMpfr & tolerance)
     {
-        return findPluckerEdgeWithQuadricIntersection<MathPlucker6<MathMpfr>, MathMpfr>(v1, v2, p1, p2, result, false, tolerance);
+        return findPluckerEdgeWithQuadricIntersection<MathPlucker6<MathMpfr>, MathMpfr>(v1, v2, p1, p2, result, true, tolerance);
     }
 #endif
 
@@ -495,7 +495,7 @@ namespace visilib
                     // Newton - Raphson iteration scheme : xn + 1 = xn - f(xn) / f'(xn)
                     //f (t)	 = a t*t + 2 b t + c
                     //f'(t)  = 2 at + 2b
-                    const double toleranceLocal = 1e-18;
+                    const S toleranceLocal(1e-18);
                     while (MathArithmetic<S>::getAbs(fxn) >= toleranceLocal && iter < 20)
                     {
                         at = a * t;

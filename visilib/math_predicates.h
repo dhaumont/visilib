@@ -37,9 +37,6 @@ namespace visilib
     class MathPredicates
     {
     public:
-        template <class P, class S> static bool                 isZero(const P& point, S epsilon);
-        template <class P>          static bool                 isZero(const P& point);
-        template <class S>          static bool                 isZero(S scalar, S epsilon);
         template <class P>          static bool                 isPointOnQuadric(const P& point);
         template <class P, class S> static bool                 isEdgeCollapsed(const P& a, const P& b, S tolerance);
         template <class P, class S> static bool                 isNormalized(const P& point, S tolerance);
@@ -62,7 +59,9 @@ namespace visilib
     template <class P, class S>
     inline bool MathPredicates::isEdgeCollapsed(const P& a, const P& b, S tolerance)
     {
-        return isZero(a - b, tolerance);
+      P difference(a);
+      difference -= b;
+      return difference.isZero(tolerance);
     }
 
     template <class P, class S>
@@ -138,105 +137,6 @@ namespace visilib
 
         return true;
     }
-
-    template <>
-    inline bool MathPredicates::isZero(const MathPlucker6<double> & a, double epsilon)
-    {
-        return a.getDirection().isZero(epsilon) && a.getLocation().isZero(epsilon);
-    }
-
-    template <>
-    inline bool MathPredicates::isZero(const MathPlucker6<float> & a, float epsilon)
-    {
-        return a.getDirection().isZero(epsilon) && a.getLocation().isZero(epsilon);
-    }
-
-    template <>
-    inline bool MathPredicates::isZero(const MathPlucker2<double> & a, double epsilon)
-    {
-        return a.getDirection().isZero(epsilon) && MathArithmetic<double>::getAbs(a.getLocation()) <= epsilon;
-    }
-
-    template <class P>
-    inline bool MathPredicates::isZero(const P & a)
-    {
-        return a.getDirection().isZero() && a.getLocation().isZero();
-    }
-
-#ifdef ENABLE_CGAL_LEDA
-    template <>
-    inline bool MathPredicates::isZero(const MathPlucker6MathCgalLeda & a, MathCgalLeda epsilon)
-    {
-        return a.getDirection().isZero(epsilon) && a.getLocation().isZero(epsilon);
-    }
-#endif
-
-#ifdef ENABLE_GMP
-    template <>
-    inline bool MathPredicates::isZero(const MathPlucker6<MathGmpFloat>& a, MathGmpFloat epsilon)
-    {
-        return a.getDirection().isZero(epsilon) && a.getLocation().isZero(epsilon);
-    }
-    template <>
-    inline bool MathPredicates::isZero(const MathPlucker6<MathGmpRational>& a, MathGmpRational epsilon)
-    {
-        return a.getDirection().isZero(epsilon) && a.getLocation().isZero(epsilon);
-    }
-#endif
-
-#ifdef ENABLE_MPFR
-    template <>
-    inline bool MathPredicates::isZero(const MathPlucker6<MathMpfr>& a, MathMpfr epsilon)
-    {
-        return a.getDirection().isZero(epsilon) && a.getLocation().isZero(epsilon);
-    }
-#endif
-
-    template <>
-    inline bool MathPredicates::isZero(double scalar, double tolerance)
-    {
-        return MathArithmetic<double>::getAbs(scalar) <= tolerance;
-    }
-
-    template <>
-    inline bool MathPredicates::isZero(float scalar, float tolerance)
-    {
-        return MathArithmetic<float>::getAbs(scalar) <= tolerance;
-    }
-
-#ifdef ENABLE_CGAL_LEDA
-    template <>
-    inline bool MathPredicates::isZero(MathCgalLeda scalar, MathCgalLeda tolerance)
-    {
-        return CGAL::is_zero(scalar);
-    }
-#endif
-
-#ifdef ENABLE_GMP
-    template <>
-    inline bool MathPredicates::isZero(MathGmpFloat scalar, MathGmpFloat tolerance)
-    {
-        mpf_t a;
-        mpf_abs(a, scalar.v);
-        return mpf_cmp(a, tolerance.v) < 0;
-    }
-    template <>
-    inline bool MathPredicates::isZero(MathGmpRational scalar, MathGmpRational tolerance)
-    {
-        mpq_t a;
-        mpq_abs(a, scalar.v);
-        return mpq_cmp(a, tolerance.v) < 0;
-    }
-#endif
-
-#ifdef ENABLE_MPFR
-    template <>
-    inline bool MathPredicates::isZero(MathMpfr scalar, MathMpfr tolerance)
-    {
-        return scalar.isZero();
-    }
-#endif
-
     inline double to_double(double v)
     {
         return v;

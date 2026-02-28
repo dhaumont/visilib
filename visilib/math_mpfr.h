@@ -99,9 +99,6 @@ struct MathMpfr {
         mpfr_sqrt(tmp.v, v, MPFR_RNDN);
         return tmp;
     }
-    inline bool isZero() const {
-        return mpfr_zero_p(v);
-    }
     inline bool isInfinite() const {
         return mpfr_inf_p(v);
     }
@@ -132,11 +129,6 @@ struct MathMpfr {
     }
 
 };
-
-inline MathMpfr sqrt(const MathMpfr & x)
-{
-    return x.sqrt();
-}
 
 inline std::ostream& operator<< (std::ostream& stream, const MathMpfr& val)
 {

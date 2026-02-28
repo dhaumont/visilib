@@ -106,11 +106,6 @@ struct MathGmpRational {
     }
 };
 
-inline MathGmpRational sqrt(const MathGmpRational & x)
-{
-    return x.sqrt();
-}
-
 inline std::ostream& operator<< (std::ostream& stream, const MathGmpRational& val)
 {
     return stream << mpq_get_d(val.v);
