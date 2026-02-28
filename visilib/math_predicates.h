@@ -165,7 +165,7 @@ namespace visilib
 
 #ifdef ENABLE_CGAL_LEDA
     template <>
-    inline bool MathPredicates::isZero(const MathPlucker6MathCgalLeda & a, exact epsilon)
+    inline bool MathPredicates::isZero(const MathPlucker6MathCgalLeda & a, MathCgalLeda epsilon)
     {
         return a.getDirection().isZero(epsilon) && a.getLocation().isZero(epsilon);
     }
@@ -206,7 +206,7 @@ namespace visilib
 
 #ifdef ENABLE_CGAL_LEDA
     template <>
-    inline bool MathPredicates::isZero(exact scalar, exact tolerance)
+    inline bool MathPredicates::isZero(MathCgalLeda scalar, MathCgalLeda tolerance)
     {
         return CGAL::is_zero(scalar);
     }

@@ -84,7 +84,7 @@ namespace visilib
     template<> inline double MathArithmetic<double>::Tolerance() { return  1e-11; }
     template<> inline float MathArithmetic<float>::Tolerance() { return 1e-6f; }
 #ifdef ENABLE_CGAL_LEDA
-    template<> inline exact MathArithmeticMathCgalLeda::Tolerance() { return leda_real(1e-20); }
+    template<> inline MathCgalLeda MathArithmeticMathCgalLeda::Tolerance() { return leda_real(1e-20); }
 #endif
 #ifdef ENABLE_GMP
     template<> inline MathGmpFloat MathArithmetic<MathGmpFloat>::Tolerance()
@@ -128,7 +128,7 @@ namespace visilib
     }
 #endif
 #ifdef ENABLE_CGAL_LEDA
-    template<> exact MathArithmeticMathCgalLeda::getAbs(exact s);
+    template<> MathCgalLeda MathArithmeticMathCgalLeda::getAbs(MathCgalLeda s);
 #endif
 #ifdef ENABLE_GMP
     template<> inline MathGmpFloat MathArithmetic<MathGmpFloat>::getAbs(MathGmpFloat s);
@@ -142,7 +142,7 @@ namespace visilib
     template<> inline float MathArithmetic<float>::getSqrt(float s);
 
 #ifdef ENABLE_CGAL_LEDA
-    template<> exact MathArithmeticMathCgalLeda::getSqrt(exact s);
+    template<> MathCgalLeda MathArithmeticMathCgalLeda::getSqrt(MathCgalLeda s);
 #endif
 #ifdef ENABLE_GMP
     template<> inline MathGmpFloat MathArithmetic<MathGmpFloat>::getSqrt(MathGmpFloat  s);
@@ -156,7 +156,7 @@ namespace visilib
 
     template<> inline bool MathArithmetic<float>::isFinite(float s);
 #ifdef ENABLE_CGAL_LEDA
-    template<> inline bool MathArithmeticMathCgalLeda::isFinite(exact s);
+    template<> inline bool MathArithmeticMathCgalLeda::isFinite(MathCgalLeda s);
 #endif
 #ifdef ENABLE_GMP
     template<> inline bool MathArithmetic<MathGmpFloat>::isFinite(MathGmpFloat s);
@@ -180,7 +180,7 @@ namespace visilib
 
 #ifdef ENABLE_CGAL_LEDA
     template<>
-    inline exact MathArithmeticMathCgalLeda::getAbs(exact s)
+    inline MathCgalLeda MathArithmeticMathCgalLeda::getAbs(MathCgalLeda s)
     {
         return CGAL::abs(s);
     }
@@ -220,7 +220,7 @@ namespace visilib
 
 #ifdef ENABLE_CGAL_LEDA
     template<>
-    inline exact MathArithmeticMathCgalLeda::getSqrt(exact s)
+    inline MathCgalLeda MathArithmeticMathCgalLeda::getSqrt(MathCgalLeda s)
     {
         //return approximate_sqrt(s);0
         return CGAL::sqrt(s);
@@ -262,7 +262,7 @@ namespace visilib
 
 #ifdef ENABLE_CGAL_LEDA
     template<>
-    inline bool MathArithmeticMathCgalLeda::isFinite(exact s)
+    inline bool MathArithmeticMathCgalLeda::isFinite(MathCgalLeda s)
     {
         return CGAL::is_finite(s);
     }
