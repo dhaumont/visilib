@@ -41,7 +41,7 @@ endif()
 set (USE_EMBREE False)
 
 #Set USE_CGAL_LEDA flag to True to enable exact arithmetic computation with CGAL library (default:false)
-set (USE_CGAL_LEDA True)
+set (USE_CGAL_LEDA False)
 set (USE_GMP True)
 set (USE_MPFR True)
 
