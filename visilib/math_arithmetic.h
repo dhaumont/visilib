@@ -77,17 +77,26 @@ namespace visilib
 #ifdef ENABLE_MPFR
     template <> inline int MathArithmetic<Mpfr>::validDecimalsCount()  { return 200; }
 #endif
+#ifdef ENABLE_GMP
+    template <> inline int MathArithmetic<GmpFloat>::validDecimalsCount()  { return 200; }
+#endif
+
     template<> inline double MathArithmetic<double>::Tolerance() { return  1e-11; }
     template<> inline float MathArithmetic<float>::Tolerance() { return 1e-6f; }
 #ifdef ENABLE_CGAL_LEDA
     template<> inline exact MathArithmetic<exact>::Tolerance() { return leda_real(1e-20); }
 #endif
 #ifdef ENABLE_GMP
-    template<> inline GmpFloat MathArithmetic<GmpFloat>::Tolerance() { return  GmpFloat::tolerance();  }
-    template<> inline GmpRational MathArithmetic<GmpRational>::Tolerance() { return  GmpRational::tolerance(); }
+    template<> inline GmpFloat MathArithmetic<GmpFloat>::Tolerance()
+    {
+       int basis(10.0);
+       int precision(MathArithmetic<GmpFloat>::validDecimalsCount()-1);
+       return pow(basis, -precision);
+    }
+    template<> inline GmpRational MathArithmetic<GmpRational>::Tolerance() { return  GmpRational(); }
 #endif
 #ifdef ENABLE_MPFR
-    template<> inline Mpfr MathArithmetic<Mpfr>::Tolerance() 
+    template<> inline Mpfr MathArithmetic<Mpfr>::Tolerance()
     {
        int basis(10.0);
        int precision(MathArithmetic<Mpfr>::validDecimalsCount()-1);
@@ -108,13 +117,22 @@ namespace visilib
       return Mpfr::digits2bits(MathArithmetic<Mpfr>::validDecimalsCount());
     }
 #endif
-
+#ifdef ENABLE_GMP
+    template <> inline int MathArithmetic<GmpFloat>::bitsCount()
+    {
+      return GmpFloat::digits2bits(MathArithmetic<GmpFloat>::validDecimalsCount());
+    }
+    template <> inline int MathArithmetic<GmpRational>::bitsCount()
+    {
+      return 0;
+    }
+#endif
 #ifdef ENABLE_CGAL_LEDA
     template<> exact MathArithmetic<exact>::getAbs(exact s);
 #endif
 #ifdef ENABLE_GMP
-    template<> inline GmpFloat MathArithmetic<GmpFloat>::getAbs(GmpFloat  s);
-    template<> inline GmpRational MathArithmetic<GmpRational>::getAbs(GmpRational  s);
+    template<> inline GmpFloat MathArithmetic<GmpFloat>::getAbs(GmpFloat s);
+    template<> inline GmpRational MathArithmetic<GmpRational>::getAbs(GmpRational s);
 #endif
 #ifdef ENABLE_MPFR
     template<> inline Mpfr MathArithmetic<Mpfr>::getAbs(Mpfr  s);

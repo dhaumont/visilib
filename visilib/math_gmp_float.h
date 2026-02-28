@@ -1,6 +1,7 @@
 #pragma once
 
 #include <gmp.h>
+#include <cmath>
 struct GmpFloat;
 
 inline std::ostream& operator<< (std::ostream& stream, const GmpFloat& val);
@@ -104,6 +105,21 @@ struct GmpFloat {
     inline bool isfinite() const {
         return !isInfinite();
     }
+    inline static mp_bitcnt_t get_default_precision()
+    {
+      return mpf_get_default_prec();
+    }
+    inline static void set_default_precision(mp_bitcnt_t prec)
+    {
+        mpf_set_default_prec(prec);
+    }
+
+    inline static mp_bitcnt_t digits2bits(int d)
+    {
+        const double LOG2_10 = 3.3219280948873624;
+        return mp_bitcnt_t(std::ceil( d * LOG2_10 ));
+    }
+
 };
 
 inline GmpFloat sqrt(const GmpFloat & x)

@@ -35,3 +35,7 @@ if (USE_MPFR)
   target_link_libraries (${VISILIB_DEMO_NAME} mpfr)
 endif()
 
+if (USE_GMP)
+  target_link_libraries (${VISILIB_DEMO_NAME} gmp)
+endif()
+

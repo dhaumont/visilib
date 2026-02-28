@@ -48,6 +48,7 @@ namespace visilib
 #ifdef ENABLE_MPFR
             , MPFR
 #endif
+            , COUNT
         };
 
         VisibilityExactQueryConfiguration()

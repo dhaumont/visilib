@@ -290,18 +290,19 @@ const std::string DemoConfiguration::toStr(VisibilityExactQueryConfiguration::Pr
 {
     switch (p) {
     case VisibilityExactQueryConfiguration::FLOAT:
-        return "FLOAT";
+        return "FLOAT " + std::to_string(MathArithmetic<float>::bitsCount());;
     case VisibilityExactQueryConfiguration::DOUBLE:
-        return "DOUBLE";
+        return "DOUBLE " + std::to_string(MathArithmetic<double>::bitsCount());;
 #ifdef ENABLE_CGAL_LEDA
     case VisibilityExactQueryConfiguration::EXACT:
-        return "EXACT";
+        return "EXACT " + std::to_string(MathArithmetic<exact>::bitsCount());;
 #endif
 #ifdef ENABLE_GMP
     case VisibilityExactQueryConfiguration::GMP_FLOAT:
-        return "GMP_FLOAT";
+        return "GMP_FLOAT "  + std::to_string(MathArithmetic<GmpFloat>::bitsCount());;
     case VisibilityExactQueryConfiguration::GMP_RATIONAL:
-        return "GMP_RATIONAL";
+        return "GMP_RATIONAL " + std::to_string(MathArithmetic<GmpRational>::bitsCount());
+
 #endif
 #ifdef ENABLE_MPFR
     case VisibilityExactQueryConfiguration::MPFR:

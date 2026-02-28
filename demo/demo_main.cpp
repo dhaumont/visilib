@@ -107,6 +107,10 @@ namespace visilibDemo
 #if USE_MPFR
             MPfr::set_default_precision(ExactArithnetric<Mpfr>::bitsCount());
 #endif
+#if USE_GMP
+            GmpFloat::set_default_precision(ExactArithnetric<GmpFloat>::bitsCount());
+#endif
+
 
             result = visilib::areVisible(occluderSet, &v0[0], v0.size() / 3, &v1[0], v1.size() / 3, config, debugger);
         }
@@ -191,7 +195,7 @@ namespace visilibDemo
             static int wc = 10;
             static int rc = 0;
             std::stringstream ss;
-
+            int current = 0;
             switch (key)
             {
             case 27:  // The escape key
@@ -278,12 +282,12 @@ namespace visilibDemo
                 forceDisplay = true;
                 break;
 
-
-#ifdef ENABLE_MPFR
             case 'e':
-                mDemoConfiguration.precisionType = mDemoConfiguration.precisionType == VisibilityExactQueryConfiguration::DOUBLE ? VisibilityExactQueryConfiguration::MPFR : VisibilityExactQueryConfiguration::DOUBLE;
+                current = static_cast<int>(mDemoConfiguration.precisionType);
+                current++;
+                if (current >= static_cast<int>(VisibilityExactQueryConfiguration::COUNT)) current = VisibilityExactQueryConfiguration::FLOAT;
+                mDemoConfiguration.precisionType = static_cast<VisibilityExactQueryConfiguration::PrecisionType>(current);
                 forceDisplay = true;
-#endif
                 break;
 #if EMBREE
             case 'g':
