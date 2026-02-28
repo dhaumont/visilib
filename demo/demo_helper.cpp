@@ -315,7 +315,9 @@ const std::string DemoConfiguration::toStr(VisibilityExactQueryConfiguration::Pr
 
 void DemoConfiguration::displaySummary()
 {
-    std::cout << "VisibilityTest [Scaling: " << globalScaling << ", v0: " << vertexCount0 << ", vv1: " << vertexCount1 << "; phi:" << phi << "; precision: "<< precisionType<<"; tolerance:" << tolerance << "] ";
+    std::cout << "VisibilityTest [Scaling: " << globalScaling
+      << ", v0: " << vertexCount0 << ", vv1: " << vertexCount1 << "; phi:" << phi 
+      << "; precision: "<< toStr(precisionType)<<"; tolerance:" << tolerance << "] ";
 }
 
 #if EMBREE

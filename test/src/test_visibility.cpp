@@ -57,6 +57,9 @@ bool VisibilityTest(std::string& )
 #ifdef ENABLE_CGAL_LEDA
     precisions.push_back(VisibilityExactQueryConfiguration::CGAL_LEDA);
 #endif
+#ifdef ENABLE_MPFR
+    precisions.push_back(VisibilityExactQueryConfiguration::MPFR);
+#endif
 #ifdef ENABLE_GMP
     precisions.push_back(VisibilityExactQueryConfiguration::GMP_FLOAT);
     precisions.push_back(VisibilityExactQueryConfiguration::GMP_RATIONAL);

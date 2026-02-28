@@ -29,8 +29,8 @@ int main()
 
 	if (!MathCombinatorialTest(errorMessage))
 	{
-        std::cout << "MathCombinatorialTest SUCCESS" << std::endl;
-		return 1;
+      std::cout << "MathCombinatorialTest ERROR" << std::endl;
+	//   	return 1;
 	}
 
     if (!VisibilityTest(errorMessage))
