@@ -388,32 +388,32 @@ namespace visilib
 
 #ifdef ENABLE_CGAL_LEDA
     template<>
-    inline bool MathGeometry::findPluckerEdgeWithQuadricIntersection<MathPlucker6<exact>, exact>(const MathPlucker6<exact> & v1, const MathPlucker6<exact> & v2, GeometryPositionType p1, GeometryPositionType p2, std::vector<MathPlucker6<exact> > & result, exact tolerance)
+    inline bool MathGeometry::findPluckerEdgeWithQuadricIntersection<MathPlucker6MathCgalLeda, exact>(const MathPlucker6MathCgalLeda & v1, const MathPlucker6MathCgalLeda & v2, GeometryPositionType p1, GeometryPositionType p2, std::vector<MathPlucker6MathCgalLeda > & result, exact tolerance)
     {
-        return findPluckerEdgeWithQuadricIntersection<MathPlucker6<exact>, exact>(v1, v2, p1, p2, result, false, tolerance);
+        return findPluckerEdgeWithQuadricIntersection<MathPlucker6MathCgalLeda, exact>(v1, v2, p1, p2, result, false, tolerance);
     }
 
 #endif
 
 #ifdef ENABLE_GMP
     template<>
-    inline bool MathGeometry::findPluckerEdgeWithQuadricIntersection<MathPlucker6<GmpFloat>, GmpFloat>(const MathPlucker6<GmpFloat>& v1, const MathPlucker6<GmpFloat>& v2, GeometryPositionType p1, GeometryPositionType p2, std::vector<MathPlucker6<GmpFloat>>& result, const GmpFloat & tolerance)
+    inline bool MathGeometry::findPluckerEdgeWithQuadricIntersection<MathPlucker6<MathGmpFloat>, MathGmpFloat>(const MathPlucker6<MathGmpFloat>& v1, const MathPlucker6<MathGmpFloat>& v2, GeometryPositionType p1, GeometryPositionType p2, std::vector<MathPlucker6<MathGmpFloat>>& result, const MathGmpFloat & tolerance)
     {
-        return findPluckerEdgeWithQuadricIntersection<MathPlucker6<GmpFloat>, GmpFloat>(v1, v2, p1, p2, result, false, tolerance);
+        return findPluckerEdgeWithQuadricIntersection<MathPlucker6<MathGmpFloat>, MathGmpFloat>(v1, v2, p1, p2, result, false, tolerance);
     }
 
     template<>
-    inline bool MathGeometry::findPluckerEdgeWithQuadricIntersection<MathPlucker6<GmpRational>, GmpRational>(const MathPlucker6<GmpRational>& v1, const MathPlucker6<GmpRational>& v2, GeometryPositionType p1, GeometryPositionType p2, std::vector<MathPlucker6<GmpRational>>& result, const GmpRational & tolerance)
+    inline bool MathGeometry::findPluckerEdgeWithQuadricIntersection<MathPlucker6<MathGmpRational>, MathGmpRational>(const MathPlucker6<MathGmpRational>& v1, const MathPlucker6<MathGmpRational>& v2, GeometryPositionType p1, GeometryPositionType p2, std::vector<MathPlucker6<MathGmpRational>>& result, const MathGmpRational & tolerance)
     {
-        return findPluckerEdgeWithQuadricIntersection<MathPlucker6<GmpRational>, GmpRational>(v1, v2, p1, p2, result, false, tolerance);
+        return findPluckerEdgeWithQuadricIntersection<MathPlucker6<MathGmpRational>, MathGmpRational>(v1, v2, p1, p2, result, false, tolerance);
     }
 #endif
 
 #if ENABLE_MPFR
     template<>
-    inline bool MathGeometry::findPluckerEdgeWithQuadricIntersection<MathPlucker6<Mpfr>, Mpfr>(const MathPlucker6<Mpfr>& v1, const MathPlucker6<Mpfr>& v2, GeometryPositionType p1, GeometryPositionType p2, std::vector<MathPlucker6<Mpfr>>& result, const Mpfr & tolerance)
+    inline bool MathGeometry::findPluckerEdgeWithQuadricIntersection<MathPlucker6<MathMpfr>, MathMpfr>(const MathPlucker6<MathMpfr>& v1, const MathPlucker6<MathMpfr>& v2, GeometryPositionType p1, GeometryPositionType p2, std::vector<MathPlucker6<MathMpfr>>& result, const MathMpfr & tolerance)
     {
-        return findPluckerEdgeWithQuadricIntersection<MathPlucker6<Mpfr>, Mpfr>(v1, v2, p1, p2, result, false, tolerance);
+        return findPluckerEdgeWithQuadricIntersection<MathPlucker6<MathMpfr>, MathMpfr>(v1, v2, p1, p2, result, false, tolerance);
     }
 #endif
 

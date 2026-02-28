@@ -165,7 +165,7 @@ namespace visilib
 
 #ifdef ENABLE_CGAL_LEDA
     template <>
-    inline bool MathPredicates::isZero(const MathPlucker6<exact> & a, exact epsilon)
+    inline bool MathPredicates::isZero(const MathPlucker6MathCgalLeda & a, exact epsilon)
     {
         return a.getDirection().isZero(epsilon) && a.getLocation().isZero(epsilon);
     }
@@ -173,12 +173,12 @@ namespace visilib
 
 #ifdef ENABLE_GMP
     template <>
-    inline bool MathPredicates::isZero(const MathPlucker6<GmpFloat>& a, GmpFloat epsilon)
+    inline bool MathPredicates::isZero(const MathPlucker6<MathGmpFloat>& a, MathGmpFloat epsilon)
     {
         return a.getDirection().isZero(epsilon) && a.getLocation().isZero(epsilon);
     }
     template <>
-    inline bool MathPredicates::isZero(const MathPlucker6<GmpRational>& a, GmpRational epsilon)
+    inline bool MathPredicates::isZero(const MathPlucker6<MathGmpRational>& a, MathGmpRational epsilon)
     {
         return a.getDirection().isZero(epsilon) && a.getLocation().isZero(epsilon);
     }
@@ -186,7 +186,7 @@ namespace visilib
 
 #ifdef ENABLE_MPFR
     template <>
-    inline bool MathPredicates::isZero(const MathPlucker6<Mpfr>& a, Mpfr epsilon)
+    inline bool MathPredicates::isZero(const MathPlucker6<MathMpfr>& a, MathMpfr epsilon)
     {
         return a.getDirection().isZero(epsilon) && a.getLocation().isZero(epsilon);
     }
@@ -214,14 +214,14 @@ namespace visilib
 
 #ifdef ENABLE_GMP
     template <>
-    inline bool MathPredicates::isZero(GmpFloat scalar, GmpFloat tolerance)
+    inline bool MathPredicates::isZero(MathGmpFloat scalar, MathGmpFloat tolerance)
     {
         mpf_t a;
         mpf_abs(a, scalar.v);
         return mpf_cmp(a, tolerance.v) < 0;
     }
     template <>
-    inline bool MathPredicates::isZero(GmpRational scalar, GmpRational tolerance)
+    inline bool MathPredicates::isZero(MathGmpRational scalar, MathGmpRational tolerance)
     {
         mpq_t a;
         mpq_abs(a, scalar.v);
@@ -231,7 +231,7 @@ namespace visilib
 
 #ifdef ENABLE_MPFR
     template <>
-    inline bool MathPredicates::isZero(Mpfr scalar, Mpfr tolerance)
+    inline bool MathPredicates::isZero(MathMpfr scalar, MathMpfr tolerance)
     {
         return scalar.isZero();
     }

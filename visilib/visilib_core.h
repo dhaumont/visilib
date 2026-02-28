@@ -23,7 +23,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #ifdef ENABLE_CGAL_LEDA
 #include <CGAL/Lazy_exact_nt.h>
 #include <CGAL/leda_real.h>
-typedef CGAL::Lazy_exact_nt<leda_real> exact;
+typedef CGAL::Lazy_exact_nt<leda_real> MathCgalLeda;
 #endif
 
 #ifdef ENABLE_GMP

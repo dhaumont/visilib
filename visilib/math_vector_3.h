@@ -136,56 +136,56 @@ namespace visilib
 
 #ifdef ENABLE_CGAL_LEDA
     template<>
-    inline MathVector3d convert(const MathVector3_<exact> & f)
+    inline MathVector3d convert(const MathVector3_MathCgalLeda & f)
     {
         return MathVector3d(to_double(f.x), to_double(f.y), to_double(f.z));
     }
 
     template<>
-    inline MathVector3_<exact> convert(const MathVector3d & f)
+    inline MathVector3_MathCgalLeda convert(const MathVector3d & f)
     {
-        return MathVector3_<exact>(f.x, f.y, f.z);
+        return MathVector3_MathCgalLeda(f.x, f.y, f.z);
     }
 #endif
 
 #if ENABLE_GMP
     template<>
-    inline MathVector3d convert(const MathVector3_<GmpFloat>& f)
+    inline MathVector3d convert(const MathVector3_<MathGmpFloat>& f)
     {
         return MathVector3d(to_double(f.x), to_double(f.y), to_double(f.z));
     }
 
     template<>
-    inline MathVector3_<GmpFloat> convert(const MathVector3d& f)
+    inline MathVector3_<MathGmpFloat> convert(const MathVector3d& f)
     {
-        return MathVector3_<GmpFloat>(f.x, f.y, f.z);
+        return MathVector3_<MathGmpFloat>(f.x, f.y, f.z);
     }
 
     template<>
-    inline MathVector3d convert(const MathVector3_<GmpRational>& f)
+    inline MathVector3d convert(const MathVector3_<MathGmpRational>& f)
     {
         return MathVector3d(to_double(f.x), to_double(f.y), to_double(f.z));
     }
 
     template<>
-    inline MathVector3_<GmpRational> convert(const MathVector3d& f)
+    inline MathVector3_<MathGmpRational> convert(const MathVector3d& f)
     {
-        return MathVector3_<GmpRational>(f.x, f.y, f.z);
+        return MathVector3_<MathGmpRational>(f.x, f.y, f.z);
     }
 #endif
 
 
 #if ENABLE_MPFR
     template<>
-    inline MathVector3d convert(const MathVector3_<Mpfr>& f)
+    inline MathVector3d convert(const MathVector3_<MathMpfr>& f)
     {
         return MathVector3d(to_double(f.x), to_double(f.y), to_double(f.z));
     }
 
     template<>
-    inline MathVector3_<Mpfr> convert(const MathVector3d& f)
+    inline MathVector3_<MathMpfr> convert(const MathVector3d& f)
     {
-        return MathVector3_<Mpfr>(f.x, f.y, f.z);
+        return MathVector3_<MathMpfr>(f.x, f.y, f.z);
     }
 #endif
 

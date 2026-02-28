@@ -295,18 +295,18 @@ const std::string DemoConfiguration::toStr(VisibilityExactQueryConfiguration::Pr
         return "DOUBLE " + std::to_string(MathArithmetic<double>::bitsCount());;
 #ifdef ENABLE_CGAL_LEDA
     case VisibilityExactQueryConfiguration::EXACT:
-        return "EXACT " + std::to_string(MathArithmetic<exact>::bitsCount());;
+        return "EXACT " + std::to_string(MathArithmeticMathCgalLeda::bitsCount());;
 #endif
 #ifdef ENABLE_GMP
     case VisibilityExactQueryConfiguration::GMP_FLOAT:
-        return "GMP_FLOAT "  + std::to_string(MathArithmetic<GmpFloat>::bitsCount());;
+        return "GMP_FLOAT "  + std::to_string(MathArithmetic<MathGmpFloat>::bitsCount());;
     case VisibilityExactQueryConfiguration::GMP_RATIONAL:
-        return "GMP_RATIONAL " + std::to_string(MathArithmetic<GmpRational>::bitsCount());
+        return "GMP_RATIONAL " + std::to_string(MathArithmetic<MathGmpRational>::bitsCount());
 
 #endif
 #ifdef ENABLE_MPFR
     case VisibilityExactQueryConfiguration::MPFR:
-        return "MPFR " + std::to_string(MathArithmetic<Mpfr>::bitsCount());
+        return "MPFR " + std::to_string(MathArithmetic<MathMpfr>::bitsCount());
 #endif
     default:
         return "UNKNOWN";

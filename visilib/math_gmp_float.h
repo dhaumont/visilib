@@ -2,42 +2,42 @@
 
 #include <gmp.h>
 #include <cmath>
-struct GmpFloat;
+struct MathGmpFloat;
 
-inline std::ostream& operator<< (std::ostream& stream, const GmpFloat& val);
-inline GmpFloat operator+(const GmpFloat& lhs, const GmpFloat& rhs);
-inline GmpFloat operator-(const GmpFloat& lhs, const GmpFloat& rhs);
-inline GmpFloat operator/(const GmpFloat& lhs, const GmpFloat& rhs);
-inline GmpFloat operator*(const GmpFloat& lhs, const GmpFloat& rhs);
+inline std::ostream& operator<< (std::ostream& stream, const MathGmpFloat& val);
+inline MathGmpFloat operator+(const MathGmpFloat& lhs, const MathGmpFloat& rhs);
+inline MathGmpFloat operator-(const MathGmpFloat& lhs, const MathGmpFloat& rhs);
+inline MathGmpFloat operator/(const MathGmpFloat& lhs, const MathGmpFloat& rhs);
+inline MathGmpFloat operator*(const MathGmpFloat& lhs, const MathGmpFloat& rhs);
 
-struct GmpFloat {
+struct MathGmpFloat {
     mpf_t v;
     void init()
     {
         mpf_init2(v, 256);
     }
-    inline void copy(const GmpFloat& rhs)
+    inline void copy(const MathGmpFloat& rhs)
     {
         mpf_set(v, rhs.v);
     }
-    GmpFloat() {
+    MathGmpFloat() {
         init();
         mpf_set_d(v, 0);
     }
-    GmpFloat(double d) {
+    MathGmpFloat(double d) {
         init();
         mpf_set_d(v, d);
     }
-    GmpFloat(const GmpFloat& rhs)
+    MathGmpFloat(const MathGmpFloat& rhs)
     {
         init();
         copy(rhs);
     }
-    ~GmpFloat()
+    ~MathGmpFloat()
     {
         mpf_clear(v);
     }
-    const GmpFloat& operator=(const GmpFloat& rhs)
+    const MathGmpFloat& operator=(const MathGmpFloat& rhs)
     {
         if (this != &rhs)
         {
@@ -45,57 +45,57 @@ struct GmpFloat {
         }
         return *this;
     }
-    inline GmpFloat operator-() const
+    inline MathGmpFloat operator-() const
     {
-        GmpFloat tmp;
+        MathGmpFloat tmp;
         mpf_neg(tmp.v, v);
         return tmp;
     }
-    inline const GmpFloat& operator*=(const GmpFloat& rhs)
+    inline const MathGmpFloat& operator*=(const MathGmpFloat& rhs)
     {
         *this = *this * rhs;
         return *this;
     }
-    inline const GmpFloat& operator/=(const GmpFloat& rhs)
+    inline const MathGmpFloat& operator/=(const MathGmpFloat& rhs)
     {
         *this = *this / rhs;
         return *this;
     }
-    inline const GmpFloat& operator-=(const GmpFloat& rhs)
+    inline const MathGmpFloat& operator-=(const MathGmpFloat& rhs)
     {
         *this = *this - rhs;
         return *this;
     }
-    inline const GmpFloat& operator+=(const GmpFloat& rhs)
+    inline const MathGmpFloat& operator+=(const MathGmpFloat& rhs)
     {
         *this = *this + rhs;
         return *this;
     }
-    inline bool operator<(const GmpFloat& rhs) const
+    inline bool operator<(const MathGmpFloat& rhs) const
     {
         return mpf_cmp(v, rhs.v) < 0;
     }
-    inline bool operator>(const GmpFloat& rhs) const
+    inline bool operator>(const MathGmpFloat& rhs) const
     {
         return mpf_cmp(v, rhs.v) > 0;
     }
-    inline bool operator<=(const GmpFloat& rhs) const
+    inline bool operator<=(const MathGmpFloat& rhs) const
     {
         return mpf_cmp(v, rhs.v) <= 0;
     }
-    inline bool operator>=(const GmpFloat& rhs) const
+    inline bool operator>=(const MathGmpFloat& rhs) const
     {
         return mpf_cmp(v, rhs.v) >= 0;
     }
-    inline GmpFloat abs() const 
+    inline MathGmpFloat abs() const 
     {
-        GmpFloat tmp;
+        MathGmpFloat tmp;
         mpf_abs(tmp.v, v);
         return tmp;
     }
-    inline GmpFloat sqrt() const
+    inline MathGmpFloat sqrt() const
     {
-        GmpFloat tmp;
+        MathGmpFloat tmp;
         mpf_sqrt(tmp.v, v);
         return tmp;
     }
@@ -122,40 +122,40 @@ struct GmpFloat {
 
 };
 
-inline GmpFloat sqrt(const GmpFloat & x)
+inline MathGmpFloat sqrt(const MathGmpFloat & x)
 {
     return x.sqrt();
 }
 
-inline std::ostream& operator<< (std::ostream& stream, const GmpFloat& val)
+inline std::ostream& operator<< (std::ostream& stream, const MathGmpFloat& val)
 {
     return stream << mpf_get_d(val.v);
 }
-inline GmpFloat operator+(const GmpFloat& lhs, const GmpFloat& rhs)
+inline MathGmpFloat operator+(const MathGmpFloat& lhs, const MathGmpFloat& rhs)
 {
-    GmpFloat tmp;
+    MathGmpFloat tmp;
     mpf_add(tmp.v, lhs.v, rhs.v);
     return tmp;
 }
-inline GmpFloat operator-(const GmpFloat& lhs, const GmpFloat& rhs)
+inline MathGmpFloat operator-(const MathGmpFloat& lhs, const MathGmpFloat& rhs)
 {
-    GmpFloat tmp;
+    MathGmpFloat tmp;
     mpf_sub(tmp.v, lhs.v, rhs.v);
     return tmp;
 }
-inline GmpFloat operator/(const GmpFloat& lhs, const GmpFloat& rhs)
+inline MathGmpFloat operator/(const MathGmpFloat& lhs, const MathGmpFloat& rhs)
 {
-    GmpFloat tmp;
+    MathGmpFloat tmp;
     mpf_div(tmp.v, lhs.v, rhs.v);
     return tmp;
 }
-inline GmpFloat operator*(const GmpFloat& lhs, const GmpFloat& rhs)
+inline MathGmpFloat operator*(const MathGmpFloat& lhs, const MathGmpFloat& rhs)
 {
-    GmpFloat tmp;
+    MathGmpFloat tmp;
     mpf_mul(tmp.v, lhs.v, rhs.v);
     return tmp;
 }
-inline double to_double(const GmpFloat& rhs)
+inline double to_double(const MathGmpFloat& rhs)
 {
     return mpf_get_d(rhs.v);
 }

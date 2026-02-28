@@ -75,31 +75,31 @@ namespace visilib
     template <> inline int MathArithmetic<double>::validDecimalsCount()  { return std::numeric_limits<double>::digits10 + 1; }
     template <> inline int MathArithmetic<float>::validDecimalsCount()  { return std::numeric_limits<float>::digits10 + 1; }
 #ifdef ENABLE_MPFR
-    template <> inline int MathArithmetic<Mpfr>::validDecimalsCount()  { return 200; }
+    template <> inline int MathArithmetic<MathMpfr>::validDecimalsCount()  { return 200; }
 #endif
 #ifdef ENABLE_GMP
-    template <> inline int MathArithmetic<GmpFloat>::validDecimalsCount()  { return 200; }
+    template <> inline int MathArithmetic<MathGmpFloat>::validDecimalsCount()  { return 200; }
 #endif
 
     template<> inline double MathArithmetic<double>::Tolerance() { return  1e-11; }
     template<> inline float MathArithmetic<float>::Tolerance() { return 1e-6f; }
 #ifdef ENABLE_CGAL_LEDA
-    template<> inline exact MathArithmetic<exact>::Tolerance() { return leda_real(1e-20); }
+    template<> inline exact MathArithmeticMathCgalLeda::Tolerance() { return leda_real(1e-20); }
 #endif
 #ifdef ENABLE_GMP
-    template<> inline GmpFloat MathArithmetic<GmpFloat>::Tolerance()
+    template<> inline MathGmpFloat MathArithmetic<MathGmpFloat>::Tolerance()
     {
        int basis(10.0);
-       int precision(MathArithmetic<GmpFloat>::validDecimalsCount()-1);
+       int precision(MathArithmetic<MathGmpFloat>::validDecimalsCount()-1);
        return pow(basis, -precision);
     }
-    template<> inline GmpRational MathArithmetic<GmpRational>::Tolerance() { return  GmpRational(); }
+    template<> inline MathGmpRational MathArithmetic<MathGmpRational>::Tolerance() { return  MathGmpRational(); }
 #endif
 #ifdef ENABLE_MPFR
-    template<> inline Mpfr MathArithmetic<Mpfr>::Tolerance()
+    template<> inline MathMpfr MathArithmetic<MathMpfr>::Tolerance()
     {
        int basis(10.0);
-       int precision(MathArithmetic<Mpfr>::validDecimalsCount()-1);
+       int precision(MathArithmetic<MathMpfr>::validDecimalsCount()-1);
        return pow(basis, -precision);
     }
 #endif
@@ -112,58 +112,58 @@ namespace visilib
     template <> inline int MathArithmetic<double>::bitsCount()  { return 64; }
     template <> inline int MathArithmetic<float>::bitsCount()  { return 32; }
 #ifdef ENABLE_MPFR
-    template <> inline int MathArithmetic<Mpfr>::bitsCount()
+    template <> inline int MathArithmetic<MathMpfr>::bitsCount()
     {
-      return Mpfr::digits2bits(MathArithmetic<Mpfr>::validDecimalsCount());
+      return MathMpfr::digits2bits(MathArithmetic<MathMpfr>::validDecimalsCount());
     }
 #endif
 #ifdef ENABLE_GMP
-    template <> inline int MathArithmetic<GmpFloat>::bitsCount()
+    template <> inline int MathArithmetic<MathGmpFloat>::bitsCount()
     {
-      return GmpFloat::digits2bits(MathArithmetic<GmpFloat>::validDecimalsCount());
+      return MathGmpFloat::digits2bits(MathArithmetic<MathGmpFloat>::validDecimalsCount());
     }
-    template <> inline int MathArithmetic<GmpRational>::bitsCount()
+    template <> inline int MathArithmetic<MathGmpRational>::bitsCount()
     {
       return 0;
     }
 #endif
 #ifdef ENABLE_CGAL_LEDA
-    template<> exact MathArithmetic<exact>::getAbs(exact s);
+    template<> exact MathArithmeticMathCgalLeda::getAbs(exact s);
 #endif
 #ifdef ENABLE_GMP
-    template<> inline GmpFloat MathArithmetic<GmpFloat>::getAbs(GmpFloat s);
-    template<> inline GmpRational MathArithmetic<GmpRational>::getAbs(GmpRational s);
+    template<> inline MathGmpFloat MathArithmetic<MathGmpFloat>::getAbs(MathGmpFloat s);
+    template<> inline MathGmpRational MathArithmetic<MathGmpRational>::getAbs(MathGmpRational s);
 #endif
 #ifdef ENABLE_MPFR
-    template<> inline Mpfr MathArithmetic<Mpfr>::getAbs(Mpfr  s);
+    template<> inline MathMpfr MathArithmetic<MathMpfr>::getAbs(MathMpfr  s);
 #endif
 
     template<> inline double MathArithmetic<double>::getSqrt(double s);
     template<> inline float MathArithmetic<float>::getSqrt(float s);
 
 #ifdef ENABLE_CGAL_LEDA
-    template<> exact MathArithmetic<exact>::getSqrt(exact s);
+    template<> exact MathArithmeticMathCgalLeda::getSqrt(exact s);
 #endif
 #ifdef ENABLE_GMP
-    template<> inline GmpFloat MathArithmetic<GmpFloat>::getSqrt(GmpFloat  s);
-    template<> inline GmpRational MathArithmetic<GmpRational>::getSqrt(GmpRational  s);
+    template<> inline MathGmpFloat MathArithmetic<MathGmpFloat>::getSqrt(MathGmpFloat  s);
+    template<> inline MathGmpRational MathArithmetic<MathGmpRational>::getSqrt(MathGmpRational  s);
 #endif
 #ifdef ENABLE_MPFR
-    template<> inline Mpfr MathArithmetic<Mpfr>::getSqrt(Mpfr s);
+    template<> inline MathMpfr MathArithmetic<MathMpfr>::getSqrt(MathMpfr s);
 #endif
 
     template<> inline bool MathArithmetic<double>::isFinite(double s);
 
     template<> inline bool MathArithmetic<float>::isFinite(float s);
 #ifdef ENABLE_CGAL_LEDA
-    template<> inline bool MathArithmetic<exact>::isFinite(exact s);
+    template<> inline bool MathArithmeticMathCgalLeda::isFinite(exact s);
 #endif
 #ifdef ENABLE_GMP
-    template<> inline bool MathArithmetic<GmpFloat>::isFinite(GmpFloat s);
-    template<> inline bool MathArithmetic<GmpRational>::isFinite(GmpRational  s);
+    template<> inline bool MathArithmetic<MathGmpFloat>::isFinite(MathGmpFloat s);
+    template<> inline bool MathArithmetic<MathGmpRational>::isFinite(MathGmpRational  s);
 #endif
 #ifdef ENABLE_MPFR
-    template<> inline bool MathArithmetic<Mpfr>::isFinite(Mpfr s);
+    template<> inline bool MathArithmetic<MathMpfr>::isFinite(MathMpfr s);
 #endif
 
     template<>
@@ -180,27 +180,27 @@ namespace visilib
 
 #ifdef ENABLE_CGAL_LEDA
     template<>
-    inline exact MathArithmetic<exact>::getAbs(exact s)
+    inline exact MathArithmeticMathCgalLeda::getAbs(exact s)
     {
         return CGAL::abs(s);
     }
 #endif
 #ifdef ENABLE_GMP
     template<>
-    inline GmpFloat MathArithmetic<GmpFloat>::getAbs(GmpFloat  s)
+    inline MathGmpFloat MathArithmetic<MathGmpFloat>::getAbs(MathGmpFloat  s)
     {
         return s.abs();
     }
 
     template<>
-    inline GmpRational MathArithmetic<GmpRational>::getAbs(GmpRational s)
+    inline MathGmpRational MathArithmetic<MathGmpRational>::getAbs(MathGmpRational s)
     {
         return s.abs();
     }
 #endif
 #ifdef ENABLE_MPFR
     template<>
-    inline Mpfr MathArithmetic<Mpfr>::getAbs(Mpfr s)
+    inline MathMpfr MathArithmetic<MathMpfr>::getAbs(MathMpfr s)
     {
         return s.abs();
     }
@@ -220,7 +220,7 @@ namespace visilib
 
 #ifdef ENABLE_CGAL_LEDA
     template<>
-    inline exact MathArithmetic<exact>::getSqrt(exact s)
+    inline exact MathArithmeticMathCgalLeda::getSqrt(exact s)
     {
         //return approximate_sqrt(s);0
         return CGAL::sqrt(s);
@@ -229,12 +229,12 @@ namespace visilib
 
 #ifdef ENABLE_GMP
     template<>
-    inline GmpFloat MathArithmetic<GmpFloat>::getSqrt(GmpFloat s)
+    inline MathGmpFloat MathArithmetic<MathGmpFloat>::getSqrt(MathGmpFloat s)
     {
         return s.sqrt();
     }
     template<>
-    inline GmpRational MathArithmetic<GmpRational>::getSqrt(GmpRational  s)
+    inline MathGmpRational MathArithmetic<MathGmpRational>::getSqrt(MathGmpRational  s)
     {
         return s.sqrt();
     }
@@ -242,7 +242,7 @@ namespace visilib
 
 #ifdef ENABLE_MPFR
     template<>
-    inline Mpfr MathArithmetic<Mpfr>::getSqrt(Mpfr s)
+    inline MathMpfr MathArithmetic<MathMpfr>::getSqrt(MathMpfr s)
     {
         return sqrt(s);
     }
@@ -262,26 +262,26 @@ namespace visilib
 
 #ifdef ENABLE_CGAL_LEDA
     template<>
-    inline bool MathArithmetic<exact>::isFinite(exact s)
+    inline bool MathArithmeticMathCgalLeda::isFinite(exact s)
     {
         return CGAL::is_finite(s);
     }
 #endif
 #ifdef ENABLE_GMP
     template<>
-    inline bool MathArithmetic<GmpFloat>::isFinite(GmpFloat s)
+    inline bool MathArithmetic<MathGmpFloat>::isFinite(MathGmpFloat s)
     {
         return s.isfinite();
     }
     template<>
-    inline bool MathArithmetic<GmpRational>::isFinite(GmpRational s)
+    inline bool MathArithmetic<MathGmpRational>::isFinite(MathGmpRational s)
     {
         return s.isfinite();
     }
 #endif
 #ifdef ENABLE_MPFR
     template<>
-    inline bool MathArithmetic<Mpfr>::isFinite(Mpfr s)
+    inline bool MathArithmetic<MathMpfr>::isFinite(MathMpfr s)
     {
         return s.isfinite();
     }

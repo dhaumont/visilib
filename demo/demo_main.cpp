@@ -105,10 +105,10 @@ namespace visilibDemo
             config.useEmbree = mDemoConfiguration.embree;
 #endif
 #if USE_MPFR
-            MPfr::set_default_precision(ExactArithnetric<Mpfr>::bitsCount());
+            MPfr::set_default_precision(ExactArithnetric<MathMpfr>::bitsCount());
 #endif
 #if USE_GMP
-            GmpFloat::set_default_precision(ExactArithnetric<GmpFloat>::bitsCount());
+            MathGmpFloat::set_default_precision(ExactArithnetric<MathGmpFloat>::bitsCount());
 #endif
 
 
