@@ -388,9 +388,10 @@ namespace visilib
 
 #ifdef ENABLE_CGAL_LEDA
     template<>
-    inline bool MathGeometry::findPluckerEdgeWithQuadricIntersection<MatPlucker6<MathCgalLeda>, MathCgalLeda>(const MatPlucker6<MathCgalLeda> & v1, const MatPlucker6<MathCgalLeda> & v2, GeometryPositionType p1, GeometryPositionType p2, std::vector<MatPlucker6<MathCgalLeda> > & result, MathCgalLeda tolerance)
+    inline bool MathGeometry::findPluckerEdgeWithQuadricIntersection<MathPlucker6<MathCgalLeda>, MathCgalLeda>(const MathPlucker6<MathCgalLeda> & v1, const MathPlucker6<MathCgalLeda> & v2, GeometryPositionType p1, GeometryPositionType p2, std::vector<MathPlucker6<MathCgalLeda> > & result, const MathCgalLeda& tolerance)
+
     {
-        return findPluckerEdgeWithQuadricIntersection<MatPlucker6<MathCgalLeda>, MathCgalLeda>(v1, v2, p1, p2, result, true, tolerance);
+        return findPluckerEdgeWithQuadricIntersection<MathPlucker6<MathCgalLeda>, MathCgalLeda>(v1, v2, p1, p2, result, true, tolerance);
     }
 
 #endif

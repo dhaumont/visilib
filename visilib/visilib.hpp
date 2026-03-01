@@ -31,6 +31,16 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 
 using namespace visilib;
 
+ template<class S>
+ S getComputationTolerance(const VisibilityExactQueryConfiguration& configuration)
+ {
+     if (configuration.tolerance == -1)
+     {
+        return MathArithmetic<S>::Tolerance();
+      }
+      return S(configuration.tolerance);
+ }
+
 inline VisibilityResult visilib::areVisible(GeometryOccluderSet* scene, const float* vertices0, size_t numVertices0, const float* vertices1, size_t numVertices1,
     const VisibilityExactQueryConfiguration& configuration, HelperVisualDebugger* debugger)
 {
@@ -56,31 +66,48 @@ inline VisibilityResult visilib::areVisible(GeometryOccluderSet* scene, const fl
     switch (configuration.precision)
     {
 #ifdef ENABLE_CGAL_LEDA
-    case VisibilityExactQueryConfiguration::CGAL_LEDA
-        exact tolerance = configuration.tolerance == -1 ?  MathArithmeticMathCgalLeda::Tolerance() : configuration.tolerance;
-        query = new VisibilityExactQuery_<MatPlucker6<MathCgalLeda>, exact>(scene, configuration, MathArithmeticMathCgalLeda::Tolerance());
+      case VisibilityExactQueryConfiguration::CGAL_LEDA:
+        query = new VisibilityExactQuery_<MathPlucker6<MathCgalLeda>, MathCgalLeda>(
+            scene,
+            configuration,
+            getComputationTolerance<MathCgalLeda>(configuration));
         break;
 #endif
 #ifdef ENABLE_GMP
     case VisibilityExactQueryConfiguration::GMP_FLOAT:
-        query = new VisibilityExactQuery_<MathPlucker6<MathGmpFloat>, MathGmpFloat>(scene, configuration, MathArithmetic<MathGmpFloat>::Tolerance());
+        query = new VisibilityExactQuery_<MathPlucker6<MathGmpFloat>, MathGmpFloat>(
+            scene,
+            configuration,
+            getComputationTolerance<MathGmpFloat>(configuration));
         break;
     case VisibilityExactQueryConfiguration::GMP_RATIONAL:
-        query = new VisibilityExactQuery_<MathPlucker6<MathGmpRational>, MathGmpRational>(scene, configuration, MathArithmetic<MathGmpRational>::Tolerance());
+        query = new VisibilityExactQuery_<MathPlucker6<MathGmpRational>,  MathGmpRational>(
+             scene,
+             configuration,
+             getComputationTolerance<MathGmpRational>(configuration));
         break;
 #endif
 #ifdef ENABLE_MPFR
     case VisibilityExactQueryConfiguration::MPFR:
-        query = new VisibilityExactQuery_<MathPlucker6<MathMpfr>, MathMpfr>(scene, configuration, MathArithmetic<MathMpfr>::Tolerance());
+        query = new VisibilityExactQuery_<MathPlucker6<MathMpfr>, MathMpfr>(
+            scene,
+            configuration,
+            getComputationTolerance<MathMpfr>(configuration));
         break;
 #endif
     case VisibilityExactQueryConfiguration::DOUBLE:
-        query = new VisibilityExactQuery_<MathPlucker6<double>, double>(scene, configuration,configuration.tolerance == -1 ? MathArithmetic<double>::Tolerance() : configuration.tolerance);
+        query = new VisibilityExactQuery_<MathPlucker6<double>, double>(
+            scene,
+            configuration,
+            getComputationTolerance<double>(configuration));
         break;
 
     default:
         float tolerance = configuration.tolerance == -1 ? MathArithmetic<float>::Tolerance() : configuration.tolerance;
-        query = new VisibilityExactQuery_<MathPlucker6<float>, float>(scene, configuration,configuration.tolerance == -1 ? MathArithmetic<float>::Tolerance() : configuration.tolerance);
+        query = new VisibilityExactQuery_<MathPlucker6<float>, float>(
+            scene,
+            configuration,
+            getComputationTolerance<float>(configuration));
         break;
     }
 
