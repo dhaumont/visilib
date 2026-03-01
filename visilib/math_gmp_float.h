@@ -14,7 +14,7 @@ struct MathGmpFloat {
     mpf_t v;
     void init()
     {
-        mpf_init2(v, 256);
+        mpf_init2(v, get_default_precision());
     }
     inline void copy(const MathGmpFloat& rhs)
     {

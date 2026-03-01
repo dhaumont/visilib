@@ -47,7 +47,9 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include "demo_viewer_glut.h"
 #include "demo_debug_visualisation_gl.h"
 #include "demo_helper.h"
-
+#include "math_gmp_float.h"
+#include "math_mpfr.h"
+#include "math_arithmetic.h"
 using namespace visilib;
 using namespace std;
 using namespace visilibDemo;
@@ -104,11 +106,11 @@ namespace visilibDemo
 #if EMBREE
             config.useEmbree = mDemoConfiguration.embree;
 #endif
-#if USE_MPFR
-            MPfr::set_default_precision(ExactArithnetric<MathMpfr>::bitsCount());
+#if ENABLE_MPFR
+            MathMpfr::set_default_precision(MathArithmetic<MathMpfr>::bitsCount());
 #endif
-#if USE_GMP
-            MathGmpFloat::set_default_precision(ExactArithnetric<MathGmpFloat>::bitsCount());
+#if ENABLE_GMP
+            MathGmpFloat::set_default_precision(MathArithmetic<MathGmpFloat>::bitsCount());
 #endif
 
 
