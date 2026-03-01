@@ -288,29 +288,40 @@ void DemoConfiguration::readConfig(const std::string& filename)
 
 const std::string DemoConfiguration::toStr(VisibilityExactQueryConfiguration::PrecisionType p)
 {
+    std::stringstream stream;
     switch (p) {
     case VisibilityExactQueryConfiguration::FLOAT:
-        return "FLOAT " + std::to_string(MathArithmetic<float>::bitsCount());;
+        stream <<  "FLOAT "  << MathArithmetic<float>::bitsCount()<< " bits; tol = " << MathArithmetic<float>::Tolerance();
+        break;
     case VisibilityExactQueryConfiguration::DOUBLE:
-        return "DOUBLE " + std::to_string(MathArithmetic<double>::bitsCount());;
+         stream << "DOUBLE " << MathArithmetic<double>::bitsCount()<< " bits; tol = " << MathArithmetic<double>::Tolerance();
+        break;
 #ifdef ENABLE_LEDA
     case VisibilityExactQueryConfiguration::LEDA_REAL:
-        return "LEDA_REAL " + std::to_string(MathArithmetic<MathLedaReal>::bitsCount());;
+        stream << "LEDA_REAL " <<MathArithmetic<MathLedaReal>::bitsCount()<< " bits; tol = " << MathArithmetic<MathLedaReal>::Tolerance();
+        break;
 #endif
 #ifdef ENABLE_GMP
     case VisibilityExactQueryConfiguration::GMP_FLOAT:
-        return "GMP_FLOAT "  + std::to_string(MathArithmetic<MathGmpFloat>::bitsCount());;
+        stream << "GMP_FLOAT "  <<MathArithmetic<MathGmpFloat>::bitsCount()<< " bits; tol = " << MathArithmetic<MathGmpFloat>::Tolerance();
+        break;
     case VisibilityExactQueryConfiguration::GMP_RATIONAL:
-        return "GMP_RATIONAL " + std::to_string(MathArithmetic<MathGmpRational>::bitsCount());
+        stream << "GMP_RATIONAL; tol = " << MathArithmetic<MathGmpRational>::Tolerance();
+        break;
 
 #endif
 #ifdef ENABLE_MPFR
     case VisibilityExactQueryConfiguration::MPFR:
-        return "MPFR " + std::to_string(MathArithmetic<MathMpfr>::bitsCount());
+        stream << "MPFR " << MathArithmetic<MathMpfr>::bitsCount() << " bits; tol = " << MathArithmetic<MathMpfr>::Tolerance();
+        break;
+
 #endif
     default:
-        return "UNKNOWN";
+        stream << "UNKNOWN";
+        break;
     }
+
+    return stream.str();
 }
 
 void DemoConfiguration::displaySummary()

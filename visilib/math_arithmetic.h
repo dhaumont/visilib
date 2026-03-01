@@ -76,6 +76,9 @@ namespace visilib
     };
     template <> inline int MathArithmetic<double>::validDecimalsCount()  { return std::numeric_limits<double>::digits10 + 1; }
     template <> inline int MathArithmetic<float>::validDecimalsCount()  { return std::numeric_limits<float>::digits10 + 1; }
+#ifdef ENABLE_LEDA
+    template <> inline int MathArithmetic<MathLedaReal>::validDecimalsCount()  { return 200; }
+#endif
 #ifdef ENABLE_MPFR
     template <> inline int MathArithmetic<MathMpfr>::validDecimalsCount()  { return 200; }
 #endif
@@ -86,7 +89,12 @@ namespace visilib
     template<> inline double MathArithmetic<double>::Tolerance() { return  1e-11; }
     template<> inline float MathArithmetic<float>::Tolerance() { return 1e-6f; }
 #ifdef ENABLE_LEDA
-    template<> inline MathLedaReal MathArithmetic<MathLedaReal>::Tolerance() { return MathLedaReal(1e-20); }
+    template<> inline MathLedaReal MathArithmetic<MathLedaReal>::Tolerance() 
+    {
+       int basis(10.0);
+       int precision(MathArithmetic<MathLedaReal>::validDecimalsCount()-1);
+       return pow(basis, -precision);
+    }
 #endif
 #ifdef ENABLE_GMP
     template<> inline MathGmpFloat MathArithmetic<MathGmpFloat>::Tolerance()
@@ -95,7 +103,10 @@ namespace visilib
        int precision(MathArithmetic<MathGmpFloat>::validDecimalsCount()-1);
        return pow(basis, -precision);
     }
-    template<> inline MathGmpRational MathArithmetic<MathGmpRational>::Tolerance() { return  MathGmpRational(); }
+    template<> inline MathGmpRational MathArithmetic<MathGmpRational>::Tolerance()
+    {
+      return  MathGmpRational(1e-200);
+    }
 #endif
 #ifdef ENABLE_MPFR
     template<> inline MathMpfr MathArithmetic<MathMpfr>::Tolerance()
