@@ -104,6 +104,11 @@ struct MathGmpRational {
     inline bool isfinite() const {
         return !isInfinite();
     }
+    inline double to_double() const
+    {
+      return mpq_get_d(v);
+    }
+
 };
 
 inline std::ostream& operator<< (std::ostream& stream, const MathGmpRational& val)
@@ -133,9 +138,5 @@ inline MathGmpRational operator*(const MathGmpRational& lhs, const MathGmpRation
     MathGmpRational tmp;
     mpq_mul(tmp.v, lhs.v, rhs.v);
     return tmp;
-}
-inline double to_double(const MathGmpRational& rhs)
-{
-    return mpq_get_d(rhs.v);
 }
 

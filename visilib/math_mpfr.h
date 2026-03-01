@@ -127,6 +127,10 @@ struct MathMpfr {
         const double LOG2_10 = 3.3219280948873624;
         return mp_prec_t(std::ceil( d * LOG2_10 ));
     }
+    inline double to_double() const
+    {
+      return mpfr_get_d(v, MPFR_RNDN);
+    }
 
 };
 
@@ -157,9 +161,5 @@ inline MathMpfr operator*(const MathMpfr& lhs, const MathMpfr& rhs)
     MathMpfr tmp;
     mpfr_mul(tmp.v, lhs.v, rhs.v, MPFR_RNDN);
     return tmp;
-}
-inline double to_double(const MathMpfr& rhs)
-{
-    return mpfr_get_d(rhs.v, MPFR_RNDN);
 }
 

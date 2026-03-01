@@ -349,19 +349,19 @@ namespace visilib
     template<>
     inline double MathArithmetic<MathMpfr>::to_double(MathMpfr v)
     {
-        return to_double(v);
+        return v.to_double();
     }
 #endif
 #ifdef ENABLE_GMP
     template<>
     inline double MathArithmetic<MathGmpFloat>::to_double(MathGmpFloat v)
     {
-        return to_double(v);
+        return v.to_double();
     }
     template<>
     inline double MathArithmetic<MathGmpRational>::to_double(MathGmpRational v)
     {
-        return to_double(v);
+        return v.to_double();
     }
 #endif
 

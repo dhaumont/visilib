@@ -138,7 +138,10 @@ namespace visilib
     template<>
     inline MathVector3d convert(const MathVector3_<MathLeda> & f)
     {
-        return MathVector3d(to_double(f.x), to_double(f.y), to_double(f.z));
+        return MathVector3d(
+            MathArithmetic<MathLeda>::to_double(f.x),
+            MathArithmetic<MathLeda>::to_double(f.y),
+            MathArithmetic<MathLeda>::to_double(f.z));
     }
 
     template<>
@@ -152,7 +155,10 @@ namespace visilib
     template<>
     inline MathVector3d convert(const MathVector3_<MathGmpFloat>& f)
     {
-        return MathVector3d(to_double(f.x), to_double(f.y), to_double(f.z));
+        return MathVector3d(
+            MathArithmetic<MathGmpFloat>::to_double(f.x),
+            MathArithmetic<MathGmpFloat>::to_double(f.y),
+            MathArithmetic<MathGmpFloat>::to_double(f.z));
     }
 
     template<>
@@ -164,7 +170,10 @@ namespace visilib
     template<>
     inline MathVector3d convert(const MathVector3_<MathGmpRational>& f)
     {
-        return MathVector3d(to_double(f.x), to_double(f.y), to_double(f.z));
+        return MathVector3d(
+            MathArithmetic<MathGmpRational>::to_double(f.x),
+            MathArithmetic<MathGmpRational>::to_double(f.y),
+            MathArithmetic<MathGmpRational>::to_double(f.z));
     }
 
     template<>
@@ -179,7 +188,10 @@ namespace visilib
     template<>
     inline MathVector3d convert(const MathVector3_<MathMpfr>& f)
     {
-        return MathVector3d(to_double(f.x), to_double(f.y), to_double(f.z));
+        return MathVector3d(
+            MathArithmetic<MathMpfr>::to_double(f.x),
+            MathArithmetic<MathMpfr>::to_double(f.y),
+            MathArithmetic<MathMpfr>::to_double(f.z));
     }
 
     template<>

@@ -119,7 +119,10 @@ struct MathGmpFloat {
         const double LOG2_10 = 3.3219280948873624;
         return mp_bitcnt_t(std::ceil( d * LOG2_10 ));
     }
-
+    inline double to_double() const
+    {
+      return mpf_get_d(v);
+    }
 };
 
 inline std::ostream& operator<< (std::ostream& stream, const MathGmpFloat& val)
@@ -150,7 +153,4 @@ inline MathGmpFloat operator*(const MathGmpFloat& lhs, const MathGmpFloat& rhs)
     mpf_mul(tmp.v, lhs.v, rhs.v);
     return tmp;
 }
-inline double to_double(const MathGmpFloat& rhs)
-{
-    return mpf_get_d(rhs.v);
-}
+
