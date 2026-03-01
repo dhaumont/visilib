@@ -21,8 +21,10 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #pragma once
 
 #ifdef ENABLE_LEDA
+#include <LEDA/numbers/rational.h>
 #include <LEDA/numbers/real.h>
-typedef leda::real MathLeda;
+typedef leda::rational MathLedaRational;
+typedef leda::real MathLedaReal;
 #endif
 
 #ifdef ENABLE_GMP

@@ -388,10 +388,10 @@ namespace visilib
 
 #ifdef ENABLE_LEDA
     template<>
-    inline bool MathGeometry::findPluckerEdgeWithQuadricIntersection<MathPlucker6<MathLeda>, MathLeda>(const MathPlucker6<MathLeda> & v1, const MathPlucker6<MathLeda> & v2, GeometryPositionType p1, GeometryPositionType p2, std::vector<MathPlucker6<MathLeda> > & result, const MathLeda& tolerance)
+    inline bool MathGeometry::findPluckerEdgeWithQuadricIntersection<MathPlucker6<MathLedaReal>, MathLedaReal>(const MathPlucker6<MathLedaReal> & v1, const MathPlucker6<MathLedaReal> & v2, GeometryPositionType p1, GeometryPositionType p2, std::vector<MathPlucker6<MathLedaReal> > & result, const MathLedaReal& tolerance)
 
     {
-        return findPluckerEdgeWithQuadricIntersection<MathPlucker6<MathLeda>, MathLeda>(v1, v2, p1, p2, result, true, tolerance);
+        return findPluckerEdgeWithQuadricIntersection<MathPlucker6<MathLedaReal>, MathLedaReal>(v1, v2, p1, p2, result, true, tolerance);
     }
 
 #endif

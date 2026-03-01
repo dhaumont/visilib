@@ -86,7 +86,7 @@ namespace visilib
     template<> inline double MathArithmetic<double>::Tolerance() { return  1e-11; }
     template<> inline float MathArithmetic<float>::Tolerance() { return 1e-6f; }
 #ifdef ENABLE_LEDA
-    template<> inline MathLeda MathArithmetic<MathLeda>::Tolerance() { return MathLeda(1e-20); }
+    template<> inline MathLedaReal MathArithmetic<MathLedaReal>::Tolerance() { return MathLedaReal(1e-20); }
 #endif
 #ifdef ENABLE_GMP
     template<> inline MathGmpFloat MathArithmetic<MathGmpFloat>::Tolerance()
@@ -114,7 +114,7 @@ namespace visilib
     template <> inline int MathArithmetic<double>::bitsCount()  { return 64; }
     template <> inline int MathArithmetic<float>::bitsCount()  { return 32; }
 #ifdef ENABLE_LEDA
-    template <> inline int MathArithmetic<MathLeda>::bitsCount()
+    template <> inline int MathArithmetic<MathLedaReal>::bitsCount()
     {
       return 0;
     }
@@ -136,7 +136,7 @@ namespace visilib
     }
 #endif
 #ifdef ENABLE_LEDA
-    template<> MathLeda MathArithmetic<MathLeda>::getAbs(MathLeda s);
+    template<> MathLedaReal MathArithmetic<MathLedaReal>::getAbs(MathLedaReal s);
 #endif
 #ifdef ENABLE_GMP
     template<> inline MathGmpFloat MathArithmetic<MathGmpFloat>::getAbs(MathGmpFloat s);
@@ -150,7 +150,7 @@ namespace visilib
     template<> inline float MathArithmetic<float>::getSqrt(float s);
 
 #ifdef ENABLE_LEDA
-    template<> MathLeda MathArithmetic<MathLeda>::getSqrt(MathLeda s);
+    template<> MathLedaReal MathArithmetic<MathLedaReal>::getSqrt(MathLedaReal s);
 #endif
 #ifdef ENABLE_GMP
     template<> inline MathGmpFloat MathArithmetic<MathGmpFloat>::getSqrt(MathGmpFloat  s);
@@ -164,7 +164,7 @@ namespace visilib
 
     template<> inline bool MathArithmetic<float>::isFinite(float s);
 #ifdef ENABLE_LEDA
-    template<> inline bool MathArithmetic<MathLeda>::isFinite(MathLeda s);
+    template<> inline bool MathArithmetic<MathLedaReal>::isFinite(MathLedaReal s);
 #endif
 #ifdef ENABLE_GMP
     template<> inline bool MathArithmetic<MathGmpFloat>::isFinite(MathGmpFloat s);
@@ -188,7 +188,7 @@ namespace visilib
 
 #ifdef ENABLE_LEDA
     template<>
-    inline MathLeda MathArithmetic<MathLeda>::getAbs(MathLeda s)
+    inline MathLedaReal MathArithmetic<MathLedaReal>::getAbs(MathLedaReal s)
     {
         return abs(s);
     }
@@ -228,7 +228,7 @@ namespace visilib
 
 #ifdef ENABLE_LEDA
     template<>
-    inline MathLeda MathArithmetic<MathLeda>::getSqrt(MathLeda s)
+    inline MathLedaReal MathArithmetic<MathLedaReal>::getSqrt(MathLedaReal s)
     {
         //return approximate_sqrt(s);0
         return sqrt(s);
@@ -270,7 +270,7 @@ namespace visilib
 
 #ifdef ENABLE_LEDA
     template<>
-    inline bool MathArithmetic<MathLeda>::isFinite(MathLeda s)
+    inline bool MathArithmetic<MathLedaReal>::isFinite(MathLedaReal s)
     {
         return true;
     }
@@ -340,7 +340,7 @@ namespace visilib
     }
 #ifdef ENABLE_LEDA
     template<>
-    inline double MathArithmetic<MathLeda>::to_double(MathLeda v)
+    inline double MathArithmetic<MathLedaReal>::to_double(MathLedaReal v)
     {
         return v.to_double();
     }

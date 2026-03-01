@@ -55,7 +55,7 @@ bool VisibilityTest(std::string& )
 {
     std::vector<VisibilityExactQueryConfiguration::PrecisionType> precisions = { VisibilityExactQueryConfiguration::DOUBLE };
 #ifdef ENABLE_LEDA
-    precisions.push_back(VisibilityExactQueryConfiguration::LEDA);
+    precisions.push_back(VisibilityExactQueryConfiguration::LEDA_REAL);
 #endif
 #ifdef ENABLE_MPFR
     precisions.push_back(VisibilityExactQueryConfiguration::MPFR);

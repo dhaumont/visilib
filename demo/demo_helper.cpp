@@ -294,8 +294,8 @@ const std::string DemoConfiguration::toStr(VisibilityExactQueryConfiguration::Pr
     case VisibilityExactQueryConfiguration::DOUBLE:
         return "DOUBLE " + std::to_string(MathArithmetic<double>::bitsCount());;
 #ifdef ENABLE_LEDA
-    case VisibilityExactQueryConfiguration::LEDA:
-        return "LEDA " + std::to_string(MathArithmetic<MathLeda>::bitsCount());;
+    case VisibilityExactQueryConfiguration::LEDA_REAL:
+        return "LEDA_REAL " + std::to_string(MathArithmetic<MathLedaReal>::bitsCount());;
 #endif
 #ifdef ENABLE_GMP
     case VisibilityExactQueryConfiguration::GMP_FLOAT:

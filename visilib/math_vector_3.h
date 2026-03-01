@@ -136,18 +136,18 @@ namespace visilib
 
 #ifdef ENABLE_LEDA
     template<>
-    inline MathVector3d convert(const MathVector3_<MathLeda> & f)
+    inline MathVector3d convert(const MathVector3_<MathLedaReal> & f)
     {
         return MathVector3d(
-            MathArithmetic<MathLeda>::to_double(f.x),
-            MathArithmetic<MathLeda>::to_double(f.y),
-            MathArithmetic<MathLeda>::to_double(f.z));
+            MathArithmetic<MathLedaReal>::to_double(f.x),
+            MathArithmetic<MathLedaReal>::to_double(f.y),
+            MathArithmetic<MathLedaReal>::to_double(f.z));
     }
 
     template<>
-    inline MathVector3_<MathLeda> convert(const MathVector3d & f)
+    inline MathVector3_<MathLedaReal> convert(const MathVector3d & f)
     {
-        return MathVector3_<MathLeda>(f.x, f.y, f.z);
+        return MathVector3_<MathLedaReal>(f.x, f.y, f.z);
     }
 #endif
 
