@@ -286,6 +286,7 @@ namespace visilibDemo
                 current++;
                 if (current >= static_cast<int>(VisibilityExactQueryConfiguration::COUNT)) current = VisibilityExactQueryConfiguration::FLOAT;
                 mDemoConfiguration.precisionType = static_cast<VisibilityExactQueryConfiguration::PrecisionType>(current);
+                displaySettings();
                 forceDisplay = true;
                 break;
 #if EMBREE
