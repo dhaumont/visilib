@@ -36,7 +36,7 @@ namespace visilibDemo
         bool silhouetteOptimisation = true;
         VisibilityExactQueryConfiguration::PrecisionType precisionType = VisibilityExactQueryConfiguration::DOUBLE;
         bool detectApertureOnly = false;
-        bool normalization = true;
+        bool normalization = false;
         float scaling = 0.1f;
         float phi = 0;
         float eta = 0;
