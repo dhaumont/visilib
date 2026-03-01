@@ -134,17 +134,17 @@ namespace visilib
         return MathVector3d(f.x, f.y, f.z);
     }
 
-#ifdef ENABLE_CGAL_LEDA
+#ifdef ENABLE_LEDA
     template<>
-    inline MathVector3d convert(const MathVector3_<MathCgalLeda> & f)
+    inline MathVector3d convert(const MathVector3_<MathLeda> & f)
     {
         return MathVector3d(to_double(f.x), to_double(f.y), to_double(f.z));
     }
 
     template<>
-    inline MathVector3_<MathCgalLeda> convert(const MathVector3d & f)
+    inline MathVector3_<MathLeda> convert(const MathVector3d & f)
     {
-        return MathVector3_<MathCgalLeda>(f.x, f.y, f.z);
+        return MathVector3_<MathLeda>(f.x, f.y, f.z);
     }
 #endif
 

@@ -65,12 +65,12 @@ inline VisibilityResult visilib::areVisible(GeometryOccluderSet* scene, const fl
 
     switch (configuration.precision)
     {
-#ifdef ENABLE_CGAL_LEDA
-      case VisibilityExactQueryConfiguration::CGAL_LEDA:
-        query = new VisibilityExactQuery_<MathPlucker6<MathCgalLeda>, MathCgalLeda>(
+#ifdef ENABLE_LEDA
+      case VisibilityExactQueryConfiguration::LEDA:
+        query = new VisibilityExactQuery_<MathPlucker6<MathLeda>, MathLeda>(
             scene,
             configuration,
-            getComputationTolerance<MathCgalLeda>(configuration));
+            getComputationTolerance<MathLeda>(configuration));
         break;
 #endif
 #ifdef ENABLE_GMP

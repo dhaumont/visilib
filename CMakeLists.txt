@@ -33,15 +33,16 @@ project( ${VISILIB_LIB_NAME} )
 project( ${VISILIB_DEMO_NAME} )
 
 if(WIN32)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/win64")
+else()
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/")
 endif()
-
 
 #Set USE_EMBREE flag to True to enable fast raytracing using Intel Embree library (default: false)
 set (USE_EMBREE False)
 
-#Set USE_CGAL_LEDA flag to True to enable exact arithmetic computation with CGAL library (default:false)
-set (USE_CGAL_LEDA False)
+#Set USE_LEDA flag to True to enable exact arithmetic computation with LEDA library (default:false)
+set (USE_LEDA True)
 set (USE_GMP True)
 set (USE_MPFR True)
 
@@ -72,34 +73,19 @@ else()
     message(ERROR " GLUT not found!")
 endif()
 
-#optional usage of CGAL library
-if (USE_CGAL_LEDA)
-    #CGAL library
-    find_package(CGAL)
-    if (CGAL_FOUND)
-        include_directories ( ${CGAL_INCLUDE_DIRS})
-        add_definitions(-DCGAL_HEADER_ONLY -DCGAL_NO_GMP)
-    endif()
-
-    #BOOST library
-    set(Boost_USE_STATIC_LIBS        OFF) # only find static libs
-    find_package(Boost)
-
-    if (Boost_FOUND)
-        include_directories(${Boost_INCLUDE_DIRS})
-    endif()
-
-    find_package(LEDA)
+#optional usage of LEDA`` library
+if (USE_LEDA)
+    find_package(LEDA REQUIRED)
     if (LEDA_FOUND)
+        message("Found LEDA")
         INCLUDE_DIRECTORIES(${LEDA_INCLUDE_DIR})
         set(LIBS ${LIBS} ${LEDA_LIBRARY})
+        add_definitions(-DENABLE_LEDA)
+        add_definitions(-DLEDA_DLL)
+    else()
+        message(FATAL_ERROR "LEDA not found")
     endif()
 
-    if (Boost_FOUND AND LEDA_FOUND AND CGAL_FOUND)
-        add_definitions(-DENABLE_CGAL_LEDA)
-        add_definitions(-DLEDA_DLL)
-        add_definitions(-DCGAL_USE_LEDA)
-    endif()
 endif()
 
 # optional usage of EMBREE library
@@ -126,7 +112,7 @@ if(NOT WIN32)
 
 endif(NOT WIN32)
 
-set(CMAKE_CXX_STANDARD 11 CACHE STRING "The C++ standard to use")
+set(CMAKE_CXX_STANDARD 17 CACHE STRING "The C++ standard to use")
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 

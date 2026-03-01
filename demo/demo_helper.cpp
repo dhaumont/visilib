@@ -293,9 +293,9 @@ const std::string DemoConfiguration::toStr(VisibilityExactQueryConfiguration::Pr
         return "FLOAT " + std::to_string(MathArithmetic<float>::bitsCount());;
     case VisibilityExactQueryConfiguration::DOUBLE:
         return "DOUBLE " + std::to_string(MathArithmetic<double>::bitsCount());;
-#ifdef ENABLE_CGAL_LEDA
-    case VisibilityExactQueryConfiguration::CGAL_LEDA:
-        return "CGAL_LEDA " + std::to_string(MathArithmetic<MathCgalLeda>::bitsCount());;
+#ifdef ENABLE_LEDA
+    case VisibilityExactQueryConfiguration::LEDA:
+        return "LEDA " + std::to_string(MathArithmetic<MathLeda>::bitsCount());;
 #endif
 #ifdef ENABLE_GMP
     case VisibilityExactQueryConfiguration::GMP_FLOAT:

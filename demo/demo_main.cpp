@@ -164,9 +164,8 @@ namespace visilibDemo
 
             std::cout << "  s: enable/disable silhouette optimisation" << std::endl;
             std::cout << "  n: enable/disable nomalization" << std::endl;
-#if ENABLE_CGAL_LEDA
             std::cout << "  e: enable/disable exact arithmetic" << std::endl;
-#endif
+
 #if EMBREE
             std::cout << "  g: enable/disable embree ray tracing" << std::endl;
 #endif

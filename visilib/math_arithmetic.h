@@ -71,6 +71,8 @@ namespace visilib
 
         /** @brief Test is a vector is finite (not containing NaN).*/
         static bool isFinite(MathVector3_<S> a);
+
+         static double to_double(S a);
     };
     template <> inline int MathArithmetic<double>::validDecimalsCount()  { return std::numeric_limits<double>::digits10 + 1; }
     template <> inline int MathArithmetic<float>::validDecimalsCount()  { return std::numeric_limits<float>::digits10 + 1; }
@@ -83,8 +85,8 @@ namespace visilib
 
     template<> inline double MathArithmetic<double>::Tolerance() { return  1e-11; }
     template<> inline float MathArithmetic<float>::Tolerance() { return 1e-6f; }
-#ifdef ENABLE_CGAL_LEDA
-    template<> inline MathCgalLeda MathArithmetic<MathCgalLeda>::Tolerance() { return MathCgalLeda(1e-20); }
+#ifdef ENABLE_LEDA
+    template<> inline MathLeda MathArithmetic<MathLeda>::Tolerance() { return MathLeda(1e-20); }
 #endif
 #ifdef ENABLE_GMP
     template<> inline MathGmpFloat MathArithmetic<MathGmpFloat>::Tolerance()
@@ -111,6 +113,12 @@ namespace visilib
 
     template <> inline int MathArithmetic<double>::bitsCount()  { return 64; }
     template <> inline int MathArithmetic<float>::bitsCount()  { return 32; }
+#ifdef ENABLE_LEDA
+    template <> inline int MathArithmetic<MathLeda>::bitsCount()
+    {
+      return 0;
+    }
+#endif
 #ifdef ENABLE_MPFR
     template <> inline int MathArithmetic<MathMpfr>::bitsCount()
     {
@@ -127,8 +135,8 @@ namespace visilib
       return 0;
     }
 #endif
-#ifdef ENABLE_CGAL_LEDA
-    template<> MathCgalLeda MathArithmetic<MathCgalLeda>::getAbs(MathCgalLeda s);
+#ifdef ENABLE_LEDA
+    template<> MathLeda MathArithmetic<MathLeda>::getAbs(MathLeda s);
 #endif
 #ifdef ENABLE_GMP
     template<> inline MathGmpFloat MathArithmetic<MathGmpFloat>::getAbs(MathGmpFloat s);
@@ -141,8 +149,8 @@ namespace visilib
     template<> inline double MathArithmetic<double>::getSqrt(double s);
     template<> inline float MathArithmetic<float>::getSqrt(float s);
 
-#ifdef ENABLE_CGAL_LEDA
-    template<> MathCgalLeda MathArithmetic<MathCgalLeda>::getSqrt(MathCgalLeda s);
+#ifdef ENABLE_LEDA
+    template<> MathLeda MathArithmetic<MathLeda>::getSqrt(MathLeda s);
 #endif
 #ifdef ENABLE_GMP
     template<> inline MathGmpFloat MathArithmetic<MathGmpFloat>::getSqrt(MathGmpFloat  s);
@@ -155,8 +163,8 @@ namespace visilib
     template<> inline bool MathArithmetic<double>::isFinite(double s);
 
     template<> inline bool MathArithmetic<float>::isFinite(float s);
-#ifdef ENABLE_CGAL_LEDA
-    template<> inline bool MathArithmetic<MathCgalLeda>::isFinite(MathCgalLeda s);
+#ifdef ENABLE_LEDA
+    template<> inline bool MathArithmetic<MathLeda>::isFinite(MathLeda s);
 #endif
 #ifdef ENABLE_GMP
     template<> inline bool MathArithmetic<MathGmpFloat>::isFinite(MathGmpFloat s);
@@ -178,11 +186,11 @@ namespace visilib
         return std::fabs(s);
     }
 
-#ifdef ENABLE_CGAL_LEDA
+#ifdef ENABLE_LEDA
     template<>
-    inline MathCgalLeda MathArithmetic<MathCgalLeda>::getAbs(MathCgalLeda s)
+    inline MathLeda MathArithmetic<MathLeda>::getAbs(MathLeda s)
     {
-        return CGAL::abs(s);
+        return abs(s);
     }
 #endif
 #ifdef ENABLE_GMP
@@ -218,12 +226,12 @@ namespace visilib
         return sqrt(s);
     }
 
-#ifdef ENABLE_CGAL_LEDA
+#ifdef ENABLE_LEDA
     template<>
-    inline MathCgalLeda MathArithmetic<MathCgalLeda>::getSqrt(MathCgalLeda s)
+    inline MathLeda MathArithmetic<MathLeda>::getSqrt(MathLeda s)
     {
         //return approximate_sqrt(s);0
-        return CGAL::sqrt(s);
+        return sqrt(s);
     }
 #endif
 
@@ -260,11 +268,11 @@ namespace visilib
         return isfinite(s);
     }
 
-#ifdef ENABLE_CGAL_LEDA
+#ifdef ENABLE_LEDA
     template<>
-    inline bool MathArithmetic<MathCgalLeda>::isFinite(MathCgalLeda s)
+    inline bool MathArithmetic<MathLeda>::isFinite(MathLeda s)
     {
-        return CGAL::is_finite(s);
+        return true;
     }
 #endif
 #ifdef ENABLE_GMP
@@ -318,4 +326,43 @@ namespace visilib
         const S* p = static_cast<const S*>(&(aPoints[0].x));
         MathArithmetic<S>::getMinMax(p, aPoints.size(), aMin, aMax);
     }
+
+    template<>
+    inline double MathArithmetic<float>::to_double(float v)
+    {
+        return double(v);
+    }
+
+    template<>
+    inline double MathArithmetic<double>::to_double(double v)
+    {
+        return v;
+    }
+#ifdef ENABLE_LEDA
+    template<>
+    inline double MathArithmetic<MathLeda>::to_double(MathLeda v)
+    {
+        return v.to_double();
+    }
+#endif
+#ifdef ENABLE_MPFR
+    template<>
+    inline double MathArithmetic<MathMpfr>::to_double(MathMpfr v)
+    {
+        return to_double(v);
+    }
+#endif
+#ifdef ENABLE_GMP
+    template<>
+    inline double MathArithmetic<MathGmpFloat>::to_double(MathGmpFloat v)
+    {
+        return to_double(v);
+    }
+    template<>
+    inline double MathArithmetic<MathGmpRational>::to_double(MathGmpRational v)
+    {
+        return to_double(v);
+    }
+#endif
+
 }

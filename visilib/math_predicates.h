@@ -137,10 +137,6 @@ namespace visilib
 
         return true;
     }
-    inline double to_double(double v)
-    {
-        return v;
-    }
 
     template<typename P, class S>
     inline bool MathPredicates::isNormalized(const P & a, S tolerance)

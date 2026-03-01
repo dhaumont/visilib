@@ -54,8 +54,8 @@ bool testConfiguration(const DemoConfiguration& configuration, VisibilityResult 
 bool VisibilityTest(std::string& )
 {
     std::vector<VisibilityExactQueryConfiguration::PrecisionType> precisions = { VisibilityExactQueryConfiguration::DOUBLE };
-#ifdef ENABLE_CGAL_LEDA
-    precisions.push_back(VisibilityExactQueryConfiguration::CGAL_LEDA);
+#ifdef ENABLE_LEDA
+    precisions.push_back(VisibilityExactQueryConfiguration::LEDA);
 #endif
 #ifdef ENABLE_MPFR
     precisions.push_back(VisibilityExactQueryConfiguration::MPFR);
