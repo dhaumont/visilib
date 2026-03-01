@@ -97,7 +97,7 @@ namespace visilib
         {
             if (aFacetsDescription1[i] < aFacetsDescription2[j])
             {
-                aFacetsDescription1[i++];
+                result.push_back(aFacetsDescription1[i++]);
             }
             else if (aFacetsDescription1[i] > aFacetsDescription2[j])
             {
