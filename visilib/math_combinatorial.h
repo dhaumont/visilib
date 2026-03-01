@@ -56,8 +56,10 @@ namespace visilib
         V_ASSERT(std::is_sorted(aFacetsDescription1.begin(), aFacetsDescription1.end()));
         V_ASSERT(std::is_sorted(aFacetsDescription2.begin(), aFacetsDescription2.end()));
 
-        aResultFacetsDescription.resize(aFacetsDescription1.size());
-        auto iter = std::set_intersection(aFacetsDescription1.begin(), aFacetsDescription1.end(), aFacetsDescription2.begin(), aFacetsDescription2.end(), aResultFacetsDescription.begin());
+        auto iter = std::set_intersection(
+            aFacetsDescription1.begin(), aFacetsDescription1.end(),
+            aFacetsDescription2.begin(), aFacetsDescription2.end(),
+              std::back_inserter(aResultFacetsDescription));
     }
 
     /** @brief Initialize a new facets description result from the two input facets description aFacetsDescription1 an aFacetsDescription1 of two given vertices and an additional

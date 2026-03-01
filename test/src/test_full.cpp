@@ -30,7 +30,7 @@ int main()
 	if (!MathCombinatorialTest(errorMessage))
 	{
       std::cout << "MathCombinatorialTest ERROR" << std::endl;
-	//   	return 1;
+	   	return 1;
 	}
 
     if (!VisibilityTest(errorMessage))
