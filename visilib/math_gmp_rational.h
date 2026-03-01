@@ -46,9 +46,9 @@ struct MathGmpRational {
     }
     inline MathGmpRational operator-() const
     {
-        MathGmpRational tmp;
-        mpq_neg(tmp.v, v);
-        return tmp;
+        MathGmpRational result;
+        mpq_neg(result.v, v);
+        return result;
     }
     inline const MathGmpRational& operator*=(const MathGmpRational& rhs)
     {
@@ -86,17 +86,43 @@ struct MathGmpRational {
     {
         return mpq_cmp(v, rhs.v) >= 0;
     }
-    inline MathGmpRational abs() const 
+    inline MathGmpRational abs() const
     {
-        MathGmpRational tmp;
-        mpq_abs(tmp.v, v);
-        return tmp;
+        MathGmpRational result;
+        mpq_abs(result.v, v);
+        return result;
     }
-    inline MathGmpRational sqrt() const 
+    inline MathGmpRational sqrt()
     {
-        MathGmpRational tmp;
-        mpq_set_d(tmp.v, std::sqrt(mpq_get_d(v)));
-        return tmp;
+        MathGmpRational result;
+        mpz_t num, den;
+        mpz_inits(num, den, NULL);
+
+        mpq_canonicalize(v);
+        mpq_get_num(num, v);
+        mpq_get_den(den, v);
+
+        if (mpz_perfect_square_p(num) && mpz_perfect_square_p(den))
+        {
+           mpz_sqrt(num, num);
+           mpz_sqrt(den, den);
+
+           mpq_set_num(result.v, num);
+           mpq_set_den(result.v, den);
+        }
+        else
+        {
+           mpf_t res_real;
+           mpf_init2(res_real,2048);
+           mpf_set_q(res_real, v); // Conversion q -> f
+           mpf_sqrt(res_real, res_real);
+
+           mpq_set_f(result.v,res_real);
+           mpf_clear(res_real);
+        }
+
+        mpz_clears(num, den, NULL);
+        return result;
     }
     inline bool isInfinite() const {
         return false;
@@ -117,26 +143,26 @@ inline std::ostream& operator<< (std::ostream& stream, const MathGmpRational& va
 }
 inline MathGmpRational operator+(const MathGmpRational& lhs, const MathGmpRational& rhs)
 {
-    MathGmpRational tmp;
-    mpq_add(tmp.v, lhs.v, rhs.v);
-    return tmp;
+    MathGmpRational result;
+    mpq_add(result.v, lhs.v, rhs.v);
+    return result;
 }
 inline MathGmpRational operator-(const MathGmpRational& lhs, const MathGmpRational& rhs)
 {
-    MathGmpRational tmp;
-    mpq_sub(tmp.v, lhs.v, rhs.v);
-    return tmp;
+    MathGmpRational result;
+    mpq_sub(result.v, lhs.v, rhs.v);
+    return result;
 }
 inline MathGmpRational operator/(const MathGmpRational& lhs, const MathGmpRational& rhs)
 {
-    MathGmpRational tmp;
-    mpq_div(tmp.v, lhs.v, rhs.v);
-    return tmp;
+    MathGmpRational result;
+    mpq_div(result.v, lhs.v, rhs.v);
+    return result;
 }
 inline MathGmpRational operator*(const MathGmpRational& lhs, const MathGmpRational& rhs)
 {
-    MathGmpRational tmp;
-    mpq_mul(tmp.v, lhs.v, rhs.v);
-    return tmp;
+    MathGmpRational result;
+    mpq_mul(result.v, lhs.v, rhs.v);
+    return result;
 }
 
