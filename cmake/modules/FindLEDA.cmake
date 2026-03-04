@@ -15,12 +15,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Visilib. If not, see <http://www.gnu.org/licenses/>
-
-if (EXISTS "$ENV{LEDA_DIR}/incl/LEDA/numbers/real.h" AND EXISTS "$ENV{LEDA_DIR}/leda_mt.lib" )
+if (EXISTS "$ENV{LEDA_DIR}/incl/LEDA/numbers/real.h" AND EXISTS "$ENV{LEDA_DIR}/libleda.a" )
     message("LEDA found: "  $ENV{LEDA_DIR})
-    
+
     set (LEDA_INCLUDE_DIR $ENV{LEDA_DIR}/incl)
-    set (LEDA_LIBRARY $ENV{LEDA_DIR}/leda_mt.lib)
+    set (LEDA_LIBRARY $ENV{LEDA_DIR}/libleda.a)
     set(LEDA_FOUND True)
 else()
     message("Could not locate LEDA at " $ENV{LEDA_DIR} )

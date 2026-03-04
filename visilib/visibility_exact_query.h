@@ -291,7 +291,7 @@ namespace visilib
     template<class P, class S>
     VisibilityResult VisibilityExactQuery_<P, S>::arePolygonsVisible(const float* vertices0, size_t numVertices0, const float* vertices1, size_t numVertices1, bool occlusionOnly)
     {
-        VisibilityResult result;
+        VisibilityResult result = UNKNOWN;
 
         HelperScopedTimer timer(&mStatistic, VISIBILITY_QUERY);
 
@@ -476,7 +476,7 @@ namespace visilib
             HelperScopedTimer timer(getStatistic(), RAY_INTERSECTION);
             getStatistic()->inc(RAY_COUNT);
 
-            intersect = mSilhouetteContainer->intersect(&myRay, aDistance);
+            intersect = mSilhouetteContainer->intersect(&myRay, MathArithmetic<S>::to_double(aDistance));
         }
 
         if (intersect)

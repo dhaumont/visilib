@@ -84,7 +84,7 @@ namespace visilib
         @param aVertice2: the second vertex
         @result aResult: the interpolated vertex computed by aResult = alpha * Vertice1 + beta * aVertice2
         */
-        template<class P, class S> static P interpolate(S anOffset1, S anOffset2, const P& aVertice1, const P& aVertice2, S tolerance);
+        template<class P, class S> static P interpolate(S anOffset1, S anOffset2, const P& aVertice1, const P& aVertice2, const S & tolerance);
 
         /** @brief  Get the 3D anchor point of a Plucker point
 
@@ -101,13 +101,13 @@ namespace visilib
         @param result: the set of intersection points (0, 1 or 2) with the Plucker Quadric
         @param newtonRaphson: use an iterative Newton Raphson optimisation to increase the precision of the results
         */
-        template<class P, class S> static bool findPluckerEdgeWithQuadricIntersection(const P& v1, const P& v2, GeometryPositionType p1, GeometryPositionType p2, std::vector<P>& result, bool newtonRaphson, S tolerance);
+        template<class P, class S> static bool findPluckerEdgeWithQuadricIntersection(const P& v1, const P& v2, GeometryPositionType p1, GeometryPositionType p2, std::vector<P>& result, bool newtonRaphson, const S & tolerance);
 
         /** @brief Compute the intersection of an edge in Plucker space with the Plucker Quadric  */
-        template<class P, class S> static bool findPluckerEdgeWithQuadricIntersection(const P& v1, const P& v2, GeometryPositionType p1, GeometryPositionType p2, std::vector<P>& result, S tolerance);
+        template<class P, class S> static bool findPluckerEdgeWithQuadricIntersection(const P& v1, const P& v2, GeometryPositionType p1, GeometryPositionType p2, std::vector<P>& result, const S & tolerance);
 
         /** @brief Test if an edge has an intersection with the Plucker Quadric  */
-        template<class P, class S> static bool hasPluckerEdgeWithQuadricIntersection(const P& v1, const P& v2, GeometryPositionType p1, GeometryPositionType p2, S tolerance);
+        template<class P, class S> static bool hasPluckerEdgeWithQuadricIntersection(const P& v1, const P& v2, GeometryPositionType p1, GeometryPositionType p2, const S & tolerance);
 
         /** @brief Compute the supporting plane of a convex polygon */
         static MathPlane3d computePlane(const GeometryConvexPolygon& polygon);
@@ -159,7 +159,7 @@ namespace visilib
         This procedure is not formally correct from a mathematical point of view: the gravity center in Pluker space do not correspond to a real line in 3D since the gravity center
          does not belongs to the Plucker quadric. However, it works well in practice to find an average polytope representative line
         */
-        template<class P, class S> static P computeRepresentativeLine(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron, S tolerance);
+        template<class P, class S> static P computeRepresentativeLine(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron, const S & tolerance);
 
         /** @brief  Compute the intersection of an edge with a plane */
         static MathVector3_<double> getPlaneIntersectionWithEdge(const MathVector3_<double>& myV1, const MathVector3_<double>& myV2, const MathPlane3_<double>& aPlane);
@@ -169,7 +169,7 @@ namespace visilib
         template<class P, class S> static P getClosestQuadricPoint(const P& line);
 
         template<class P, class S>
-        bool static isEdgeInsidePolytope(const MathVector3d& a, const MathVector3d& b, PluckerPolytope<P>* aPolytope, const MathVector3d& approximateNormal, PluckerPolyhedron<P>* polyhedron, S tolerance);
+        bool static isEdgeInsidePolytope(const MathVector3d& a, const MathVector3d& b, PluckerPolytope<P>* aPolytope, const MathVector3d& approximateNormal, PluckerPolyhedron<P>* polyhedron, const S & tolerance);
 
         template<class S>
         static bool isBoxInsideConvexHull(const MathVector3_<S>& AABBMin, const MathVector3_<S>& AABBMax, const std::vector<MathPlane3_<S> >& convexHullPlanes);
@@ -321,7 +321,7 @@ namespace visilib
     }
 
     template<class P, class S>
-    inline P  MathGeometry::interpolate(S anOffset1, S anOffset2, const P & aVertice1, const P & aVertice2, S tolerance)
+    inline P  MathGeometry::interpolate(S anOffset1, S anOffset2, const P & aVertice1, const P & aVertice2, const S & tolerance)
     {
         P  myVector1 = aVertice1;
         P  myVector2 = aVertice2;
@@ -361,14 +361,14 @@ namespace visilib
         if (eta >= tolerance || gamma >= tolerance)
         {
             V_ASSERT(MathArithmetic<S>::getAbs(sum2) > tolerance);
-            S div = 1.f / (sum2);
+            S div = S(1) / (sum2);
             alpha = gamma * div;
             beta = sum * div;
         }
 
         else
         {
-            alpha = beta = 0.5f;
+            alpha = beta = S(0.5);
         }
 
         myVector1 *= alpha;
@@ -379,34 +379,57 @@ namespace visilib
     }
 
     template<>
-    inline bool MathGeometry::findPluckerEdgeWithQuadricIntersection<MathPlucker6<float>, float>(const MathPlucker6<float> & v1, const MathPlucker6<float> & v2, GeometryPositionType p1, GeometryPositionType p2, std::vector<MathPlucker6<float> > & result, float tolerance)
+    inline bool MathGeometry::findPluckerEdgeWithQuadricIntersection<MathPlucker6<float>, float>(const MathPlucker6<float> & v1, const MathPlucker6<float> & v2, GeometryPositionType p1, GeometryPositionType p2, std::vector<MathPlucker6<float>> & result, const float & tolerance)
     {
         return findPluckerEdgeWithQuadricIntersection<MathPlucker6<float>, float>(v1, v2, p1, p2, result, true, tolerance);
     }
 
     template<>
-    inline bool MathGeometry::findPluckerEdgeWithQuadricIntersection<MathPlucker6<double>, double>(const MathPlucker6<double> & v1, const MathPlucker6<double> & v2, GeometryPositionType p1, GeometryPositionType p2, std::vector<MathPlucker6<double> > & result, double tolerance)
+    inline bool MathGeometry::findPluckerEdgeWithQuadricIntersection<MathPlucker6<double>, double>(const MathPlucker6<double> & v1, const MathPlucker6<double> & v2, GeometryPositionType p1, GeometryPositionType p2, std::vector<MathPlucker6<double>> & result, const double & tolerance)
     {
         return findPluckerEdgeWithQuadricIntersection<MathPlucker6<double>, double>(v1, v2, p1, p2, result, true, tolerance);
     }
 
     template<>
-    inline bool MathGeometry::findPluckerEdgeWithQuadricIntersection<MathPlucker2<double>, double>(const MathPlucker2<double> & v1, const MathPlucker2<double> & v2, GeometryPositionType p1, GeometryPositionType p2, std::vector<MathPlucker2<double> > & result, double tolerance)
+    inline bool MathGeometry::findPluckerEdgeWithQuadricIntersection<MathPlucker2<double>, double>(const MathPlucker2<double> & v1, const MathPlucker2<double> & v2, GeometryPositionType p1, GeometryPositionType p2, std::vector<MathPlucker2<double>> & result, const double & tolerance)
     {
         return findPluckerEdgeWithQuadricIntersection<MathPlucker2<double>, double>(v1, v2, p1, p2, result, true, tolerance);
     }
 
-#ifdef EXACT_ARITHMETIC
+#ifdef ENABLE_LEDA
     template<>
-    inline bool MathGeometry::findPluckerEdgeWithQuadricIntersection<MathPlucker6<exact>, exact>(const MathPlucker6<exact> & v1, const MathPlucker6<exact> & v2, GeometryPositionType p1, GeometryPositionType p2, std::vector<MathPlucker6<exact> > & result, exact tolerance)
+    inline bool MathGeometry::findPluckerEdgeWithQuadricIntersection<MathPlucker6<MathLedaReal>, MathLedaReal>(const MathPlucker6<MathLedaReal> & v1, const MathPlucker6<MathLedaReal> & v2, GeometryPositionType p1, GeometryPositionType p2, std::vector<MathPlucker6<MathLedaReal> > & result, const MathLedaReal& tolerance)
+
     {
-        return findPluckerEdgeWithQuadricIntersection<MathPlucker6<exact>, exact>(v1, v2, p1, p2, result, false, tolerance);
+        return findPluckerEdgeWithQuadricIntersection<MathPlucker6<MathLedaReal>, MathLedaReal>(v1, v2, p1, p2, result, true, tolerance);
     }
 
 #endif
 
+#ifdef ENABLE_GMP
+    template<>
+    inline bool MathGeometry::findPluckerEdgeWithQuadricIntersection<MathPlucker6<MathGmpFloat>, MathGmpFloat>(const MathPlucker6<MathGmpFloat>& v1, const MathPlucker6<MathGmpFloat>& v2, GeometryPositionType p1, GeometryPositionType p2, std::vector<MathPlucker6<MathGmpFloat>>& result, const MathGmpFloat & tolerance)
+    {
+        return findPluckerEdgeWithQuadricIntersection<MathPlucker6<MathGmpFloat>, MathGmpFloat>(v1, v2, p1, p2, result, true, tolerance);
+    }
+
+    template<>
+    inline bool MathGeometry::findPluckerEdgeWithQuadricIntersection<MathPlucker6<MathGmpRational>, MathGmpRational>(const MathPlucker6<MathGmpRational>& v1, const MathPlucker6<MathGmpRational>& v2, GeometryPositionType p1, GeometryPositionType p2, std::vector<MathPlucker6<MathGmpRational>>& result, const MathGmpRational & tolerance)
+    {
+        return findPluckerEdgeWithQuadricIntersection<MathPlucker6<MathGmpRational>, MathGmpRational>(v1, v2, p1, p2, result, true, tolerance);
+    }
+#endif
+
+#if ENABLE_MPFR
+    template<>
+    inline bool MathGeometry::findPluckerEdgeWithQuadricIntersection<MathPlucker6<MathMpfr>, MathMpfr>(const MathPlucker6<MathMpfr>& v1, const MathPlucker6<MathMpfr>& v2, GeometryPositionType p1, GeometryPositionType p2, std::vector<MathPlucker6<MathMpfr>>& result, const MathMpfr & tolerance)
+    {
+        return findPluckerEdgeWithQuadricIntersection<MathPlucker6<MathMpfr>, MathMpfr>(v1, v2, p1, p2, result, true, tolerance);
+    }
+#endif
+
     template<class P, class S>
-    inline bool MathGeometry::findPluckerEdgeWithQuadricIntersection(const P & v1, const P & v2, GeometryPositionType p1, GeometryPositionType p2, std::vector<P> & result, bool newtonRaphson, S tolerance)
+    inline bool MathGeometry::findPluckerEdgeWithQuadricIntersection(const P & v1, const P & v2, GeometryPositionType p1, GeometryPositionType p2, std::vector<P> & result, bool newtonRaphson, const S & tolerance)
     {
         result.clear();
 
@@ -483,7 +506,7 @@ namespace visilib
                     // Newton - Raphson iteration scheme : xn + 1 = xn - f(xn) / f'(xn)
                     //f (t)	 = a t*t + 2 b t + c
                     //f'(t)  = 2 at + 2b
-                    const double toleranceLocal = 1e-18;
+                    const S toleranceLocal(1e-18);
                     while (MathArithmetic<S>::getAbs(fxn) >= toleranceLocal && iter < 20)
                     {
                         at = a * t;
@@ -510,7 +533,7 @@ namespace visilib
     }
 
     template<class P, class S>
-    inline bool MathGeometry::hasPluckerEdgeWithQuadricIntersection(const P & v1, const P & v2, GeometryPositionType p1, GeometryPositionType p2, S tolerance)
+    inline bool MathGeometry::hasPluckerEdgeWithQuadricIntersection(const P & v1, const P & v2, GeometryPositionType p1, GeometryPositionType p2, const S & tolerance)
     {
         if (p1 == ON_BOUNDARY || p2 == ON_BOUNDARY)
         {
@@ -882,7 +905,7 @@ namespace visilib
     }
 
     template<class P, class S>
-    bool  MathGeometry::isEdgeInsidePolytope(const MathVector3d& a, const MathVector3d& b, PluckerPolytope<P>* aPolytope, const MathVector3d& approximateNormal, PluckerPolyhedron<P>* polyhedron, S tolerance)
+    bool  MathGeometry::isEdgeInsidePolytope(const MathVector3d& a, const MathVector3d& b, PluckerPolytope<P>* aPolytope, const MathVector3d& approximateNormal, PluckerPolyhedron<P>* polyhedron, const S & tolerance)
     {
         MathVector3d e = b;
         e -= a;
@@ -927,7 +950,7 @@ namespace visilib
     }
 
     template<class P, class S>
-    inline P MathGeometry::computeRepresentativeLine(PluckerPolytope<P> * polytope, PluckerPolyhedron<P> * polyhedron, S tolerance)
+    inline P MathGeometry::computeRepresentativeLine(PluckerPolytope<P> * polytope, PluckerPolyhedron<P> * polyhedron, const S & tolerance)
     {
         P  myGravityCenterImaginary = P::Zero();
         auto myVertices = polytope->getVertices();

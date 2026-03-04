@@ -182,7 +182,7 @@ namespace visilib
 
             MathPlucker6<S>  result(*this);
 
-            S myDiv = sqrt(mDirection.getSquaredNorm() + mLocation.getSquaredNorm());
+            S myDiv = MathArithmetic<S>::getSqrt(mDirection.getSquaredNorm() + mLocation.getSquaredNorm());
             V_ASSERT(MathArithmetic<S>::getAbs(myDiv) > MathArithmetic<S>::Tolerance());
 
             result.mDirection /= myDiv;
@@ -220,6 +220,15 @@ namespace visilib
         static MathPlucker6<S>  Zero()
         {
             return MathPlucker6(0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        }
+
+        bool isZero(S anEps)const
+        {
+           if (!getLocation().isZero(anEps))
+              return false;
+           if (!getDirection().isZero(anEps))
+              return false;
+           return true;
         }
 
         friend std::ostream& operator<<(std::ostream& os, const MathPlucker6& v)

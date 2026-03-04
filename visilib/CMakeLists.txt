@@ -46,6 +46,9 @@ set(MathSrc
     math_vector_2.h
     math_vector_3.h
     math_plane_3.h
+    math_gmp_float.h
+    math_gmp_rational.h
+    math_mpfr.h
     )
 
 set(PluckerSrc
@@ -90,7 +93,7 @@ source_group( external FILES ${ConvexHullSrc} )
 source_group( include FILES ${Headers} )
 source_group( src FILES ${Sources} )
 
-add_library( ${VISILIB_LIB_NAME} INTERFACE
+add_library( ${VISILIB_LIB_NAME} STATIC
     ${GeometrySrc}
     ${GeometryHeader}
     ${HelperSrc}
@@ -103,4 +106,6 @@ add_library( ${VISILIB_LIB_NAME} INTERFACE
     ${Headers}
     )
 
-set_target_properties(${VISILIB_LIB_NAME} PROPERTIES LINKER_LANGUAGE CXX)
+    set_target_properties(${VISILIB_LIB_NAME} PROPERTIES LINKER_LANGUAGE C)
+
+

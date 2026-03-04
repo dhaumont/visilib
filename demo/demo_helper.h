@@ -54,7 +54,7 @@ namespace visilibDemo
         size_t vertexCount1 = 3;
         bool silhouetteOptimisation = true;
         bool detectApertureOnly = false;
-        bool normalization = true;
+        bool normalization = false;
         float scaling = 0.1f;
         float phi = 0;
         float eta = 0;
@@ -71,8 +71,10 @@ namespace visilibDemo
         void displaySettings();
         void readConfig(const std::string& filename);
         void writeConfig(const std::string& filename);
-        void displaySummary();        
+
+        void displaySummary();
         visilib::VisibilityExactQueryConfiguration::PrecisionType getPrecisionType() const;        
+        static const std::string toStr(VisibilityExactQueryConfiguration::PrecisionType p);
     };
 
     class DemoHelper

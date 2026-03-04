@@ -42,5 +42,13 @@ namespace visilib
         std::vector<size_t> mGeometryIds;     /**< @brief Intersected geometry mesh*/
         std::vector<size_t> mPrimitiveIds;    /**< @brief Intersected primitve of the mesh*/
         std::vector<double> mTs;    /**< @brief Intersected primitve of the mesh*/
+
+        VisibilityRay() {
+            tnear = 0.0f;
+            tfar = 1.0f;
+
+            dir[0] = dir[1] = dir[2] = 0.0f;
+            org[0] = org[1] = org[2] = 0.0f;
+        }
     };
 }

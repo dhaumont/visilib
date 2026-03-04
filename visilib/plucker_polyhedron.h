@@ -140,7 +140,7 @@ namespace visilib
     template<class S>
     size_t PluckerPolyhedron<P>::add(const P& aLine, GeometryPositionType aPosition, bool aNormalization, S tolerance)
     {
-        V_ASSERT(!MathPredicates::isZero(aLine, tolerance));
+        V_ASSERT(!aLine.isZero(tolerance));
         V_ASSERT(!aNormalization || MathPredicates::isNormalized(aLine, tolerance));
         mLines.push_back(aLine);
         mQuadricRelativePositions.push_back(aPosition);
