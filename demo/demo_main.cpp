@@ -85,7 +85,7 @@ namespace visilibDemo
 
             delete meshContainer;
             meshContainer = DemoHelper::createScene(s, mDemoConfiguration.globalScaling);
-            
+
             delete occluderSet;
             occluderSet = DemoHelper::createOccluderSet(meshContainer);
 
@@ -245,14 +245,16 @@ namespace visilibDemo
             case ']':                
                if (mDemoConfiguration.minimumApertureSize < 0.3f)
                     mDemoConfiguration.minimumApertureSize += 0.001f;
-                     forceDisplay = true;                                
+                forceDisplay = true;                                
 
                 break;
 
             case '[':
                 if (mDemoConfiguration.minimumApertureSize > 0.001f)
                     mDemoConfiguration.minimumApertureSize -= 0.001f;
-                forceDisplay = true;
+                forceDisplay = true;                
+                break;
+
             case 'h':
                 writeHelp();
 

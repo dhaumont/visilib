@@ -28,7 +28,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 
 
 namespace visilib
-{  
+{
     /** @brief Configuration of a visibility query.*/
 
     struct VisibilityExactQueryConfiguration
@@ -76,9 +76,9 @@ namespace visilib
         }
 
         bool silhouetteOptimization;                  /**< @brief Use silhouette optimization*/
-        bool hyperSphereNormalization;                /**< @brief Normalize the Plucker point (projection on unit hypersphere)*/ 
-        PrecisionType precision;                      /**< @brief Arithmetic model precision t*/  
-        bool detectApertureOnly;                      /**< @brief Stop the query as soon as a visible line has been found*/  
+        bool hyperSphereNormalization;                /**< @brief Normalize the Plucker point (projection on unit hypersphere)*/
+        PrecisionType precision;                      /**< @brief Arithmetic model precision t*/
+        bool detectApertureOnly;                      /**< @brief Stop the query as soon as a visible line has been found*/
         bool useEmbree;
         double tolerance;
         double minimumApertureSize;
@@ -110,7 +110,7 @@ namespace visilib
 
     VisibilityResult areVisible(GeometryOccluderSet* scene,
                                 const float* vertices0, size_t numVertices0, const float* vertices1, size_t numVertices1,
-                                const VisibilityExactQueryConfiguration& configuration = VisibilityExactQueryConfiguration(), 
+                                const VisibilityExactQueryConfiguration& configuration = VisibilityExactQueryConfiguration(),
                                 HelperVisualDebugger* debugger = nullptr);
 
 

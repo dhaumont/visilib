@@ -28,7 +28,7 @@ namespace visilib
 {
 
  /** @brief
-   Store a set of silhouettes, representing occluder surfaces as seen from the sources. The silhouettes are used to compute ray intersection during visibility computation. 
+   Store a set of silhouettes, representing occluder surfaces as seen from the sources. The silhouettes are used to compute ray intersection during visibility computation.
 */
 
 class SilhouetteContainer
@@ -75,23 +75,23 @@ public:
                 {
                     hit = MathGeometry::hitsCylinder<float>(myGeometryRay, aDistance, face.getVertex(0), face.getVertex(1), face.getVertex(2));
                 }
-                
+
                 if (hit)
                 {
                     aRay->addIntersection(s->getGeometryId(), faceIndex, 0.0);
                     hasIntersection = true;
                     if (aDistance == 0)
-                    {      
+                    {
                         break;
                     }
-                }            
+                }
             }
 
         }
 
         return hasIntersection;
     }
-    
+
     template<class P, class S>
     static bool isOccluded(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron, const std::vector <Silhouette*>& aSilhouettes, const std::vector<P>& polytopeLines, S myTolerance)
     {

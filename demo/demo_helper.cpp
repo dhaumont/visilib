@@ -330,7 +330,7 @@ void DemoConfiguration::displaySettings()
     else
 #endif
         std::cout << "  [Exact arithmetic: OFF]";
-#if EMBREE           
+#if EMBREE
     std::cout << "[Embree:" << getStatusString(embree) << "]" << std::endl;
 #endif
 

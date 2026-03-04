@@ -29,15 +29,15 @@ bool MathCombinatorialTest(std::string& )
 {
 	{//MathCombinatorial::hasFacet
 		if (MathCombinatorial::hasFacet(std::vector<size_t>(), 1))
-			return false;
+			{ std::cout << "Error in line " <<  __LINE__ -1 << std::endl; return false;}
 
 		if (MathCombinatorial::hasFacet(std::vector<size_t>{ 1, 2, 3, 4 }, 0))
-			return false;
+			{ std::cout << "Error in line " <<  __LINE__ -1 << std::endl; return false;}
 
 		for (size_t i = 1; i <= 6; i++)
 		{
 			if (!MathCombinatorial::hasFacet(std::vector<size_t>{ 1, 2, 3, 4, 5, 6 }, i))
-				return false;
+				{ std::cout << "Error in line " <<  __LINE__ -1 << std::endl; return false;}
 		}
 	}
 
@@ -45,34 +45,34 @@ bool MathCombinatorialTest(std::string& )
 		for (size_t i = 0; i < 5; i++)
 		{
 			if (MathCombinatorial::haveAtLeastNCommonFacets(std::vector<size_t>{1, 2, 3}, std::vector<size_t>{1, 2, 3}, i) != (i <= 3))
-				return false;
+				{ std::cout << "Error in line " <<  __LINE__ -1 << std::endl; return false;}
 
 			if (MathCombinatorial::haveAtLeastNCommonFacets(std::vector<size_t>{1, 2, 3, 4, 5, 6}, std::vector<size_t>{1, 2, 3}, i) != (i <= 3))
-				return false;
+				{ std::cout << "Error in line " <<  __LINE__ -1 << std::endl; return false;}
 
 			if (MathCombinatorial::haveAtLeastNCommonFacets(std::vector<size_t>{1, 2, 3}, std::vector<size_t>{4, 5, 6, 7, 8, 9 }, i) != (i <= 0))
-				return false;
+				{ std::cout << "Error in line " <<  __LINE__ -1 << std::endl; return false;}
 
 			if (MathCombinatorial::haveAtLeastNCommonFacets(std::vector<size_t>{1, 6, 9, 12, 15, 24, 31}, std::vector<size_t>{6, 8, 10, 22, 24, 25, 31, 32, 33 }, i) != (i <= 3))
-				return false;
+				{ std::cout << "Error in line " <<  __LINE__ -1 << std::endl; return false;}
 
 			if (MathCombinatorial::haveAtLeastNCommonFacets(std::vector<size_t>{1, 12, 13, 14, 15, 16}, std::vector<size_t>{1, 2, 3, 4, 5, 6, 7, 16  }, i) != (i <= 2))
-				return false;
+				{ std::cout << "Error in line " <<  __LINE__ -1 << std::endl; return false;}
 
 			if (MathCombinatorial::haveAtLeastNCommonFacets(std::vector<size_t>{5, 10, 15, 20, 25, 30}, std::vector<size_t>{11, 12, 13, 14, 15, 16, 17, 18,19  }, i) != (i <= 1))
-				return false;
+				{ std::cout << "Error in line " <<  __LINE__ -1 << std::endl; return false;}
 
 			if (MathCombinatorial::haveAtLeastNCommonFacets(std::vector<size_t>{1, 1, 1, 1}, std::vector<size_t>{1, 1, 1, 1, 1, 1 }, i) != (i <= 4))
-				return false;
+				{ std::cout << "Error in line " <<  __LINE__ -1 << std::endl; return false;}
 
 			if (MathCombinatorial::haveAtLeastNCommonFacets(std::vector<size_t>{}, std::vector<size_t>{1, 2, 3, 4 }, i) != (i <= 0))
-				return false;
+				{ std::cout << "Error in line " <<  __LINE__ -1 << std::endl; return false;}
 
 			if (MathCombinatorial::haveAtLeastNCommonFacets(std::vector<size_t>{1, 2, 3, 4}, std::vector<size_t>{}, i) != (i <= 0))
-				return false;
+				{ std::cout << "Error in line " <<  __LINE__ -1 << std::endl; return false;}
 
 			if (MathCombinatorial::haveAtLeastNCommonFacets(std::vector<size_t>{}, std::vector<size_t>{}, i) != (i <= 0))
-				return false;
+				{ std::cout << "Error in line " <<  __LINE__ -1 << std::endl; return false;}
 		}
 	}
 
@@ -80,23 +80,23 @@ bool MathCombinatorialTest(std::string& )
 		std::vector<size_t> result;
 		MathCombinatorial::initFacets(std::vector<size_t>{1, 2, 3}, std::vector<size_t>{1, 2, 3}, 4, result);
 		if (result != std::vector<size_t>{ 1, 2, 3, 4 })
-			return false;
+			{ std::cout << "Error in line " <<  __LINE__ -1 << std::endl; return false;}
 
 		MathCombinatorial::initFacets(std::vector<size_t>{1, 2, 3}, std::vector<size_t>{1, 2, 3, 4, 5, 6, 7}, 8, result);
 		if (result != std::vector<size_t>{ 1, 2, 3, 8 })
-			return false;
+			{ std::cout << "Error in line " <<  __LINE__ -1 << std::endl; return false;}
 
 		MathCombinatorial::initFacets(std::vector<size_t>{1, 2, 3, 4, 5, 6, 7}, std::vector<size_t>{1, 2, 3}, 8, result);
 		if (result != std::vector<size_t>{ 1, 2, 3, 8 })
-			return false;
+			{ std::cout << "Error in line " <<  __LINE__ -1 << std::endl; return false;}
 
 		MathCombinatorial::initFacets(std::vector<size_t>{1, 2, 3, 4, 5, 6}, std::vector<size_t>{2, 4, 6, 8, 10}, 11, result);
 		if (result != std::vector<size_t>{ 2, 4, 6, 11 })
-			return false;
+			{ std::cout << "Error in line " <<  __LINE__ -1 << std::endl; return false;}
 
 		MathCombinatorial::initFacets(std::vector<size_t>{1, 2, 3, 4, 5, 6}, std::vector<size_t>{1, 2, 3, 4, 5, 6}, 7, result);
 		if (result != std::vector<size_t>{ 1, 2, 3, 4, 5, 6, 7 })
-			return false;
+			{ std::cout << "Error in line " <<  __LINE__ -1 << std::endl; return false;}
 	}
 
 

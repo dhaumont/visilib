@@ -32,30 +32,38 @@ namespace visilib
     {
     public:
         static bool haveAtLeastNCommonFacets(const std::vector<size_t>& aFacetsDescription1, const std::vector<size_t>& aFacetsDescription2, size_t n = 3);
-        static void initFacets(const std::vector<size_t>& aFacetsDescription1, const std::vector<size_t>& aFacetsDescription2, size_t anHyperplane, std::vector<size_t>& result);
+        static void getCommonFacets(const std::vector<size_t>& aFacetsDescription1, const std::vector<size_t>& aFacetsDescription2, std::vector<size_t>& aCommonFactes);
+        static void initFacets(const std::vector<size_t>& aFacetsDescription1, const std::vector<size_t>& aFacetsDescription2, size_t anHyperplane, std::vector<size_t>& aResultFacetsDescription);
         static void initFacets(const std::vector<size_t>& aFacetsDescription1, const std::vector<size_t>& aFacetsDescription2, std::vector<size_t>& result);
         static bool hasFacet(const std::vector<size_t>& facets, size_t aFace);
     };
 
-    /** @brief Determine if the intersection of the facets lists of the two Plucker Points have at least n common elements. 
-    
+    /** @brief Determine if the intersection of the facets lists of the two Plucker Points have at least n common elements.
+
     This function is used to determine if two vertices of a Polytope have to be linked by an edge during polytope manipulation routines.
     n is 3 by default for Plucker line in 3D space.*/
 
     inline bool MathCombinatorial::haveAtLeastNCommonFacets(const std::vector<size_t>& aFacetsDescription1, const std::vector<size_t>& aFacetsDescription2, size_t n)
     {
-        V_ASSERT(std::is_sorted(aFacetsDescription1.begin(), aFacetsDescription1.end()));
-        V_ASSERT(std::is_sorted(aFacetsDescription2.begin(), aFacetsDescription2.end()));
-
-        std::vector<size_t> result(aFacetsDescription1.size());
-        auto iter = std::set_intersection(aFacetsDescription1.begin(), aFacetsDescription1.end(), aFacetsDescription2.begin(), aFacetsDescription2.end(), result.begin());
-        size_t size = iter - result.begin();
-
+        std::vector<size_t> result;
+        getCommonFacets(aFacetsDescription1, aFacetsDescription2, result);
+        size_t size = result.size();
         return size >= n;
     }
 
+    inline void MathCombinatorial::getCommonFacets(const std::vector<size_t>& aFacetsDescription1, const std::vector<size_t>& aFacetsDescription2, std::vector<size_t>& aResultFacetsDescription)
+    {
+        V_ASSERT(std::is_sorted(aFacetsDescription1.begin(), aFacetsDescription1.end()));
+        V_ASSERT(std::is_sorted(aFacetsDescription2.begin(), aFacetsDescription2.end()));
+
+        auto iter = std::set_intersection(
+            aFacetsDescription1.begin(), aFacetsDescription1.end(),
+            aFacetsDescription2.begin(), aFacetsDescription2.end(),
+              std::back_inserter(aResultFacetsDescription));
+    }
+
     /** @brief Initialize a new facets description result from the two input facets description aFacetsDescription1 an aFacetsDescription1 of two given vertices and an additional
-    facet anHyperplane. 
+    facet anHyperplane.
     The resulting facets description is a sorted list of facets, containing the intersection set of the two input facets descriptions list and the additional facet anHyperplane.
     Remark: the precondition is that the input facets list are sorted, that they have at least n common facets and that anHyperplane is greater than the facets of the lists.*/
 
@@ -91,15 +99,15 @@ namespace visilib
         {
             if (aFacetsDescription1[i] < aFacetsDescription2[j])
             {
-                aFacetsDescription1[i++];
+                result.push_back(aFacetsDescription1[i++]);
             }
             else if (aFacetsDescription1[i] > aFacetsDescription2[j])
             {
                 result.push_back(aFacetsDescription2[j++]);
             }
             else
-            { 
-                i++;j++;                
+            {
+                i++;j++;
             }
         }
 
