@@ -36,7 +36,7 @@ namespace visilibDemo
         bool silhouetteOptimisation = true;
         VisibilityExactQueryConfiguration::PrecisionType precisionType = VisibilityExactQueryConfiguration::DOUBLE;
         bool detectApertureOnly = false;
-        bool normalization = true;
+        bool normalization = false;
         float scaling = 0.1f;
         float phi = 0;
         float eta = 0;
@@ -50,6 +50,7 @@ namespace visilibDemo
         void readConfig(const std::string& filename);
         void writeConfig(const std::string& filename);
         void displaySummary();
+        static const std::string toStr(VisibilityExactQueryConfiguration::PrecisionType p);
     };
 
     class DemoHelper

@@ -20,10 +20,20 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 
 #pragma once
 
-#ifdef EXACT_ARITHMETIC
-#include <CGAL/Lazy_exact_nt.h>
-#include <CGAL/leda_real.h>
-typedef CGAL::Lazy_exact_nt<leda_real> exact;
+#ifdef ENABLE_LEDA
+#include <LEDA/numbers/rational.h>
+#include <LEDA/numbers/real.h>
+typedef leda::rational MathLedaRational;
+typedef leda::real MathLedaReal;
+#endif
+
+#ifdef ENABLE_GMP
+#include "math_gmp_float.h"
+#include "math_gmp_rational.h"
+#endif
+
+#ifdef ENABLE_MPFR
+#include "math_mpfr.h"
 #endif
 
 #include <iostream>

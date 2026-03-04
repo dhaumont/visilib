@@ -47,7 +47,9 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include "demo_viewer_glut.h"
 #include "demo_debug_visualisation_gl.h"
 #include "demo_helper.h"
-
+#include "math_gmp_float.h"
+#include "math_mpfr.h"
+#include "math_arithmetic.h"
 using namespace visilib;
 using namespace std;
 using namespace visilibDemo;
@@ -104,6 +106,14 @@ namespace visilibDemo
 #if EMBREE
             config.useEmbree = mDemoConfiguration.embree;
 #endif
+#if ENABLE_MPFR
+            MathMpfr::set_default_precision(MathArithmetic<MathMpfr>::bitsCount());
+#endif
+#if ENABLE_GMP
+            MathGmpFloat::set_default_precision(MathArithmetic<MathGmpFloat>::bitsCount());
+#endif
+
+
             result = visilib::areVisible(occluderSet, &v0[0], v0.size() / 3, &v1[0], v1.size() / 3, config, debugger);
         }
 
@@ -156,9 +166,8 @@ namespace visilibDemo
 
             std::cout << "  s: enable/disable silhouette optimisation" << std::endl;
             std::cout << "  n: enable/disable nomalization" << std::endl;
-#if EXACT_ARITHMETIC
             std::cout << "  e: enable/disable exact arithmetic" << std::endl;
-#endif
+
 #if EMBREE
             std::cout << "  g: enable/disable embree ray tracing" << std::endl;
 #endif
@@ -187,7 +196,7 @@ namespace visilibDemo
             static int wc = 10;
             static int rc = 0;
             std::stringstream ss;
-
+            int current = 0;
             switch (key)
             {
             case 27:  // The escape key
@@ -274,12 +283,13 @@ namespace visilibDemo
                 forceDisplay = true;
                 break;
 
-
-#ifdef EXACT_ARITHMETIC
             case 'e':
-                mDemoConfiguration.precisionType = mDemoConfiguration.precisionType == VisibilityExactQueryConfiguration::DOUBLE ? VisibilityExactQueryConfiguration::EXACT : VisibilityExactQueryConfiguration::DOUBLE;
+                current = static_cast<int>(mDemoConfiguration.precisionType);
+                current++;
+                if (current >= static_cast<int>(VisibilityExactQueryConfiguration::COUNT)) current = VisibilityExactQueryConfiguration::FLOAT;
+                mDemoConfiguration.precisionType = static_cast<VisibilityExactQueryConfiguration::PrecisionType>(current);
+                displaySettings();
                 forceDisplay = true;
-#endif
                 break;
 #if EMBREE
             case 'g':
