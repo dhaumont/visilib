@@ -4,31 +4,34 @@
 #include <cmath>
 struct MathMpfr;
 
-inline std::ostream& operator<< (std::ostream& stream, const MathMpfr& val);
-inline MathMpfr operator+(const MathMpfr& lhs, const MathMpfr& rhs);
-inline MathMpfr operator-(const MathMpfr& lhs, const MathMpfr& rhs);
-inline MathMpfr operator/(const MathMpfr& lhs, const MathMpfr& rhs);
-inline MathMpfr operator*(const MathMpfr& lhs, const MathMpfr& rhs);
+inline std::ostream &operator<<(std::ostream &stream, const MathMpfr &val);
+inline MathMpfr operator+(const MathMpfr &lhs, const MathMpfr &rhs);
+inline MathMpfr operator-(const MathMpfr &lhs, const MathMpfr &rhs);
+inline MathMpfr operator/(const MathMpfr &lhs, const MathMpfr &rhs);
+inline MathMpfr operator*(const MathMpfr &lhs, const MathMpfr &rhs);
 
-struct MathMpfr {
+struct MathMpfr
+{
     mpfr_t v;
     void init()
     {
         mpfr_init2(v, get_default_precision());
     }
-    inline void copy(const MathMpfr& rhs)
+    inline void copy(const MathMpfr &rhs)
     {
         mpfr_set(v, rhs.v, MPFR_RNDN);
     }
-    MathMpfr() {
+    MathMpfr()
+    {
         init();
         mpfr_set_d(v, 0, MPFR_RNDN);
     }
-    MathMpfr(double d) {
+    MathMpfr(double d)
+    {
         init();
         mpfr_set_d(v, d, MPFR_RNDN);
     }
-    MathMpfr(const MathMpfr& rhs)
+    MathMpfr(const MathMpfr &rhs)
     {
         init();
         copy(rhs);
@@ -37,7 +40,7 @@ struct MathMpfr {
     {
         mpfr_clear(v);
     }
-    const MathMpfr& operator=(const MathMpfr& rhs)
+    const MathMpfr &operator=(const MathMpfr &rhs)
     {
         if (this != &rhs)
         {
@@ -51,39 +54,39 @@ struct MathMpfr {
         mpfr_neg(tmp.v, v, MPFR_RNDN);
         return tmp;
     }
-    inline const MathMpfr& operator*=(const MathMpfr& rhs)
+    inline const MathMpfr &operator*=(const MathMpfr &rhs)
     {
         *this = *this * rhs;
         return *this;
     }
-    inline const MathMpfr& operator/=(const MathMpfr& rhs)
+    inline const MathMpfr &operator/=(const MathMpfr &rhs)
     {
         *this = *this / rhs;
         return *this;
     }
-    inline const MathMpfr& operator-=(const MathMpfr& rhs)
+    inline const MathMpfr &operator-=(const MathMpfr &rhs)
     {
         *this = *this - rhs;
         return *this;
     }
-    inline const MathMpfr& operator+=(const MathMpfr& rhs)
+    inline const MathMpfr &operator+=(const MathMpfr &rhs)
     {
         *this = *this + rhs;
         return *this;
     }
-    inline bool operator<(const MathMpfr& rhs) const
+    inline bool operator<(const MathMpfr &rhs) const
     {
         return mpfr_cmp(v, rhs.v) < 0;
     }
-    inline bool operator>(const MathMpfr& rhs) const
+    inline bool operator>(const MathMpfr &rhs) const
     {
         return mpfr_cmp(v, rhs.v) > 0;
     }
-    inline bool operator<=(const MathMpfr& rhs) const
+    inline bool operator<=(const MathMpfr &rhs) const
     {
         return mpfr_cmp(v, rhs.v) <= 0;
     }
-    inline bool operator>=(const MathMpfr& rhs) const
+    inline bool operator>=(const MathMpfr &rhs) const
     {
         return mpfr_cmp(v, rhs.v) >= 0;
     }
@@ -99,19 +102,21 @@ struct MathMpfr {
         mpfr_sqrt(tmp.v, v, MPFR_RNDN);
         return tmp;
     }
-    inline bool isInfinite() const {
+    inline bool isInfinite() const
+    {
         return mpfr_inf_p(v);
     }
-    inline bool isfinite() const {
+    inline bool isfinite() const
+    {
         return !isInfinite();
     }
     inline static mp_rnd_t get_default_rounding_mode()
     {
-       return (mp_rnd_t)(mpfr_get_default_rounding_mode());
+        return (mp_rnd_t)(mpfr_get_default_rounding_mode());
     }
     inline static mp_prec_t get_default_precision()
     {
-      return mpfr_get_default_prec();
+        return mpfr_get_default_prec();
     }
     inline static void set_default_precision(mp_prec_t prec)
     {
@@ -125,41 +130,39 @@ struct MathMpfr {
     inline static mp_prec_t digits2bits(int d)
     {
         const double LOG2_10 = 3.3219280948873624;
-        return mp_prec_t(std::ceil( d * LOG2_10 ));
+        return mp_prec_t(std::ceil(d * LOG2_10));
     }
     inline double to_double() const
     {
-      return mpfr_get_d(v, MPFR_RNDN);
+        return mpfr_get_d(v, MPFR_RNDN);
     }
-
 };
 
-inline std::ostream& operator<< (std::ostream& stream, const MathMpfr& val)
+inline std::ostream &operator<<(std::ostream &stream, const MathMpfr &val)
 {
     return stream << mpfr_get_d(val.v, MPFR_RNDN);
 }
-inline MathMpfr operator+(const MathMpfr& lhs, const MathMpfr& rhs)
+inline MathMpfr operator+(const MathMpfr &lhs, const MathMpfr &rhs)
 {
     MathMpfr tmp;
     mpfr_add(tmp.v, lhs.v, rhs.v, MPFR_RNDN);
     return tmp;
 }
-inline MathMpfr operator-(const MathMpfr& lhs, const MathMpfr& rhs)
+inline MathMpfr operator-(const MathMpfr &lhs, const MathMpfr &rhs)
 {
     MathMpfr tmp;
     mpfr_sub(tmp.v, lhs.v, rhs.v, MPFR_RNDN);
     return tmp;
 }
-inline MathMpfr operator/(const MathMpfr& lhs, const MathMpfr& rhs)
+inline MathMpfr operator/(const MathMpfr &lhs, const MathMpfr &rhs)
 {
     MathMpfr tmp;
     mpfr_div(tmp.v, lhs.v, rhs.v, MPFR_RNDN);
     return tmp;
 }
-inline MathMpfr operator*(const MathMpfr& lhs, const MathMpfr& rhs)
+inline MathMpfr operator*(const MathMpfr &lhs, const MathMpfr &rhs)
 {
     MathMpfr tmp;
     mpfr_mul(tmp.v, lhs.v, rhs.v, MPFR_RNDN);
     return tmp;
 }
-
