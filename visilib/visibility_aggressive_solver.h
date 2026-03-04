@@ -35,7 +35,7 @@ namespace visilib
         VisibilityAggressiveSolver(VisibilityExactQuery_<P, S>* aSolver,
             S tolerance,
             bool detectApertureOnly,
-            double minimumApertureSize,
+            double minimumNormalizedApertureSize,
             double confidenceValue);
 
         VisibilityResult resolve();
@@ -44,7 +44,7 @@ namespace visilib
 
         bool mDetectApertureOnly;
         S mTolerance;
-        double mMinimumApertureSize;
+        double mMinimumNormalizedApertureSize;
         double mConfidenceValue;        
         
     };
@@ -53,13 +53,13 @@ namespace visilib
     VisibilityAggressiveSolver<P, S>::VisibilityAggressiveSolver(VisibilityExactQuery_<P, S>* mQuery,
                                                                  S tolerance,
                                                                  bool detectApertureOnly,
-                                                                 double minimumApertureSize,
+                                                                 double minimumNormalizedApertureSize,
                                                                  double confidenceValue
                                                                 )
         : VisibilitySolver<P, S>(mQuery),
         mTolerance(tolerance),
         mDetectApertureOnly(detectApertureOnly),
-        mMinimumApertureSize(minimumApertureSize),
+        mMinimumNormalizedApertureSize(minimumNormalizedApertureSize),
         mConfidenceValue(confidenceValue)
     {
     }
@@ -110,22 +110,12 @@ namespace visilib
                 return mPolygonArea;
             }
 
-            static size_t getSampleCount(double aMinimumApertureSize, double samplingArea, double confidenceValue)
+            static size_t getSampleCount(double aNormalizedApertureSize, double confidenceValue)
             {
-                double p = 1 - (aMinimumApertureSize * aMinimumApertureSize)/ samplingArea;
-                
-                size_t count = 1;
-                double cumulatedProbability = 1;
-                double stop = (1.0 - confidenceValue);
-                
-                while (cumulatedProbability >= stop)
-                {
-                     //std::cout << count << " " << p << " " << cumulatedProbability << std::endl;
-                    cumulatedProbability *= p;
-                    count = count + 1;                    
-                }
-                
-                return count;
+                std::cout << "APERTURE SIZE:" << aNormalizedApertureSize << std::endl;
+                double p = 1.0 - aNormalizedApertureSize;
+                double s = (1.0 - confidenceValue);
+                return size_t(log(s) / log(p));               
             }
         private:
 
@@ -175,7 +165,7 @@ namespace visilib
     
         double totalArea = sampler0.getPolygonArea() + sampler1.getPolygonArea();
         double polygonAreaRatio = sampler0.getPolygonArea() / (totalArea);
-        size_t sampleCount = GeometryConvexPolygonRandomSampler::getSampleCount(mMinimumApertureSize, totalArea, mConfidenceValue);
+        size_t sampleCount = GeometryConvexPolygonRandomSampler::getSampleCount(mMinimumNormalizedApertureSize, mConfidenceValue);
         std::cout << "SAMPLES COUNT:" << sampleCount << std::endl;
         for (size_t i = 0; i < sampleCount;)
         {

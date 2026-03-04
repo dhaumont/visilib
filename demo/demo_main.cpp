@@ -102,7 +102,11 @@ namespace visilibDemo
             config.detectApertureOnly = mDemoConfiguration.detectApertureOnly;
             config.tolerance = mDemoConfiguration.tolerance;
             config.confidenceValue = mDemoConfiguration.confidenceValue;
-            config.minimumApertureSize = mDemoConfiguration.minimumApertureSize * mDemoConfiguration.globalScaling;
+            double areaSources = 2 * mDemoConfiguration.scaling;
+            areaSources *= areaSources;
+            double minimumAreAperture =  mDemoConfiguration.minimumApertureSize;
+            minimumAreAperture *= minimumAreAperture;
+            config.minimumNormalizedApertureSize = minimumAreAperture/ areaSources;
 #if EMBREE 
             config.useEmbree = mDemoConfiguration.embree;
 #endif
@@ -243,15 +247,15 @@ namespace visilibDemo
                 break;
 
             case ']':                
-               if (mDemoConfiguration.minimumApertureSize < 0.3f)
-                    mDemoConfiguration.minimumApertureSize += 0.001f;
-                     forceDisplay = true;                                
+               if (mDemoConfiguration.minimumApertureSize < 0.1f)
+                    mDemoConfiguration.minimumApertureSize *= 1.3;
+               forceDisplay = true;                                
 
                 break;
 
             case '[':
-                if (mDemoConfiguration.minimumApertureSize > 0.001f)
-                    mDemoConfiguration.minimumApertureSize -= 0.001f;
+                if (mDemoConfiguration.minimumApertureSize > 0.00001f)
+                    mDemoConfiguration.minimumApertureSize /= 1.3;
                 forceDisplay = true;
             case 'h':
                 writeHelp();

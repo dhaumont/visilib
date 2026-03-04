@@ -342,7 +342,7 @@ namespace visilib
             {
                 solver = new VisibilityAggressiveSolver<P, S>(this, mTolerance,
                                                            mConfiguration.detectApertureOnly, 
-                                                           mConfiguration.minimumApertureSize,
+                                                           mConfiguration.minimumNormalizedApertureSize,
                                                            mConfiguration.confidenceValue);
             }
             else

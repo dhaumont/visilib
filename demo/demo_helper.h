@@ -61,7 +61,7 @@ namespace visilibDemo
         DemoConfiguration::SCENE_TYPE sceneIndex = DemoConfiguration::SPHERE_WITH_HOLES;
         float globalScaling = 1;
         double tolerance = -1;
-        double minimumApertureSize = 0.00175;
+        double minimumApertureSize = 0.01;
         double confidenceValue = 0.99;
         bool sampling = false;
         bool exactArithmetic = false;       

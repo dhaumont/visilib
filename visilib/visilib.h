@@ -52,7 +52,7 @@ namespace visilib
             detectApertureOnly = true;
             useEmbree = false;
             tolerance = -1.0;
-            minimumApertureSize = 0.00175;
+            minimumNormalizedApertureSize = 0.00175;
             confidenceValue = 0.99;
         }
 
@@ -64,7 +64,7 @@ namespace visilib
             detectApertureOnly = other.detectApertureOnly;
             useEmbree = other.useEmbree;
             tolerance = other.tolerance;
-            minimumApertureSize = other.minimumApertureSize;
+            minimumNormalizedApertureSize = other.minimumNormalizedApertureSize;
             confidenceValue = other.confidenceValue;
         }
 
@@ -74,7 +74,7 @@ namespace visilib
         bool detectApertureOnly;                      /**< @brief Stop the query as soon as a visible line has been found*/  
         bool useEmbree;
         double tolerance;
-        double minimumApertureSize;
+        double minimumNormalizedApertureSize;
         double confidenceValue;
     };
 

@@ -97,7 +97,7 @@ HelperTriangleMeshContainer* DemoHelper::createScene(DemoConfiguration::SCENE_TY
             for (int i = 0; i < 2; i++)
             {
                 double apertureSize = getApertureSize(s);
-                HelperTriangleMesh* mesh = HelperSyntheticMeshBuilder::generateSlot(0.2f, 0.2f, apertureSize, apertureSize);
+                HelperTriangleMesh* mesh = HelperSyntheticMeshBuilder::generateSlot(0.0f, 0.0f, apertureSize, apertureSize);
                 HelperSyntheticMeshBuilder::scale(mesh, 2.0);
                 HelperSyntheticMeshBuilder::rotate(mesh, 0, (float)M_PI_2, (float)M_PI);
                 HelperSyntheticMeshBuilder::translate(mesh, MathVector3f((float)i / 3.0f, 0.0f, 0.0f));
