@@ -338,18 +338,23 @@ namespace visilib
             }
             VisibilitySolver<P, S>* solver;
 
-            if (mConfiguration.precision == VisibilityExactQueryConfiguration::AGGRESSIVE)
+            switch (mConfiguration.solverType)
             {
-                solver = new VisibilityAggressiveSolver<P, S>(this, mTolerance,
-                                                           mConfiguration.detectApertureOnly, 
-                                                           mConfiguration.minimumNormalizedApertureSize,
-                                                           mConfiguration.confidenceValue);
+                case VisibilityExactQueryConfiguration::EXACT_APERTURE_FINDER:
+                    solver = new VisibilityApertureFinder<P, S>(this, mConfiguration.hyperSphereNormalization, mTolerance, mConfiguration.detectApertureOnly);
+                break;
+
+                case VisibilityExactQueryConfiguration::MONTE_CARLO:
+                    solver = new VisibilityAggressiveSolver<P, S>(this, mTolerance,
+                                       mConfiguration.detectApertureOnly, 
+                                       mConfiguration.minimumNormalizedApertureSize,
+                                       mConfiguration.confidenceValue);
+                break;                
+                case VisibilityExactQueryConfiguration::EXACT_SEQUENTIAL_SOLVER:
+                    solver = NULL;
+                    return result;                    
+                break;
             }
-            else
-            {
-                solver = new VisibilityApertureFinder<P, S>(this, mConfiguration.hyperSphereNormalization, mTolerance, mConfiguration.detectApertureOnly);
-            } 
-                    
             if (mDebugger != nullptr)
             {
                 solver->attachVisualisationDebugger(mDebugger);

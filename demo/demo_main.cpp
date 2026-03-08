@@ -99,8 +99,8 @@ namespace visilibDemo
             VisibilityExactQueryConfiguration config;
             config.silhouetteOptimization = mDemoConfiguration.silhouetteOptimisation;
             config.hyperSphereNormalization = mDemoConfiguration.normalization;
-            config.precision = mDemoConfiguration.getPrecisionType();
-
+            config.precision = mDemoConfiguration.precisionType;
+            config.solverType = mDemoConfiguration.solverType;
             config.detectApertureOnly = mDemoConfiguration.detectApertureOnly;
             config.tolerance = mDemoConfiguration.tolerance;
             config.confidenceValue = mDemoConfiguration.confidenceValue;
@@ -278,9 +278,13 @@ namespace visilibDemo
                 forceDisplay = true;
                 break;
             case 'a':
-                mDemoConfiguration.sampling = !mDemoConfiguration.sampling;
+                current = static_cast<int>(mDemoConfiguration.solverType);
+                current++;
+                if (current >= static_cast<int>(VisibilityExactQueryConfiguration::SOLVER_COUNT)) current = VisibilityExactQueryConfiguration::EXACT_APERTURE_FINDER;
+                mDemoConfiguration.solverType = static_cast<VisibilityExactQueryConfiguration::SolverType>(current);
+                displaySettings();
                 forceDisplay = true;
-                break;
+               break;
             case 'f':
                 mDemoConfiguration.detectApertureOnly = !mDemoConfiguration.detectApertureOnly;
                 forceDisplay = true;
@@ -298,16 +302,13 @@ namespace visilibDemo
             case '8': mDemoConfiguration.sceneIndex = DemoConfiguration::SIMPLE_CUBE; forceDisplay = true; initScene(mDemoConfiguration.sceneIndex); break;
             case '9': mDemoConfiguration.sceneIndex = DemoConfiguration::NOISY_CUBE; forceDisplay = true; initScene(mDemoConfiguration.sceneIndex); break;
 
-
-#ifdef EXACT_ARITHMETIC
             case 'e':
                 current = static_cast<int>(mDemoConfiguration.precisionType);
                 current++;
-                if (current >= static_cast<int>(VisibilityExactQueryConfiguration::COUNT)) current = VisibilityExactQueryConfiguration::FLOAT;
+                if (current >= static_cast<int>(VisibilityExactQueryConfiguration::PRECISION_COUNT)) current = VisibilityExactQueryConfiguration::FLOAT;
                 mDemoConfiguration.precisionType = static_cast<VisibilityExactQueryConfiguration::PrecisionType>(current);
                 displaySettings();
                 forceDisplay = true;
-#endif
                 break;
 #if EMBREE
             case 'g':

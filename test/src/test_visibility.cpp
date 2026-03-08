@@ -39,7 +39,7 @@ bool testConfiguration(const DemoConfiguration& configuration, VisibilityResult 
     VisibilityExactQueryConfiguration config;
     config.silhouetteOptimization = true;
     config.hyperSphereNormalization = configuration.normalization;
-    config.precision = configuration.getPrecisionType();
+    config.precision = configuration.precisionType;
     config.detectApertureOnly = false;
 
     DemoConfiguration::SCENE_TYPE s = DemoConfiguration::SLOT_OFF_AXIS_01;
@@ -93,7 +93,7 @@ bool VisibilityTest(std::string& )
                                 configuration.phi = phi;
                                 configuration.vertexCount0 = v0;
                                 configuration.vertexCount1 = v1;
-                                configuration.sampling = false;
+                                configuration.solverType = VisibilityExactQueryConfiguration::EXACT_APERTURE_FINDER;
                                 configuration.exactArithmetic = false;
                                 configuration.normalization = normalization;
                                 configuration.scaling = 0.14;

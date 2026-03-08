@@ -53,6 +53,7 @@ namespace visilibDemo
         size_t vertexCount0 = 3;
         size_t vertexCount1 = 3;
         bool silhouetteOptimisation = true;
+        VisibilityExactQueryConfiguration::PrecisionType precisionType = VisibilityExactQueryConfiguration::DOUBLE;
         bool detectApertureOnly = false;
         bool normalization = false;
         float scaling = 0.1f;
@@ -63,7 +64,7 @@ namespace visilibDemo
         double tolerance = -1;
         double minimumApertureSize = 0.01;
         double confidenceValue = 0.99;
-        bool sampling = false;
+        VisibilityExactQueryConfiguration::SolverType solverType = VisibilityExactQueryConfiguration::EXACT_APERTURE_FINDER;
         bool exactArithmetic = false;       
 #if EMBREE
         bool embree = false;
@@ -73,8 +74,8 @@ namespace visilibDemo
         void writeConfig(const std::string& filename);
 
         void displaySummary();
-        visilib::VisibilityExactQueryConfiguration::PrecisionType getPrecisionType() const;        
         static const std::string toStr(VisibilityExactQueryConfiguration::PrecisionType p);
+        static const std::string toStr(VisibilityExactQueryConfiguration::SolverType p);
     };
 
     class DemoHelper

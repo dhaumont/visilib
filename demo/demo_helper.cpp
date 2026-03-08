@@ -293,21 +293,6 @@ void DemoHelper::configureDemoConfiguration(const std::string& name, DemoConfigu
 {
 }
 
-VisibilityExactQueryConfiguration::PrecisionType DemoConfiguration::getPrecisionType() const
-{
-    if (sampling)
-    {
-        return VisibilityExactQueryConfiguration::AGGRESSIVE;
-    }
-#if EXACT_ARITHMETIC     
-    if (exactArithmetic)
-    {
-        return VisibilityExactQueryConfiguration::EXACT;
-    }
-#endif     
-    return VisibilityExactQueryConfiguration::DOUBLE;
-
-}
 void DemoConfiguration::displaySettings()
 {
     std::cout << std::endl << "Current Demo Settings: " << std::endl;
@@ -322,9 +307,9 @@ void DemoConfiguration::displaySettings()
     std::cout << "  [Early stop: " << getStatusString(detectApertureOnly) << "]";
     std::cout << "[Silhouette: " << getStatusString(silhouetteOptimisation) << "]";
     std::cout << "[Normalization: " << getStatusString(normalization) << "]";
-      std::cout << "[Sampling: " << getStatusString(sampling)<< "]";
+    std::cout << "[SolverType: " << toStr(solverType)<< "]";
   
-    std::cout << "  [Arithmetic: " << toStr(getPrecisionType()) << "]" << std::endl;
+    std::cout << "  [Arithmetic: " << toStr(precisionType) << "]" << std::endl;
 #if EMBREE           
     std::cout << "[Embree:" << getStatusString(embree) << "]" << std::endl;
 #endif
@@ -345,8 +330,8 @@ void DemoConfiguration::writeConfig(const std::string& filename)
     output << "eta = " << eta << std::endl;
     output << "sceneIndex = " << sceneIndex << std::endl;
     output << "globalScaling = " << globalScaling << std::endl;
-    output << "exactArithmetic = " << exactArithmetic << std::endl;
-    output << "sampling = " << sampling << std::endl;
+    output << "precisionType = " << precisionType << std::endl;
+    output << "solverType = " << solverType << std::endl;
     output << "tolerance = " << tolerance << std::endl;
     output.close();
 }
@@ -374,7 +359,8 @@ void DemoConfiguration::readConfig(const std::string& filename)
         else if (tokens[0] == "eta") { eta = (float)atof(tokens[2].c_str()); }
         //else if (tokens[0] == "sceneIndex") { sceneIndex = atoi(tokens[2].c_str()); }
         else if (tokens[0] == "globalScaling") { globalScaling = (float)atof(tokens[2].c_str()); }
-        else if (tokens[0] == "sampling") { sampling = atoi(tokens[2].c_str()); }
+        else if (tokens[0] == "solverType") { solverType =  (VisibilityExactQueryConfiguration::SolverType) atoi(tokens[2].c_str()); }
+        else if (tokens[0] == "precisionType") { precisionType = (VisibilityExactQueryConfiguration::PrecisionType)atoi(tokens[2].c_str()); }
         else if (tokens[0] == "tolerance") { tolerance =  (double)atof(tokens[2].c_str()); }
         else { V_ASSERT(0); }
     }
@@ -384,7 +370,8 @@ void DemoConfiguration::readConfig(const std::string& filename)
 const std::string DemoConfiguration::toStr(VisibilityExactQueryConfiguration::PrecisionType p)
 {
     std::stringstream stream;
-    switch (p) {
+    switch (p) 
+    {
     case VisibilityExactQueryConfiguration::FLOAT:
         stream <<  "FLOAT "  << MathArithmetic<float>::bitsCount()<< " bits; tol = " << MathArithmetic<float>::Tolerance();
         break;
@@ -419,12 +406,30 @@ const std::string DemoConfiguration::toStr(VisibilityExactQueryConfiguration::Pr
     return stream.str();
 }
 
+
+const std::string DemoConfiguration::toStr(VisibilityExactQueryConfiguration::SolverType p)
+{
+    switch (p) 
+    {
+    case VisibilityExactQueryConfiguration::EXACT_APERTURE_FINDER:
+        return "EXACT_APERTURE_FINDER";
+        break;
+    case VisibilityExactQueryConfiguration::EXACT_SEQUENTIAL_SOLVER:
+        return "EXACT_SEQUENTIAL_SOLVER";
+        break;
+    case VisibilityExactQueryConfiguration::MONTE_CARLO:
+        return "MONTE_CARLO";
+        break;
+    }
+    return "UNKNOWN";
+}
+
 void DemoConfiguration::displaySummary()
 {
-    std::string method = sampling ? "Sampling visibility" : "Exact visibility";
+    std::string method = toStr(solverType);
     std::cout << method << " [SceneIndex : " << sceneIndex << ", scaling: " << globalScaling << std::endl;
     std::cout << ", v0: " << vertexCount0 << ", vv1: " << vertexCount1 << "; phi:" << phi;
-    std::cout << "; precision: "<< getPrecisionType() <<"; tolerance:" << tolerance << "] ";
+    std::cout << "; precision: "<< toStr(precisionType) <<"; tolerance:" << tolerance << "] ";
 }
 
 #if EMBREE

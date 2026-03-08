@@ -37,9 +37,8 @@ namespace visilib
         enum PrecisionType
         {
             FLOAT,       /**< @brief Single floating point aritmetic*/
-            DOUBLE,      /**< @brief Double floating point aritmetic*/
-            AGGRESSIVE
-#ifdef ENABLE_LEDA
+            DOUBLE       /**< @brief Double floating point aritmetic*/
+    #ifdef ENABLE_LEDA
             , LEDA_REAL      /**< @brief Exact arithmetic (based on LEDA)*/
 #endif
 #ifdef ENABLE_GMP
@@ -49,7 +48,15 @@ namespace visilib
 #ifdef ENABLE_MPFR
             , MPFR
 #endif
-            , COUNT
+            , PRECISION_COUNT
+        };
+
+        enum SolverType
+        {
+            EXACT_APERTURE_FINDER,
+            EXACT_SEQUENTIAL_SOLVER,
+            MONTE_CARLO,
+            SOLVER_COUNT
         };
 
         VisibilityExactQueryConfiguration()
@@ -60,6 +67,7 @@ namespace visilib
             detectApertureOnly = true;
             useEmbree = false;
             tolerance = -1.0;
+            solverType = EXACT_APERTURE_FINDER;
             minimumNormalizedApertureSize = 0.00175;
             confidenceValue = 0.99;
         }
@@ -72,6 +80,7 @@ namespace visilib
             detectApertureOnly = other.detectApertureOnly;
             useEmbree = other.useEmbree;
             tolerance = other.tolerance;
+            solverType = other.solverType;
             minimumNormalizedApertureSize = other.minimumNormalizedApertureSize;
             confidenceValue = other.confidenceValue;
         }
@@ -82,6 +91,7 @@ namespace visilib
         bool detectApertureOnly;                      /**< @brief Stop the query as soon as a visible line has been found*/
         bool useEmbree;
         double tolerance;
+        SolverType solverType; 
         double minimumNormalizedApertureSize;
         double confidenceValue;
     };
