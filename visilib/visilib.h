@@ -51,6 +51,13 @@ namespace visilib
             , COUNT
         };
 
+        enum SolverType
+        {
+            EXACT_APERTURE_FINDER,
+            EXACT_SEQUENTIAL_SOLVER,
+            MONTE_CARLO
+        };
+
         VisibilityExactQueryConfiguration()
         {
             silhouetteOptimization = true;
@@ -59,6 +66,7 @@ namespace visilib
             detectApertureOnly = true;
             useEmbree = false;
             tolerance = -1.0;
+            solverType = EXACT_APERTURE_FINDER;
         }
 
         VisibilityExactQueryConfiguration(const VisibilityExactQueryConfiguration& other)
@@ -69,6 +77,7 @@ namespace visilib
             detectApertureOnly = other.detectApertureOnly;
             useEmbree = other.useEmbree;
             tolerance = other.tolerance;
+            solverType = other.solverType;
         }
 
         bool silhouetteOptimization;                  /**< @brief Use silhouette optimization*/
@@ -77,6 +86,7 @@ namespace visilib
         bool detectApertureOnly;                      /**< @brief Stop the query as soon as a visible line has been found*/
         bool useEmbree;
         double tolerance;
+        SolverType solverType; 
     };
 
 

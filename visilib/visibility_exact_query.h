@@ -335,8 +335,18 @@ namespace visilib
             }
             VisibilitySolver<P, S>* solver;
 
-            solver = new VisibilityApertureFinder<P, S>(this, mConfiguration.hyperSphereNormalization, mTolerance, mConfiguration.detectApertureOnly);
+            switch (mConfiguration.solverType)
+            {
+                case VisibilityExactQueryConfiguration::EXACT_APERTURE_FINDER:
+                    solver = new VisibilityApertureFinder<P, S>(this, mConfiguration.hyperSphereNormalization, mTolerance, mConfiguration.detectApertureOnly);
+                break;
 
+                case VisibilityExactQueryConfiguration::MONTE_CARLO:
+                case VisibilityExactQueryConfiguration::EXACT_SEQUENTIAL_SOLVER:
+                    solver = NULL;
+                    return result;                    
+                break;
+            }
             if (mDebugger != nullptr)
             {
                 solver->attachVisualisationDebugger(mDebugger);
