@@ -47,6 +47,10 @@ namespace visilib
         /** @brief  Compute if a point is inside a convex polygon */
         static bool isPointInsidePolygon(const GeometryConvexPolygon& aPolygon, const MathVector3d& aPoint, double tolerance);
 
+        static MathVector3d uniformSampleTriangle(const MathVector2d& u);
+        static MathVector3d cosineSampleHemisphere(const MathVector2d& u);
+        static double getZValueForConfidenceLevel(double confidenceLevel, double precision);
+        static void getTangentBasis(const MathVector3d& aUnitVector, MathVector3d& u, MathVector3d& v );
         /** @brief  Compute if a ray has an intersection with a triangle
 
         The ray triangle intersection is computed using code from "Watertight ray/triangle intersection" in Journal of Graphics Tools
@@ -169,6 +173,12 @@ namespace visilib
 
         template<class S>
         static bool isBoxInsideConvexHull(const MathVector3_<S>& AABBMin, const MathVector3_<S>& AABBMax, const std::vector<MathPlane3_<S> >& convexHullPlanes);
+
+        static MathVector3d cartesianToSpherical(const MathVector3d& cartesian, bool computeLength = true);
+        static MathVector3d sphericalToCartesian(const MathVector3d& spherical);
+
+        static double getTriangleFanAreas(const GeometryConvexPolygon& aPolygon, std::vector<double>& triangleFanAreas);
+        static void computeCumulativeProbabilityLookupTable(size_t lookupSize, const std::vector<double>& distribution, std::vector<int>& loopkupTable);
  };
 
     inline bool MathGeometry::isPointInsidePolygon(const GeometryConvexPolygon& aPolygon, const MathVector3d& aPoint, double tolerance)
@@ -1136,4 +1146,154 @@ namespace visilib
         return result;
     }
 
+    inline MathVector3d MathGeometry::uniformSampleTriangle(const MathVector2d& u) 
+    {
+        double b0, b1;
+        if (u.x < u.y) 
+        {
+            b0 = u.x / 2;
+            b1 = u.y - b0;
+        } 
+        else 
+        {
+            b1 = u.y / 2;
+            b0 = u.x - b1;
+        }
+        return MathVector3d(b0, b1, 1 - b0 - b1);
+    }
+
+    inline MathVector3d MathGeometry::cosineSampleHemisphere(const MathVector2d& u)
+    {
+        const double r = sqrt(u.x);
+        const double theta = 2 * M_PI * u.y;
+ 
+        const double x = r * cos(theta);
+        const double y = r * sin(theta);
+ 
+        return MathVector3d(x, y, sqrt(std::max(0.0, 1. - u.x)));
+    }
+    inline MathVector3d MathGeometry::cartesianToSpherical(const MathVector3d& cartesian, bool computeLength)
+    {
+        double theta = atan2(cartesian.y, cartesian. x);
+        double phi = acos(cartesian.z);
+        double r = 1;
+        if (computeLength)
+        {
+            r = cartesian.getNorm();
+        }
+
+        return MathVector3d(r,theta,phi);
+    }
+    
+    inline MathVector3d MathGeometry::sphericalToCartesian(const MathVector3d& spherical)
+    {
+        double sinPhi = sin(spherical.z);
+        double cosPhi = cos(spherical.z);
+        double sinTheta = sin(spherical.y);
+        double cosTheta = cos(spherical.y);
+        double r = spherical.z;
+
+        
+        return MathVector3d(r * cosTheta * sinPhi, r * sinTheta * sinPhi, r * cosPhi);
+    }
+
+    inline double MathGeometry::getTriangleFanAreas(const GeometryConvexPolygon& aPolygon, std::vector<double>& triangleFanAreas)
+    {
+        double totalArea = 0.0;    
+        const MathVector3d& v0 = aPolygon.getVertex(0);
+        
+        MathVector3d myNormal;
+        for (size_t i = 1; i < aPolygon.getVertexCount()-1;i++)
+        {
+            MathVector3d myEdge0(aPolygon.getVertex(i),v0);
+            MathVector3d myEdge1(aPolygon.getVertex(i+1),v0);
+            myNormal = MathVector3d::cross(myEdge0,myEdge1);
+            double triangleArea = myNormal.getNorm();
+            totalArea += triangleArea;
+            triangleFanAreas.push_back(triangleArea);
+        }
+
+        return totalArea;
+    }
+
+    inline void MathGeometry::computeCumulativeProbabilityLookupTable(size_t lookupSize, const std::vector<double>& distribution, std::vector<int>& loopkupTable)
+    {
+        if (distribution.empty())
+        {
+            return;
+        }
+        double distributionSum = 0;
+        
+        for (auto p : distribution)
+        {
+            distributionSum += p;
+        }
+        const double increment = 1.0 / (double)lookupSize;
+        double currentIndex = 0;
+        double cumulatedProbability = 0;
+        double cumulatedProbabilityEndOfInterval = distribution[0];
+        loopkupTable.resize(lookupSize);
+        
+        for (size_t i = 0; i < lookupSize; i++)
+        {
+            if (cumulatedProbability > cumulatedProbabilityEndOfInterval)
+            {
+                currentIndex++;
+                cumulatedProbabilityEndOfInterval += distribution[currentIndex];
+            }
+           loopkupTable[i] = currentIndex;
+           cumulatedProbability += (increment * distributionSum);         
+        }
+    }
+
+    inline void MathGeometry::getTangentBasis(const MathVector3d& aUnitVector, MathVector3d& u, MathVector3d& v )
+    {
+    //    V_ASSERT(MathArithmetic<double>::getAbs(aUnitVector.getSquaredNorm() - 1.0) < MathArithmetic<double>::Tolerance );
+        MathVector3d av(MathArithmetic<double>::getAbs(aUnitVector.x),MathArithmetic<double>::getAbs(aUnitVector.y),MathArithmetic<double>::getAbs(aUnitVector.z) );
+        
+        MathVector3d mainAxis;
+        if (av.x >= av.z && av.x >= av.y)
+        {
+            mainAxis.x = 0; mainAxis.y = 1;mainAxis.z = 0;
+        }
+        else if (av.y >= av.x && av.y >= av.z)
+        {
+            mainAxis.x = 0; mainAxis.y = 0;mainAxis.z = 1;
+        }
+        else
+        {   
+            V_ASSERT(av.z >= av.x && av.z >= av.x);
+            
+            mainAxis.x = 1; mainAxis.y = 0;mainAxis.z = 0;
+        }
+        
+        u = MathVector3d::cross(aUnitVector, mainAxis);
+        u.normalize();
+
+        v = MathVector3d::cross(aUnitVector,u);
+        v.normalize();        
+
+        std::cout << "n:" << aUnitVector <<  "main:" << mainAxis  << "; u: " << u << "; v: " << v << std::endl; 
+    }
+
+    inline double MathGeometry::getZValueForConfidenceLevel(double confidenceLevel, double precision)
+    {
+        V_ASSERT(confidenceLevel >=0 && confidenceLevel <=1);
+        V_ASSERT(precision >=0 && precision <=0.1);
+
+        double zValue = -8;
+        double area = 0;
+        double constant = 1.0 / sqrt(M_PI*2);
+        double expectedArea = 1.0 - confidenceLevel;
+        expectedArea *= 0.5;
+        expectedArea = 1.0 - expectedArea;
+        while (area < expectedArea)
+        {
+            double normalValue = constant * exp(-zValue * zValue * 0.5);
+            area += normalValue * precision;            
+            zValue += precision;
+        }
+        
+        return zValue;
+    }
 }

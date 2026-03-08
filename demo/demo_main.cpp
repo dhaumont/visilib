@@ -78,7 +78,7 @@ namespace visilibDemo
 #endif
             return initScene(mDemoConfiguration.sceneIndex);
         }
-        bool initScene(int s)
+        bool initScene(DemoConfiguration::SCENE_TYPE s)
         {
             srand(0);
 
@@ -100,10 +100,16 @@ namespace visilibDemo
             config.silhouetteOptimization = mDemoConfiguration.silhouetteOptimisation;
             config.hyperSphereNormalization = mDemoConfiguration.normalization;
             config.precision = mDemoConfiguration.precisionType;
-
+            config.solverType = mDemoConfiguration.solverType;
             config.detectApertureOnly = mDemoConfiguration.detectApertureOnly;
             config.tolerance = mDemoConfiguration.tolerance;
-#if EMBREE
+            config.confidenceValue = mDemoConfiguration.confidenceValue;
+            double areaSources = 2 * mDemoConfiguration.scaling;
+            areaSources *= areaSources;
+            double minimumAreAperture =  mDemoConfiguration.minimumApertureSize;
+            minimumAreAperture *= minimumAreAperture;
+            config.minimumNormalizedApertureSize = minimumAreAperture/ areaSources;
+#if EMBREE 
             config.useEmbree = mDemoConfiguration.embree;
 #endif
 #if ENABLE_MPFR
@@ -152,7 +158,7 @@ namespace visilibDemo
 
         void display()
         {
-            DemoDebugVisualisationGl::display(debugger, *meshContainer, v0, v1, result, drawGeometryType);
+            DemoDebugVisualisationGl::display(debugger, *meshContainer, v0, v1, result, drawGeometryType,mDemoConfiguration.minimumApertureSize * mDemoConfiguration.globalScaling);
         }
 
         void displaySettings()
@@ -173,9 +179,10 @@ namespace visilibDemo
 #endif
             std::cout << "  f: enable/disable detect aperture only" << std::endl;
 
-            std::cout << "  n: enable/disable Plucker normalization" << std::endl;
-            std::cout << "  f: enable/disable fast silhouette rejection test" << std::endl;
+            std::cout << "  a: enable/disable aggressive" << std::endl;
 
+            std::cout << "  n: enable/disable Plucker normalization" << std::endl;
+            
             std::cout << "  x: change scene " << std::endl;
             std::cout << "  +/-: increase/decrease scaling of query polygons" << std::endl;
             std::cout << "  1/2: increase/decrease number of vertices of query polygons" << std::endl;
@@ -205,13 +212,13 @@ namespace visilibDemo
                 exit(0);   // Simply exit
                 break;
 
-            case '2':
+            case '>':
                 if (mDemoConfiguration.vertexCount1 < 12)
                     mDemoConfiguration.vertexCount1++;
 
                 forceDisplay = true;
                 break;
-            case '1':
+            case '<':
                 if (mDemoConfiguration.vertexCount1 > 1)
                     mDemoConfiguration.vertexCount1--;
 
@@ -248,19 +255,20 @@ namespace visilibDemo
 
                 break;
 
-            case '[':
-                mDemoConfiguration.tolerance = mDemoConfiguration.tolerance == -1 ? 1e-8 : mDemoConfiguration.tolerance/2;
-                forceDisplay = true;
+            case ']':                
+               if (mDemoConfiguration.minimumApertureSize < 0.1f)
+                    mDemoConfiguration.minimumApertureSize *= 1.3;
+                forceDisplay = true;                                
 
                 break;
 
-            case ']':
-                mDemoConfiguration.tolerance = mDemoConfiguration.tolerance == -1 ? 1e-8 : mDemoConfiguration.tolerance*2;
-                forceDisplay = true;
+            case '[':
+                if (mDemoConfiguration.minimumApertureSize > 0.00001f)
+                    mDemoConfiguration.minimumApertureSize /= 1.3;
+                forceDisplay = true;                
                 break;
 
             case 'h':
-
                 writeHelp();
 
                 displaySettings();
@@ -269,24 +277,35 @@ namespace visilibDemo
                 mDemoConfiguration.silhouetteOptimisation = !mDemoConfiguration.silhouetteOptimisation;
                 forceDisplay = true;
                 break;
+            case 'a':
+                current = static_cast<int>(mDemoConfiguration.solverType);
+                current++;
+                if (current >= static_cast<int>(VisibilityExactQueryConfiguration::SOLVER_COUNT)) current = VisibilityExactQueryConfiguration::EXACT_APERTURE_FINDER;
+                mDemoConfiguration.solverType = static_cast<VisibilityExactQueryConfiguration::SolverType>(current);
+                displaySettings();
+                forceDisplay = true;
+               break;
             case 'f':
                 mDemoConfiguration.detectApertureOnly = !mDemoConfiguration.detectApertureOnly;
                 forceDisplay = true;
 
                 break;
 
-            case 'x':
-                mDemoConfiguration.sceneIndex++;
-                if (mDemoConfiguration.sceneIndex > 9)
-                    mDemoConfiguration.sceneIndex = 0;
-                initScene(mDemoConfiguration.sceneIndex);
-                forceDisplay = true;
-                break;
+            case '0': mDemoConfiguration.sceneIndex = DemoConfiguration::SLOT_OFF_AXIS_01; forceDisplay = true; initScene(mDemoConfiguration.sceneIndex); break;
+            case '1': mDemoConfiguration.sceneIndex = DemoConfiguration::SLOT_OFF_AXIS_02; forceDisplay = true;  initScene(mDemoConfiguration.sceneIndex);break;
+            case '2': mDemoConfiguration.sceneIndex = DemoConfiguration::SLOT_OFF_AXIS_03; forceDisplay = true;  initScene(mDemoConfiguration.sceneIndex);break;
+            case '3': mDemoConfiguration.sceneIndex = DemoConfiguration::SLOT_OFF_AXIS_04; forceDisplay = true; initScene(mDemoConfiguration.sceneIndex); break;
+            case '4': mDemoConfiguration.sceneIndex = DemoConfiguration::SLOT_OFF_AXIS_05; forceDisplay = true; initScene(mDemoConfiguration.sceneIndex); break;
+            case '5': mDemoConfiguration.sceneIndex = DemoConfiguration::SLOT_ON_AXIS_01; forceDisplay = true;  initScene(mDemoConfiguration.sceneIndex);break;
+            case '6': mDemoConfiguration.sceneIndex = DemoConfiguration::SPHERE_WITH_HOLES; forceDisplay = true; initScene(mDemoConfiguration.sceneIndex); break;
+            case '7': mDemoConfiguration.sceneIndex = DemoConfiguration::NOISY_SPHERE; forceDisplay = true; initScene(mDemoConfiguration.sceneIndex); break;
+            case '8': mDemoConfiguration.sceneIndex = DemoConfiguration::SIMPLE_CUBE; forceDisplay = true; initScene(mDemoConfiguration.sceneIndex); break;
+            case '9': mDemoConfiguration.sceneIndex = DemoConfiguration::NOISY_CUBE; forceDisplay = true; initScene(mDemoConfiguration.sceneIndex); break;
 
             case 'e':
                 current = static_cast<int>(mDemoConfiguration.precisionType);
                 current++;
-                if (current >= static_cast<int>(VisibilityExactQueryConfiguration::COUNT)) current = VisibilityExactQueryConfiguration::FLOAT;
+                if (current >= static_cast<int>(VisibilityExactQueryConfiguration::PRECISION_COUNT)) current = VisibilityExactQueryConfiguration::FLOAT;
                 mDemoConfiguration.precisionType = static_cast<VisibilityExactQueryConfiguration::PrecisionType>(current);
                 displaySettings();
                 forceDisplay = true;

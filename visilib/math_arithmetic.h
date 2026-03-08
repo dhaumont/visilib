@@ -72,7 +72,8 @@ namespace visilib
         /** @brief Test is a vector is finite (not containing NaN).*/
         static bool isFinite(MathVector3_<S> a);
 
-         static double to_double(S a);
+        static double to_double(S a);
+        static S getRandom();
     };
     template <> inline int MathArithmetic<double>::validDecimalsCount()  { return std::numeric_limits<double>::digits10 + 1; }
     template <> inline int MathArithmetic<float>::validDecimalsCount()  { return std::numeric_limits<float>::digits10 + 1; }
@@ -375,5 +376,10 @@ namespace visilib
         return v.to_double();
     }
 #endif
+    template<class S>
+    inline S MathArithmetic<S>::getRandom()
+    {
+        return (S)rand() / (S)(RAND_MAX);
+    }
 
 }

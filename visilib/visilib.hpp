@@ -132,4 +132,3 @@ inline VisibilityResult visilib::areVisible(GeometryOccluderSet* scene, const fl
 
     return result;
 }
-

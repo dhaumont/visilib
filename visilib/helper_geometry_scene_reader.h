@@ -27,6 +27,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 
 #include "helper_triangle_mesh_container.h"
 #include "helper_triangle_mesh.h"
+#include "helper_synthetic_mesh_builder.h"
 
 namespace visilib
 {
@@ -46,7 +47,10 @@ namespace visilib
         ~HelperGeometrySceneReader();
 
         bool readFileObj(const std::string& fileName);
-
+        void writeFileObj(const std::string& fileName);
+        static void appendMeshToFileObj(std::ofstream& stream, int& anOffset, const std::vector<MathVector3f> & vertices, const std::vector<int> & indices);
+        static void appendPolygonToFileObj(std::ofstream& stream, int& anOffset, const std::vector<float> & vertices);
+        static void appendSegmentsToFileObj(std::ofstream& stream, int& anOffset, const std::vector<MathVector3f> & vertices, const std::vector<int> & indices);
         static void tokenizeNextLine(std::istream& stream, std::vector< std::string >& tokens);
 
 
@@ -214,4 +218,109 @@ namespace visilib
 
         return true;
     }
-};
+
+    inline void HelperGeometrySceneReader::writeFileObj(const std::string & fileName)
+    {
+        std::ofstream stream(fileName.c_str());
+        auto myMeshArray = mScene->getMeshArray();
+        int myOffset = 1;
+
+        for (auto iter = myMeshArray.begin(); iter != myMeshArray.end(); iter++)
+        {
+            appendMeshToFileObj(stream, myOffset, (*iter)->getVertices(), (*iter)->getIndices());
+        }
+        stream.close();
+    }
+
+    inline void HelperGeometrySceneReader::appendMeshToFileObj(std::ofstream& stream, 
+                                                           int& anOffset,
+                                                           const std::vector<MathVector3f> & vertices,
+                                                           const std::vector<int> & indices
+                                                           )
+    {   
+        stream << "#Mesh (v:" << vertices.size() << ", f:" << indices.size()/3 << ")" << std::endl;
+        
+        for (size_t i = 0; i < vertices.size(); i++)
+        {
+            stream << "#v " << anOffset + i << std::endl;
+            stream << "v " << vertices[i].x << " " << vertices[i].y << " " << vertices[i].z << std::endl;
+        }
+   
+        size_t i = 0;
+    
+        while (i < indices.size()/3)
+        {                
+            stream << "#f " << i + 1 << std::endl;
+
+            stream << "f "  << indices[i*3  ] + anOffset
+                    << " "  << indices[i*3+1] + anOffset
+                    << " "  << indices[i*3+2] + anOffset << std::endl;
+            i++;
+        }
+
+        anOffset += vertices.size();             
+    }
+
+
+    inline void HelperGeometrySceneReader::appendPolygonToFileObj(std::ofstream& stream, 
+                                                                   int& anOffset,
+                                                                   const std::vector<float> & vertices                                                                                                                           
+                                                                   )
+    {   
+        size_t myVertexCount = vertices.size() / 3;
+        //Export a Fan for polygon
+        stream << "#Polygon (v:" << myVertexCount << ", f:" << myVertexCount - 2 << ")" << std::endl;
+    
+        for (size_t i = 0; i < myVertexCount; i++)
+        {
+            stream << "#v " << anOffset + i << std::endl;
+            stream << "v " << vertices[i*3] << " " << vertices[i*3+1] << " " << vertices[i*3+2] << std::endl;
+        }
+        size_t i = 0;
+        while (i < myVertexCount -1)
+        {  
+            stream << "#f " << i << std::endl;
+            stream << "f " << anOffset
+                    << " "  << anOffset+i
+                    << " "  << anOffset+i+1 
+                    << std::endl;
+            i++;
+        }
+        anOffset += myVertexCount;  
+    }          
+    
+
+inline void HelperGeometrySceneReader::appendSegmentsToFileObj(std::ofstream& stream, 
+                                                              int& anOffset,
+                                                              const std::vector<MathVector3f> & vertices,
+                                                              const std::vector<int> & indices                                                                                                                            
+                                                                )
+    {   
+        size_t myLineCount = indices.size() / 2;
+        
+        if (vertices.size() <  2 || myLineCount < 1)
+            return;
+        
+        stream << "#Lines (v:" << vertices.size() << ", l:" << myLineCount << ")" << std::endl;
+        
+        for (size_t i = 0; i < vertices.size(); i++)
+        {
+            stream << "#v " << anOffset + i << std::endl;
+            stream << "v " << vertices[i].x << " " << vertices[i].y << " " << vertices[i].z << std::endl;
+        }
+
+        size_t i = 0;
+
+        while (i < myLineCount)
+        {                
+            stream << "#l " << i + 1 << std::endl;
+
+            stream << "l "  << indices[i*2  ] + anOffset
+                    << " "  << indices[i*2+1] + anOffset << std::endl;
+                    
+            i++;
+        }
+
+        anOffset += vertices.size(); 
+    }
+}
