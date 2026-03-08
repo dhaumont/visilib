@@ -21,7 +21,6 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #pragma once
 
 #include "visibility_solver.h"
-#include "visibility_aperture_finder.h"
 
 #include "geometry_convex_polygon.h"
 #include "silhouette_mesh_face.h"

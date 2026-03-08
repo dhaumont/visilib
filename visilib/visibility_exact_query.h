@@ -36,6 +36,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include "plucker_polytope_complex.h"
 #include "visibility_aperture_finder.h"
 #include "visibility_aggressive_solver.h"
+#include "visibility_sequential_solver.h"
 #include "silhouette_container.h"
 #include "silhouette_processor.h"
 #include "visilib.h"
@@ -351,8 +352,7 @@ namespace visilib
                                        mConfiguration.confidenceValue);
                 break;                
                 case VisibilityExactQueryConfiguration::EXACT_SEQUENTIAL_SOLVER:
-                    solver = NULL;
-                    return result;                    
+                    solver = new VisibilitySequentialSolver<P, S>(this, mConfiguration.hyperSphereNormalization, mTolerance, mConfiguration.detectApertureOnly);
                 break;
             }
             if (mDebugger != nullptr)
