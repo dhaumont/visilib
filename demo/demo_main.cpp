@@ -300,7 +300,6 @@ namespace visilibDemo
 
 
 #ifdef EXACT_ARITHMETIC
-==== BASE ====
             case 'e':
                 current = static_cast<int>(mDemoConfiguration.precisionType);
                 current++;
@@ -309,7 +308,6 @@ namespace visilibDemo
                 displaySettings();
                 forceDisplay = true;
 #endif
-==== BASE ====
                 break;
 #if EMBREE
             case 'g':

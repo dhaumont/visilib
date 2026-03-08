@@ -324,7 +324,7 @@ void DemoConfiguration::displaySettings()
     std::cout << "[Normalization: " << getStatusString(normalization) << "]";
       std::cout << "[Sampling: " << getStatusString(sampling)<< "]";
   
-    std::cout << "  [Arithmetic: " << toStr(precisionType) << "]" << std::endl;
+    std::cout << "  [Arithmetic: " << toStr(getPrecisionType()) << "]" << std::endl;
 #if EMBREE           
     std::cout << "[Embree:" << getStatusString(embree) << "]" << std::endl;
 #endif

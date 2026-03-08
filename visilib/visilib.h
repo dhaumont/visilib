@@ -37,7 +37,8 @@ namespace visilib
         enum PrecisionType
         {
             FLOAT,       /**< @brief Single floating point aritmetic*/
-            DOUBLE       /**< @brief Double floating point aritmetic*/
+            DOUBLE,      /**< @brief Double floating point aritmetic*/
+            AGGRESSIVE
 #ifdef ENABLE_LEDA
             , LEDA_REAL      /**< @brief Exact arithmetic (based on LEDA)*/
 #endif
