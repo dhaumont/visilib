@@ -105,6 +105,22 @@ namespace visilib
             v[3][2] = aCenter.z;
         }
 
+        void setOrthogonalBasisInverseTranspose(const MathVector3_<S> & uAxis, const MathVector3_<S> & vAxis, const MathVector3_<S> & wAxis)
+        {
+            v[0][0] = uAxis.x; v[0][1] = uAxis.y; v[0][2] = uAxis.z; 
+            v[1][0] = vAxis.x; v[1][1] = vAxis.y; v[1][2] = vAxis.z; 
+            v[2][0] = wAxis.x; v[2][1] = wAxis.y; v[2][2] = wAxis.z;  
+            v[3][3] = 1;  
+        }
+
+        friend std::ostream& operator<<(std::ostream & os, const MathMatrix_ & m)
+        {
+            os << "[" << m.v[0][0] << "," << m.v[1][0] << "," << m.v[2][0] <<  "," << m.v[3][0] << "]" << std::endl;
+            os << "[" << m.v[0][1] << "," << m.v[1][1] << "," << m.v[2][1] <<  "," << m.v[3][1] << "]" << std::endl;
+            os << "[" << m.v[0][2] << "," << m.v[1][2] << "," << m.v[2][2] <<  "," << m.v[3][2] << "]" << std::endl;
+            os << "[" << m.v[0][3] << "," << m.v[1][3] << "," << m.v[2][3] <<  "," << m.v[3][3] << "]" << std::endl;
+            return os;
+        }
     private:
         union
         {

@@ -1,4 +1,4 @@
-/*
+    /*
 Visilib, an open source library for exact visibility computation.
 Copyright(C) 2021 by Denis Haumont
 
@@ -22,7 +22,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 
 #include <unordered_map>
 #include <unordered_set>
-
+#include <random>
 #include "geometry_convex_polygon.h"
 #include "silhouette_mesh_face.h"
 #include "geometry_occluder_set.h"
@@ -35,6 +35,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include "plucker_polytope_builder.h"
 #include "plucker_polytope_complex.h"
 #include "visibility_aperture_finder.h"
+#include "visibility_aggressive_solver.h"
 #include "silhouette_container.h"
 #include "silhouette_processor.h"
 #include "visilib.h"
@@ -101,7 +102,9 @@ namespace visilib
         When an intersection is found, the silhouette are extracted from the intersected face and the silhouette is linked to the polytope
         The links is used for occluder selection.
         */
-        bool findSceneIntersection(const MathVector3d& aBegin, const MathVector3d& anEnd, std::set<SilhouetteMeshFace*>& intersectedFaces, const S& aDistance = 0, PluckerPolytope<P>* aPolytope = nullptr);
+        bool findSceneIntersection(const MathVector3d& aBegin, const MathVector3d& anEnd, std::set<SilhouetteMeshFace*>& intersectedFaces, const S& aDistance = 0);
+        
+        bool hasSceneIntersection(const MathVector3d& aBegin, const MathVector3d& anEnd, const S& aDistance = 0);
 
         void extractAllSilhouettes();
 
@@ -335,8 +338,23 @@ namespace visilib
             }
             VisibilitySolver<P, S>* solver;
 
-            solver = new VisibilityApertureFinder<P, S>(this, mConfiguration.hyperSphereNormalization, mTolerance, mConfiguration.detectApertureOnly);
+            switch (mConfiguration.solverType)
+            {
+                case VisibilityExactQueryConfiguration::EXACT_APERTURE_FINDER:
+                    solver = new VisibilityApertureFinder<P, S>(this, mConfiguration.hyperSphereNormalization, mTolerance, mConfiguration.detectApertureOnly);
+                break;
 
+                case VisibilityExactQueryConfiguration::MONTE_CARLO:
+                    solver = new VisibilityAggressiveSolver<P, S>(this, mTolerance,
+                                       mConfiguration.detectApertureOnly, 
+                                       mConfiguration.minimumNormalizedApertureSize,
+                                       mConfiguration.confidenceValue);
+                break;                
+                case VisibilityExactQueryConfiguration::EXACT_SEQUENTIAL_SOLVER:
+                    solver = NULL;
+                    return result;                    
+                break;
+            }
             if (mDebugger != nullptr)
             {
                 solver->attachVisualisationDebugger(mDebugger);
@@ -436,7 +454,7 @@ namespace visilib
     }
 
     template<class P, class S>
-    bool VisibilityExactQuery_<P, S>::findSceneIntersection(const MathVector3d & aBegin, const MathVector3d & anEnd, std::set<SilhouetteMeshFace*> & anIntersectedFaces, const S& aDistance, PluckerPolytope<P> * aPolytope)
+    bool VisibilityExactQuery_<P, S>::findSceneIntersection(const MathVector3d & aBegin, const MathVector3d & anEnd, std::set<SilhouetteMeshFace*> & anIntersectedFaces, const S& aDistance)
     {
         MathVector3d myBegin = aBegin;
         MathVector3d myDir = anEnd - aBegin;
@@ -490,6 +508,39 @@ namespace visilib
     }
 
     template<class P, class S>
+    bool VisibilityExactQuery_<P, S>::hasSceneIntersection(const MathVector3d & aBegin, const MathVector3d & anEnd, const S& aDistance)
+    {
+        MathVector3d myBegin = aBegin;
+        MathVector3d myDir = anEnd - aBegin;
+        double myMax = myDir.normalize();
+
+        VisibilityRay myRay;
+        myRay.org[0] = (float)myBegin.x;
+        myRay.org[1] = (float)myBegin.y;
+        myRay.org[2] = (float)myBegin.z;
+        myRay.dir[0] = (float)myDir.x;
+        myRay.dir[1] = (float)myDir.y;
+        myRay.dir[2] = (float)myDir.z;
+        myRay.tfar = (float)myMax;
+        myRay.tnear = 0;
+
+        if (mDebugger != nullptr)
+        {
+            mDebugger->addSamplingLine(convert<MathVector3f>(aBegin), convert<MathVector3f>(anEnd));
+        }
+
+        bool intersect = false;
+
+        {
+            HelperScopedTimer timer(getStatistic(), RAY_INTERSECTION);
+            getStatistic()->inc(RAY_COUNT);
+            
+            intersect = mSilhouetteContainer->intersect(&myRay, MathArithmetic<S>::to_double(aDistance));
+        }
+
+        return intersect;
+    }
+    template<class P, class S>
     void VisibilityExactQuery_<P, S>::extractAllSilhouettes()
     {
         for (size_t geometryId = 0; geometryId < mScene->getOccluderCount(); geometryId++)
@@ -527,8 +578,8 @@ namespace visilib
         std::pair<MathVector3d, MathVector3d> centerLine = MathGeometry::getBackTo3D(myRepresentativeLine, aPlane0, aPlane1);
 
         std::set<SilhouetteMeshFace*> intersectedFaces;
-        bool hit = findSceneIntersection(centerLine.first, centerLine.second, intersectedFaces, 0, aPolytope);
-
+        bool hit = findSceneIntersection(centerLine.first, centerLine.second, intersectedFaces, 0);
+    
         if (!hit && !mConfiguration.detectApertureOnly)
         {
             {
@@ -567,8 +618,8 @@ namespace visilib
                 }
             }
             myMaxDistance = MathArithmetic<S>::getSqrt(myMaxDistance);
-            findSceneIntersection(centerLine.first, centerLine.second, intersectedFaces, myMaxDistance, aPolytope);
-        }
+            findSceneIntersection(centerLine.first, centerLine.second, intersectedFaces, myMaxDistance);
+        }            
         for (auto myFace : intersectedFaces)
         {
             Silhouette* s = mSilhouetteProcessor->findSilhouette(myFace);
