@@ -21,6 +21,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include <math.h>
 #include "demo_helper.h"
 #include "math_vector_3.h"
+#include "math_arithmetic.h"
 #include "helper_triangle_mesh_container.h"
 #include "helper_geometry_scene_reader.h"
 #include "helper_synthetic_mesh_builder.h"
@@ -320,16 +321,10 @@ void DemoConfiguration::displaySettings()
 
     std::cout << "  [Early stop: " << getStatusString(detectApertureOnly) << "]";
     std::cout << "[Silhouette: " << getStatusString(silhouetteOptimisation) << "]";
-    std::cout << "[Normalization: " << getStatusString(normalization) << "]" << std::endl;
-    std::cout << "[Sampling: " << getStatusString(sampling)<< "]";
-    std::cout << "[ExactArithmetic: " << getStatusString(exactArithmetic)<< "]" << std::endl;
-    
-#if EXACT_ARITHMETIC            
-    if (exactArithmetic)
-        std::cout << "  [Exact arithmetic: ON]";
-    else
-#endif
-        std::cout << "  [Exact arithmetic: OFF]";
+    std::cout << "[Normalization: " << getStatusString(normalization) << "]";
+      std::cout << "[Sampling: " << getStatusString(sampling)<< "]";
+  
+    std::cout << "  [Arithmetic: " << toStr(precisionType) << "]" << std::endl;
 #if EMBREE           
     std::cout << "[Embree:" << getStatusString(embree) << "]" << std::endl;
 #endif
@@ -386,6 +381,43 @@ void DemoConfiguration::readConfig(const std::string& filename)
     input.close();
 }
 
+const std::string DemoConfiguration::toStr(VisibilityExactQueryConfiguration::PrecisionType p)
+{
+    std::stringstream stream;
+    switch (p) {
+    case VisibilityExactQueryConfiguration::FLOAT:
+        stream <<  "FLOAT "  << MathArithmetic<float>::bitsCount()<< " bits; tol = " << MathArithmetic<float>::Tolerance();
+        break;
+    case VisibilityExactQueryConfiguration::DOUBLE:
+         stream << "DOUBLE " << MathArithmetic<double>::bitsCount()<< " bits; tol = " << MathArithmetic<double>::Tolerance();
+        break;
+#ifdef ENABLE_LEDA
+    case VisibilityExactQueryConfiguration::LEDA_REAL:
+        stream << "LEDA_REAL " <<MathArithmetic<MathLedaReal>::bitsCount()<< " bits; tol = " << MathArithmetic<MathLedaReal>::Tolerance();
+        break;
+#endif
+#ifdef ENABLE_GMP
+    case VisibilityExactQueryConfiguration::GMP_FLOAT:
+        stream << "GMP_FLOAT "  <<MathArithmetic<MathGmpFloat>::bitsCount()<< " bits; tol = " << MathArithmetic<MathGmpFloat>::Tolerance();
+        break;
+    case VisibilityExactQueryConfiguration::GMP_RATIONAL:
+        stream << "GMP_RATIONAL; tol = " << MathArithmetic<MathGmpRational>::Tolerance();
+        break;
+
+#endif
+#ifdef ENABLE_MPFR
+    case VisibilityExactQueryConfiguration::MPFR:
+        stream << "MPFR " << MathArithmetic<MathMpfr>::bitsCount() << " bits; tol = " << MathArithmetic<MathMpfr>::Tolerance();
+        break;
+
+#endif
+    default:
+        stream << "UNKNOWN";
+        break;
+    }
+
+    return stream.str();
+}
 
 void DemoConfiguration::displaySummary()
 {

@@ -30,8 +30,8 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 
 namespace visilib
 {
-    /** @brief Split a convex polytope into two polytopes, following an hyperplane. 
-    
+    /** @brief Split a convex polytope into two polytopes, following an hyperplane.
+
     The polytopes are represented by their skeleton (myVertices and edges) only. The splitting is based on the combinatorial facet description of the vertices and edges */
 
     template<class P, class S>
@@ -68,7 +68,7 @@ namespace visilib
 
         size_t edge[2];
 
-         
+
         // Step 1 - edge classification
 
         // We iterate through all the edges to inspect the relative position of the two myVertices of the edge with regards to the splitting hyperplane
@@ -148,7 +148,7 @@ namespace visilib
             return ON_NEGATIVE_SIDE;
         }
 
-        
+
         // Step 3 - P processing
         //			We are in the generic case, where the hyperplane split the polytope in two convex polytopes.
         //          We first process all the myVertices and creates the new myVertices if required
@@ -199,13 +199,13 @@ namespace visilib
                         myI1 = myI2;
                         myI2 = temp;
                     }
-                    
+
                    const std::vector<size_t>& facetsI1 = aPolyhedron->getFacetsDescription(myI1);
                    const std::vector<size_t>& facetsI2 = aPolyhedron->getFacetsDescription(myI2);
-         
+
                     std::vector<size_t> myFacets;
-                    MathCombinatorial::initFacets(facetsI1, 
-                                                  facetsI2, 
+                    MathCombinatorial::initFacets(facetsI1,
+                                                  facetsI2,
                                                   aPlaneID,
                                                   myFacets);
 
@@ -265,7 +265,7 @@ namespace visilib
 
                 const std::vector<size_t>& facetsQm = aPolyhedron->getFacetsDescription(Qm);
                 const std::vector<size_t>& facetsQn = aPolyhedron->getFacetsDescription(Qn);
-         
+
                 if (MathCombinatorial::haveAtLeastNCommonFacets(facetsQm, facetsQn))
                 {
                     V_ASSERT(Qm != Qn);
@@ -291,7 +291,7 @@ namespace visilib
         V_ASSERT(aRight->getEdgeCount() > 0);
         //V_ASSERT(aLeft->isValid(aPolyhedron, normalization,tolerance));
         //V_ASSERT(aRight->isValid(aPolyhedron, normalization,tolerance));
-        
+
         return ON_BOUNDARY;
     }
 }

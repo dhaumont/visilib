@@ -134,19 +134,73 @@ namespace visilib
         return MathVector3d(f.x, f.y, f.z);
     }
 
-#ifdef EXACT_ARITHMETIC
+#ifdef ENABLE_LEDA
     template<>
-    inline MathVector3d convert(const MathVector3_<exact> & f)
+    inline MathVector3d convert(const MathVector3_<MathLedaReal> & f)
     {
-        return MathVector3d(to_double(f.x), to_double(f.y), to_double(f.z));
+        return MathVector3d(
+            MathArithmetic<MathLedaReal>::to_double(f.x),
+            MathArithmetic<MathLedaReal>::to_double(f.y),
+            MathArithmetic<MathLedaReal>::to_double(f.z));
     }
 
     template<>
-    inline MathVector3_<exact> convert(const MathVector3d & f)
+    inline MathVector3_<MathLedaReal> convert(const MathVector3d & f)
     {
-        return MathVector3_<exact>(f.x, f.y, f.z);
+        return MathVector3_<MathLedaReal>(f.x, f.y, f.z);
     }
 #endif
+
+#if ENABLE_GMP
+    template<>
+    inline MathVector3d convert(const MathVector3_<MathGmpFloat>& f)
+    {
+        return MathVector3d(
+            MathArithmetic<MathGmpFloat>::to_double(f.x),
+            MathArithmetic<MathGmpFloat>::to_double(f.y),
+            MathArithmetic<MathGmpFloat>::to_double(f.z));
+    }
+
+    template<>
+    inline MathVector3_<MathGmpFloat> convert(const MathVector3d& f)
+    {
+        return MathVector3_<MathGmpFloat>(f.x, f.y, f.z);
+    }
+
+    template<>
+    inline MathVector3d convert(const MathVector3_<MathGmpRational>& f)
+    {
+        return MathVector3d(
+            MathArithmetic<MathGmpRational>::to_double(f.x),
+            MathArithmetic<MathGmpRational>::to_double(f.y),
+            MathArithmetic<MathGmpRational>::to_double(f.z));
+    }
+
+    template<>
+    inline MathVector3_<MathGmpRational> convert(const MathVector3d& f)
+    {
+        return MathVector3_<MathGmpRational>(f.x, f.y, f.z);
+    }
+#endif
+
+
+#if ENABLE_MPFR
+    template<>
+    inline MathVector3d convert(const MathVector3_<MathMpfr>& f)
+    {
+        return MathVector3d(
+            MathArithmetic<MathMpfr>::to_double(f.x),
+            MathArithmetic<MathMpfr>::to_double(f.y),
+            MathArithmetic<MathMpfr>::to_double(f.z));
+    }
+
+    template<>
+    inline MathVector3_<MathMpfr> convert(const MathVector3d& f)
+    {
+        return MathVector3_<MathMpfr>(f.x, f.y, f.z);
+    }
+#endif
+
 
     template<class S>
     inline bool MathVector3_<S>::isZero(S anEps)const
@@ -170,7 +224,7 @@ namespace visilib
             y *= inv;
             z *= inv;
         }
-        else 
+        else
         {
              x = y = z = 0;
         }

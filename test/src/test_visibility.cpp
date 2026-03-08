@@ -31,8 +31,8 @@ using namespace visilibDemo;
 bool testConfiguration(const DemoConfiguration& configuration, VisibilityResult expected, const std::string& filename)
 {
     std::vector<float> v0, v1;
-    
-   
+
+
     DemoHelper::generatePolygon(v0, configuration.vertexCount0, configuration.scaling, configuration.phi - 3.14519f, configuration.globalScaling);
     DemoHelper::generatePolygon(v1, configuration.vertexCount1, configuration.scaling, configuration.phi, configuration.globalScaling);
 
@@ -54,10 +54,17 @@ bool testConfiguration(const DemoConfiguration& configuration, VisibilityResult 
 }
 
 bool VisibilityTest(std::string& )
-{  
+{
     std::vector<VisibilityExactQueryConfiguration::PrecisionType> precisions = { VisibilityExactQueryConfiguration::DOUBLE };
-#ifdef EXACT_ARITHMETIC
-    precisions.push_back(VisibilityExactQueryConfiguration::EXACT);
+#ifdef ENABLE_LEDA
+    precisions.push_back(VisibilityExactQueryConfiguration::LEDA_REAL);
+#endif
+#ifdef ENABLE_MPFR
+    precisions.push_back(VisibilityExactQueryConfiguration::MPFR);
+#endif
+#ifdef ENABLE_GMP
+    precisions.push_back(VisibilityExactQueryConfiguration::GMP_FLOAT);
+    precisions.push_back(VisibilityExactQueryConfiguration::GMP_RATIONAL);
 #endif
     std::vector<float> globalScalings = {0.05f, 0.1f, 1.f, 5.0f };
     std::vector<size_t> vertexCount = { 1,2,3,5,7,9,11 };
@@ -65,7 +72,7 @@ bool VisibilityTest(std::string& )
     std::vector<float> phis = { 0.0};
     std::vector<bool> silhouetteOptimization = {true,false};
     bool result = true;
-    
+  
     int i = 0;
     for (auto silhouette : silhouetteOptimization)
     {
@@ -111,6 +118,6 @@ bool VisibilityTest(std::string& )
             }
         }
     }
- 
+
     return result;
 }

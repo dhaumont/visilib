@@ -34,7 +34,7 @@ namespace visilib
     class VisibilityExactQuery_;
     class GeometryConvexPolygon;
 
-   
+
     /** @brief Represents a complex of polytopes in Plucker space.
 
     Currently only the initial polytope and the polyhedron in Pluker space are stored explicitely

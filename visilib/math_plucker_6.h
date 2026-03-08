@@ -182,7 +182,7 @@ namespace visilib
 
             MathPlucker6<S>  result(*this);
 
-            S myDiv = sqrt(mDirection.getSquaredNorm() + mLocation.getSquaredNorm());
+            S myDiv = MathArithmetic<S>::getSqrt(mDirection.getSquaredNorm() + mLocation.getSquaredNorm());
             V_ASSERT(MathArithmetic<S>::getAbs(myDiv) > MathArithmetic<S>::Tolerance());
 
             result.mDirection /= myDiv;
@@ -197,7 +197,7 @@ namespace visilib
         S getDistance(const MathPlucker6<S>& other) const
         {
             S myDiv = MathVector3_<S>::cross(getDirection(),other.getDirection()).getNorm();
-            
+
             if (MathArithmetic<S>::getAbs(myDiv) > MathArithmetic<S>::Tolerance())
             {
                 return MathArithmetic<S>::getAbs(dot(other)) / myDiv;
@@ -211,15 +211,24 @@ namespace visilib
                 S s = l2 * sqrt(l1l1);
                 MathVector3_<S> l = other.getLocation();
                 l /= s;
-                return MathVector3_<S>::cross(getDirection(),getLocation() - l).getNorm() * l1l1;                 
+                return MathVector3_<S>::cross(getDirection(),getLocation() - l).getNorm() * l1l1;
             }
         }
 
-       
+
         /**@brief Origin point in Plucker space*/
         static MathPlucker6<S>  Zero()
         {
             return MathPlucker6(0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        }
+
+        bool isZero(S anEps)const
+        {
+           if (!getLocation().isZero(anEps))
+              return false;
+           if (!getDirection().isZero(anEps))
+              return false;
+           return true;
         }
 
         friend std::ostream& operator<<(std::ostream& os, const MathPlucker6& v)

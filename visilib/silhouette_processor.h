@@ -112,6 +112,8 @@ namespace visilib
         mConvexHull(nullptr),
         mHelperStatisticCollector(aHelperStatisticCollector)
     {
+        mSource[0] = nullptr;
+        mSource[1] = nullptr;
     }
 
     inline void SilhouetteProcessor::init(const GeometryConvexPolygon& aSource1, const GeometryConvexPolygon& aSource2)
@@ -229,10 +231,10 @@ namespace visilib
 
             Silhouette* s = new Silhouette(meshFaces, geometryId);
             silhouettes.push_back(s);
-            
+
             while (!stack.empty())
             {
-                int myIndex = stack.top();                
+                int myIndex = stack.top();
                 stack.pop();
                 if (processed[myIndex])
                     continue;
@@ -255,7 +257,7 @@ namespace visilib
                         {
                             faceIsInsideHull = true;
 
-                            if (!silhouetteOptimization 
+                            if (!silhouetteOptimization
                                 || face->getNeighbours(edgeIndex) == -1 || isPotentialSilhouetteEdge(face, const_cast<SilhouetteMeshFace*>(&meshFaces[face->getNeighbours(edgeIndex)])))
                             {
                                 s->addEdge(face, edgeIndex,0);
@@ -276,7 +278,7 @@ namespace visilib
                         {
                             mDebugger->addRemovedTriangle(face->getVertex(0), face->getVertex(1), face->getVertex(2));
                         }
-                        
+
                         s->addFace(*face);
 
                         mHelperStatisticCollector->inc(OCCLUDER_TRIANGLE_COUNT);
