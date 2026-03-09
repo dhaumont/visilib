@@ -139,6 +139,11 @@ namespace visilib
         bool findNextEdge(size_t& aSilhouetteEdgeIndex, Silhouette * &aSilhouette, PluckerPolytope<P> * polytope, const std::string & occlusionTreeNodeSymbol);
 
 
+        const std::unordered_set<Silhouette*>& getSilhouettes()
+        {
+            return mSilhouetteContainer->getSilhouettes();
+        }
+
         void setApproximateNormal(const MathVector3d & a)
         {
             mApproximateNormal = a;
@@ -335,7 +340,7 @@ namespace visilib
 
                 PluckerPolytopeBuilder<P, S> builder(mConfiguration.hyperSphereNormalization, mTolerance);
                 PluckerPolytope<P>* myPolytope = builder.build(*mQueryPolygon[0], *mQueryPolygon[1], getComplex()->getPolyhedron());
-                getComplex()->setRoot(myPolytope);
+                getComplex()->appendPolytope(myPolytope);
             }
             VisibilitySolver<P, S>* solver;
 

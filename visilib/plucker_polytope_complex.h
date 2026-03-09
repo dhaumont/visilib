@@ -48,36 +48,43 @@ namespace visilib
 
         ~PluckerPolytopeComplex();
 
-        bool hasPolytope()const
-        {
-            return mRoot != nullptr;
-        }
 
-        void setRoot(PluckerPolytope<P>* polytope)
+        void appendPolytope(PluckerPolytope<P>* polytope)
         {
-            V_ASSERT(!hasPolytope());
-            mRoot = polytope;
+            mPolytopes.push_back(polytope);
         }
 
         PluckerPolyhedron<P>* getPolyhedron() { return mPolyhedron; }
-        PluckerPolytope<P>* getRoot() { return mRoot; }
+        PluckerPolytope<P>* getRoot() { return mPolytopes[0]; }
+        size_t getPolytopeCount() { return mPolytopes.size();}
+        PluckerPolytope<P>* getPolytope(size_t index) { return mPolytopes[index];}
+        void removeLast() {mPolytopes.resize(mPolytopes.size()-1);}
+        void setPolytope(size_t index, PluckerPolytope<P>* p) {mPolytopes[index] = p;}
+        void repack()
+        {
+
+            mPolytopes.erase(std::remove_if(mPolytopes.begin(), mPolytopes.end(), [](PluckerPolytope<P>*  p) { return p == NULL; }), mPolytopes.end());
+        }
     private:
 
         PluckerPolyhedron<P>* mPolyhedron;
-        PluckerPolytope<P>* mRoot;
+        std::vector<PluckerPolytope<P>*> mPolytopes;
     };
 
     template<class P>
     inline PluckerPolytopeComplex<P>::PluckerPolytopeComplex()
     {
-        mRoot = nullptr;
         mPolyhedron = new PluckerPolyhedron<P>();
     }
 
     template<class P>
     inline PluckerPolytopeComplex<P>::~PluckerPolytopeComplex()
     {
-        delete mRoot;
+        for (auto myPolytope:mPolytopes)
+        {
+          delete myPolytope;
+        }
         delete mPolyhedron;
     }
 }
+

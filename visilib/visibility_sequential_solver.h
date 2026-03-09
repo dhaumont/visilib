@@ -35,36 +35,37 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include <fstream>
 #include <sstream>
 #include <map>
+#include <vector>
 namespace visilib
 {
-    template<class P>
-    class  PluckerPolytope;
+    template <class P>
+    class PluckerPolytope;
 
     /** @brief  */
 
-    template<class P, class S>
+    template <class P, class S>
     class VisibilitySequentialSolver : public VisibilitySolver<P, S>
     {
     public:
-        VisibilitySequentialSolver(VisibilityExactQuery_<P, S>* aSolver,
-            bool normalization,
-            S tolerance,
-            bool detectApertureOnly);
+        VisibilitySequentialSolver(VisibilityExactQuery_<P, S> *aSolver,
+                                   bool normalization,
+                                   S tolerance,
+                                   bool detectApertureOnly);
 
         VisibilityResult resolve();
+
     private:
-      
         bool mNormalization;
         bool mDetectApertureOnly;
         S mTolerance;
     };
 
-    template<class P, class S>
-    VisibilitySequentialSolver<P, S>::VisibilitySequentialSolver(VisibilityExactQuery_<P, S>* mQuery, bool normalization, S tolerance, bool detectApertureOnly)
+    template <class P, class S>
+    VisibilitySequentialSolver<P, S>::VisibilitySequentialSolver(VisibilityExactQuery_<P, S> *mQuery, bool normalization, S tolerance, bool detectApertureOnly)
         : VisibilitySolver<P, S>(mQuery),
-        mNormalization(normalization),
-        mTolerance(tolerance),
-        mDetectApertureOnly(detectApertureOnly)
+          mNormalization(normalization),
+          mTolerance(tolerance),
+          mDetectApertureOnly(detectApertureOnly)
     {
     }
 
@@ -72,7 +73,139 @@ namespace visilib
     VisibilityResult VisibilitySequentialSolver<P, S>::resolve()
     {
         VisibilityResult myGlobalResult = UNKNOWN;
+        Silhouette *mySilhouette = nullptr;
+        size_t mySilhouetteEdgeIndex = 0;
 
-       return myGlobalResult;
+        bool hasEdge = false;
+        bool isVisible = false;
+        std::string occlusionTreeNodeSymbol;
+        PluckerPolytopeComplex<P>* complex = VisibilitySolver<P, S>::mQuery->getComplex();
+        PluckerPolyhedron<P> *myPolyhedron = reinterpret_cast<PluckerPolyhedron<P> *>(VisibilitySolver<P, S>::mQuery->getComplex()->getPolyhedron());
+
+        const std::unordered_set<Silhouette *> &mySilhouettes = VisibilitySolver<P, S>::mQuery->getSilhouettes();
+
+        for (auto iter = mySilhouettes.begin(); iter != mySilhouettes.end(); iter++)
+        {
+            Silhouette *mySilhouette = (*iter);
+            auto &edges = mySilhouette->getEdges();
+            
+            for (size_t silhouetteEdgeIndex = 0; silhouetteEdgeIndex < edges.size(); silhouetteEdgeIndex++)
+            {
+                SilhouetteEdge &myVisibilitySilhouetteEdge = mySilhouette->getEdge(mySilhouetteEdgeIndex);
+                SilhouetteMeshFace *face = myVisibilitySilhouetteEdge.mFace;
+
+                V_ASSERT(myVisibilitySilhouetteEdge.mIsActive);
+
+                MathVector2i edge = face->getEdge(myVisibilitySilhouetteEdge.mEdgeIndex);
+
+                // Create the Plucker representation of the edge and add hyperplane of the edge and add it to the polyhedron
+
+                MathVector3d a = convert<MathVector3d>(face->getVertex(edge.x));
+                MathVector3d b = convert<MathVector3d>(face->getVertex(edge.y));
+
+                size_t myPolyhedronFace = myVisibilitySilhouetteEdge.mHyperPlaneIndex;
+                if (myPolyhedronFace == 0)
+                {
+                    P myHyperplane(a, b);
+                    if (mNormalization)
+                    {
+                        myHyperplane = myHyperplane.getNormalized();
+                    }
+                    myPolyhedronFace = myPolyhedron->add(myHyperplane, ON_BOUNDARY, mNormalization, mTolerance);
+                    myVisibilitySilhouetteEdge.mHyperPlaneIndex = myPolyhedronFace;
+                }
+
+                if (VisibilitySolver<P, S>::mDebugger != nullptr)
+                {
+                    VisibilitySolver<P, S>::mDebugger->addRemovedEdge(face->getVertex(edge.x), face->getVertex(edge.y));
+                }
+
+                P myHyperplane = myPolyhedron->get(myPolyhedronFace);
+
+                GeometryPositionType myResult = ON_UNKNOWN_POSITION;
+
+
+                for (int i = complex->getPolytopeCount() -1; i >=0; i--)
+                {
+                    PluckerPolytope<P> *myPolytope = complex->getPolytope(i);
+
+                    PluckerPolytope<P> *myPolytopeLeft = new PluckerPolytope<P>();
+                    PluckerPolytope<P> *myPolytopeRight = new PluckerPolytope<P>();
+
+                    {
+                        HelperScopedTimer timer(VisibilitySolver<P, S>::mQuery->getStatistic(), POLYTOPE_SPLIT);
+                        VisibilitySolver<P, S>::mQuery->getStatistic()->inc(POLYTOPE_SPLIT_COUNT);
+
+                        myResult = PluckerPolytopeSplitter<P, S>::split(myPolyhedron, myHyperplane, myPolytope, myPolytopeLeft, myPolytopeRight, myPolyhedronFace, mNormalization, mTolerance);
+
+                        if (VisibilitySolver<P, S>::mQuery->getStatistic()->get(POLYTOPE_SPLIT_COUNT) % 10000 == 0)
+                        {
+                            VisibilitySolver<P, S>::mQuery->getStatistic()->displayCounts();
+                            std::cout << std::endl;
+                        }
+                    }
+
+                    if (myResult == ON_BOUNDARY)
+                    {
+                        delete myPolytope;
+                        complex->setPolytope(i,myPolytopeLeft);
+                        complex->appendPolytope(myPolytopeRight);                       
+                    }
+                    else
+                    {
+                        delete myPolytopeLeft;
+                        myPolytopeLeft = nullptr;
+                        delete myPolytopeRight;
+                        myPolytopeRight = nullptr;                       
+                    }
+                }
+            }
+
+            for (int i = complex->getPolytopeCount() -1; i >=0; i--)
+            {
+                PluckerPolytope<P> *myPolytope = complex->getPolytope(i);
+                
+                myPolytope->computeEdgesIntersectingQuadric(myPolyhedron, mTolerance);
+                bool isValid = myPolytope->containsRealLines();
+
+                for (size_t silhouetteEdgeIndex = 0; silhouetteEdgeIndex < edges.size() && isValid; silhouetteEdgeIndex++)
+                {
+                    PluckerPolytope<P> *myPolytopeLeft = new PluckerPolytope<P>();
+                    PluckerPolytope<P> *myPolytopeRight = new PluckerPolytope<P>();
+                    
+                    GeometryPositionType myResult = ON_UNKNOWN_POSITION;
+                    SilhouetteEdge &myVisibilitySilhouetteEdge = mySilhouette->getEdge(mySilhouetteEdgeIndex);
+                    size_t myPolyhedronFace = myVisibilitySilhouetteEdge.mHyperPlaneIndex;
+                    P myHyperplane = myPolyhedron->get(myPolyhedronFace);
+
+                    myResult = PluckerPolytopeSplitter<P, S>::split(myPolyhedron, myHyperplane, myPolytope, myPolytopeLeft, myPolytopeRight, myPolyhedronFace, mNormalization, mTolerance);
+                 
+                    delete myPolytopeLeft;
+                    myPolytopeLeft = nullptr;
+                    delete myPolytopeRight;
+                    myPolytopeRight = nullptr;     
+                    
+                    if (myResult == ON_BOUNDARY)
+                    {
+                        assert(0);
+                        std::cout << "ERROR" << endl;
+                    }
+
+                    if (myResult == ON_NEGATIVE_SIDE)
+                    {   
+                        isValid = false;
+                    }
+                }
+                if (!isValid)
+                {
+                    delete myPolytope;
+                    complex->setPolytope(i,NULL);
+                }
+            }
+
+            complex->repack();
+        }
+
+        return myGlobalResult;
     }
 }
