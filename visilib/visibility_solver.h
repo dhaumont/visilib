@@ -29,7 +29,7 @@ namespace visilib
 
 
 
-    /** @brief Interface class for an algorithm performing exact visibility determination in Plucker space  ¨*/
+    /** @brief Interface class for an algorithm performing exact visibility determination in Plucker space  ï¿½*/
 
     template<class P, class S>
     class VisibilitySolver
@@ -44,10 +44,37 @@ namespace visilib
         virtual ~VisibilitySolver() = default;
 
         virtual VisibilityResult resolve() = 0;
+        void extractStabbingLines(PluckerPolyhedron<P>* myPolyhedron, PluckerPolytope<P>* aPolytope, S tolerance);
 
         void attachVisualisationDebugger(HelperVisualDebugger* aDebugger) { mDebugger = aDebugger; }
     protected:
         VisibilityExactQuery_<P, S>* mQuery;
         HelperVisualDebugger* mDebugger;
     };
+
+
+    template<class P, class S>
+    void VisibilitySolver<P, S>::extractStabbingLines(PluckerPolyhedron<P>* myPolyhedron, PluckerPolytope<P>* aPolytope, S tolerance)
+    {
+        HelperScopedTimer timer(VisibilitySolver<P, S>::mQuery->getStatistic(), STABBING_LINE_EXTRACTION);
+
+        MathPlane3d aPlane0 = VisibilitySolver<P, S>::mQuery->getQueryPolygon(0)->getPlane();
+        MathPlane3d aPlane1 = VisibilitySolver<P, S>::mQuery->getQueryPolygon(1)->getPlane();
+
+        if (aPolytope->getExtremalStabbingLinesCount() == 0)
+        {
+            aPolytope->computeExtremalStabbingLines(myPolyhedron, tolerance);
+        }
+
+        if (VisibilitySolver<P, S>::mDebugger != nullptr)
+        {
+            std::vector<std::pair<MathVector3d, MathVector3d>> lines;
+            aPolytope->getExtremalStabbingLinesBackTo3D(lines, aPlane0, aPlane1);
+            for (auto line : lines)
+            {
+                VisibilitySolver<P, S>::mDebugger->addExtremalStabbingLine(convert<MathVector3f>(line.first), convert<MathVector3f>(line.second));
+            }
+        }
+
+    }
 }

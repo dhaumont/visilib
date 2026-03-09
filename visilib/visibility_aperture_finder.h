@@ -59,8 +59,7 @@ namespace visilib
     private:
         VisibilityResult resolveInternal(VisibilityResult& aGlobalResult, PluckerPolytope<P>* aPolytope, const std::string& occlusionTreeNodeSymbol, const std::vector<Silhouette*>& anOccluders, const std::vector<P>& aPolytopeLines, int depth);
         void resize(size_t myInitiaLineCount, PluckerPolyhedron<P>* myPolyhedron, PluckerPolytope<P>* aPolytope);
-        void extractStabbingLines(PluckerPolyhedron<P>* myPolyhedron, PluckerPolytope<P>* aPolytope);
-
+    
 
         bool mNormalization;
         bool mDetectApertureOnly;
@@ -357,7 +356,7 @@ namespace visilib
 #ifdef OUTPUT_DEBUG_FILE
                 V_LOG(debugOutput, "visible polytope found: exporting stabbing lines", occlusionTreeNodeSymbol);
 #endif
-                extractStabbingLines(myPolyhedron, aPolytope);
+                VisibilitySolver<P, S>::extractStabbingLines(myPolyhedron, aPolytope,mTolerance);
                 aGlobalResult = VISIBLE;
                 if (mDetectApertureOnly) // Early stop - an aperture has been found
                 {
@@ -393,30 +392,6 @@ namespace visilib
         }
     }
 
-    template<class P, class S>
-    void VisibilityApertureFinder<P, S>::extractStabbingLines(PluckerPolyhedron<P>* myPolyhedron, PluckerPolytope<P>* aPolytope)
-    {
-        HelperScopedTimer timer(VisibilitySolver<P, S>::mQuery->getStatistic(), STABBING_LINE_EXTRACTION);
-
-        MathPlane3d aPlane0 = VisibilitySolver<P, S>::mQuery->getQueryPolygon(0)->getPlane();
-        MathPlane3d aPlane1 = VisibilitySolver<P, S>::mQuery->getQueryPolygon(1)->getPlane();
-
-        if (aPolytope->getExtremalStabbingLinesCount() == 0)
-        {
-            aPolytope->computeExtremalStabbingLines(myPolyhedron, mTolerance);
-        }
-
-        if (VisibilitySolver<P, S>::mDebugger != nullptr)
-        {
-            std::vector<std::pair<MathVector3d, MathVector3d>> lines;
-            aPolytope->getExtremalStabbingLinesBackTo3D(lines, aPlane0, aPlane1);
-            for (auto line : lines)
-            {
-                VisibilitySolver<P, S>::mDebugger->addExtremalStabbingLine(convert<MathVector3f>(line.first), convert<MathVector3f>(line.second));
-            }
-        }
-
-    }
 
 
 }

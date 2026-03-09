@@ -167,45 +167,63 @@ namespace visilib
                 
                 myPolytope->computeEdgesIntersectingQuadric(myPolyhedron, mTolerance);
                 bool isValid = myPolytope->containsRealLines();
-
-                for (size_t silhouetteEdgeIndex = 0; silhouetteEdgeIndex < edges.size() && isValid; silhouetteEdgeIndex++)
+                int negative = 0;
+                int positive = 0;
+                if (isValid)
                 {
-                    PluckerPolytope<P> *myPolytopeLeft = new PluckerPolytope<P>();
-                    PluckerPolytope<P> *myPolytopeRight = new PluckerPolytope<P>();
-                    
-                    GeometryPositionType myResult = ON_UNKNOWN_POSITION;
-                    SilhouetteEdge &myVisibilitySilhouetteEdge = mySilhouette->getEdge(mySilhouetteEdgeIndex);
-                    size_t myPolyhedronFace = myVisibilitySilhouetteEdge.mHyperPlaneIndex;
-                    P myHyperplane = myPolyhedron->get(myPolyhedronFace);
-
-                    myResult = PluckerPolytopeSplitter<P, S>::split(myPolyhedron, myHyperplane, myPolytope, myPolytopeLeft, myPolytopeRight, myPolyhedronFace, mNormalization, mTolerance);
-                 
-                    delete myPolytopeLeft;
-                    myPolytopeLeft = nullptr;
-                    delete myPolytopeRight;
-                    myPolytopeRight = nullptr;     
-                    
-                    if (myResult == ON_BOUNDARY)
+                    for (size_t silhouetteEdgeIndex = 0; silhouetteEdgeIndex < edges.size(); silhouetteEdgeIndex++)
                     {
-                        assert(0);
-                        std::cout << "ERROR" << endl;
-                    }
+                        PluckerPolytope<P> *myPolytopeLeft = new PluckerPolytope<P>();
+                        PluckerPolytope<P> *myPolytopeRight = new PluckerPolytope<P>();
+                        
+                        GeometryPositionType myResult = ON_UNKNOWN_POSITION;
+                        SilhouetteEdge &myVisibilitySilhouetteEdge = mySilhouette->getEdge(mySilhouetteEdgeIndex);
+                        size_t myPolyhedronFace = myVisibilitySilhouetteEdge.mHyperPlaneIndex;
+                        P myHyperplane = myPolyhedron->get(myPolyhedronFace);
 
-                    if (myResult == ON_NEGATIVE_SIDE)
-                    {   
-                        isValid = false;
+                        myResult = PluckerPolytopeSplitter<P, S>::split(myPolyhedron, myHyperplane, myPolytope, myPolytopeLeft, myPolytopeRight, myPolyhedronFace, mNormalization, mTolerance);
+                    
+                        delete myPolytopeLeft;
+                        myPolytopeLeft = nullptr;
+                        delete myPolytopeRight;
+                        myPolytopeRight = nullptr;     
+                        
+                        if (myResult == ON_BOUNDARY)
+                        {
+                            assert(0);
+                            std::cout << "ERROR" << endl;
+                        }
+
+                        if (myResult == ON_NEGATIVE_SIDE)
+                        {   
+                            negative++;
+                        }
+                        if (myResult == ON_POSITIVE_SIDE)
+                        {   
+                            positive++;
+                        }
                     }
                 }
+            
                 if (!isValid)
                 {
                     delete myPolytope;
                     complex->setPolytope(i,NULL);
-                }
+                }               
             }
 
             complex->repack();
         }
 
-        return myGlobalResult;
+        if (complex->getPolytopeCount()==0)
+        {
+          return HIDDEN;
+        }
+        for (int i = complex->getPolytopeCount() -1; i >=0; i--)
+        {
+            PluckerPolytope<P> *myPolytope = complex->getPolytope(i);
+            VisibilitySolver<P, S>::extractStabbingLines(myPolyhedron, myPolytope,mTolerance);
+        }
+        return VISIBLE;
     }
 }
