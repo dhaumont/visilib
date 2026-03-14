@@ -58,7 +58,19 @@ namespace visilib
         PluckerPolytope<P>* getRoot() { return mPolytopes[0]; }
         size_t getPolytopeCount() { return mPolytopes.size();}
         PluckerPolytope<P>* getPolytope(size_t index) { return mPolytopes[index];}
-        void removeLast() {mPolytopes.resize(mPolytopes.size()-1);}
+        void removeLast()
+         {
+            if (mPolytopes.empty())
+            {
+                return;
+            }
+            PluckerPolytope<P>* lastPolytope =  mPolytopes[mPolytopes.size()-1];
+            if (lastPolytope != NULL)
+            {
+                delete lastPolytope;
+            }
+             mPolytopes.resize(mPolytopes.size()-1);
+        }
         void setPolytope(size_t index, PluckerPolytope<P>* p) {mPolytopes[index] = p;}
         void repack()
         {
