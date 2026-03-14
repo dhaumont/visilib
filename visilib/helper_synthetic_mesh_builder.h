@@ -70,8 +70,12 @@ namespace visilib
         /** @brief Generate a slot in the xy plane centered around the origin*/
         static HelperTriangleMesh* generateSlot(float x0, float y0, float xSize, float ySize);
 
+        /** @brief Generate a slot in the xy plane centered around the origin*/
+        static HelperTriangleMesh* generateRegularPolygon(size_t vertexCount, int subdivision);
+
+        
         /** @brief Generate the vertices of a regular polygon*/
-        static void generateRegularPolygon(std::vector<MathVector3f>& vertices, size_t vertexCount);
+        static void generateRegularPolygon(std::vector<int>& indices, std::vector<MathVector3f>& vertices, size_t vertexCount);
 
         /** @brief Generate the vertices of a slot*/
         static void generateSlot(std::vector<int>& indices, std::vector<MathVector3f>& vertices, float x0, float y0,float xSize, float ySize);
@@ -279,7 +283,20 @@ namespace visilib
         }        
     }
 
+    inline HelperTriangleMesh* HelperSyntheticMeshBuilder::generateRegularPolygon(size_t vertexCount, int subdivision)
+    {
+        std::vector<MathVector3f> vertices;
+        std::vector<int> indices;
 
+        generateRegularPolygon(indices, vertices, vertexCount);
+
+        for (size_t i = 0; i < subdivision; i++)
+        {
+            subdivide(indices, vertices);
+        }
+
+        return new HelperTriangleMesh(vertices, indices);
+    }
     inline HelperTriangleMesh* HelperSyntheticMeshBuilder::generateSphere(int subdivision)
     {
         std::vector<MathVector3f> vertices;
@@ -336,28 +353,36 @@ namespace visilib
 
     }
 
-    inline void HelperSyntheticMeshBuilder::generateRegularPolygon(std::vector<MathVector3f> & vertices, size_t vertexCount)
+    inline void HelperSyntheticMeshBuilder::generateRegularPolygon(std::vector<int>& indices, std::vector<MathVector3f> & vertices, size_t vertexCount)
     {
         if (vertexCount == 1)
         {
             vertices.push_back(MathVector3f::Zero());
+            indices.push_back(0);
         }
         else if (vertexCount == 2)
         {
             vertices.push_back(MathVector3f(-1, 0, 0));
             vertices.push_back(MathVector3f(1, 0, 0));
+            indices.push_back(0);
+            indices.push_back(1);
         }
         else
-        {   
-            
+        {               
             float dt = - 2.f * (float) M_PI / (float)vertexCount;
             float theta = dt / 2.;
             for (size_t i = 0; i < vertexCount; i++)
             {
                 vertices.push_back(MathVector3f(cos(theta), sin(theta), 0));
 
-                theta += dt;
-            }
+                theta += dt;      
+                if (i >= 2)
+                {
+                    indices.push_back(0);
+                    indices.push_back(i - 1);
+                    indices.push_back(i);
+                }         
+            }           
         }
     }
 

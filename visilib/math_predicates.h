@@ -45,7 +45,7 @@ namespace visilib
         template <class P, class S> static GeometryPositionType getQuadricRelativePosition(const P& point, S epsilon);
         template <class P>          static bool                 hasPluckerPolytopeIntersectionWithQuadric(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron);
         template <class P>          static GeometryPositionType getRelativePosition(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron, const P& aPlane0, const P& aPlane1, const P& aPlane2);
-        template <class P>          static GeometryPositionType getRelativePosition(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron, const P& aPlane);
+        template <class P, class S> static GeometryPositionType getRelativePosition(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron, const P& aPlane, S tolerance);
 
         static GeometryPositionType getRelativePosition(const std::vector<MathVector3d>& points, const MathPlane3d& aPlane);
     };
@@ -73,7 +73,7 @@ namespace visilib
 
     template <class S>
     inline GeometryPositionType MathPredicates::getRelativePosition(S dot, S epsilon)
-    {
+    {        
         if (dot < -epsilon)
         {
             return ON_NEGATIVE_SIDE;
@@ -207,52 +207,60 @@ namespace visilib
         return ON_BOUNDARY;
     }
 
-    template <class P>
-    inline GeometryPositionType MathPredicates::getRelativePosition(PluckerPolytope<P> * polytope, PluckerPolyhedron<P> * polyhedron, const P & aPlane)
+    template <class P, class S>
+    inline GeometryPositionType MathPredicates::getRelativePosition(PluckerPolytope<P> * aPolytope, PluckerPolyhedron<P> * aPolyhedron, const P & aPlane, S tolerance)
     {
         bool hasPointOnTheLeft = false;
         bool hasPointOnTheRight = false;
+        bool hasPointOnBoundary = false;
 
-        auto myVertices = polytope->getVertices();
+        auto myVertices = aPolytope->getVertices();
 
         for (auto iter = myVertices.begin(); iter != myVertices.end(); iter++)
         {
             int v = *iter;
-
-            GeometryPositionType position = getRelativePosition(aPlane, polyhedron->get(v));
-
-            if (position == ON_BOUNDARY)
-            {
-                return ON_BOUNDARY;
-            }
-            else if (position == ON_NEGATIVE_SIDE)
+            
+            S result = aPlane.dot(aPolyhedron->get(v));
+            GeometryPositionType position = MathPredicates::getRelativePosition(result, tolerance);
+            V_ASSERT(position == MathPredicates::getVertexPlaneRelativePosition(aPlane, aPolyhedron->get(v), tolerance));
+           
+            if (position == ON_NEGATIVE_SIDE)
             {
                 hasPointOnTheLeft = true;
             }
-            else
+            else if (position == ON_POSITIVE_SIDE)
             {
                 V_ASSERT(position == ON_POSITIVE_SIDE);
                 hasPointOnTheRight = true;
             }
+            else
+            {
+                V_ASSERT(position == ON_BOUNDARY);
+                hasPointOnBoundary = true;            
+            }
 
             if (hasPointOnTheLeft && hasPointOnTheRight)
             {
-                return ON_BOUNDARY;
+                return ON_BOTH_SIDES;
             }
         }
 
         V_ASSERT(!hasPointOnTheLeft || !hasPointOnTheRight);
 
-        if (hasPointOnTheLeft)
+        if (!hasPointOnTheLeft && !hasPointOnTheRight)
         {
-            return ON_NEGATIVE_SIDE;
+            V_ASSERT(hasPointOnBoundary);
+            return ON_BOUNDARY;
         }
-        else if (hasPointOnTheRight)
+        if (!hasPointOnTheLeft)
         {
-            return  ON_POSITIVE_SIDE;
+            return ON_POSITIVE_SIDE;
         }
-
+        else if (!hasPointOnTheRight)
+        {
+            return  ON_NEGATIVE_SIDE;
+        }
         V_ASSERT(0);
-        return ON_BOUNDARY;
+        return ON_BOTH_SIDES;
     }
 }

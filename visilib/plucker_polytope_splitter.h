@@ -87,7 +87,8 @@ namespace visilib
                     myVertices.insert(a);
 
                     S result = aPlane.dot(aPolyhedron->get(a));
-                    GeometryPositionType position = MathPredicates::getVertexPlaneRelativePosition(aPlane, aPolyhedron->get(a), tolerance);
+                    GeometryPositionType position = MathPredicates::getRelativePosition(result, tolerance);
+                    V_ASSERT(position == MathPredicates::getVertexPlaneRelativePosition(aPlane, aPolyhedron->get(a), tolerance));
 
                     myArrayOfPlanePosition.insert(std::pair<size_t, S>(a, result));
 
@@ -292,6 +293,6 @@ namespace visilib
         //V_ASSERT(aLeft->isValid(aPolyhedron, normalization,tolerance));
         //V_ASSERT(aRight->isValid(aPolyhedron, normalization,tolerance));
 
-        return ON_BOUNDARY;
+        return ON_BOTH_SIDES;
     }
 }

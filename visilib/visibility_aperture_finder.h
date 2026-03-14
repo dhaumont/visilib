@@ -238,7 +238,7 @@ namespace visilib
                 std::vector <std::string> postFix;
                 std::vector<bool> reuseOccluders;
 
-                if (myResult == ON_BOUNDARY)
+                if (myResult == ON_BOTH_SIDES)
                 {
                     V_ASSERT(myPolytopeLeft && myPolytopeRight);
 #ifdef OUTPUT_DEBUG_FILE
@@ -272,7 +272,7 @@ namespace visilib
                 {
                     bool hasBeenAdded = false;
 
-                    if (myResult == ON_BOUNDARY && i == 0 || myResult == ON_NEGATIVE_SIDE)
+                    if (myResult == ON_BOTH_SIDES && i == 0 || myResult == ON_NEGATIVE_SIDE)
                     {
                         mySilhouette->pushEdgeProcessed(mySilhouetteEdgeIndex);
                         hasBeenAdded = true;

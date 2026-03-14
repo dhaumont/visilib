@@ -32,8 +32,9 @@ using namespace visilibDemo;
 void DemoHelper::generatePolygon(std::vector<float>& v, size_t vertexCount, float size, float phi, float scaling)
 {
     std::vector<MathVector3f> vertices;
+    std::vector<int> indices;
 
-    HelperSyntheticMeshBuilder::generateRegularPolygon(vertices, vertexCount);
+    HelperSyntheticMeshBuilder::generateRegularPolygon(indices, vertices, vertexCount);
     HelperSyntheticMeshBuilder::scale(vertices, size * scaling);
     HelperSyntheticMeshBuilder::rotate(vertices, 0, (float)M_PI_2, phi);
     HelperSyntheticMeshBuilder::translate(vertices,  MathVector3f(scaling * cos(phi), scaling * sin(phi), 0));
@@ -56,6 +57,20 @@ bool DemoHelper::load(visilib::HelperTriangleMeshContainer* scene, const std::st
         scene->removeDegeneratedTriangles(0.000001f);
     }
     return result;
+}
+
+int DemoHelper::getSubdivision(DemoConfiguration::SCENE_TYPE s)
+{
+    const double size = 0.07;
+    switch(s)
+    {
+        case DemoConfiguration::SINGLE_TRIANGLE_01: return 0;
+        case DemoConfiguration::SINGLE_TRIANGLE_02: return 1;
+        case DemoConfiguration::SINGLE_TRIANGLE_03: return 2;
+        case DemoConfiguration::SINGLE_TRIANGLE_04: return 3;        
+    }
+
+    return 1.0;
 }
 
 double DemoHelper::getApertureSize(DemoConfiguration::SCENE_TYPE s)
@@ -159,6 +174,21 @@ HelperTriangleMeshContainer* DemoHelper::createScene(DemoConfiguration::SCENE_TY
             myMeshContainer->add(mesh);
             rescale = true;
         }break;
+       case  DemoConfiguration::SINGLE_TRIANGLE_01:
+       case  DemoConfiguration::SINGLE_TRIANGLE_02:
+       case  DemoConfiguration::SINGLE_TRIANGLE_03:
+       case  DemoConfiguration::SINGLE_TRIANGLE_04:
+        {
+            int subdivision = getSubdivision(s);
+            HelperTriangleMesh* mesh = HelperSyntheticMeshBuilder::generateRegularPolygon(3., subdivision);
+            HelperSyntheticMeshBuilder::rotate(mesh, 0, (float)M_PI_2, (float)M_PI);
+     
+            HelperSyntheticMeshBuilder::scale(mesh, 0.1);
+        
+            myMeshContainer->add(mesh);
+            rescale = false;
+        }break;
+
        case  DemoConfiguration::SIMPLE_CUBE:
         {
             HelperTriangleMesh* mesh = HelperSyntheticMeshBuilder::generateCube(1);

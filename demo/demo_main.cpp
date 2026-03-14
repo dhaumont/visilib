@@ -291,10 +291,10 @@ namespace visilibDemo
 
                 break;
 
-            case '0': mDemoConfiguration.sceneIndex = DemoConfiguration::SLOT_OFF_AXIS_01; forceDisplay = true; initScene(mDemoConfiguration.sceneIndex); break;
-            case '1': mDemoConfiguration.sceneIndex = DemoConfiguration::SLOT_OFF_AXIS_02; forceDisplay = true;  initScene(mDemoConfiguration.sceneIndex);break;
-            case '2': mDemoConfiguration.sceneIndex = DemoConfiguration::SLOT_OFF_AXIS_03; forceDisplay = true;  initScene(mDemoConfiguration.sceneIndex);break;
-            case '3': mDemoConfiguration.sceneIndex = DemoConfiguration::SLOT_OFF_AXIS_04; forceDisplay = true; initScene(mDemoConfiguration.sceneIndex); break;
+            case '0': mDemoConfiguration.sceneIndex = DemoConfiguration::SINGLE_TRIANGLE_01; forceDisplay = true; initScene(mDemoConfiguration.sceneIndex); break;
+            case '1': mDemoConfiguration.sceneIndex = DemoConfiguration::SINGLE_TRIANGLE_02; forceDisplay = true;  initScene(mDemoConfiguration.sceneIndex);break;
+            case '2': mDemoConfiguration.sceneIndex = DemoConfiguration::SINGLE_TRIANGLE_03; forceDisplay = true;  initScene(mDemoConfiguration.sceneIndex);break;
+            case '3': mDemoConfiguration.sceneIndex = DemoConfiguration::SINGLE_TRIANGLE_04; forceDisplay = true; initScene(mDemoConfiguration.sceneIndex); break;
             case '4': mDemoConfiguration.sceneIndex = DemoConfiguration::SLOT_OFF_AXIS_05; forceDisplay = true; initScene(mDemoConfiguration.sceneIndex); break;
             case '5': mDemoConfiguration.sceneIndex = DemoConfiguration::SLOT_ON_AXIS_01; forceDisplay = true;  initScene(mDemoConfiguration.sceneIndex);break;
             case '6': mDemoConfiguration.sceneIndex = DemoConfiguration::SPHERE_WITH_HOLES; forceDisplay = true; initScene(mDemoConfiguration.sceneIndex); break;
