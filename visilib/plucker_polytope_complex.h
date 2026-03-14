@@ -50,14 +50,22 @@ namespace visilib
 
 
         void appendPolytope(PluckerPolytope<P>* polytope)
-        {
+        {            
+            if (polytope == NULL)
+            {
+                mNeedRepack = true;
+            }
             mPolytopes.push_back(polytope);
         }
 
         PluckerPolyhedron<P>* getPolyhedron() { return mPolyhedron; }
         PluckerPolytope<P>* getRoot() { return mPolytopes[0]; }
         size_t getPolytopeCount() { return mPolytopes.size();}
-        PluckerPolytope<P>* getPolytope(size_t index) { return mPolytopes[index];}
+        PluckerPolytope<P>* getPolytope(size_t index) 
+        {
+            V_ASSERT(mPolytopes[index] != NULL);
+             return mPolytopes[index];
+        }
         void removeLast()
          {
             if (mPolytopes.empty())
@@ -71,22 +79,34 @@ namespace visilib
             }
              mPolytopes.resize(mPolytopes.size()-1);
         }
-        void setPolytope(size_t index, PluckerPolytope<P>* p) {mPolytopes[index] = p;}
+        void setPolytope(size_t index, PluckerPolytope<P>* p) 
+        {
+            if (p == NULL)
+            {
+                mNeedRepack = true;
+            }
+            mPolytopes[index] = p;
+        }
         void repack()
         {
-
-            mPolytopes.erase(std::remove_if(mPolytopes.begin(), mPolytopes.end(), [](PluckerPolytope<P>*  p) { return p == NULL; }), mPolytopes.end());
+            if (mNeedRepack)
+            {
+                mNeedRepack = false;
+                mPolytopes.erase(std::remove_if(mPolytopes.begin(), mPolytopes.end(), [](PluckerPolytope<P>*  p) { return p == NULL; }), mPolytopes.end());
+            }
         }
     private:
 
         PluckerPolyhedron<P>* mPolyhedron;
         std::vector<PluckerPolytope<P>*> mPolytopes;
+        bool mNeedRepack;
     };
 
     template<class P>
     inline PluckerPolytopeComplex<P>::PluckerPolytopeComplex()
     {
         mPolyhedron = new PluckerPolyhedron<P>();
+        mNeedRepack = false;
     }
 
     template<class P>
