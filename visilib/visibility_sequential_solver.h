@@ -74,7 +74,7 @@ namespace visilib
     {
         VisibilityResult myGlobalResult = UNKNOWN;
         Silhouette *mySilhouette = nullptr;
-       
+
         bool hasEdge = false;
         bool isVisible = false;
         std::string occlusionTreeNodeSymbol;
@@ -87,8 +87,70 @@ namespace visilib
         {
             Silhouette *mySilhouette = (*iter);
             auto &edges = mySilhouette->getEdges();
-            if (edges.size() > 0)
+            std::vector<int> toSplit;
+
+            for (int i = 0; i < complex->getPolytopeCount(); i++)
             {
+                PluckerPolytope<P> *myPolytope = complex->getPolytope(i);
+                bool isBlocked = true;
+                bool isIntersected = false;
+
+                for (size_t silhouetteEdgeIndex = 0; silhouetteEdgeIndex < edges.size(); silhouetteEdgeIndex++)
+                {
+                    GeometryPositionType myResult = ON_UNKNOWN_POSITION;
+                    SilhouetteEdge &myVisibilitySilhouetteEdge = mySilhouette->getEdge(silhouetteEdgeIndex);
+                    SilhouetteMeshFace *face = myVisibilitySilhouetteEdge.mFace;
+
+                    size_t myPolyhedronFace = myVisibilitySilhouetteEdge.mHyperPlaneIndex;
+
+                    if (myPolyhedronFace == 0)
+                    {
+                        MathVector2i edge = face->getEdge(myVisibilitySilhouetteEdge.mEdgeIndex);
+
+                        MathVector3d a = convert<MathVector3d>(face->getVertex(edge.x));
+                        MathVector3d b = convert<MathVector3d>(face->getVertex(edge.y));
+
+                        P myHyperplane(a, b);
+                        if (mNormalization)
+                        {
+                            myHyperplane = myHyperplane.getNormalized();
+                        }
+                        myPolyhedronFace = myPolyhedron->add(myHyperplane, ON_BOUNDARY, mNormalization, mTolerance);
+                        myVisibilitySilhouetteEdge.mHyperPlaneIndex = myPolyhedronFace;
+                    }
+
+                    P myHyperplane = myPolyhedron->get(myPolyhedronFace);
+
+                    myResult = MathPredicates::getRelativePosition(myPolytope, myPolyhedron, myHyperplane, mTolerance);
+
+                    if (myResult == ON_BOTH_SIDES)
+                    {
+                        isIntersected = true;
+                    }
+                    else if (myResult == ON_NEGATIVE_SIDE)
+                    {
+                        isBlocked = false;
+                    }
+                }
+
+                if (isIntersected)
+                {
+                    toSplit.push_back(i);
+                }
+                else if (isBlocked)
+                {
+                    delete myPolytope;
+                    complex->setPolytope(i, NULL);
+                }
+            }
+
+            for (int splitIndex = toSplit.size() - 1; splitIndex >= 0; splitIndex--)
+            {
+                std::vector<PluckerPolytope<P> *> toDelete;
+                std::vector<int> workingArray;
+
+                int originalPolytope = toSplit[splitIndex];
+                workingArray.push_back(originalPolytope);
                 for (size_t silhouetteEdgeIndex = 0; silhouetteEdgeIndex < edges.size(); silhouetteEdgeIndex++)
                 {
                     SilhouetteEdge &myVisibilitySilhouetteEdge = mySilhouette->getEdge(silhouetteEdgeIndex);
@@ -100,19 +162,8 @@ namespace visilib
 
                     // Create the Plucker representation of the edge and add hyperplane of the edge and add it to the polyhedron
 
-                    MathVector3d a = convert<MathVector3d>(face->getVertex(edge.x));
-                    MathVector3d b = convert<MathVector3d>(face->getVertex(edge.y));
                     size_t myPolyhedronFace = myVisibilitySilhouetteEdge.mHyperPlaneIndex;
-                    if (myPolyhedronFace == 0)
-                    {
-                        P myHyperplane(a, b);
-                        if (mNormalization)
-                        {
-                            myHyperplane = myHyperplane.getNormalized();
-                        }
-                        myPolyhedronFace = myPolyhedron->add(myHyperplane, ON_BOUNDARY, mNormalization, mTolerance);
-                        myVisibilitySilhouetteEdge.mHyperPlaneIndex = myPolyhedronFace;
-                    }
+                    V_ASSERT(myPolyhedronFace != 0);
 
                     if (VisibilitySolver<P, S>::mDebugger != nullptr)
                     {
@@ -122,10 +173,9 @@ namespace visilib
                     P myHyperplane = myPolyhedron->get(myPolyhedronFace);
 
                     GeometryPositionType myResult = ON_UNKNOWN_POSITION;
-      
-                    for (int i = complex->getPolytopeCount() - 1; i >= 0; i--)
+                    for (int i = workingArray.size() - 1; i >= 0; i--)
                     {
-                        PluckerPolytope<P> *myPolytope = complex->getPolytope(i);
+                        PluckerPolytope<P> *myPolytope = complex->getPolytope(workingArray[i]);
                         PluckerPolytope<P> *myPolytopeLeft = new PluckerPolytope<P>();
                         PluckerPolytope<P> *myPolytopeRight = new PluckerPolytope<P>();
 
@@ -144,11 +194,16 @@ namespace visilib
 
                         if (myResult == ON_BOTH_SIDES)
                         {
-                            delete myPolytope;
                             V_ASSERT(MathPredicates::getRelativePosition(myPolytopeLeft, myPolyhedron, myHyperplane, mTolerance) == ON_NEGATIVE_SIDE);
                             V_ASSERT(MathPredicates::getRelativePosition(myPolytopeRight, myPolyhedron, myHyperplane, mTolerance) == ON_POSITIVE_SIDE);
-                            complex->setPolytope(i, myPolytopeLeft);
+                            size_t size_before = complex->getPolytopeCount();
+                            complex->appendPolytope(myPolytopeLeft);
                             complex->appendPolytope(myPolytopeRight);
+                            toDelete.push_back(myPolytope);
+                            workingArray[i] = size_before;
+                            workingArray.push_back(size_before + 1);
+                            V_ASSERT(complex->getPolytope(workingArray[i]) == myPolytopeLeft);
+                            V_ASSERT(complex->getPolytope(workingArray[workingArray.size()-1]) == myPolytopeRight);
                         }
                         else
                         {
@@ -160,10 +215,11 @@ namespace visilib
                         }
                     }
                 }
-                 
-                for (int i = 0; i < complex->getPolytopeCount(); i++)
+                size_t originalPolytopeCount = complex->getPolytopeCount();
+                bool atLeastOnePolytopeIsBlocked = false;
+                for (int i = 0; i < workingArray.size(); i++)
                 {
-                    PluckerPolytope<P> *myPolytope = complex->getPolytope(i);
+                    PluckerPolytope<P> *myPolytope = complex->getPolytope(workingArray[i]);
 
                     myPolytope->computeEdgesIntersectingQuadric(myPolyhedron, mTolerance);
                     bool isValid = myPolytope->containsRealLines();
@@ -193,15 +249,32 @@ namespace visilib
 
                     if (isBlocked)
                     {
-                        delete myPolytope;
-                        complex->setPolytope(i, NULL);
+                        toDelete.push_back(myPolytope);
+                        atLeastOnePolytopeIsBlocked = true;
+                        complex->setPolytope(workingArray[i], NULL);
+                        workingArray[i] = -1;
                     }
                 }
 
-                complex->repack();
+                if (atLeastOnePolytopeIsBlocked)
+                {
+                    complex->setPolytope(originalPolytope, NULL);
+                    for (int i = 0; i < toDelete.size(); i++)
+                    {
+                        delete toDelete[i];
+                    }
+                }
+                else
+                {
+                    while (complex->getPolytopeCount() != originalPolytopeCount)
+                    {
+                        complex->removeLast();
+                    }
+                }
             }
-        }
 
+            complex->repack();
+        }
         if (complex->getPolytopeCount() == 0)
         {
             return HIDDEN;
@@ -209,7 +282,10 @@ namespace visilib
         for (int i = complex->getPolytopeCount() - 1; i >= 0; i--)
         {
             PluckerPolytope<P> *myPolytope = complex->getPolytope(i);
-            VisibilitySolver<P, S>::extractStabbingLines(myPolyhedron, myPolytope, mTolerance);
+            if (myPolytope->containsRealLines())
+            {
+                VisibilitySolver<P, S>::extractStabbingLines(myPolyhedron, myPolytope, mTolerance);
+            }
         }
         return VISIBLE;
     }
