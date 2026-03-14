@@ -61,8 +61,8 @@ namespace visilib
                                           bool &isIntesected, bool &IsBlocked);
 
         void splitWithAllSilhouetteEdges(std::vector<int> &workingArray,
-                      std::vector<PluckerPolytope<P> *> &toDelete,
-                      const std::vector<SilhouetteEdge> &edges);
+                                         std::vector<PluckerPolytope<P> *> &toDelete,
+                                         const std::vector<SilhouetteEdge> &edges);
 
         void createMissingHyperplanes(PluckerPolyhedron<P> *aPolyhedron,
                                       std::vector<SilhouetteEdge> &edges);
@@ -73,7 +73,6 @@ namespace visilib
             PluckerPolyhedron<P> *myPolyhedron,
             std::vector<int> &intersectedPolytopes);
 
-        
         void splitIntersectedPolytopes(
             const std::vector<SilhouetteEdge> &edges,
             PluckerPolytopeComplex<P> *complex,
@@ -156,8 +155,8 @@ namespace visilib
 
     template <class P, class S>
     void VisibilitySequentialSolver<P, S>::splitWithAllSilhouetteEdges(std::vector<int> &workingArray,
-                                                    std::vector<PluckerPolytope<P> *> &toDelete,
-                                                    const std::vector<SilhouetteEdge> &edges)
+                                                                       std::vector<PluckerPolytope<P> *> &toDelete,
+                                                                       const std::vector<SilhouetteEdge> &edges)
     {
         PluckerPolytopeComplex<P> *complex = VisibilitySolver<P, S>::mQuery->getComplex();
         PluckerPolyhedron<P> *myPolyhedron = reinterpret_cast<PluckerPolyhedron<P> *>(VisibilitySolver<P, S>::mQuery->getComplex()->getPolyhedron());
@@ -260,7 +259,7 @@ namespace visilib
         PluckerPolytopeComplex<P> *complex,
         PluckerPolyhedron<P> *myPolyhedron,
         const std::vector<int> &intersectedPolytopes)
-    {        
+    {
         if (intersectedPolytopes.empty())
         {
             return;
@@ -327,10 +326,10 @@ namespace visilib
             createMissingHyperplanes(myPolyhedron, edges);
 
             std::vector<int> intersectedPolytopes;
-            classifyAllPolytopes(edges,complex, myPolyhedron, intersectedPolytopes);
+            classifyAllPolytopes(edges, complex, myPolyhedron, intersectedPolytopes);
 
-            splitIntersectedPolytopes(edges, complex, myPolyhedron,intersectedPolytopes);
-        
+            splitIntersectedPolytopes(edges, complex, myPolyhedron, intersectedPolytopes);
+
             complex->repack();
         }
         if (complex->getPolytopeCount() == 0)
