@@ -256,17 +256,6 @@ namespace visilib
                         if (MathGeometry::isEdgePotentiallyInsideShaft(mConvexHull->getFaces(), face->getVertex(edge.x), face->getVertex(edge.y), false))
                         {
                             faceIsInsideHull = true;
-                        }
-                        else
-                        {
-                            hasNeighbours[edgeIndex] = false;
-                        }
-                    }
-                    if (faceIsInsideHull)
-                    {
-                        for (int edgeIndex = 0; edgeIndex < face->getVertexCount(); edgeIndex++)
-                        {
-                            MathVector2i edge = face->getEdge(edgeIndex);
 
                             if (!silhouetteOptimization
                                 || face->getNeighbours(edgeIndex) == -1 || isPotentialSilhouetteEdge(face, const_cast<SilhouetteMeshFace*>(&meshFaces[face->getNeighbours(edgeIndex)])))
@@ -275,7 +264,14 @@ namespace visilib
                                 hasNeighbours[edgeIndex] = false;
                             }
                         }
+                        else
+                        {
+                            hasNeighbours[edgeIndex] = false;
+                        }
+                    }
 
+                    if (faceIsInsideHull)
+                    {
                         addSilhouette(face, s);
 
                         if (mDebugger != nullptr)

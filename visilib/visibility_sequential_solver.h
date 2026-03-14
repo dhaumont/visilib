@@ -74,8 +74,7 @@ namespace visilib
     {
         VisibilityResult myGlobalResult = UNKNOWN;
         Silhouette *mySilhouette = nullptr;
-        size_t mySilhouetteEdgeIndex = 0;
-
+       
         bool hasEdge = false;
         bool isVisible = false;
         std::string occlusionTreeNodeSymbol;
@@ -92,7 +91,7 @@ namespace visilib
             {
                 for (size_t silhouetteEdgeIndex = 0; silhouetteEdgeIndex < edges.size(); silhouetteEdgeIndex++)
                 {
-                    SilhouetteEdge &myVisibilitySilhouetteEdge = mySilhouette->getEdge(mySilhouetteEdgeIndex);
+                    SilhouetteEdge &myVisibilitySilhouetteEdge = mySilhouette->getEdge(silhouetteEdgeIndex);
                     SilhouetteMeshFace *face = myVisibilitySilhouetteEdge.mFace;
 
                     V_ASSERT(myVisibilitySilhouetteEdge.mIsActive);
@@ -103,7 +102,6 @@ namespace visilib
 
                     MathVector3d a = convert<MathVector3d>(face->getVertex(edge.x));
                     MathVector3d b = convert<MathVector3d>(face->getVertex(edge.y));
-
                     size_t myPolyhedronFace = myVisibilitySilhouetteEdge.mHyperPlaneIndex;
                     if (myPolyhedronFace == 0)
                     {
@@ -124,7 +122,7 @@ namespace visilib
                     P myHyperplane = myPolyhedron->get(myPolyhedronFace);
 
                     GeometryPositionType myResult = ON_UNKNOWN_POSITION;
-
+      
                     for (int i = complex->getPolytopeCount() - 1; i >= 0; i--)
                     {
                         PluckerPolytope<P> *myPolytope = complex->getPolytope(i);
@@ -162,7 +160,7 @@ namespace visilib
                         }
                     }
                 }
-
+                 
                 for (int i = 0; i < complex->getPolytopeCount(); i++)
                 {
                     PluckerPolytope<P> *myPolytope = complex->getPolytope(i);
@@ -170,14 +168,12 @@ namespace visilib
                     myPolytope->computeEdgesIntersectingQuadric(myPolyhedron, mTolerance);
                     bool isValid = myPolytope->containsRealLines();
                     bool isBlocked = true;
-                    std::cout << "isValid: " << isValid << endl;
                     if (isValid)
                     {
-                        std::cout << "edges: " << edges.size() << endl;
                         for (size_t silhouetteEdgeIndex = 0; silhouetteEdgeIndex < edges.size() && isBlocked; silhouetteEdgeIndex++)
                         {
                             GeometryPositionType myResult = ON_UNKNOWN_POSITION;
-                            SilhouetteEdge &myVisibilitySilhouetteEdge = mySilhouette->getEdge(mySilhouetteEdgeIndex);
+                            SilhouetteEdge &myVisibilitySilhouetteEdge = mySilhouette->getEdge(silhouetteEdgeIndex);
                             size_t myPolyhedronFace = myVisibilitySilhouetteEdge.mHyperPlaneIndex;
                             P myHyperplane = myPolyhedron->get(myPolyhedronFace);
 
@@ -188,8 +184,7 @@ namespace visilib
                                 assert(0);
                                 std::cout << "ERROR: " << i << "/" << complex->getPolytopeCount() << endl;
                             }
-                            std::cout << myResult << std::endl;
-                            // (myResult == ON_POSITIVE_SIDE)
+                            if (myResult == ON_NEGATIVE_SIDE)
                             {
                                 isBlocked = false;
                             }
