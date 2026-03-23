@@ -61,9 +61,9 @@ namespace visilib
         PluckerPolyhedron<P>* getPolyhedron() { return mPolyhedron; }
         PluckerPolytope<P>* getRoot() { return mPolytopes[0]; }
         size_t getPolytopeCount() { return mPolytopes.size();}
-        PluckerPolytope<P>* getPolytope(size_t index) 
+        PluckerPolytope<P>* getPolytope(size_t index, bool test_nullptr = true) 
         {
-            V_ASSERT(mPolytopes[index] != NULL);
+            V_ASSERT(!test_nullptr || mPolytopes[index] != NULL);
              return mPolytopes[index];
         }
         void removeLast()
