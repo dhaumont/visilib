@@ -31,4 +31,12 @@ namespace visilib
         ON_BOTH_SIDES = 3,       /**< @brief Some points lies on the positive and negative side and of the geometric entity*/
         ON_UNKNOWN_POSITION = -1
     };
+
+    enum PolytopePositionType
+    {
+        INTERSECTS = 1,
+        OUTSIDE = 2,
+        BLOCKED = 0,
+        UNDEFINED = -1
+    };
 }
