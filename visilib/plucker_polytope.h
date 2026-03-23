@@ -502,6 +502,7 @@ namespace visilib
             V_ASSERT(0);
             return false;
         }
+        V_ASSERT(mVertices.size() > 0);
         return true;
     }
 
@@ -593,9 +594,13 @@ namespace visilib
             if (mEdges.size() > 0 && MathPredicates::hasPluckerPolytopeIntersectionWithQuadric(this, polyhedron))
             {
                 V_ASSERT(mEdgesIntersectingQuadric.empty());
+                V_ASSERT(!mVertices.empty());
 
                 for (auto iter = mEdges.begin(); iter != mEdges.end(); iter++)
                 {
+                    V_ASSERT(std::find(mVertices.begin(), mVertices.end(), iter->first) != mVertices.end());
+                    V_ASSERT(std::find(mVertices.begin(), mVertices.end(), iter->second) != mVertices.end());
+                
                     const P& v1 = polyhedron->get(iter->first);
                     const P& v2 = polyhedron->get(iter->second);
                     GeometryPositionType p1 = polyhedron->getQuadricRelativePosition(iter->first);
@@ -611,7 +616,10 @@ namespace visilib
                 return;
             }
             if (!containsRealLines())
-                return;
+            {
+                    mEdgesIntersectingQuadric.clear();         
+                   return;
+            }
             V_ASSERT(mEdgesIntersectingQuadric.size() > 0);
         }
     }
