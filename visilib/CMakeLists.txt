@@ -106,6 +106,4 @@ add_library( ${VISILIB_LIB_NAME} STATIC
     ${Headers}
     )
 
-    set_target_properties(${VISILIB_LIB_NAME} PROPERTIES LINKER_LANGUAGE C)
-
-
+set_target_properties(${VISILIB_LIB_NAME} PROPERTIES LINKER_LANGUAGE CXX)

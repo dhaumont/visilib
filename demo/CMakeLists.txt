@@ -38,4 +38,8 @@ endif()
 if (USE_GMP)
   target_link_libraries (${VISILIB_DEMO_NAME} gmp)
 endif()
+set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
+set(CMAKE_C_FLAGS_DEBUG "-g -O0")
+
+target_compile_options(${VISILIB_DEMO_NAME} PRIVATE -g -rdynamic -fno-omit-frame-pointer)
 
