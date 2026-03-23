@@ -175,10 +175,10 @@ namespace visilib
 
             if (pattern == Regular)
             {
-                indices[lastIndex--] = (int)i[0]; indices[lastIndex--] = (int)i[3];	indices[lastIndex--] = (int)i[5];
-                indices[lastIndex--] = (int)i[3]; indices[lastIndex--] = (int)i[1];	indices[lastIndex--] = (int)i[4];
-                indices[lastIndex--] = (int)i[5]; indices[lastIndex--] = (int)i[4];	indices[lastIndex--] = (int)i[2];
-                indices[lastIndex--] = (int)i[3]; indices[lastIndex--] = (int)i[4];	indices[lastIndex--] = (int)i[5];
+                indices[lastIndex--] = (int)i[5]; indices[lastIndex--] = (int)i[3];	indices[lastIndex--] = (int)i[0];
+                indices[lastIndex--] = (int)i[4]; indices[lastIndex--] = (int)i[1];	indices[lastIndex--] = (int)i[3];
+                indices[lastIndex--] = (int)i[2]; indices[lastIndex--] = (int)i[4];	indices[lastIndex--] = (int)i[5];
+                indices[lastIndex--] = (int)i[5]; indices[lastIndex--] = (int)i[4];	indices[lastIndex--] = (int)i[3];
             }
             /*	else if (pattern == OneInside)
             {
