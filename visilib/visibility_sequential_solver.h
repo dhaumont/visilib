@@ -55,13 +55,13 @@ namespace visilib
         VisibilityResult resolve();
 
     private:
-        void classifyRelativeToSilhouette(PluckerPolytope<P> *myPolytopeToClassify,
+        PolytopePositionType classifyRelativeToSilhouette(PluckerPolytope<P> *myPolytopeToClassify,
                                           PluckerPolyhedron<P> *myPolyhedron,
-                                          const std::vector<SilhouetteEdge> &edges,
-                                          bool &isIntesected, bool &IsBlocked);
+                                          const std::vector<SilhouetteEdge> &edges
+                                          );
 
         void splitWithAllSilhouetteEdges(std::vector<int> &workingArray,
-                                         std::vector<PluckerPolytope<P> *> &toDelete,
+                                         std::unordered_set<PluckerPolytope<P> *> &toDelete,
                                          const std::vector<SilhouetteEdge> &edges);
 
         void createMissingHyperplanes(PluckerPolyhedron<P> *aPolyhedron,
@@ -73,7 +73,7 @@ namespace visilib
             PluckerPolyhedron<P> *myPolyhedron,
             std::vector<int> &intersectedPolytopes);
 
-        void splitIntersectedPolytopes(
+        void treatIntersectedPolytopes(
             const std::vector<SilhouetteEdge> &edges,
             PluckerPolytopeComplex<P> *complex,
             PluckerPolyhedron<P> *myPolyhedron,
@@ -122,45 +122,62 @@ namespace visilib
     }
 
     template <class P, class S>
-    void VisibilitySequentialSolver<P, S>::classifyRelativeToSilhouette(PluckerPolytope<P> *aPolytope,
+    PolytopePositionType VisibilitySequentialSolver<P, S>::classifyRelativeToSilhouette(PluckerPolytope<P> *aPolytope,
                                                                         PluckerPolyhedron<P> *aPolyhedron,
-                                                                        const std::vector<SilhouetteEdge> &edges,
-                                                                        bool &isIntersected, bool &isBlocked)
-    {
-        isIntersected = false;
-        isBlocked = true;
-
+                                                                        const std::vector<SilhouetteEdge> &edges)
+    {    
+        bool intersect = false;
         if (!aPolytope->containsRealLines())
         {
-            return;
+            // std::count << " polytope  " << aPolytope << " is blocked " << std::endl;
+            // std::count << "does not containsreallines: " << aPolytope << std::endl;
+            return BLOCKED;
         }
+        // std::count << "prepare to classify " << aPolytope << " against " << edges.size() <<" edges" << std::endl;
         for (auto myVisibilitySilhouetteEdge : edges)
-        {
+        {            
             size_t myPolyhedronFace = myVisibilitySilhouetteEdge.mHyperPlaneIndex;
             V_ASSERT(myPolyhedronFace != 0);
             P myHyperplane = aPolyhedron->get(myPolyhedronFace);
-
+            // std::count << "Hyperplane: " << myVisibilitySilhouetteEdge.mHyperPlaneIndex << ", " << myHyperplane << std::endl;
             auto myResult = MathPredicates::getRelativePosition(aPolytope, aPolyhedron, myHyperplane, mTolerance);
-
+            // std::count << " classification of " << aPolytope << " against facet " << myPolyhedronFace << ":" <<myResult << std::endl;
+     
             if (myResult == ON_BOTH_SIDES)
             {
-                isIntersected = true;
+                // std::count << " polytope  " << aPolytope << " is intersected by this edge" << std::endl;
+                intersect = true;
             }
             else if (myResult == ON_NEGATIVE_SIDE)
             {
-                isBlocked = false;
+
+                // std::count << "conlusion: polytope  " << aPolytope << " is OUTSIDE " << std::endl;
+                return OUTSIDE;
             }
         }
+        if (intersect)
+         {
+              // std::count << "conclusion: polytope  " << aPolytope << " intersects " << std::endl;
+              
+            return INTERSECTS;
+         }
+         else
+         {
+               // std::count << "conclusion: polytope  " << aPolytope << " is blocked " << std::endl;
+            return BLOCKED;
+         }
+       
     }
 
     template <class P, class S>
     void VisibilitySequentialSolver<P, S>::splitWithAllSilhouetteEdges(std::vector<int> &workingArray,
-                                                                       std::vector<PluckerPolytope<P> *> &toDelete,
+                                                                       std::unordered_set<PluckerPolytope<P> *> &toDelete,
                                                                        const std::vector<SilhouetteEdge> &edges)
     {
         PluckerPolytopeComplex<P> *complex = VisibilitySolver<P, S>::mQuery->getComplex();
         PluckerPolyhedron<P> *myPolyhedron = reinterpret_cast<PluckerPolyhedron<P> *>(VisibilitySolver<P, S>::mQuery->getComplex()->getPolyhedron());
-
+         // std::count << "Preparing to split polytopes with " << edges.size() << " silhouette edges" << std::endl;
+         
         for (const SilhouetteEdge &myVisibilitySilhouetteEdge : edges)
         {
             SilhouetteMeshFace *face = myVisibilitySilhouetteEdge.mFace;
@@ -180,14 +197,19 @@ namespace visilib
             }
 
             P myHyperplane = myPolyhedron->get(myPolyhedronFace);
-
+           // std::count << "Preparing to split " << workingArray.size() << " polytopes" << std::endl;
+                  
+             
             GeometryPositionType myResult = ON_UNKNOWN_POSITION;
             for (int i = workingArray.size() - 1; i >= 0; i--)
             {
                 PluckerPolytope<P> *myPolytopeToSplit = complex->getPolytope(workingArray[i]);
+                // std::count << "Split  " << myPolytopeToSplit << std::endl;
+         
                 PluckerPolytope<P> *myPolytopeLeft = new PluckerPolytope<P>();
                 PluckerPolytope<P> *myPolytopeRight = new PluckerPolytope<P>();
-
+                // std::count << "Creating myPolytopeLeft: " << myPolytopeLeft << std::endl;
+                // std::count << "Creating myPolytopeRight: " << myPolytopeRight << std::endl;
                 {
                     HelperScopedTimer timer(VisibilitySolver<P, S>::mQuery->getStatistic(), POLYTOPE_SPLIT);
                     VisibilitySolver<P, S>::mQuery->getStatistic()->inc(POLYTOPE_SPLIT_COUNT);
@@ -197,22 +219,65 @@ namespace visilib
                     if (VisibilitySolver<P, S>::mQuery->getStatistic()->get(POLYTOPE_SPLIT_COUNT) % 10000 == 0)
                     {
                         VisibilitySolver<P, S>::mQuery->getStatistic()->displayCounts();
-                        std::cout << std::endl;
+                        // std::count << std::endl;
                     }
                 }
 
+                  // std::count << "result:  " << myResult << std::endl;
+         
                 if (myResult == ON_BOTH_SIDES)
                 {
                     V_ASSERT(MathPredicates::getRelativePosition(myPolytopeLeft, myPolyhedron, myHyperplane, mTolerance) == ON_NEGATIVE_SIDE);
                     V_ASSERT(MathPredicates::getRelativePosition(myPolytopeRight, myPolyhedron, myHyperplane, mTolerance) == ON_POSITIVE_SIDE);
                     size_t size_before = complex->getPolytopeCount();
-                    complex->appendPolytope(myPolytopeLeft);
-                    complex->appendPolytope(myPolytopeRight);
-                    toDelete.push_back(myPolytopeToSplit);
-                    workingArray[i] = size_before;
-                    workingArray.push_back(size_before + 1);
-                    V_ASSERT(complex->getPolytope(workingArray[i]) == myPolytopeLeft);
-                    V_ASSERT(complex->getPolytope(workingArray[workingArray.size() - 1]) == myPolytopeRight);
+
+                    myPolytopeLeft->computeEdgesIntersectingQuadric(myPolyhedron, mTolerance);
+                    myPolytopeRight->computeEdgesIntersectingQuadric(myPolyhedron, mTolerance);
+                 
+                    if (myPolytopeLeft->containsRealLines())
+                    {
+                        complex->appendPolytope(myPolytopeLeft);
+                    }
+                    else
+                    {
+                        delete myPolytopeLeft;
+                        myPolytopeLeft = nullptr;
+                    }
+
+                    if (myPolytopeRight->containsRealLines())
+                    {
+                        complex->appendPolytope(myPolytopeRight);
+                    }
+                    else
+                    {
+                        delete myPolytopeRight;
+                        myPolytopeRight = nullptr;
+                    }
+                    toDelete.insert(myPolytopeToSplit);                    
+                    // std::count << "toDelete.insert:" << myPolytopeToSplit << " at index " << workingArray[i] <<  std::endl;
+                    
+                    if (myPolytopeLeft && myPolytopeRight)
+                    {
+                        workingArray[i] = size_before;
+                        workingArray.push_back(size_before + 1);
+                        V_ASSERT(complex->getPolytope(workingArray[i]) == myPolytopeLeft);
+                        V_ASSERT(complex->getPolytope(workingArray[workingArray.size() - 1]) == myPolytopeRight);
+                    }
+                    else if (myPolytopeLeft)
+                    {
+                        workingArray[i] = size_before;
+                        V_ASSERT(complex->getPolytope(workingArray[i]) == myPolytopeLeft);
+                      
+                    }
+                    else if (myPolytopeRight)
+                    {
+                       workingArray[i] = size_before;   
+                        V_ASSERT(complex->getPolytope(workingArray[i]) == myPolytopeRight);
+                    }
+                    else
+                    {
+                        V_ASSERT(0);
+                    }
                 }
                 else
                 {
@@ -221,6 +286,8 @@ namespace visilib
                     myPolytopeLeft = nullptr;
                     delete myPolytopeRight;
                     myPolytopeRight = nullptr;
+                    // std::count << "Delete left and right:" << myPolytopeLeft << " " << myPolytopeRight <<  std::endl;
+                  
                 }
             }
         }
@@ -234,27 +301,39 @@ namespace visilib
         std::vector<int> &intersectedPolytopes)
     {
 
+          // std::count << "Preparing to classify " << complex->getPolytopeCount() << " polytopes" << std::endl;
+         
         for (int polytopeIndex = 0; polytopeIndex < complex->getPolytopeCount(); polytopeIndex++)
         {
             PluckerPolytope<P> *myPolytopeToClassify = complex->getPolytope(polytopeIndex);
-            bool isBlocked = true;
-            bool isIntersected = false;
-            classifyRelativeToSilhouette(myPolytopeToClassify, myPolyhedron, edges, isIntersected, isBlocked);
+            // std::count << "classify " << myPolytopeToClassify << " at index " << polytopeIndex <<  std::endl;
+ 
+           PolytopePositionType position = classifyRelativeToSilhouette(myPolytopeToClassify, myPolyhedron, edges);
 
-            if (isIntersected)
+            if (position == INTERSECTS)
             {
+                // std::count << "adding to intersectedPolytopes "  << myPolytopeToClassify << " at " <<  polytopeIndex << std::endl;
                 intersectedPolytopes.push_back(polytopeIndex);
             }
-            else if (isBlocked)
+            else if (position == BLOCKED)
             {
+               // std::count << "classifyRelativeToSilhouette is blocked: delete "  << myPolytopeToClassify << " at " <<  polytopeIndex << std::endl;
+               
+
                 delete myPolytopeToClassify;
                 complex->setPolytope(polytopeIndex, NULL);
+            }
+            else 
+            {
+                V_ASSERT(position == OUTSIDE);
+                 // std::count << "classifyRelativeToSilhouette is outside - skip: "  << myPolytopeToClassify << " at " <<  polytopeIndex << std::endl;
+             
             }
         }
     }
 
     template <class P, class S>
-    void VisibilitySequentialSolver<P, S>::splitIntersectedPolytopes(
+    void VisibilitySequentialSolver<P, S>::treatIntersectedPolytopes(
         const std::vector<SilhouetteEdge> &edges,
         PluckerPolytopeComplex<P> *complex,
         PluckerPolyhedron<P> *myPolyhedron,
@@ -262,31 +341,60 @@ namespace visilib
     {
         if (intersectedPolytopes.empty())
         {
+               // std::count << "treatIntersectedPolytopes : no intersectedpolytopes - done " << std::endl;
+         
+        
             return;
         }
+        // std::count << "treatIntersectedPolytopes: prepare to treat " <<  intersectedPolytopes.size() << " intersected polytopes" << std::endl;
+     
         for (int intersectedIndex = intersectedPolytopes.size() - 1; intersectedIndex >= 0; intersectedIndex--)
         {
+            
             size_t originalPolytopeCount = complex->getPolytopeCount();
-            std::vector<PluckerPolytope<P> *> toDelete;
+             // std::count << "originalPolytopeCount stored as  " <<  originalPolytopeCount << std::endl;
+     
+            std::unordered_set<PluckerPolytope<P> *> toDelete;
             std::vector<int> workingArray;
             int originalPolytopeIndex = intersectedPolytopes[intersectedIndex];
 
             workingArray.push_back(originalPolytopeIndex);
+
+
+            // std::count << "before splitWithAllSilhouetteEdgesm working array is:  " <<  workingArray.size() << std::endl;
+
             splitWithAllSilhouetteEdges(workingArray, toDelete, edges);
 
             bool atLeastOneNewPolytopeIsBlocked = false;
+     
+            // std::count << "after splitWithAllSilhouetteEdges, working array is: " <<  workingArray.size() << std::endl;
+
             for (int i = 0; i < workingArray.size(); i++)
             {
                 int myPolytopeToBlockIndex = workingArray[i];
                 PluckerPolytope<P> *myPolytopeToBlock = complex->getPolytope(myPolytopeToBlockIndex);
+
+                // std::count << "computeEdgesIntersectingQuadric for polytope " <<  myPolytopeToBlock << " at index " << myPolytopeToBlockIndex << std::endl;
+
                 myPolytopeToBlock->computeEdgesIntersectingQuadric(myPolyhedron, mTolerance);
-                bool isBlocked = true;
-                bool isIntersected = false;
-                classifyRelativeToSilhouette(myPolytopeToBlock, myPolyhedron, edges, isIntersected, isBlocked);
-                V_ASSERT(!isIntersected);
-                if (isBlocked)
+               
+                 // std::count << "classifyRelativeToSilhouette for polytope " <<  myPolytopeToBlock << " at index " << myPolytopeToBlockIndex << std::endl;
+
+                PolytopePositionType position = classifyRelativeToSilhouette(myPolytopeToBlock, myPolyhedron, edges);
+
+                V_ASSERT(position != INTERSECTS);
+                if (position == BLOCKED)
                 {
-                    toDelete.push_back(myPolytopeToBlock);
+
+                 // std::count <<myPolytopeToBlock <<  " isBlocked" << std::endl;
+
+                    if (toDelete.find(myPolytopeToBlock) != toDelete.end())
+                    {
+                        // std::count << "Double delete:" << myPolytopeToBlock << " " << myPolytopeToBlockIndex <<  std::endl;
+                    }
+                     // std::count << "toDelete.insert:" << myPolytopeToBlock << " at index " << workingArray[i] <<  std::endl;
+                  
+                    toDelete.insert(myPolytopeToBlock);
                     atLeastOneNewPolytopeIsBlocked = true;
                     complex->setPolytope(myPolytopeToBlockIndex, NULL);
                     workingArray[i] = -1;
@@ -295,17 +403,43 @@ namespace visilib
 
             if (atLeastOneNewPolytopeIsBlocked)
             {
-                complex->setPolytope(originalPolytopeIndex, NULL);
-                for (int i = 0; i < toDelete.size(); i++)
+                 // std::count << "atLeastOneNewPolytopeIsBlocked" << std::endl;
+
+               
+                 // std::count << "set polytope at index " << originalPolytopeIndex<< " is NULL " << std::endl;
+
+                 // std::count << "Start iterating over polytopescount to set the deleted one to NULL " << std::endl;
+
+                for (int i=0; i < complex->getPolytopeCount(); i++)
                 {
-                    delete toDelete[i];
+                    PluckerPolytope<P>* myPolytope = complex->getPolytope(i,false);
+                    if (toDelete.find(myPolytope) != toDelete.end())
+                    {
+                        complex->setPolytope(i,NULL);
+                    }
+                }
+               
+                for (auto polytope: toDelete)
+                {
+                    // std::count << "delete polytopes from delete: " << polytope<< std::endl;
+
+                    delete polytope;
                 }
             }
             else
             {
+                // std::count << "!atLeastOneNewPolytopeIsBlocked: revert change " << std::endl;
+
+                // std::count << " complex->getPolytopeCount() : " << complex->getPolytopeCount()  << " and  originalPolytopeCount:" << originalPolytopeCount << std::endl;
+
                 while (complex->getPolytopeCount() != originalPolytopeCount)
                 {
+                    // std::count << "removelast" << std::endl;
+
                     complex->removeLast();
+                     // std::count << " complex->getPolytopeCount() : " << complex->getPolytopeCount()  << " and  originalPolytopeCount:" << originalPolytopeCount << std::endl;
+
+         
                 }
             }
         }
@@ -328,17 +462,25 @@ namespace visilib
             std::vector<int> intersectedPolytopes;
             classifyAllPolytopes(edges, complex, myPolyhedron, intersectedPolytopes);
 
-            splitIntersectedPolytopes(edges, complex, myPolyhedron, intersectedPolytopes);
+            treatIntersectedPolytopes(edges, complex, myPolyhedron, intersectedPolytopes);
 
             complex->repack();
         }
+        // std::count << "End of procedure:" << complex->getPolytopeCount() << " left" << std::endl;
         if (complex->getPolytopeCount() == 0)
         {
+             // std::count << "HIDDEN: done" << std::endl;
+       
             return HIDDEN;
         }
+         // std::count << "visible: prepare to extract stabbinglines"  << std::endl;
+       
         for (int i = 0; i < complex->getPolytopeCount(); i++)
         {
             PluckerPolytope<P> *myPolytope = complex->getPolytope(i);
+            // std::count << " extract stabbinglines for " << myPolytope << " at " << i << std::endl;
+       
+   
             VisibilitySolver<P, S>::extractStabbingLines(myPolyhedron, myPolytope, mTolerance);
         }
         return VISIBLE;
