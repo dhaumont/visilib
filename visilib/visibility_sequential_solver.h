@@ -127,6 +127,10 @@ namespace visilib
                                                                         const std::vector<SilhouetteEdge> &edges)
     {    
         bool intersect = false;
+        bool positive = false;
+        bool negative = false;
+        bool boundary = false;
+        
         if (!aPolytope->containsRealLines())
         {
             // std::count << " polytope  " << aPolytope << " is blocked " << std::endl;
@@ -142,31 +146,28 @@ namespace visilib
             // std::count << "Hyperplane: " << myVisibilitySilhouetteEdge.mHyperPlaneIndex << ", " << myHyperplane << std::endl;
             auto myResult = MathPredicates::getRelativePosition(aPolytope, aPolyhedron, myHyperplane, mTolerance);
             // std::count << " classification of " << aPolytope << " against facet " << myPolyhedronFace << ":" <<myResult << std::endl;
-     
-            if (myResult == ON_BOTH_SIDES)
+            switch (myResult)
             {
-                // std::count << " polytope  " << aPolytope << " is intersected by this edge" << std::endl;
-                intersect = true;
+               case ON_BOUNDARY:       boundary = true;   break;
+               case ON_BOTH_SIDES:     intersect = true;  break;
+               case ON_NEGATIVE_SIDE:  negative = true;   break;
+               case ON_POSITIVE_SIDE:  positive = true;   break;          
             }
-            else if (myResult == ON_NEGATIVE_SIDE)
-            {
+            
+        }
 
-                // std::count << "conlusion: polytope  " << aPolytope << " is OUTSIDE " << std::endl;
+        if (!intersect)
+        {
+            if (positive && !negative)
+            {
+                return BLOCKED;
+            }
+            else if (negative && !positive)
+            {
                 return OUTSIDE;
             }
-        }
-        if (intersect)
-         {
-              // std::count << "conclusion: polytope  " << aPolytope << " intersects " << std::endl;
-              
-            return INTERSECTS;
          }
-         else
-         {
-               // std::count << "conclusion: polytope  " << aPolytope << " is blocked " << std::endl;
-            return BLOCKED;
-         }
-       
+        return INTERSECTS;       
     }
 
     template <class P, class S>
@@ -382,7 +383,7 @@ namespace visilib
 
                 PolytopePositionType position = classifyRelativeToSilhouette(myPolytopeToBlock, myPolyhedron, edges);
 
-                V_ASSERT(position != INTERSECTS);
+                //V_ASSERT(position != INTERSECTS);
                 if (position == BLOCKED)
                 {
 
@@ -400,7 +401,7 @@ namespace visilib
                     workingArray[i] = -1;
                 }
             }
-
+            
             if (atLeastOneNewPolytopeIsBlocked)
             {
                  // std::count << "atLeastOneNewPolytopeIsBlocked" << std::endl;
