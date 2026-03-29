@@ -21,7 +21,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #pragma once
 
 #include <vector>
-
+#include <map>
 #include "math_vector_3.h"
 #include "visilib.h"
 #include <fstream>
@@ -74,6 +74,11 @@ namespace visilib
         /** @brief Return a mesh containing the removed edges for visualization purposes*/
         const GeometryTriangleMeshDescription& getRemovedEdges() const;
 
+        /** @brief Return the counters for the different types of information stored in the debugger*/
+        std::map<std::string, int>& getCounters();
+
+        /** @brief Return the timings for the different types of information stored in the debugger*/
+        std::map<std::string, double>& getTimings();
 
 #ifdef OUTPUT_DEBUG_FILE
         std::ofstream& getDebugOutput() { return mDebugOutput; };
@@ -91,6 +96,8 @@ namespace visilib
         GeometryTriangleMeshDescription mSamplingLineInformation;      /** <@brief The mesh containing the removed sampling lines for visualization purposes*/
         GeometryTriangleMeshDescription mExtremalStabbingLineInformation;   /** <@brief The mesh containing the extremal stabbing lines for visualization purposes*/
 
+        std::map<std::string, int>    mCounters; /** <@brief The counters for the different types of information stored in the debugger*/
+        std::map<std::string, double> mTimings; /** <@brief The timings for the different types of information stored in the debugger*/
 #ifdef OUTPUT_DEBUG_FILE
         std::ofstream mDebugOutput;
 #endif
@@ -211,5 +218,14 @@ namespace visilib
     inline const GeometryTriangleMeshDescription& HelperVisualDebugger::getRemovedEdges() const
     {
         return mSplittingEdgeInformation;
+    }
+
+    inline std::map<std::string, int>& HelperVisualDebugger::getCounters()
+    {
+        return mCounters;
+    }
+    inline std::map<std::string, double>& HelperVisualDebugger::getTimings()
+    {
+        return mTimings;
     }
 }

@@ -20,6 +20,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 
 #pragma once
 
+#include <map>
 #include <vector>
 #include <iomanip>
 #include "visilib_core.h"
@@ -126,6 +127,24 @@ namespace visilib
             std::cout <<"  ["<< header << percent(time, totalTime) << "%]";
         }
 
+        void getTimingStats(std::map<std::string, double> & stats)
+        {
+            stats["Query"] = mTimers[VISIBILITY_QUERY];
+            stats["Ray tracing"] = percent(mTimers[RAY_INTERSECTION], mTimers[VISIBILITY_QUERY]);
+            stats["Silhouette"] = percent(mTimers[SILHOUETTE_PROCESSING], mTimers[VISIBILITY_QUERY]);
+            stats["Split Polytope"] = percent(mTimers[POLYTOPE_SPLIT], mTimers[VISIBILITY_QUERY]);
+            stats["Build Polytope"] = percent(mTimers[POLYTOPE_BUILD], mTimers[VISIBILITY_QUERY]);
+            stats["Stabbing line"] = percent(mTimers[STABBING_LINE_EXTRACTION], mTimers[VISIBILITY_QUERY]);
+            stats["Occluders"] = percent(mTimers[OCCLUDER_TREATMENT], mTimers[VISIBILITY_QUERY]);
+            stats["Unknown"] = percent(getUnkownTime(), mTimers[VISIBILITY_QUERY]);
+        }
+         
+        void getCounts(std::map<std::string, int> & counts)
+        {
+            counts["Rays"] = mCounts[RAY_COUNT];
+            counts["Splits"] = mCounts[POLYTOPE_SPLIT_COUNT];
+            counts["Occluders"] = mCounts[OCCLUDER_TRIANGLE_COUNT];
+        }
 
         void display()
         {
@@ -140,7 +159,7 @@ namespace visilib
             display("Unknown:        ", getUnkownTime(), mTimers[VISIBILITY_QUERY]); std::cout << std::endl;
 
             std::cout << std::endl;
-          }
+        }
 
         void displayCounts()
         {
