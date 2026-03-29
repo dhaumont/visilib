@@ -76,7 +76,6 @@ namespace visilibDemo
         }
         ~VisilibDemoMain()
         {
-            printf("done\n");
         }
         bool init()
         {

@@ -224,6 +224,7 @@ namespace visilib
     {
         return mCounters;
     }
+
     inline std::map<std::string, double>& HelperVisualDebugger::getTimings()
     {
         return mTimings;
