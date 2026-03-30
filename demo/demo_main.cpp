@@ -170,6 +170,8 @@ namespace visilibDemo
         
         void showGUI()
         {
+           if (show_demo_window)
+           return;
             if (ImGui::BeginMainMenuBar()) {
                 if (ImGui::BeginMenu("File")) {
                     if (ImGui::MenuItem("Quit", NULL, false, true)) {
@@ -180,10 +182,7 @@ namespace visilibDemo
                 ImGui::EndMainMenuBar();
             }
 
-            if (show_demo_window)
-            {
-                ImGui::ShowDemoWindow(&show_demo_window);
-            }
+           
 
             {
                 ImGui::Begin("Visilib 1.0. Demo application");
@@ -522,7 +521,7 @@ namespace visilibDemo
                 break;
 
             case 32:
-                animated = !animated;
+                show_demo_window = !show_demo_window;
                 break;
 
             case 13:
