@@ -243,6 +243,10 @@ namespace visilibDemo
                 ImGui::Text("%i", mDemoConfiguration.sceneIndex);
                 ImGui::SameLine();
                 const char* scene_items[] = { 
+                     "SINGLE_TRIANGLE_01",
+                    "SINGLE_TRIANGLE_02",
+                    "SINGLE_TRIANGLE_03",
+                    "SINGLE_TRIANGLE_04",
                     "SLOT_OFF_AXIS_01",
                     "SLOT_OFF_AXIS_02",
                     "SLOT_OFF_AXIS_03",
