@@ -186,6 +186,7 @@ pos(double *px, double *py, double *pz, int x, int y, int *viewport)
 static void
 zprMouse(int button, int state, int x, int y)
 {
+    {
     GLint viewport[4];
 
     _mouseX = x;
@@ -209,6 +210,7 @@ zprMouse(int button, int state, int x, int y)
     glGetIntegerv(GL_VIEWPORT, viewport);
     pos(&_dragPosX, &_dragPosY, &_dragPosZ, x, y, viewport);
     glutPostRedisplay();
+}
 }
 
 static void
@@ -290,19 +292,19 @@ zprMotion(int x, int y)
 static void
 zprReshape(int w, int h)
 {
+    
+    if (h == 0) h = 1; // Prevent divide by zero
+    float aspect = (float)w / (float)h;
+
+    // Set viewport to cover the new window
     glViewport(0, 0, w, h);
 
-    _top = _scaling;
-    _bottom = -_scaling;
-
-    _left = -_scaling;
-    _right = _scaling;
-
+    // Set camera perspective
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-
-    glOrtho(_left, _right, _bottom, _top, -100*_scaling, 100*_scaling);
-
+    // Use perspective or ortho based on your needs
+    gluPerspective(45.0, aspect, 0.1, 100.0);
+    
     glMatrixMode(GL_MODELVIEW);
 }
 #endif
