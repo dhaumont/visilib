@@ -171,12 +171,23 @@ namespace visilibDemo
         void showGUI()
         {
            if (show_demo_window)
-           return;
+            {
+                ImGui::ShowDemoWindow(&show_demo_window);
+            }
+
             if (ImGui::BeginMainMenuBar()) {
                 if (ImGui::BeginMenu("File")) {
+                    if (ImGui::MenuItem("Open...", NULL, false, true)) {
+                        readConfig("config.txt");
+                        forceDisplay = true;
+                    }
+                    if (ImGui::MenuItem("Save...", NULL, false, true)) {
+                        writeConfig("config.txt");
+                    }
                     if (ImGui::MenuItem("Quit", NULL, false, true)) {
                         exit(0);
                     }
+                  
                     ImGui::EndMenu();
                 }
                 ImGui::EndMainMenuBar();
@@ -202,43 +213,29 @@ namespace visilibDemo
                 //forceDisplay |= ImGui::Checkbox("representative line sampling strategy", &mDemoConfiguration.representativeLineSampling);
                 forceDisplay |= ImGui::Checkbox("detect aperture only", &mDemoConfiguration.detectApertureOnly);
 
+            
                 const char* precision_items[] = { 
-                    "FLOAT"
-                    , "DOUBLE"
-#ifdef EXACT_ARITHMETIC  
-                    , "EXACT"
-#endif
-#ifdef ENABLE_GMP
-                    , "GMP_FLOAT"
+                    "FLOAT",     
+                    "DOUBLE"  
+            #ifdef ENABLE_LEDA
+                    , "LEDA_REAL" 
+        #endif
+        #ifdef ENABLE_GMP
+                    , "GMP_FLOAT"    
                     , "GMP_RATIONAL"
-#endif
-#ifdef ENABLE_REALEXPR
-                    , "REAL_EXPR"
-#endif
-#ifdef ENABLE_MPFR
+        #endif
+        #ifdef ENABLE_MPFR
                     , "MPFR"
-#endif
+        #endif
                 };
                 int precisionType = mDemoConfiguration.precisionType;
                 forceDisplay |= ImGui::Combo("Precision", &precisionType, precision_items, IM_ARRAYSIZE(precision_items));
                 mDemoConfiguration.precisionType = (VisibilityExactQueryConfiguration::PrecisionType)precisionType;
 
                 ImGui::SameLine();
-             //   ImGui::Text(DemoConfiguration::toStr(mDemoConfiguration.precisionType).c_str()); // validate that the enum and the string list match up...
+                ImGui::Text(DemoConfiguration::toStr(mDemoConfiguration.precisionType).c_str()); // validate that the enum and the string list match up...
 
-                ImGui::Text("select scene"); ImGui::SameLine();
-                if (ImGui::Button("prev ")) {
-                    if (mDemoConfiguration.sceneIndex > 0)
-                    {
-                 //       mDemoConfiguration.sceneIndex --;
-                    }
-                    else
-                    {
-                   //     mDemoConfiguration.sceneIndex = 9;
-                    }
-                    initScene(mDemoConfiguration.sceneIndex);
-                    forceDisplay = true;
-                }
+            
                 ImGui::SameLine();
                 ImGui::Text("%i", mDemoConfiguration.sceneIndex);
                 ImGui::SameLine();
@@ -255,9 +252,44 @@ namespace visilibDemo
                     forceDisplay = true;
                 }
 
-                int tmp = mDemoConfiguration.vertexCount1;
-                forceDisplay |= ImGui::SliderInt("number of vertices of query polygon", &tmp, 1, 12);
-                mDemoConfiguration.vertexCount1 = tmp;
+                forceDisplay |= ImGui::RadioButton("Edit S",&active_source,0);
+                forceDisplay |= ImGui::RadioButton("Edit R",&active_source,1);
+                forceDisplay |= ImGui::RadioButton("Edit R & S",&active_source,2);
+             
+                int vertexCount0 = mDemoConfiguration.vertexCount0;
+                int vertexCount1 = mDemoConfiguration.vertexCount1;
+                int vertexCount2 = mDemoConfiguration.vertexCount1;
+           
+                float scaling0 = mDemoConfiguration.scaling;
+                float scaling1 = mDemoConfiguration.scaling;
+                float scaling2 = mDemoConfiguration.scaling;
+           
+                if (active_source == 0 )
+                {
+                    forceDisplay |= ImGui::SliderInt("Vertices S", &vertexCount0, 1, 12);
+                    
+                    forceDisplay |= ImGui::SliderFloat("Size S", &scaling0, 0.01, 1.0);
+                    mDemoConfiguration.vertexCount0 = vertexCount0;
+                    mDemoConfiguration.scaling = scaling0;
+                }
+                else if (active_source == 1)
+                {
+                    forceDisplay |= ImGui::SliderInt("Vertices R", &vertexCount1, 1, 12);
+                    forceDisplay |= ImGui::SliderFloat("Size R", &scaling1, 0.01, 1.0);
+                    
+                     mDemoConfiguration.vertexCount1 = vertexCount1;
+                      mDemoConfiguration.scaling = scaling1;
+                }
+                else if (active_source == 2)
+                {
+                    forceDisplay |= ImGui::SliderInt("Vertices R & S", &vertexCount2, 1, 12);
+                    forceDisplay |= ImGui::SliderFloat("Size S", &scaling2, 0.01, 1.0);
+                    
+                    mDemoConfiguration.vertexCount0 = vertexCount2;
+                    mDemoConfiguration.vertexCount1 = vertexCount2;
+                     mDemoConfiguration.scaling = scaling2;
+                }
+             
 
                 ImGui::Text("adjust global scaling %i%%", (int)round(mDemoConfiguration.globalScaling * 100.0f)); ImGui::SameLine();
                 if (ImGui::Button("+")) {
@@ -543,6 +575,7 @@ namespace visilibDemo
         bool forceDisplay = true;
         bool animated = false;
         int drawGeometryType = 0;
+        int active_source = 0;
     };
 }
 
@@ -608,8 +641,8 @@ int main(int argc, char** argv)
     //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
 
     // Setup Dear ImGui style
-    ImGui::StyleColorsDark();
-    //ImGui::StyleColorsClassic();
+    //ImGui::StyleColorsDark();
+    ImGui::StyleColorsClassic();
 
     // Setup Platform/Renderer bindings
     ImGui_ImplGLUT_Init();
