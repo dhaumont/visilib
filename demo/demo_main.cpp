@@ -236,22 +236,31 @@ namespace visilibDemo
                 ImGui::Text(DemoConfiguration::toStr(mDemoConfiguration.precisionType).c_str()); // validate that the enum and the string list match up...
 
             
-                ImGui::SameLine();
                 ImGui::Text("%i", mDemoConfiguration.sceneIndex);
                 ImGui::SameLine();
-                if (ImGui::Button("next ")) {
-                    if (mDemoConfiguration.sceneIndex < 9) 
-                    {
-                  //      mDemoConfiguration.sceneIndex ++;
-                    }
-                    else
-                    {
-                  //      mDemoConfiguration.sceneIndex = 0;
-                    }
+                const char* scene_items[] = { 
+                    "SLOT_OFF_AXIS_01",
+                    "SLOT_OFF_AXIS_02",
+                    "SLOT_OFF_AXIS_03",
+                    "SLOT_OFF_AXIS_04",
+                    "SLOT_OFF_AXIS_05",
+                    "SLOT_ON_AXIS_01",
+                    "SPHERE_WITH_HOLES",
+                    "REGULAR_GRID",
+                    "NOISY_SPHERE",
+                    "SIMPLE_CUBE",
+                    "NOISY_CUBE",
+                    "CUBES_AND_GRID",
+                    "CUBES_AND_GRID_100"
+                };
+                int sceneIndex = mDemoConfiguration.sceneIndex;
+                if (ImGui::Combo("Scene", &sceneIndex, scene_items, IM_ARRAYSIZE(scene_items)))
+                {
+                    mDemoConfiguration.sceneIndex = DemoConfiguration::SCENE_TYPE(sceneIndex);
                     initScene(mDemoConfiguration.sceneIndex);
                     forceDisplay = true;
                 }
-
+               
                 forceDisplay |= ImGui::RadioButton("Edit S",&active_source,0);
                 forceDisplay |= ImGui::RadioButton("Edit R",&active_source,1);
                 forceDisplay |= ImGui::RadioButton("Edit R & S",&active_source,2);
