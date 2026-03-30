@@ -292,18 +292,22 @@ zprMotion(int x, int y)
 static void
 zprReshape(int w, int h)
 {
+     if (h == 0) h = 1; // Prevent divide by zero
     
-    if (h == 0) h = 1; // Prevent divide by zero
-    float aspect = (float)w / (float)h;
-
-    // Set viewport to cover the new window
     glViewport(0, 0, w, h);
+    float aspect = (float)h / (float)w;
+
+    _top = _scaling * aspect;
+    _bottom = -_scaling * aspect;
+
+    _left = -_scaling;
+    _right = _scaling;
 
     // Set camera perspective
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    // Use perspective or ortho based on your needs
-    gluPerspective(45.0, aspect, 0.1, 100.0);
+
+    glOrtho(_left, _right, _bottom, _top, -100*_scaling, 100*_scaling);
     
     glMatrixMode(GL_MODELVIEW);
 }
