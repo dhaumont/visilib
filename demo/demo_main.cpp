@@ -205,9 +205,11 @@ namespace visilibDemo
                 forceDisplay |= ImGui::Checkbox("silhouette optimisation", &mDemoConfiguration.silhouetteOptimisation);
                 forceDisplay |= ImGui::Checkbox("normalization", &mDemoConfiguration.normalization);
 
-                const char* resolve_mode_items[] = { "Recursive", "NonRecursive", "Compare" };
+                const char* solver_type[] = { "Aperture", "Sequential", "MontCarlo" };
                
-             
+                int solverType = mDemoConfiguration.solverType;
+                forceDisplay |= ImGui::Combo("Solver type", &solverType, solver_type, IM_ARRAYSIZE(solver_type));
+                mDemoConfiguration.solverType = (VisibilityExactQueryConfiguration::SolverType)solverType;
 #if EMBREE
                 if (ImGui::Checkbox("embree ray tracing", mDemoConfiguration.embree)) {
                     initScene(mDemoConfiguration.sceneIndex);
