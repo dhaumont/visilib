@@ -304,7 +304,7 @@ zprMotion(int x, int y)
 static void
 zprReshape(int w, int h)
 {
-    
+
     if (h == 0) h = 1; // Prevent divide by zero
     float aspect = (float)w / (float)h;
 
