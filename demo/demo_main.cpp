@@ -31,6 +31,11 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include <GL/glut.h>
 #endif
 #endif
+
+#include <imgui.h>
+#include <backends/imgui_impl_glut.h>
+#include <backends/imgui_impl_opengl2.h>
+
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -65,10 +70,17 @@ namespace visilibDemo
     class VisilibDemoMain
     {
     public:
+       bool show_demo_window;
+       int wc = 10;
+       int rc = 0;
+        
         VisilibDemoMain()
         {
+            show_demo_window = false;
         }
-
+        ~VisilibDemoMain()
+        {
+        }
         bool init()
         {
 //            _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
@@ -159,6 +171,215 @@ namespace visilibDemo
         {
             mDemoConfiguration.readConfig(filename);
         }
+        
+        void showGUI()
+        {
+           if (show_demo_window)
+            {
+                ImGui::ShowDemoWindow(&show_demo_window);
+            }
+
+            if (ImGui::BeginMainMenuBar()) {
+                if (ImGui::BeginMenu("File")) {
+                    if (ImGui::MenuItem("Open...", NULL, false, true)) {
+                        readConfig("config.txt");
+                        forceDisplay = true;
+                    }
+                    if (ImGui::MenuItem("Save...", NULL, false, true)) {
+                        writeConfig("config.txt");
+                    }
+                    if (ImGui::MenuItem("Quit", NULL, false, true)) {
+                        exit(0);
+                    }
+                  
+                    ImGui::EndMenu();
+                }
+                ImGui::EndMainMenuBar();
+            }
+
+           
+
+            {
+                ImGui::Begin("Visilib 1.0. Demo application");
+
+                forceDisplay |= ImGui::Checkbox("silhouette optimisation", &mDemoConfiguration.silhouetteOptimisation);
+                forceDisplay |= ImGui::Checkbox("normalization", &mDemoConfiguration.normalization);
+
+                const char* resolve_mode_items[] = { "Recursive", "NonRecursive", "Compare" };
+               
+             
+#if EMBREE
+                if (ImGui::Checkbox("embree ray tracing", mDemoConfiguration.embree)) {
+                    initScene(mDemoConfiguration.sceneIndex);
+                    forceDisplay = true;
+                }
+#endif
+                //forceDisplay |= ImGui::Checkbox("representative line sampling strategy", &mDemoConfiguration.representativeLineSampling);
+                forceDisplay |= ImGui::Checkbox("detect aperture only", &mDemoConfiguration.detectApertureOnly);
+
+            
+                const char* precision_items[] = { 
+                    "FLOAT",     
+                    "DOUBLE"  
+            #ifdef ENABLE_LEDA
+                    , "LEDA_REAL" 
+        #endif
+        #ifdef ENABLE_GMP
+                    , "GMP_FLOAT"    
+                    , "GMP_RATIONAL"
+        #endif
+        #ifdef ENABLE_MPFR
+                    , "MPFR"
+        #endif
+                };
+                int precisionType = mDemoConfiguration.precisionType;
+                forceDisplay |= ImGui::Combo("Precision", &precisionType, precision_items, IM_ARRAYSIZE(precision_items));
+                mDemoConfiguration.precisionType = (VisibilityExactQueryConfiguration::PrecisionType)precisionType;
+
+                ImGui::SameLine();
+                ImGui::Text(DemoConfiguration::toStr(mDemoConfiguration.precisionType).c_str()); // validate that the enum and the string list match up...
+
+            
+                ImGui::Text("%i", mDemoConfiguration.sceneIndex);
+                ImGui::SameLine();
+                const char* scene_items[] = { 
+                    "SLOT_OFF_AXIS_01",
+                    "SLOT_OFF_AXIS_02",
+                    "SLOT_OFF_AXIS_03",
+                    "SLOT_OFF_AXIS_04",
+                    "SLOT_OFF_AXIS_05",
+                    "SLOT_ON_AXIS_01",
+                    "SPHERE_WITH_HOLES",
+                    "REGULAR_GRID",
+                    "NOISY_SPHERE",
+                    "SIMPLE_CUBE",
+                    "NOISY_CUBE",
+                    "CUBES_AND_GRID",
+                    "CUBES_AND_GRID_100"
+                };
+                int sceneIndex = mDemoConfiguration.sceneIndex;
+                if (ImGui::Combo("Scene", &sceneIndex, scene_items, IM_ARRAYSIZE(scene_items)))
+                {
+                    mDemoConfiguration.sceneIndex = DemoConfiguration::SCENE_TYPE(sceneIndex);
+                    initScene(mDemoConfiguration.sceneIndex);
+                    forceDisplay = true;
+                }
+               
+                forceDisplay |= ImGui::RadioButton("Edit S",&active_source,0);
+                forceDisplay |= ImGui::RadioButton("Edit R",&active_source,1);
+                forceDisplay |= ImGui::RadioButton("Edit R & S",&active_source,2);
+             
+                int vertexCount0 = mDemoConfiguration.vertexCount0;
+                int vertexCount1 = mDemoConfiguration.vertexCount1;
+                int vertexCount2 = mDemoConfiguration.vertexCount1;
+           
+                float scaling0 = mDemoConfiguration.scaling;
+                float scaling1 = mDemoConfiguration.scaling;
+                float scaling2 = mDemoConfiguration.scaling;
+           
+                if (active_source == 0 )
+                {
+                    forceDisplay |= ImGui::SliderInt("Vertices S", &vertexCount0, 1, 12);
+                    
+                    forceDisplay |= ImGui::SliderFloat("Size S", &scaling0, 0.01, 1.0);
+                    mDemoConfiguration.vertexCount0 = vertexCount0;
+                    mDemoConfiguration.scaling = scaling0;
+                }
+                else if (active_source == 1)
+                {
+                    forceDisplay |= ImGui::SliderInt("Vertices R", &vertexCount1, 1, 12);
+                    forceDisplay |= ImGui::SliderFloat("Size R", &scaling1, 0.01, 1.0);
+                    
+                     mDemoConfiguration.vertexCount1 = vertexCount1;
+                      mDemoConfiguration.scaling = scaling1;
+                }
+                else if (active_source == 2)
+                {
+                    forceDisplay |= ImGui::SliderInt("Vertices R & S", &vertexCount2, 1, 12);
+                    forceDisplay |= ImGui::SliderFloat("Size S", &scaling2, 0.01, 1.0);
+                    
+                    mDemoConfiguration.vertexCount0 = vertexCount2;
+                    mDemoConfiguration.vertexCount1 = vertexCount2;
+                     mDemoConfiguration.scaling = scaling2;
+                }
+             
+
+                ImGui::Text("adjust global scaling %i%%", (int)round(mDemoConfiguration.globalScaling * 100.0f)); ImGui::SameLine();
+                if (ImGui::Button("+")) {
+                    mDemoConfiguration.globalScaling *= 2;
+                    forceDisplay = true;
+                    setViewPortScaling(mDemoConfiguration.globalScaling);
+                    initScene(mDemoConfiguration.sceneIndex);
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("-")) {
+                    mDemoConfiguration.globalScaling /= 2;
+                    forceDisplay = true;
+                    setViewPortScaling(mDemoConfiguration.globalScaling);
+                    initScene(mDemoConfiguration.sceneIndex);
+                }
+
+                if (ImGui::Button("change geometry mode")) {
+                    drawGeometryType++;
+                    drawGeometryType = drawGeometryType % 4;
+                    forceDisplay = true;
+                }
+                ImGui::SameLine();
+                ImGui::Text("%i", drawGeometryType);
+
+                if (ImGui::Button("step")) {
+                //    step = true;
+                    animated = false;
+                    forceDisplay = true;
+                }
+                ImGui::SameLine();
+                forceDisplay |= ImGui::Checkbox("animation", &animated);
+
+                if (ImGui::Button("write config")) {
+                    std::stringstream ss;
+
+                    std::cout << "Save config.txt" << std::endl;
+                    ss << "config_" << wc++ << ".txt";
+                    writeConfig(ss.str());
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("open config")) {
+                    std::stringstream ss;
+
+                    std::cout << "Read config.txt" << std::endl;
+                    ss << "config_" << rc++ << ".txt";
+                    if (rc > wc)
+                        rc = 0;
+                    readConfig(ss.str());
+                    initScene(mDemoConfiguration.sceneIndex);
+                }
+
+                ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+                ImGui::End();
+            }
+
+            {
+                ImGui::Begin("Output");
+               // ImGui::Text(output.c_str());
+                ImGui::End();
+            }
+
+            { 
+                std::map<std::string, double> timings = debugger->getTimings();
+                std::map<std::string, int> counters = debugger->getCounters();
+                ImGui::Begin("Stats");                
+                for (const auto& timing : timings)
+                {
+                    ImGui::Text("%s : %.2f%%", timing.first.c_str(), timing.second);
+                }
+                for (const auto& counter : counters)
+                { 
+                    ImGui::Text("%s : %i", counter.first.c_str(), counter.second);
+                }
+           
+                ImGui::End();
+            }
+        }
 
         void display()
         {
@@ -203,9 +424,7 @@ namespace visilibDemo
         }
 
         void keyboard(unsigned char key, int, int)
-        {
-            static int wc = 10;
-            static int rc = 0;
+        {           
             std::stringstream ss;
             int current = 0;
             switch (key)
@@ -347,7 +566,7 @@ namespace visilibDemo
                 break;
 
             case 32:
-                animated = !animated;
+                show_demo_window = !show_demo_window;
                 break;
 
             case 13:
@@ -369,6 +588,7 @@ namespace visilibDemo
         bool forceDisplay = true;
         bool animated = false;
         int drawGeometryType = 0;
+        int active_source = 0;
     };
 }
 
@@ -376,7 +596,17 @@ static VisilibDemoMain* demo = nullptr;
 
 void display()
 {
+    ImGui_ImplOpenGL2_NewFrame();
+    ImGui_ImplGLUT_NewFrame();
     demo->display();
+
+    ImGui::NewFrame();
+    ImGuiIO& io = ImGui::GetIO();
+    demo->showGUI();
+
+    ImGui::Render();
+    glViewport(0, 0, (GLsizei)io.DisplaySize.x, (GLsizei)io.DisplaySize.y);
+    ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
 #ifdef USE_GLUT
     glutSwapBuffers();
 #endif
@@ -384,7 +614,15 @@ void display()
 
 void keyboard(unsigned char key, int x, int y)
 {
-    demo->keyboard(key, x, y);
+#if 1
+    ImGui_ImplGLUT_KeyboardFunc(key, x, y);
+
+    ImGuiIO& io = ImGui::GetIO();
+    if (!io.WantCaptureKeyboard)
+#endif
+    {
+        demo->keyboard(key, x, y);
+    }
 }
 
 void animate()
@@ -423,6 +661,21 @@ int main(int argc, char** argv)
 
     glutCreateWindow("Visilib demo");
 
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+
+    // Setup Dear ImGui style
+    //ImGui::StyleColorsDark();
+    ImGui::StyleColorsClassic();
+
+    // Setup Platform/Renderer bindings
+    ImGui_ImplGLUT_Init();
+    ImGui_ImplGLUT_InstallFuncs();
+    ImGui_ImplOpenGL2_Init();
+
     glutDisplayFunc(display);
 
     glutKeyboardFunc(keyboard);
@@ -446,7 +699,11 @@ int main(int argc, char** argv)
     animate();
 #endif
     delete demo;
-
+#if 1
+    ImGui_ImplOpenGL2_Shutdown();
+    ImGui_ImplGLUT_Shutdown();
+    ImGui::DestroyContext();
+#endif
     return 0;
 }
 

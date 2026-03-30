@@ -70,6 +70,8 @@ namespace visilib
         virtual void attachVisualisationDebugger(HelperVisualDebugger* aDebugger) = 0;
         virtual VisibilityResult arePolygonsVisible(const float* vertices0, size_t numVertices0, const float* vertices1, size_t numVertices1) = 0;
         virtual void displayStatistic() = 0;
+        virtual void getTimingStats(std::map<std::string, double> & stats) = 0;
+        virtual void getCounts(std::map<std::string, int> & stats) = 0;
     };
 
 
@@ -165,6 +167,16 @@ namespace visilib
         void displayStatistic()
         {
             getStatistic()->display();
+        }
+
+        void getTimingStats(std::map<std::string, double> & stats)
+        {
+            return mStatistic.getTimingStats(stats);
+        }
+
+        void getCounts(std::map<std::string, int> & stats)
+        {
+            return mStatistic.getCounts(stats);
         }
     private:
 
@@ -365,7 +377,7 @@ namespace visilib
                 solver->attachVisualisationDebugger(mDebugger);
             }
             result = solver->resolve();
-
+          
             delete solver;
         }
 

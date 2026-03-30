@@ -186,6 +186,12 @@ pos(double *px, double *py, double *pz, int x, int y, int *viewport)
 static void
 zprMouse(int button, int state, int x, int y)
 {
+#if 1
+    ImGui_ImplGLUT_MouseFunc(button, state, x, y);
+    ImGuiIO& io = ImGui::GetIO();
+    if (!io.WantCaptureMouse)
+#endif
+    {
     GLint viewport[4];
 
     _mouseX = x;
@@ -210,10 +216,17 @@ zprMouse(int button, int state, int x, int y)
     pos(&_dragPosX, &_dragPosY, &_dragPosZ, x, y, viewport);
     glutPostRedisplay();
 }
+}
 
 static void
 zprMotion(int x, int y)
 {
+#if 1
+    ImGui_ImplGLUT_MotionFunc(x, y);
+    ImGuiIO& io = ImGui::GetIO();
+    if (!io.WantCaptureMouse)
+#endif
+    {
     bool changed = false;
 
     int dx = x - _mouseX;
@@ -286,24 +299,33 @@ zprMotion(int x, int y)
         glutPostRedisplay();
     }
 }
+}
 
 static void
 zprReshape(int w, int h)
 {
-    glViewport(0, 0, w, h);
+    if (h == 0) h = 1; // Prevent divide by zero
 
-    _top = _scaling;
-    _bottom = -_scaling;
+    glViewport(0, 0, w, h);
+    float aspect = (float)h / (float)w;
+
+    _top = _scaling * aspect;
+    _bottom = -_scaling * aspect;
 
     _left = -_scaling;
     _right = _scaling;
 
+    // Set camera perspective
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
 
     glOrtho(_left, _right, _bottom, _top, -100*_scaling, 100*_scaling);
-
+    
     glMatrixMode(GL_MODELVIEW);
+
+#if 1
+    ImGui_ImplGLUT_ReshapeFunc(w,h);
+#endif
 }
 #endif
 
