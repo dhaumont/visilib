@@ -19,6 +19,11 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 */
 #define _USE_MATH_DEFINES
 #include <math.h>
+#include <iomanip>
+#include <sstream>
+#include <cstdlib>
+#include <cmath>
+#include <limits>
 #include "demo_helper.h"
 #include "math_vector_3.h"
 #include "math_arithmetic.h"
@@ -26,6 +31,9 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include "helper_geometry_scene_reader.h"
 #include "helper_synthetic_mesh_builder.h"
 #include "visilib_core.h"
+/* Included by path relative to this file so that the test target, which also compiles
+demo_helper.cpp without adding demo/external/json to its include dirs, still finds it. */
+#include "external/json/json.hpp"
 
 using namespace visilib;
 using namespace visilibDemo;
@@ -348,27 +356,156 @@ void DemoConfiguration::displaySettings()
 }
 
 
+namespace
+{
+    /* Keys written by writeConfig: used to tell a typo apart from a key that belongs to
+    a newer build of the demo. */
+    const char* const cConfigKeys[] = {
+        "vertexCount0", "vertexCount1", "silhouetteOptimisation", "detectApertureOnly",
+        "normalization", "scaling", "phi", "eta", "sceneIndex", "globalScaling",
+        "precisionType", "solverType", "tolerance", "minimumApertureSize", "confidenceValue"
+#if EMBREE
+        , "embree"
+#endif
+    };
+
+    bool isKnownConfigKey(const std::string& key)
+    {
+        for (size_t i = 0; i < sizeof(cConfigKeys) / sizeof(cConfigKeys[0]); ++i)
+        {
+            if (key == cConfigKeys[i])
+                return true;
+        }
+        return false;
+    }
+
+    /* Widening a float to double prints artifacts (0.21f becomes 0.20999999344348907).
+    Emit the shortest decimal that reads back as the very same float, so the file stays
+    readable without losing precision. */
+    double asJsonNumber(float value)
+    {
+        for (int digits = 1; digits <= std::numeric_limits<float>::max_digits10; ++digits)
+        {
+            std::ostringstream text;
+            text << std::setprecision(digits) << value;
+            if (std::strtof(text.str().c_str(), nullptr) != value)
+                continue;
+            return std::strtod(text.str().c_str(), nullptr);
+        }
+        return static_cast<double>(value);
+    }
+
+    /* A present key carrying the wrong JSON type is reported and ignored, so that a
+    hand edited file cannot silently half-apply. */
+    void warnUnexpectedType(const nlohmann::json& root, const char* key)
+    {
+        if (root.contains(key))
+            std::cerr << "config: key '" << key << "' has an unexpected type (" << root[key].type_name() << ")" << std::endl;
+    }
+
+    void readBool(const nlohmann::json& root, const char* key, bool& value)
+    {
+        if (root.contains(key) && root[key].is_boolean()) value = root[key].get<bool>();
+        else warnUnexpectedType(root, key);
+    }
+
+    /* Numbers are read through double so that a hand edited file cannot overflow the
+    target type: non finite values, or values outside the target range, are reported and
+    dropped instead of quietly turning into inf or a wrapped integer. */
+    template <typename T>
+    void readNumber(const nlohmann::json& root, const char* key, T& value)
+    {
+        if (!root.contains(key))
+            return;
+        if (root[key].is_number())
+        {
+            const double candidate = root[key].get<double>();
+            if (std::isfinite(candidate)
+                && candidate <= static_cast<double>(std::numeric_limits<T>::max())
+                && candidate >= static_cast<double>(std::numeric_limits<T>::lowest()))
+            {
+                value = static_cast<T>(candidate);
+                return;
+            }
+            std::cerr << "config: key '" << key << "' is not a finite value in range, keeping "
+                << value << std::endl;
+            return;
+        }
+        warnUnexpectedType(root, key);
+    }
+
+    /* Vertex counts must be a whole number in a range the demo can actually build:
+    accepting -5 as size_t would wrap around to 1.8e19 and hang the mesh generator. */
+    const size_t cMaxVertexCount = 1024;
+
+    void readCount(const nlohmann::json& root, const char* key, size_t& value)
+    {
+        if (!root.contains(key))
+            return;
+        if (root[key].is_number_integer())
+        {
+            const long long count = root[key].get<long long>();
+            if (count >= 1 && count <= static_cast<long long>(cMaxVertexCount))
+            {
+                value = static_cast<size_t>(count);
+                return;
+            }
+        }
+        std::cerr << "config: key '" << key << "' must be an integer in [1, "
+            << cMaxVertexCount << "], keeping " << value << std::endl;
+    }
+
+    /* Enum fields are stored as their numeric value, as in the previous text format, and
+    must stay inside the enumerators the scene builders know about. */
+    template <typename T>
+    void readEnum(const nlohmann::json& root, const char* key, T& value, int count)
+    {
+        if (!root.contains(key))
+            return;
+        if (root[key].is_number_integer())
+        {
+            const long long index = root[key].get<long long>();
+            if (index >= 0 && index < static_cast<long long>(count))
+            {
+                value = static_cast<T>(index);
+                return;
+            }
+        }
+        std::cerr << "config: key '" << key << "' must be an integer in [0, " << count
+            << "[, keeping " << static_cast<int>(value) << std::endl;
+    }
+}
+
 void DemoConfiguration::writeConfig(const std::string& filename)
 {
-    std::ofstream output(filename);
-    output << "vertexCount0 = " << vertexCount0 << std::endl;
-    output << "vertexCount1 = " << vertexCount1 << std::endl;
-    output << "silhouetteOptimisation = " << silhouetteOptimisation << std::endl;
-    output << "detectApertureOnly = " << detectApertureOnly << std::endl;
-    output << "normalization = " << normalization << std::endl;
-    output << "scaling = " << scaling << std::endl;
-    output << "phi = " << phi << std::endl;
-    output << "eta = " << eta << std::endl;
-    output << "sceneIndex = " << sceneIndex << std::endl;
-    output << "globalScaling = " << globalScaling << std::endl;
-    output << "precisionType = " << precisionType << std::endl;
-    output << "solverType = " << solverType << std::endl;
-    output << "tolerance = " << tolerance << std::endl;
-    output << "minimumApertureSize = " << minimumApertureSize << std::endl;
-    output << "confidenceValue = " << confidenceValue << std::endl;
+    nlohmann::json root;
+
+    root["vertexCount0"] = vertexCount0;
+    root["vertexCount1"] = vertexCount1;
+    root["silhouetteOptimisation"] = silhouetteOptimisation;
+    root["detectApertureOnly"] = detectApertureOnly;
+    root["normalization"] = normalization;
+    root["scaling"] = asJsonNumber(scaling);
+    root["phi"] = asJsonNumber(phi);
+    root["eta"] = asJsonNumber(eta);
+    root["sceneIndex"] = sceneIndex;
+    root["globalScaling"] = asJsonNumber(globalScaling);
+    root["precisionType"] = precisionType;
+    root["solverType"] = solverType;
+    root["tolerance"] = tolerance;
+    root["minimumApertureSize"] = minimumApertureSize;
+    root["confidenceValue"] = confidenceValue;
 #if EMBREE
-    output << "embree = " << embree << std::endl;
+    root["embree"] = embree;
 #endif
+
+    std::ofstream output(filename);
+    if (!output.is_open())
+    {
+        std::cerr << "config: cannot write '" << filename << "'" << std::endl;
+        return;
+    }
+    output << root.dump(2) << std::endl;
     output.close();
 }
 
@@ -377,37 +514,44 @@ void DemoConfiguration::readConfig(const std::string& filename)
     std::ifstream input(filename);
     if (!input.is_open())
         return;
-    while (!input.eof())
-    {
-        std::vector<std::string> tokens;
 
-        HelperGeometrySceneReader::tokenizeNextLine(input, tokens);
-        if (tokens.size() != 3)
-            continue;
-
-        if (tokens[0] == "vertexCount0") { vertexCount0 = atoi(tokens[2].c_str()); }
-        else if (tokens[0] == "vertexCount1") { vertexCount1 = atoi(tokens[2].c_str()); }
-        else if (tokens[0] == "silhouetteOptimisation") { silhouetteOptimisation = atoi(tokens[2].c_str()); }
-        else if (tokens[0] == "detectApertureOnly") { detectApertureOnly = atoi(tokens[2].c_str()); }
-        else if (tokens[0] == "normalization") { normalization = atoi(tokens[2].c_str()); }
-        else if (tokens[0] == "scaling") { scaling = (float)atof(tokens[2].c_str()); }
-        else if (tokens[0] == "phi") { phi = (float)atof(tokens[2].c_str()); }
-        else if (tokens[0] == "eta") { eta = (float)atof(tokens[2].c_str()); }
-        else if (tokens[0] == "sceneIndex") { sceneIndex = (DemoConfiguration::SCENE_TYPE)atoi(tokens[2].c_str()); }
-        else if (tokens[0] == "globalScaling") { globalScaling = (float)atof(tokens[2].c_str()); }
-        else if (tokens[0] == "solverType") { solverType =  (VisibilityExactQueryConfiguration::SolverType) atoi(tokens[2].c_str()); }
-        else if (tokens[0] == "precisionType") { precisionType = (VisibilityExactQueryConfiguration::PrecisionType)atoi(tokens[2].c_str()); }
-        else if (tokens[0] == "tolerance") { tolerance =  (double)atof(tokens[2].c_str()); }
-        else if (tokens[0] == "minimumApertureSize") { minimumApertureSize = atof(tokens[2].c_str()); }
-        else if (tokens[0] == "confidenceValue") { confidenceValue = atof(tokens[2].c_str()); }
-#if EMBREE
-        else if (tokens[0] == "embree") { embree = atoi(tokens[2].c_str()); }
-#endif
-        /* Unknown keys are skipped rather than asserted: a file written by a newer
-        build must still load in an older one, and vice versa. */
-        else { std::cout << "config: ignoring unknown key '" << tokens[0] << "'" << std::endl; }
-    }
+    /* Never throw on a hand edited file: is_discarded reports the syntax error and the
+    current configuration is kept untouched. */
+    nlohmann::json root = nlohmann::json::parse(input, nullptr, false);
     input.close();
+
+    if (root.is_discarded() || !root.is_object())
+    {
+        std::cerr << "config: '" << filename << "' is not a valid JSON object" << std::endl;
+        return;
+    }
+
+    readCount(root, "vertexCount0", vertexCount0);
+    readCount(root, "vertexCount1", vertexCount1);
+    readBool(root, "silhouetteOptimisation", silhouetteOptimisation);
+    readBool(root, "detectApertureOnly", detectApertureOnly);
+    readBool(root, "normalization", normalization);
+    readNumber(root, "scaling", scaling);
+    readNumber(root, "phi", phi);
+    readNumber(root, "eta", eta);
+    readEnum(root, "sceneIndex", sceneIndex, DemoConfiguration::COUNT);
+    readNumber(root, "globalScaling", globalScaling);
+    readEnum(root, "precisionType", precisionType, VisibilityExactQueryConfiguration::PRECISION_COUNT);
+    readEnum(root, "solverType", solverType, VisibilityExactQueryConfiguration::SOLVER_COUNT);
+    readNumber(root, "tolerance", tolerance);
+    readNumber(root, "minimumApertureSize", minimumApertureSize);
+    readNumber(root, "confidenceValue", confidenceValue);
+#if EMBREE
+    readBool(root, "embree", embree);
+#endif
+
+    /* Unknown keys are reported and skipped rather than rejected: a file written by a
+    newer build must still load in an older one, and vice versa. */
+    for (auto it = root.begin(); it != root.end(); ++it)
+    {
+        if (!isKnownConfigKey(it.key()))
+            std::cout << "config: ignoring unknown key '" << it.key() << "'" << std::endl;
+    }
 }
 
 const std::string DemoConfiguration::toStr(VisibilityExactQueryConfiguration::PrecisionType p)

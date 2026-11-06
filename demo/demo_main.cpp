@@ -85,7 +85,7 @@ namespace visilibDemo
         {
 //            _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 //            _MM_SET_DENORMALS_ZERO_MODE(_MM_DENORMALS_ZERO_ON);
-            readConfig("config.txt");
+            readConfig("config.json");
             forceDisplay = true;
 #ifdef USE_GLUT
             gluLookAt(1, 1, 1,
@@ -182,12 +182,12 @@ namespace visilibDemo
             if (ImGui::BeginMainMenuBar()) {
                 if (ImGui::BeginMenu("File")) {
                     if (ImGui::MenuItem("Open...", NULL, false, true)) {
-                        readConfig("config.txt");
+                        readConfig("config.json");
                         initScene(mDemoConfiguration.sceneIndex);
                         forceDisplay = true;
                     }
                     if (ImGui::MenuItem("Save...", NULL, false, true)) {
-                        writeConfig("config.txt");
+                        writeConfig("config.json");
                     }
                     if (ImGui::MenuItem("Quit", NULL, false, true)) {
                         exit(0);
@@ -345,16 +345,16 @@ namespace visilibDemo
                 if (ImGui::Button("write config")) {
                     std::stringstream ss;
 
-                    std::cout << "Save config.txt" << std::endl;
-                    ss << "config_" << wc++ << ".txt";
+                    std::cout << "Save config.json" << std::endl;
+                    ss << "config_" << wc++ << ".json";
                     writeConfig(ss.str());
                 }
                 ImGui::SameLine();
                 if (ImGui::Button("open config")) {
                     std::stringstream ss;
 
-                    std::cout << "Read config.txt" << std::endl;
-                    ss << "config_" << rc++ << ".txt";
+                    std::cout << "Read config.json" << std::endl;
+                    ss << "config_" << rc++ << ".json";
                     if (rc > wc)
                         rc = 0;
                     readConfig(ss.str());
@@ -551,14 +551,14 @@ namespace visilibDemo
 #endif
 
             case 'w':
-                std::cout << "Save config.txt" << std::endl;
-                ss << "config_" << wc++ << ".txt";
+                std::cout << "Save config.json" << std::endl;
+                ss << "config_" << wc++ << ".json";
                 writeConfig(ss.str());
                 break;
 
             case 'o':
-                std::cout << "Read config.txt" << std::endl;
-                ss << "config_" << rc++ << ".txt";
+                std::cout << "Read config.json" << std::endl;
+                ss << "config_" << rc++ << ".json";
                 if (rc > wc)
                     rc = 0;
                 readConfig(ss.str());

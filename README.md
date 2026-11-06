@@ -50,6 +50,9 @@ The following dependencies are optional:
 - [Intel Embree](https://www.embree.org), for optional fast ray-tracing support
 - [freeglut](http://freeglut.sourceforge.net/) and [OpenGl](https://www.opengl.org/) for the interactive demo application
 
+The demo reads and writes its configuration files as JSON, using [nlohmann/json](https://github.com/nlohmann/json),
+which is vendored under `demo/external/json` (MIT licence, see the bundled `LICENSE.txt`).
+
 We also use [Doxygen](https://www.doxygen.nl/index.html) for documentation generation.
 ##  Unit tests 
 
@@ -121,8 +124,8 @@ It allows to test the different library options interactively, by pressing the *
 | - | decrease source size | Decrease the size of the source polygons |
 | 1 | decrease source vertex count | Decrease the number of vertices of the first source polygon |
 | 2 | increase source vertex count | Increase the number of vertices of the first source polygon |
-| w | write config|
-| o | open config|
+| w | write config | Store the current settings to `config_<n>.json` |
+| o | open config | Load `config_<n>.json` and rebuild the scene from it |
 |space| start/pause sources animation | When animation is started, the source polygons will perform a rotation around the scene |
 |Enter| show/hide geometry | For debugging purpose, allow to change the representation of the scene and of the query polygons |
 |h| display help | Display the list of keys and their effect |
