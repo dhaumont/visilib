@@ -1,0 +1,17 @@
+{
+  "sceneIndex": 4,
+  "vertexCount0": 3,
+  "vertexCount1": 3,
+  "scaling": 0.14,
+  "globalScaling": 0.05,
+  "phi": 0.0,
+  "eta": 0.0,
+  "silhouetteOptimisation": true,
+  "normalization": false,
+  "detectApertureOnly": false,
+  "precisionType": 1,
+  "solverType": 1,
+  "tolerance": -1,
+  "minimumApertureSize": 0.011713240421345882,
+  "confidenceValue": 0.99
+}
