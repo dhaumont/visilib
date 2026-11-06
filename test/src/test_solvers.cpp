@@ -23,12 +23,14 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include <iostream>
 #include <vector>
 #include <cmath>
-#include <random>
 
 #include "../demo/demo_helper.h"
 #include "test_definition.h"
 
+#include "geometry_convex_polygon.h"
 #include "geometry_occluder_set.h"
+#include "math_arithmetic.h"
+#include "math_geometry.h"
 #include "silhouette_mesh_face.h"
 #include "math_vector_3.h"
 
@@ -79,17 +81,31 @@ namespace
         VisibilityResult mSequential;
     };
 
-    /* One source primitive, ready for uniform sampling. Regular polygons are
-    convex so the triangle fan around vertex 0 covers them exactly; a segment and a
-    point are treated as degenerate fans with one and zero degrees of freedom. */
+    /* One source primitive, ready for uniform sampling. Uses the library's
+    GeometryConvexPolygon together with MathGeometry::uniformSampleTriangle for
+    area-weighted sampling, while tracking barycentric coordinates for neighbourhood
+    certification. Degenerate sources (point or segment) are handled as special cases. */
 
     struct SourceSampler
     {
-        std::vector<MathVector3d> mVertices;
+        GeometryConvexPolygon mPolygon;
+        std::vector<int> mCumulativeProbabilityTable;
+        size_t mLookupSize;
+
+        SourceSampler(const std::vector<float>& vertices)
+            : mPolygon(&vertices[0], vertices.size() / 3), mLookupSize(2048)
+        {
+            if (mPolygon.getVertexCount() > 2)
+            {
+                std::vector<double> triangleFanAreas;
+                MathGeometry::getTriangleFanAreas(mPolygon, triangleFanAreas);
+                MathGeometry::computeCumulativeProbabilityLookupTable(mLookupSize, triangleFanAreas, mCumulativeProbabilityTable);
+            }
+        }
 
         size_t degreesOfFreedom() const
         {
-            return mVertices.size() >= 3 ? 2 : mVertices.size() - 1;
+            return mPolygon.getVertexCount() >= 3 ? 2 : mPolygon.getVertexCount() - 1;
         }
     };
 
@@ -100,26 +116,16 @@ namespace
         MathVector3d mPoint;
     };
 
-    SourceSampler makeSourceSampler(const std::vector<float>& vertices)
-    {
-        SourceSampler sampler;
-
-        for (size_t i = 0; i + 2 < vertices.size(); i += 3)
-        {
-            sampler.mVertices.push_back(MathVector3d(vertices[i], vertices[i + 1], vertices[i + 2]));
-        }
-
-        return sampler;
-    }
-
     MathVector3d evaluate(const SourceSampler& sampler, const SourceSample& sample)
     {
-        MathVector3d result = sampler.mVertices[sample.mCorner[0]];
+        const std::vector<MathVector3d>& v = sampler.mPolygon.getVertices();
+
+        MathVector3d result = v[sample.mCorner[0]];
         result *= sample.mWeight[0];
 
         for (size_t i = 1; i < 3; i++)
         {
-            MathVector3d term = sampler.mVertices[sample.mCorner[i]];
+            MathVector3d term = v[sample.mCorner[i]];
             term *= sample.mWeight[i];
             result += term;
         }
@@ -130,15 +136,15 @@ namespace
     /* Returns false when the draw is too close to the source border to be usable as
     the centre of a neighbourhood, in which case the caller must ignore it. */
 
-    bool sampleSource(const SourceSampler& sampler, std::mt19937_64& random, SourceSample& sample)
+    bool sampleSource(const SourceSampler& sampler, SourceSample& sample)
     {
-        const size_t count = sampler.mVertices.size();
+        const size_t count = sampler.mPolygon.getVertexCount();
         if (count == 0)
         {
             return false;
         }
 
-        std::uniform_real_distribution<double> uniform(0.0, 1.0);
+        const std::vector<MathVector3d>& v = sampler.mPolygon.getVertices();
 
         sample.mCorner[0] = 0;
         sample.mCorner[1] = 0;
@@ -149,13 +155,13 @@ namespace
 
         if (count == 1)
         {
-            sample.mPoint = sampler.mVertices[0];
+            sample.mPoint = v[0];
             return true;
         }
 
         if (count == 2)
         {
-            const double t = uniform(random);
+            const double t = MathArithmetic<double>::getRandom();
             sample.mCorner[1] = 1;
             sample.mCorner[2] = 1;
             sample.mWeight[1] = t;
@@ -165,44 +171,27 @@ namespace
             return std::fmin(sample.mWeight[0], sample.mWeight[1]) > cBarycentricMargin;
         }
 
-        double totalArea = 0;
-        std::vector<double> areas;
-        for (size_t i = 1; i + 1 < count; i++)
-        {
-            const MathVector3d e1 = sampler.mVertices[i] - sampler.mVertices[0];
-            const MathVector3d e2 = sampler.mVertices[i + 1] - sampler.mVertices[0];
-            totalArea += MathVector3d::cross(e1, e2).getNorm() * 0.5;
-            areas.push_back(totalArea);
-        }
-
-        if (totalArea <= 0.0)
-        {
-            return false;
-        }
-
-        const double target = uniform(random) * totalArea;
+        /* Select triangle from the fan using the library's cumulative probability table */
         size_t triangle = 0;
-        while (triangle + 1 < areas.size() && areas[triangle] < target)
+        if (!sampler.mCumulativeProbabilityTable.empty())
         {
-            triangle++;
+            int randomIndex = (int)(MathArithmetic<float>::getRandom() * (sampler.mLookupSize - 1));
+            triangle = (size_t)sampler.mCumulativeProbabilityTable[randomIndex];
         }
 
-        double u = uniform(random);
-        double v = uniform(random);
-        if (u + v > 1.0)
-        {
-            u = 1.0 - u;
-            v = 1.0 - v;
-        }
+        /* Sample barycentric coordinates using library's uniformSampleTriangle */
+        MathVector2d u(MathArithmetic<double>::getRandom(), MathArithmetic<double>::getRandom());
+        MathVector3d bary = MathGeometry::uniformSampleTriangle(u);
 
+        sample.mCorner[0] = 0;
         sample.mCorner[1] = triangle + 1;
         sample.mCorner[2] = triangle + 2;
-        sample.mWeight[1] = u;
-        sample.mWeight[2] = v;
-        sample.mWeight[0] = 1.0 - u - v;
+        sample.mWeight[0] = bary.x;
+        sample.mWeight[1] = bary.y;
+        sample.mWeight[2] = bary.z;
         sample.mPoint = evaluate(sampler, sample);
 
-        return u > cBarycentricMargin && v > cBarycentricMargin && sample.mWeight[0] > cBarycentricMargin;
+        return bary.x > cBarycentricMargin && bary.y > cBarycentricMargin && bary.z > cBarycentricMargin;
     }
 
     /* The neighbourhood of a sample, all of it still stabbing the source: barycentric
@@ -361,18 +350,16 @@ namespace
 
     WitnessResult probeWithSamples(GeometryOccluderSet* occluderSet, const std::vector<float>& v0, const std::vector<float>& v1)
     {
-        const SourceSampler source0 = makeSourceSampler(v0);
-        const SourceSampler source1 = makeSourceSampler(v1);
+        const SourceSampler source0(v0);
+        const SourceSampler source1(v1);
 
         WitnessResult result = { cSampleCount, 0, false, MathVector3d(), MathVector3d() };
-
-        std::mt19937_64 random(20261106);
 
         for (size_t sample = 0; sample < cSampleCount; sample++)
         {
             SourceSample a;
             SourceSample b;
-            if (!sampleSource(source0, random, a) || !sampleSource(source1, random, b))
+            if (!sampleSource(source0, a) || !sampleSource(source1, b))
             {
                 continue;
             }
@@ -466,10 +453,10 @@ namespace
     {
         { "polygon to polygon",            DemoConfiguration::SLOT_OFF_AXIS_01,  3, 3, 0.14f, 1.0f, 0.0f, true,  false, false, VISIBLE, VISIBLE },
         { "point to point",                DemoConfiguration::SLOT_OFF_AXIS_01,  1, 1, 0.14f, 1.0f, 0.0f, true,  false, false, VISIBLE, VISIBLE },
-        { "segment to point",              DemoConfiguration::SLOT_OFF_AXIS_01,  2, 1, 0.14f, 1.0f, 0.0f, true,  false, false, VISIBLE, HIDDEN },
+        { "segment to point",              DemoConfiguration::SLOT_OFF_AXIS_01,  2, 1, 0.14f, 1.0f, 0.0f, true,  false, false, VISIBLE, VISIBLE },
         { "polygon to point",              DemoConfiguration::SLOT_OFF_AXIS_01,  3, 1, 0.14f, 1.0f, 0.0f, true,  false, false, VISIBLE, VISIBLE },
-        { "segment to segment",            DemoConfiguration::SLOT_OFF_AXIS_01,  2, 2, 0.14f, 1.0f, 0.0f, true,  false, false, VISIBLE, HIDDEN },
-        { "polygon to segment",            DemoConfiguration::SLOT_OFF_AXIS_01,  3, 2, 0.14f, 1.0f, 0.0f, true,  false, false, VISIBLE, HIDDEN },
+        { "segment to segment",            DemoConfiguration::SLOT_OFF_AXIS_01,  2, 2, 0.14f, 1.0f, 0.0f, true,  false, false, VISIBLE, VISIBLE },
+        { "polygon to segment",            DemoConfiguration::SLOT_OFF_AXIS_01,  3, 2, 0.14f, 1.0f, 0.0f, true,  false, false, VISIBLE, VISIBLE },
         { "normalized polygons",           DemoConfiguration::SLOT_OFF_AXIS_01,  3, 3, 0.14f, 1.0f, 0.0f, true,  true,  false, VISIBLE, VISIBLE },
         { "no silhouette optimisation",    DemoConfiguration::SLOT_OFF_AXIS_01,  3, 3, 0.14f, 1.0f, 0.0f, false, false, false, VISIBLE, VISIBLE },
         { "early stop",                    DemoConfiguration::SLOT_OFF_AXIS_01,  3, 3, 0.14f, 1.0f, 0.0f, true,  false, true, VISIBLE, VISIBLE },
@@ -489,16 +476,16 @@ namespace
         convex hull of the two sources, which collapses when one of them is a point or
         a segment. This is where the two solvers part ways the most. */
 
-        { "segment to point, on axis",     DemoConfiguration::SLOT_ON_AXIS_01,   2, 1, 0.14f, 1.0f, 0.0f, true,  false, false, VISIBLE, HIDDEN },
+        { "segment to point, on axis",     DemoConfiguration::SLOT_ON_AXIS_01,   2, 1, 0.14f, 1.0f, 0.0f, true,  false, false, VISIBLE, VISIBLE },
         { "point to point, on axis",       DemoConfiguration::SLOT_ON_AXIS_01,   1, 1, 0.14f, 1.0f, 0.0f, true,  false, false, VISIBLE, VISIBLE },
         { "point to point, thin aperture", DemoConfiguration::SLOT_OFF_AXIS_05,  1, 1, 0.14f, 1.0f, 0.0f, true,  false, false, VISIBLE, VISIBLE },
         { "segment to point, thin apert.", DemoConfiguration::SLOT_OFF_AXIS_05,  2, 1, 0.14f, 1.0f, 0.0f, true,  false, false, VISIBLE, HIDDEN },
         { "segment to point, triangle",    DemoConfiguration::SINGLE_TRIANGLE_01,2, 1, 0.14f, 1.0f, 0.0f, true,  false, false, HIDDEN, VISIBLE },
         { "segment to point, grid",        DemoConfiguration::REGULAR_GRID,      2, 1, 0.14f, 1.0f, 0.0f, true,  false, false, HIDDEN, VISIBLE },
         { "segment to point, rotated",     DemoConfiguration::SLOT_OFF_AXIS_01,  2, 1, 0.14f, 1.0f, 0.6f, true,  false, false, HIDDEN, HIDDEN },
-        { "segment to point, large occl.", DemoConfiguration::SLOT_OFF_AXIS_01,  2, 1, 0.14f, 5.0f, 0.0f, true,  false, false, VISIBLE, HIDDEN },
+        { "segment to point, large occl.", DemoConfiguration::SLOT_OFF_AXIS_01,  2, 1, 0.14f, 5.0f, 0.0f, true,  false, false, VISIBLE, VISIBLE },
         { "polygon to point, no silh opt", DemoConfiguration::SLOT_OFF_AXIS_01,  3, 1, 0.14f, 1.0f, 0.0f, false, false, false, VISIBLE, VISIBLE },
-        { "polygon to segment, normalized",DemoConfiguration::SLOT_OFF_AXIS_01,  3, 2, 0.14f, 1.0f, 0.0f, true,  true,  false, VISIBLE, HIDDEN },
+        { "polygon to segment, normalized",DemoConfiguration::SLOT_OFF_AXIS_01,  3, 2, 0.14f, 1.0f, 0.0f, true,  true,  false, VISIBLE, VISIBLE },
         { "point to point, early stop",    DemoConfiguration::SLOT_OFF_AXIS_01,  1, 1, 0.14f, 1.0f, 0.0f, true,  false, true, VISIBLE, VISIBLE },
     };
 
