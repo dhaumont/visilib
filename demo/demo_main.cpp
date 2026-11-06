@@ -183,6 +183,7 @@ namespace visilibDemo
                 if (ImGui::BeginMenu("File")) {
                     if (ImGui::MenuItem("Open...", NULL, false, true)) {
                         readConfig("config.txt");
+                        initScene(mDemoConfiguration.sceneIndex);
                         forceDisplay = true;
                     }
                     if (ImGui::MenuItem("Save...", NULL, false, true)) {

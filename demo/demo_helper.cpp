@@ -353,17 +353,22 @@ void DemoConfiguration::writeConfig(const std::string& filename)
     std::ofstream output(filename);
     output << "vertexCount0 = " << vertexCount0 << std::endl;
     output << "vertexCount1 = " << vertexCount1 << std::endl;
-    output << "silhouetteOptimisation  = " << silhouetteOptimisation << std::endl;
-    output << "detectApertureOnly  = " << detectApertureOnly << std::endl;
-    output << "normalization  = " << normalization << std::endl;
-    output << "scaling  = " << scaling << std::endl;
-    output << "phi  = " << phi << std::endl;
+    output << "silhouetteOptimisation = " << silhouetteOptimisation << std::endl;
+    output << "detectApertureOnly = " << detectApertureOnly << std::endl;
+    output << "normalization = " << normalization << std::endl;
+    output << "scaling = " << scaling << std::endl;
+    output << "phi = " << phi << std::endl;
     output << "eta = " << eta << std::endl;
     output << "sceneIndex = " << sceneIndex << std::endl;
     output << "globalScaling = " << globalScaling << std::endl;
     output << "precisionType = " << precisionType << std::endl;
     output << "solverType = " << solverType << std::endl;
     output << "tolerance = " << tolerance << std::endl;
+    output << "minimumApertureSize = " << minimumApertureSize << std::endl;
+    output << "confidenceValue = " << confidenceValue << std::endl;
+#if EMBREE
+    output << "embree = " << embree << std::endl;
+#endif
     output.close();
 }
 
@@ -388,12 +393,19 @@ void DemoConfiguration::readConfig(const std::string& filename)
         else if (tokens[0] == "scaling") { scaling = (float)atof(tokens[2].c_str()); }
         else if (tokens[0] == "phi") { phi = (float)atof(tokens[2].c_str()); }
         else if (tokens[0] == "eta") { eta = (float)atof(tokens[2].c_str()); }
-        //else if (tokens[0] == "sceneIndex") { sceneIndex = atoi(tokens[2].c_str()); }
+        else if (tokens[0] == "sceneIndex") { sceneIndex = (DemoConfiguration::SCENE_TYPE)atoi(tokens[2].c_str()); }
         else if (tokens[0] == "globalScaling") { globalScaling = (float)atof(tokens[2].c_str()); }
         else if (tokens[0] == "solverType") { solverType =  (VisibilityExactQueryConfiguration::SolverType) atoi(tokens[2].c_str()); }
         else if (tokens[0] == "precisionType") { precisionType = (VisibilityExactQueryConfiguration::PrecisionType)atoi(tokens[2].c_str()); }
         else if (tokens[0] == "tolerance") { tolerance =  (double)atof(tokens[2].c_str()); }
-        else { V_ASSERT(0); }
+        else if (tokens[0] == "minimumApertureSize") { minimumApertureSize = atof(tokens[2].c_str()); }
+        else if (tokens[0] == "confidenceValue") { confidenceValue = atof(tokens[2].c_str()); }
+#if EMBREE
+        else if (tokens[0] == "embree") { embree = atoi(tokens[2].c_str()); }
+#endif
+        /* Unknown keys are skipped rather than asserted: a file written by a newer
+        build must still load in an older one, and vice versa. */
+        else { std::cout << "config: ignoring unknown key '" << tokens[0] << "'" << std::endl; }
     }
     input.close();
 }
