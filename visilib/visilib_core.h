@@ -53,5 +53,11 @@ namespace visilib
     {
                out << "["<<prefix<<"] " << message << std::endl;
     }
+
+    /** @brief Streaming variant of V_LOG writing to stdout, for the algorithmic traces performed
+    during computations. Compiled out unless OUTPUT_DEBUG_FILE is defined. */
+    #define V_TRACE(EXPRESSION) (std::cout << EXPRESSION << std::endl)
+#else
+    #define V_TRACE(EXPRESSION) ((void)0)
 #endif
 }

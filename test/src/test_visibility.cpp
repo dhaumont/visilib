@@ -74,6 +74,7 @@ bool VisibilityTest(std::string& )
     bool result = true;
   
     int i = 0;
+    size_t passedCount = 0;
     for (auto silhouette : silhouetteOptimization)
     {
         for (auto precision : precisions)
@@ -98,17 +99,17 @@ bool VisibilityTest(std::string& )
                                 configuration.normalization = normalization;
                                 configuration.scaling = 0.14;
                                 configuration.silhouetteOptimisation = silhouette;
-                                configuration.displaySummary();
-                                std::stringstream s;
-                                s << v0 << "_" << v1 << ".obj";
-                                
-                                if (!testConfiguration(configuration, VISIBLE, s.str()))
-                                {   std::cout << " FAILED" << std::endl;
+                                std::stringstream ss;
+                                ss << v0 << "_" << v1 << ".obj";
+
+                                if (!testConfiguration(configuration, VISIBLE, ss.str()))
+                                {   configuration.displaySummary();
+                                    std::cout << " FAILED" << std::endl;
                                     result = false;
                                 }
                                 else
                                 {
-                                    std::cout << " SUCCESS" << std::endl;
+                                    passedCount++;
                                 }
                                 i++;
                             }
@@ -118,6 +119,8 @@ bool VisibilityTest(std::string& )
             }
         }
     }
+
+    std::cout << "VisibilityTest: " << passedCount << " of " << i << " configurations passed" << std::endl;
 
     return result;
 }

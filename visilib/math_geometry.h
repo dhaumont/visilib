@@ -1273,7 +1273,7 @@ namespace visilib
         v = MathVector3d::cross(aUnitVector,u);
         v.normalize();        
 
-        std::cout << "n:" << aUnitVector <<  "main:" << mainAxis  << "; u: " << u << "; v: " << v << std::endl; 
+        V_TRACE("n:" << aUnitVector <<  "main:" << mainAxis  << "; u: " << u << "; v: " << v);
     }
 
     inline double MathGeometry::getZValueForConfidenceLevel(double confidenceLevel, double precision)

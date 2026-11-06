@@ -337,7 +337,7 @@ namespace visilib
 
             if (MathPredicates::isEdgeCollapsed(v1, v2, tolerance))
             {
-                std::cout << "collapsed edge dected: " << v1-v2 << "; tolerance: "<< 0.5 *tolerance<<std::endl;
+                V_TRACE("collapsed edge dected: " << v1-v2 << "; tolerance: "<< 0.5 *tolerance);
                 myMergeTable.push_back(i1);
                 myMergeTable.push_back(i2);
             }
@@ -353,6 +353,7 @@ namespace visilib
             return false;
         }
 
+#ifdef OUTPUT_DEBUG_FILE
         std::cout << "EDGE TO BE MERGED DETECTED!" << std::endl;
         outputProperties(std::cout,polyhedron);
 
@@ -368,6 +369,7 @@ namespace visilib
             std::cout<<myEdgesTable[i]<<" ";
         }
         std::cout<<std::endl;
+#endif
         for (int i=0; i<myMergeTable.size();i+=2)
         {
             int merge_left  = myMergeTable[i];
@@ -401,6 +403,7 @@ namespace visilib
             }
         }
 
+#ifdef OUTPUT_DEBUG_FILE
         std::cout << "myMergeTable table:";
         for (int i=0; i<myMergeTable.size();i++)
         {
@@ -415,6 +418,7 @@ namespace visilib
         std::cout<<std::endl;
 
         outputProperties(std::cout,polyhedron);
+#endif
         mEdges.clear();
         for (int i=0; i<myEdgesTable.size();i+=2)
         {

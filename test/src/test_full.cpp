@@ -23,21 +23,97 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 
 #include "test_definition.h"
 
-int main()
+/* The visitor returns true when a test name should run, which lets a single test be
+selected from the command line without rebuilding:
+
+    visilibTest                         run every test
+    visilibTest Solver                  run every test whose name contains "Solver"
+    visilibTest -l                      list the available tests
+    visilibTest -h                      print this help
+*/
+
+typedef bool (*TestFunction)(std::string&);
+
+struct TestDefinition
 {
-	std::string errorMessage;
+    const char* mName;
+    TestFunction mFunction;
+};
 
-	if (!MathCombinatorialTest(errorMessage))
-	{
-      std::cout << "MathCombinatorialTest ERROR" << std::endl;
-	   	return 1;
-	}
+const TestDefinition cTests[] =
+{
+    { "MathCombinatorialTest", &MathCombinatorialTest },
+    { "VisibilityTest", &VisibilityTest },
+    { "SolverConsistencyTest", &SolverConsistencyTest }
+};
 
-    if (!VisibilityTest(errorMessage))
+static void printUsage(const char* program)
+{
+    std::cout << "usage: " << program << " [filter] [-l] [-h]" << std::endl
+              << "  runs the test suites of the library, one line of result per test" << std::endl
+              << "  filter   substring of a test name, e.g. '" << program << " Solver'" << std::endl
+              << "  -l       list the available tests and exit" << std::endl
+              << "  -h       print this message and exit" << std::endl << "  tests:" << std::endl;
+
+    for (size_t i = 0; i < sizeof(cTests) / sizeof(cTests[0]); i++)
     {
-        std::cout << "VisibilityTest ERROR" << std::endl;
+        std::cout << "    " << cTests[i].mName << std::endl;
+    }
+}
+
+int main(int argc, char** argv)
+{
+    if (argc > 1 && (std::string(argv[1]) == "-h" || std::string(argv[1]) == "--help"))
+    {
+        printUsage(argv[0]);
+        return 0;
+    }
+
+    if (argc > 1 && std::string(argv[1]) == "-l")
+    {
+        for (size_t i = 0; i < sizeof(cTests) / sizeof(cTests[0]); i++)
+        {
+            std::cout << cTests[i].mName << std::endl;
+        }
+        return 0;
+    }
+
+    const std::string filter = argc > 1 ? argv[1] : std::string();
+    size_t selectedCount = 0;
+    size_t failureCount = 0;
+
+    for (size_t i = 0; i < sizeof(cTests) / sizeof(cTests[0]); i++)
+    {
+        if (!filter.empty() && std::string(cTests[i].mName).find(filter) == std::string::npos)
+        {
+            continue;
+        }
+
+        selectedCount++;
+
+        std::string errorMessage;
+
+        if (!cTests[i].mFunction(errorMessage))
+        {
+            std::cout << cTests[i].mName << " FAILED";
+
+            if (!errorMessage.empty())
+            {
+                std::cout << ": " << errorMessage;
+            }
+
+            std::cout << std::endl;
+            failureCount++;
+        }
+    }
+
+    if (selectedCount == 0)
+    {
+        std::cout << "no test matches '" << filter << "'" << std::endl;
+        printUsage(argv[0]);
         return 1;
     }
 
-	return 0;
+    std::cout << failureCount << " of " << selectedCount << " tests failed" << std::endl;
+    return failureCount > 0 ? 1 : 0;
 }

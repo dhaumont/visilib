@@ -25,6 +25,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include "helper_triangle_mesh_container.h"
 #include "helper_geometry_scene_reader.h"
 #include "helper_synthetic_mesh_builder.h"
+#include "visilib_core.h"
 
 using namespace visilib;
 using namespace visilibDemo;
@@ -94,7 +95,7 @@ HelperTriangleMeshContainer* DemoHelper::createScene(DemoConfiguration::SCENE_TY
 
     bool rescale = false;
 
-    std::cout << "INIT:" << s << std::endl;
+    V_TRACE("INIT:" << s);
     switch(s)
     {
      //   case DemoConfiguration::SPHERE_WITH_HOLES:

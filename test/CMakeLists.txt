@@ -24,6 +24,7 @@ set(Tests
     ./src/test_full.cpp
     ./src/test_math.cpp
     ./src/test_visibility.cpp
+    ./src/test_solvers.cpp
     ../demo/demo_helper.cpp
 )
 
@@ -43,12 +44,7 @@ endif()
 #add_test(NAME stc_test_math COMMAND ${KIT}CxxTests stc_test_math})
 add_test(NAME visilibTest COMMAND visilibTest)
 
-# remove the test driver source file
-set (TestsToRun ${Tests})
-list ( REMOVE_ITEM TestsToRun src/test_full.cxx)
-
-# Add all the ADD_TEST for each test
-foreach (test ${TestsToRun})
-    get_filename_component (TName ${test} NAME_WE)
-    add_test (NAME ${TName} COMMAND test_full ${TName})
-endforeach ()
+# visilibTest is a single binary running the whole suite (see src/test_full.cpp):
+# there is no per file executable, so no per file ADD_TEST is registered here.
+# Run a subset by restricting the case tables in the test sources, and use
+# CTest's -R visilibTest to select the suite.

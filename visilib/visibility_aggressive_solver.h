@@ -112,7 +112,7 @@ namespace visilib
 
             static size_t getSampleCount(double aNormalizedApertureSize, double confidenceValue)
             {
-                std::cout << "APERTURE SIZE:" << aNormalizedApertureSize << std::endl;
+                V_TRACE("APERTURE SIZE:" << aNormalizedApertureSize);
                 double p = 1.0 - aNormalizedApertureSize;
                 double s = (1.0 - confidenceValue);
                 return size_t(log(s) / log(p));               
@@ -138,7 +138,7 @@ namespace visilib
                 MathVector3d u,v;
                 MathGeometry::getTangentBasis(myNormal, u, v);
                 mLocalToWorldMatrix.setOrthogonalBasisInverseTranspose(u, v, myNormal);
-                std::cout << mLocalToWorldMatrix;
+                V_TRACE(mLocalToWorldMatrix);
 
                 
                 MathVector3d myZ(0,0,1);
@@ -166,7 +166,7 @@ namespace visilib
         double totalArea = sampler0.getPolygonArea() + sampler1.getPolygonArea();
         double polygonAreaRatio = sampler0.getPolygonArea() / (totalArea);
         size_t sampleCount = GeometryConvexPolygonRandomSampler::getSampleCount(mMinimumNormalizedApertureSize, mConfidenceValue);
-        std::cout << "SAMPLES COUNT:" << sampleCount << std::endl;
+        V_TRACE("SAMPLES COUNT:" << sampleCount);
         for (size_t i = 0; i < sampleCount;)
         {
             bool isTriangle0WhichIsSampled = MathArithmetic<float>::getRandom() < polygonAreaRatio;
