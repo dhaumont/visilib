@@ -71,8 +71,12 @@ namespace visilibDemo
     {
     public:
        bool show_demo_window;
-       int wc = 10;
-       int rc = 0;
+       /* The test case browser is modal: one frame asks for it, the popup then stays up
+       until a case is picked or it is cancelled. */
+       bool browseTestCases = false;
+       std::vector<std::string> mTestCaseFiles;
+       size_t mSelectedTestCase = 0;
+       std::string mStatusMessage;
         
         VisilibDemoMain()
         {
@@ -170,6 +174,91 @@ namespace visilibDemo
         void readConfig(const std::string & filename)
         {
             mDemoConfiguration.readConfig(filename);
+        }
+
+        void setStatus(const std::string& message)
+        {
+            mStatusMessage = message;
+            std::cout << message << std::endl;
+        }
+
+        /* One file per configuration, in the test case folder, named after what it holds.
+        An existing file is never overwritten, which is what lets the folder be curated by
+        hand without the demo quietly rewriting part of it. */
+        void saveTestCase()
+        {
+            std::string message;
+            mDemoConfiguration.writeTestCase(DemoHelper::testCaseFolder(), message);
+            setStatus(message);
+        }
+
+        void openTestCase(const std::string& filename)
+        {
+            readConfig(DemoHelper::testCaseFolder() + "/" + filename);
+            initScene(mDemoConfiguration.sceneIndex);
+            setStatus("loaded " + filename);
+            forceDisplay = true;
+        }
+
+        void drawTestCaseBrowser()
+        {
+            if (browseTestCases)
+            {
+                mTestCaseFiles = DemoHelper::listTestCaseFiles(DemoHelper::testCaseFolder());
+                if (mSelectedTestCase >= mTestCaseFiles.size())
+                    mSelectedTestCase = 0;
+
+                ImGui::OpenPopup("Test cases");
+                browseTestCases = false;
+            }
+
+            if (ImGui::BeginPopupModal("Test cases", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+            {
+                ImGui::Text("test cases in %s", DemoHelper::testCaseFolder().c_str());
+
+                size_t opened = static_cast<size_t>(-1);
+
+                if (mTestCaseFiles.empty())
+                {
+                    ImGui::Text("(none yet: 'write config' stores the current settings here)");
+                }
+                else if (ImGui::BeginListBox("##cases", ImVec2(640, 300)))
+                {
+                    for (size_t i = 0; i < mTestCaseFiles.size(); ++i)
+                    {
+                        if (ImGui::Selectable(mTestCaseFiles[i].c_str(), mSelectedTestCase == i))
+                            mSelectedTestCase = i;
+
+                        if (mSelectedTestCase == i)
+                            ImGui::SetItemDefaultFocus();
+
+                        if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+                            opened = i;
+                    }
+                    ImGui::EndListBox();
+                }
+
+                const bool hasSelection = mSelectedTestCase < mTestCaseFiles.size();
+                ImGui::BeginDisabled(!hasSelection);
+                if (ImGui::Button("Open"))
+                    opened = mSelectedTestCase;
+                ImGui::EndDisabled();
+
+                ImGui::SameLine();
+                if (ImGui::Button("Cancel"))
+                    ImGui::CloseCurrentPopup();
+
+                if (ImGui::IsKeyPressed(ImGuiKey_Escape))
+                    ImGui::CloseCurrentPopup();
+
+                if (opened != static_cast<size_t>(-1))
+                {
+                    openTestCase(mTestCaseFiles[opened]);
+                    ImGui::CloseCurrentPopup();
+                }
+
+                ImGui::EndPopup();
+            }
         }
         
         void showGUI()
@@ -343,23 +432,16 @@ namespace visilibDemo
                 forceDisplay |= ImGui::Checkbox("animation", &animated);
 
                 if (ImGui::Button("write config")) {
-                    std::stringstream ss;
-
-                    std::cout << "Save config.json" << std::endl;
-                    ss << "config_" << wc++ << ".json";
-                    writeConfig(ss.str());
+                    saveTestCase();
                 }
                 ImGui::SameLine();
                 if (ImGui::Button("open config")) {
-                    std::stringstream ss;
-
-                    std::cout << "Read config.json" << std::endl;
-                    ss << "config_" << rc++ << ".json";
-                    if (rc > wc)
-                        rc = 0;
-                    readConfig(ss.str());
-                    initScene(mDemoConfiguration.sceneIndex);
+                    browseTestCases = true;
                 }
+                drawTestCaseBrowser();
+
+                if (!mStatusMessage.empty())
+                    ImGui::Text("%s", mStatusMessage.c_str());
 
                 ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
                 ImGui::End();
@@ -421,8 +503,8 @@ namespace visilibDemo
             std::cout << "  /-*: increase/decrease global scaling" << std::endl;
             std::cout << "  [/]: increase/decrease scaling" << std::endl;
 
-            std::cout << "  w: write config" << std::endl;
-            std::cout << "  o: open config" << std::endl;
+            std::cout << "  w: write config | store the settings in the test case folder, refusing to overwrite" << std::endl;
+            std::cout << "  o: open config | pick one of the files of the test case folder" << std::endl;
 
             std::cout << "  space: start/pause animation" << std::endl;
             std::cout << "  Enter: show/hide geometry" << std::endl;
@@ -432,7 +514,6 @@ namespace visilibDemo
 
         void keyboard(unsigned char key, int, int)
         {           
-            std::stringstream ss;
             int current = 0;
             switch (key)
             {
@@ -551,18 +632,12 @@ namespace visilibDemo
 #endif
 
             case 'w':
-                std::cout << "Save config.json" << std::endl;
-                ss << "config_" << wc++ << ".json";
-                writeConfig(ss.str());
+                saveTestCase();
                 break;
 
             case 'o':
-                std::cout << "Read config.json" << std::endl;
-                ss << "config_" << rc++ << ".json";
-                if (rc > wc)
-                    rc = 0;
-                readConfig(ss.str());
-                initScene(mDemoConfiguration.sceneIndex);
+                /* The browser is drawn by the interface, which owns the popup state. */
+                browseTestCases = true;
                 forceDisplay = true;
                 break;
 

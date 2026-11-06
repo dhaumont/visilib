@@ -35,6 +35,13 @@ set(Src
    external/imgui/imgui_widgets.cpp
    )
 
+# The demo stores the test cases the interface writes into this folder, and reads them
+# back from it. It is passed as a macro because the demo is usually started from a scratch
+# directory rather than from the repository.
+set(TEST_CASES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../test/test_cases)
+file(MAKE_DIRECTORY ${TEST_CASES_DIR})
+add_definitions(-DTEST_CASES_DIR="${TEST_CASES_DIR}")
+
 include_directories( external/freeglut/include/ )
 include_directories( ../visilib/ )
 include_directories( external/imgui )

@@ -24,6 +24,16 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include <cstdlib>
 #include <cmath>
 #include <limits>
+#include <algorithm>
+
+#ifdef _WIN32
+#include <windows.h>
+#include <direct.h>
+#else
+#include <dirent.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#endif
 #include "demo_helper.h"
 #include "math_vector_3.h"
 #include "math_arithmetic.h"
@@ -474,9 +484,91 @@ namespace
         std::cerr << "config: key '" << key << "' must be an integer in [0, " << count
             << "[, keeping " << static_cast<int>(value) << std::endl;
     }
+
+    std::string tolowerCopy(const std::string& text)
+    {
+        std::string result = text;
+        for (size_t i = 0; i < result.size(); ++i)
+        {
+            if (result[i] >= 'A' && result[i] <= 'Z') result[i] = char(result[i] - 'A' + 'a');
+        }
+        return result;
+    }
+
+    /* File names are built from numbers, and a dot in a file name reads like an
+    extension: 0.21 is written 0_21. Lower case, because two names differing only by
+    case would be a mess on a case insensitive filesystem. */
+    std::string fileNameTag(double value)
+    {
+        std::ostringstream text;
+        text << value;
+
+        std::string tag = tolowerCopy(text.str());
+        for (size_t i = 0; i < tag.size(); ++i)
+        {
+            if (tag[i] == '.' || tag[i] == '-' || tag[i] == '+') tag[i] = '_';
+        }
+        return tag;
+    }
+
+    /* toStr spells the enums out for the console ("double 64 bits; tol = 1e-11"), which
+    makes unreadable and space ridden file names, so the names use short codes. */
+    std::string precisionTag(VisibilityExactQueryConfiguration::PrecisionType precision)
+    {
+        const std::string name = tolowerCopy(DemoConfiguration::toStr(precision));
+
+        if (name.find("leda") != std::string::npos) return "leda";
+        if (name.find("rational") != std::string::npos) return "gmpq";
+        if (name.find("gmp") != std::string::npos) return "gmpf";
+        if (name.find("mpfr") != std::string::npos) return "mpfr";
+        if (name.find("float") != std::string::npos) return "flt";
+        return "dbl";
+    }
+
+    std::string solverTag(VisibilityExactQueryConfiguration::SolverType solver)
+    {
+        const std::string name = tolowerCopy(DemoConfiguration::toStr(solver));
+
+        if (name.find("aperture") != std::string::npos) return "finder";
+        if (name.find("sequential") != std::string::npos) return "sequential";
+        if (name.find("monte") != std::string::npos) return "mc";
+        return "solver";
+    }
+
+    bool readFile(const std::string& path, std::string& content)
+    {
+        std::ifstream input(path.c_str());
+        if (!input.is_open())
+            return false;
+
+        std::ostringstream buffer;
+        buffer << input.rdbuf();
+        content = buffer.str();
+        return true;
+    }
+
+    /* Only the last component may be missing, and an existing folder is not an error. */
+    void ensureFolder(const std::string& folder)
+    {
+#ifdef _WIN32
+        _mkdir(folder.c_str());
+#else
+        mkdir(folder.c_str(), 0777);
+#endif
+    }
+
+    /* Trailing blanks carry no meaning in a JSON document, but they do differ when two
+    files are compared as text. */
+    std::string trimmed(const std::string& text)
+    {
+        size_t end = text.size();
+        while (end > 0 && (text[end - 1] == '\n' || text[end - 1] == '\r' || text[end - 1] == ' ' || text[end - 1] == '\t'))
+            --end;
+        return text.substr(0, end);
+    }
 }
 
-void DemoConfiguration::writeConfig(const std::string& filename)
+std::string DemoConfiguration::jsonString() const
 {
     nlohmann::json root;
 
@@ -499,14 +591,91 @@ void DemoConfiguration::writeConfig(const std::string& filename)
     root["embree"] = embree;
 #endif
 
+    return root.dump(2);
+}
+
+void DemoConfiguration::writeConfig(const std::string& filename)
+{
     std::ofstream output(filename);
     if (!output.is_open())
     {
         std::cerr << "config: cannot write '" << filename << "'" << std::endl;
         return;
     }
-    output << root.dump(2) << std::endl;
+    output << jsonString() << std::endl;
     output.close();
+}
+
+const char* DemoConfiguration::sceneName(SCENE_TYPE scene)
+{
+    /* Same order as the SCENE_TYPE enumerators and as the Scene combo of the interface. */
+    static const char* names[] =
+    {
+        "SINGLE_TRIANGLE_01", "SINGLE_TRIANGLE_02", "SINGLE_TRIANGLE_03", "SINGLE_TRIANGLE_04",
+        "SLOT_OFF_AXIS_01", "SLOT_OFF_AXIS_02", "SLOT_OFF_AXIS_03", "SLOT_OFF_AXIS_04", "SLOT_OFF_AXIS_05",
+        "SLOT_ON_AXIS_01", "SPHERE_WITH_HOLES", "REGULAR_GRID", "NOISY_SPHERE", "SIMPLE_CUBE",
+        "NOISY_CUBE", "CUBES_AND_GRID", "CUBES_AND_GRID_100"
+    };
+
+    const size_t count = sizeof(names) / sizeof(names[0]);
+    return scene >= 0 && static_cast<size_t>(scene) < count ? names[scene] : "UNKNOWN_SCENE";
+}
+
+std::string DemoConfiguration::caseFileName() const
+{
+    std::ostringstream file;
+
+    file << tolowerCopy(sceneName(sceneIndex))
+        << "__s" << vertexCount0 << "_" << vertexCount1
+        << "__sc" << fileNameTag(scaling)
+        << "__phi" << fileNameTag(phi)
+        << "__eta" << fileNameTag(eta)
+        << "__gs" << fileNameTag(globalScaling)
+        << "__f" << (silhouetteOptimisation ? "1" : "0")
+                 << (normalization ? "1" : "0")
+                 << (detectApertureOnly ? "1" : "0")
+        << "__" << precisionTag(precisionType)
+        << "__" << solverTag(solverType)
+        << "__tol" << fileNameTag(tolerance)
+        << "__ap" << fileNameTag(minimumApertureSize)
+        << "__cf" << fileNameTag(confidenceValue);
+#if EMBREE
+    file << "__emb" << (embree ? "1" : "0");
+#endif
+    file << ".json";
+
+    return file.str();
+}
+
+bool DemoConfiguration::writeTestCase(const std::string& folder, std::string& message) const
+{
+    const std::string name = caseFileName();
+    const std::string path = folder + "/" + name;
+    const std::string body = jsonString();
+
+    std::string existing;
+    if (readFile(path, existing))
+    {
+        message = trimmed(existing) == body
+            ? name + " already holds these settings"
+            : name + " already exists with different content, keeping it as it is";
+        return false;
+    }
+
+    ensureFolder(folder);
+
+    std::ofstream output(path.c_str());
+    if (!output.is_open())
+    {
+        message = "could not write " + path;
+        return false;
+    }
+
+    output << body << std::endl;
+    output.close();
+
+    message = "wrote " + path;
+    return true;
 }
 
 void DemoConfiguration::readConfig(const std::string& filename)
@@ -622,3 +791,51 @@ void DemoConfiguration::displaySummary()
 #if EMBREE
 RTCDevice SilhouetteContainerEmbree::mDevice = nullptr;
 #endif
+
+std::string DemoHelper::testCaseFolder()
+{
+    /* The demo runs from wherever it is started, so the folder it saves into has to be
+    known at configure time rather than guessed from the current directory. */
+#ifdef TEST_CASES_DIR
+    return TEST_CASES_DIR;
+#else
+    return "test_cases";
+#endif
+}
+
+std::vector<std::string> DemoHelper::listTestCaseFiles(const std::string& folder)
+{
+    std::vector<std::string> files;
+
+#ifdef _WIN32
+    WIN32_FIND_DATAA entry;
+    HANDLE search = FindFirstFileA((folder + "\*.json").c_str(), &entry);
+    if (search == INVALID_HANDLE_VALUE)
+        return files;
+
+    do
+    {
+        files.push_back(entry.cFileName);
+    } while (FindNextFileA(search, &entry) != 0);
+    FindClose(search);
+#else
+    DIR* directory = opendir(folder.c_str());
+    if (directory == nullptr)
+        return files;
+
+    /* readdir is only asked about names, the .json suffix is the filter. */
+    struct dirent* entry = nullptr;
+    while ((entry = readdir(directory)) != nullptr)
+    {
+        const std::string name(entry->d_name);
+        if (name.size() > 5 && name.compare(name.size() - 5, 5, ".json") == 0)
+            files.push_back(name);
+    }
+    closedir(directory);
+#endif
+
+    /* The list is what the interface shows, so it must come out in the same order every
+    time; readdir has no ordering promise. */
+    std::sort(files.begin(), files.end());
+    return files;
+}

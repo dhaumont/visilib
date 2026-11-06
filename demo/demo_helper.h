@@ -77,6 +77,21 @@ namespace visilibDemo
         void readConfig(const std::string& filename);
         void writeConfig(const std::string& filename);
 
+        /* The settings as a JSON document, without touching the disk. */
+        std::string jsonString() const;
+
+        /* The name these settings give themselves: the scene and every parameter that
+        changes what is computed, so that two different setups never land on the same
+        file. Used for the test case files. */
+        std::string caseFileName() const;
+
+        /* Stores the settings in the test case folder under caseFileName(). Never
+        overwrites: a file of that name already holds these settings, or it was edited
+        since and must not be destroyed. The reason ends up in message. */
+        bool writeTestCase(const std::string& folder, std::string& message) const;
+
+        static const char* sceneName(SCENE_TYPE scene);
+
         void displaySummary();
         static const std::string toStr(VisibilityExactQueryConfiguration::PrecisionType p);
         static const std::string toStr(VisibilityExactQueryConfiguration::SolverType p);
@@ -94,6 +109,12 @@ namespace visilibDemo
         static void configureDemoConfiguration(const std::string& name, DemoConfiguration& configuration);
         static void exportQueryToObj(const std::string& filename, const std::vector<float>& v0, const std::vector<float>& v1, const visilib::HelperTriangleMeshContainer& aContainer, float aScaling = 1.);
         static void appendPolygonRepresentationToFileObj(std::ofstream& stream, int& anOffset, const std::vector<float>& v, float aScaling = 1);
+
+        /* The folder the test cases live in, handed to the demo at configure time, and
+        the .json files it holds, sorted by name. Listing a missing folder is not an
+        error: it simply has no cases yet. */
+        static std::string testCaseFolder();
+        static std::vector<std::string> listTestCaseFiles(const std::string& folder);
     };
 }
 
