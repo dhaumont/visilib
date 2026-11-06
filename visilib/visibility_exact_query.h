@@ -94,6 +94,12 @@ namespace visilib
             return mQueryPolygon[i];
         }
 
+        /**@brief Return the occluder scene */
+        GeometryOccluderSet* getScene()
+        {
+            return mScene;
+        }
+
         /**@brief Return the polytope complex encoding the occlusion tree */
         PluckerPolytopeComplex<P>* getComplex()
         {

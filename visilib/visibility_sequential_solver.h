@@ -23,7 +23,9 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include "visibility_solver.h"
 
 #include "geometry_convex_polygon.h"
+#include "geometry_ray.h"
 #include "silhouette_mesh_face.h"
+#include "math_geometry.h"
 #include "math_plucker_2.h"
 #include "math_predicates.h"
 #include "plucker_polyhedron.h"
@@ -36,6 +38,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include <sstream>
 #include <map>
 #include <vector>
+
 namespace visilib
 {
     template <class P>
@@ -55,9 +58,19 @@ namespace visilib
         VisibilityResult resolve();
 
     private:
+        /* Option B blocked predicate: cast the polytope's representative line
+        (converted back to 3D) against the faces of the given silhouette only.
+        Returns true when the line is occluded by that patch, false otherwise.
+        A polytope with no real lines is always occluded. */
+
+        bool isBlockedBySilhouette(PluckerPolytope<P> *aPolytope,
+                                   PluckerPolyhedron<P> *aPolyhedron,
+                                   const Silhouette *aSilhouette);
+
         PolytopePositionType classifyRelativeToSilhouette(PluckerPolytope<P> *myPolytopeToClassify,
                                           PluckerPolyhedron<P> *myPolyhedron,
-                                          const std::vector<SilhouetteEdge> &edges
+                                          const std::vector<SilhouetteEdge> &edges,
+                                          const Silhouette *aSilhouette
                                           );
 
         void splitWithAllSilhouetteEdges(std::vector<int> &workingArray,
@@ -71,13 +84,15 @@ namespace visilib
             const std::vector<SilhouetteEdge> &edges,
             PluckerPolytopeComplex<P> *complex,
             PluckerPolyhedron<P> *myPolyhedron,
-            std::vector<int> &intersectedPolytopes);
+            std::vector<int> &intersectedPolytopes,
+            const Silhouette *aSilhouette);
 
         void treatIntersectedPolytopes(
             const std::vector<SilhouetteEdge> &edges,
             PluckerPolytopeComplex<P> *complex,
             PluckerPolyhedron<P> *myPolyhedron,
-            const std::vector<int> &intersectedPolytopes);
+            const std::vector<int> &intersectedPolytopes,
+            const Silhouette *aSilhouette);
 
         bool mNormalization;
         bool mDetectApertureOnly;
@@ -121,58 +136,117 @@ namespace visilib
         }
     }
 
+    /* Option B blocked predicate.
+
+    Cast the polytope's representative line against *only the faces belonging to
+    this silhouette patch*.  The representative line is a Plucker point inside the
+    polytope; getBackTo3D converts it to a pair of 3D points (one on each source
+    plane).  A hit means the polytope's lines pass through that occluder patch →
+    BLOCKED; a miss means they clear it → OUTSIDE.
+
+    This avoids the sign-based membership test (F2/F3/F4) entirely: orientation of
+    silhouette edges no longer matters. */
+
+    template <class P, class S>
+    bool VisibilitySequentialSolver<P, S>::isBlockedBySilhouette(PluckerPolytope<P> *aPolytope,
+                                                                  PluckerPolyhedron<P> *aPolyhedron,
+                                                                  const Silhouette *aSilhouette)
+    {
+        if (!aPolytope->containsRealLines())
+        {
+            return true;
+        }
+
+        P repLine = MathGeometry::computeRepresentativeLine<P>(aPolytope, aPolyhedron, mTolerance);
+
+        const MathPlane3d &plane0 = VisibilitySolver<P, S>::mQuery->getQueryPolygon(0)->getPlane();
+        const MathPlane3d &plane1 = VisibilitySolver<P, S>::mQuery->getQueryPolygon(1)->getPlane();
+
+        std::pair<MathVector3d, MathVector3d> seg = MathGeometry::getBackTo3D(repLine, plane0, plane1);
+
+        MathVector3d dir = seg.second - seg.first;
+        const double len = dir.getNorm();
+        if (len <= 0.0)
+        {
+            return false;
+        }
+        dir *= (1.0 / len);
+
+        MathVector3f start((float)seg.first.x, (float)seg.first.y, (float)seg.first.z);
+        MathVector3f direction((float)dir.x, (float)dir.y, (float)dir.z);
+        GeometryRay ray(start, direction);
+
+        /* Test the representative line against all faces of this silhouette's
+        occluder geometry, not just the faces in the silhouette patch.  The patch
+        only contains faces that project into the source-to-target shaft; a rep
+        line might exit through an adjacent face that is not in the patch (e.g. the
+        far side of a closed convex occluder).
+
+        getMeshFaces() returns the full face array for this occluder (the same
+        buffer used by the query's silhouette processor), which is the correct
+        geometric reference independent of which occluder set accessor we use. */
+
+        const std::vector<SilhouetteMeshFace> &allFaces = aSilhouette->getMeshFaces();
+
+        for (const SilhouetteMeshFace &face : allFaces)
+        {
+            if (MathGeometry::hitsTriangle<float>(ray, face.getVertex(0), face.getVertex(1), face.getVertex(2)))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     template <class P, class S>
     PolytopePositionType VisibilitySequentialSolver<P, S>::classifyRelativeToSilhouette(PluckerPolytope<P> *aPolytope,
                                                                         PluckerPolyhedron<P> *aPolyhedron,
-                                                                        const std::vector<SilhouetteEdge> &edges)
-    {    
-        bool intersect = false;
-        bool positive = false;
-        bool negative = false;
-        bool boundary = false;
-        
+                                                                        const std::vector<SilhouetteEdge> &edges,
+                                                                        const Silhouette *aSilhouette)
+    {
         if (!aPolytope->containsRealLines())
         {
-            V_TRACE(" polytope  " << aPolytope << " is blocked ");
-            V_TRACE("does not containsreallines: " << aPolytope);
+            V_TRACE("polytope " << aPolytope << " has no real lines: BLOCKED");
             return BLOCKED;
-        }
-        if (edges.size() == 0)
-        {
-             V_TRACE(" polytope  " << aPolytope << " is blocked because no silhouette edge ");
-            return BLOCKED;
-        }
-        V_TRACE("prepare to classify " << aPolytope << " against " << edges.size() <<" edges");
-        for (auto myVisibilitySilhouetteEdge : edges)
-        {            
-            size_t myPolyhedronFace = myVisibilitySilhouetteEdge.mHyperPlaneIndex;
-            V_ASSERT(myPolyhedronFace != 0);
-            P myHyperplane = aPolyhedron->get(myPolyhedronFace);
-            V_TRACE("Hyperplane: " << myVisibilitySilhouetteEdge.mHyperPlaneIndex << ", " << myHyperplane);
-            auto myResult = MathPredicates::getRelativePosition(aPolytope, aPolyhedron, myHyperplane, mTolerance);
-            V_TRACE(" classification of " << aPolytope << " against facet " << myPolyhedronFace << ":" <<myResult);
-            switch (myResult)
-            {
-               case ON_BOUNDARY:       boundary = true;   break;
-               case ON_BOTH_SIDES:     intersect = true;  break;
-               case ON_NEGATIVE_SIDE:  negative = true;   break;
-               case ON_POSITIVE_SIDE:  positive = true;   break;          
-            }
-            
         }
 
-        if (!intersect)
+        /* First pass: check whether the polytope straddles any silhouette hyperplane.
+        A cell that crosses a hyperplane must be split before we can classify it —
+        only a fully one-sided cell has a well-defined representative line. */
+
+        bool straddled = false;
+        V_TRACE("classify " << aPolytope << " against " << edges.size() << " edges");
+        for (auto &myEdge : edges)
         {
-            if (positive && !negative)
+            size_t myPolyhedronFace = myEdge.mHyperPlaneIndex;
+            V_ASSERT(myPolyhedronFace != 0);
+            P myHyperplane = aPolyhedron->get(myPolyhedronFace);
+            auto myResult = MathPredicates::getRelativePosition(aPolytope, aPolyhedron, myHyperplane, mTolerance);
+            V_TRACE("facet " << myPolyhedronFace << ": " << myResult);
+            if (myResult == ON_BOTH_SIDES)
             {
-                return BLOCKED;
+                straddled = true;
+                break;
             }
-            else if (negative && !positive)
-            {
-                return OUTSIDE;
-            }
-         }
-        return INTERSECTS;       
+        }
+
+        if (straddled)
+        {
+            V_TRACE("polytope " << aPolytope << " straddles a hyperplane: INTERSECTS");
+            return INTERSECTS;
+        }
+
+        /* Second pass (Option B): the polytope is on one side of every hyperplane.
+        Cast its representative line against the silhouette faces to decide. */
+
+        if (isBlockedBySilhouette(aPolytope, aPolyhedron, aSilhouette))
+        {
+            V_TRACE("polytope " << aPolytope << " representative line hits occluder: BLOCKED");
+            return BLOCKED;
+        }
+
+        V_TRACE("polytope " << aPolytope << " clears occluder: OUTSIDE");
+        return OUTSIDE;
     }
 
     template <class P, class S>
@@ -273,16 +347,20 @@ namespace visilib
                     {
                         workingArray[i] = size_before;
                         V_ASSERT(complex->getPolytope(workingArray[i]) == myPolytopeLeft);
-                      
                     }
                     else if (myPolytopeRight)
                     {
-                       workingArray[i] = size_before;   
+                        workingArray[i] = size_before;
                         V_ASSERT(complex->getPolytope(workingArray[i]) == myPolytopeRight);
                     }
                     else
                     {
-                        V_ASSERT(0);
+                        /* F6: the split produced two empty children — the parent is
+                        fully consumed by the hyperplane.  Remove its slot from the
+                        working array so the caller never touches it again. */
+                        V_TRACE("both children empty after split: parent consumed, removing from workingArray");
+                        workingArray.erase(workingArray.begin() + i);
+                        i--;
                     }
                 }
                 else
@@ -304,36 +382,33 @@ namespace visilib
         const std::vector<SilhouetteEdge> &edges,
         PluckerPolytopeComplex<P> *complex,
         PluckerPolyhedron<P> *myPolyhedron,
-        std::vector<int> &intersectedPolytopes)
+        std::vector<int> &intersectedPolytopes,
+        const Silhouette *aSilhouette)
     {
+        V_TRACE("Preparing to classify " << complex->getPolytopeCount() << " polytopes");
 
-          V_TRACE("Preparing to classify " << complex->getPolytopeCount() << " polytopes");
-         
         for (int polytopeIndex = 0; polytopeIndex < complex->getPolytopeCount(); polytopeIndex++)
         {
             PluckerPolytope<P> *myPolytopeToClassify = complex->getPolytope(polytopeIndex);
             V_TRACE("classify " << myPolytopeToClassify << " at index " << polytopeIndex);
- 
-            PolytopePositionType position = classifyRelativeToSilhouette(myPolytopeToClassify, myPolyhedron, edges);
+
+            PolytopePositionType position = classifyRelativeToSilhouette(myPolytopeToClassify, myPolyhedron, edges, aSilhouette);
 
             if (position == INTERSECTS)
             {
-                V_TRACE("adding to intersectedPolytopes "  << myPolytopeToClassify << " at " <<  polytopeIndex);
+                V_TRACE("adding to intersectedPolytopes " << myPolytopeToClassify << " at " << polytopeIndex);
                 intersectedPolytopes.push_back(polytopeIndex);
             }
             else if (position == BLOCKED)
             {
-               V_TRACE("classifyRelativeToSilhouette is blocked: delete "  << myPolytopeToClassify << " at " <<  polytopeIndex);
-               
-
+                V_TRACE("classifyRelativeToSilhouette is blocked: delete " << myPolytopeToClassify << " at " << polytopeIndex);
                 delete myPolytopeToClassify;
                 complex->setPolytope(polytopeIndex, NULL);
             }
-            else 
+            else
             {
                 V_ASSERT(position == OUTSIDE);
-                 V_TRACE("classifyRelativeToSilhouette is outside - skip: "  << myPolytopeToClassify << " at " <<  polytopeIndex);
-             
+                V_TRACE("classifyRelativeToSilhouette is outside - skip: " << myPolytopeToClassify << " at " << polytopeIndex);
             }
         }
     }
@@ -343,109 +418,92 @@ namespace visilib
         const std::vector<SilhouetteEdge> &edges,
         PluckerPolytopeComplex<P> *complex,
         PluckerPolyhedron<P> *myPolyhedron,
-        const std::vector<int> &intersectedPolytopes)
+        const std::vector<int> &intersectedPolytopes,
+        const Silhouette *aSilhouette)
     {
         if (intersectedPolytopes.empty())
         {
-               V_TRACE("treatIntersectedPolytopes : no intersectedpolytopes - done ");
-         
-        
+            V_TRACE("treatIntersectedPolytopes: no intersected polytopes - done");
             return;
         }
-        V_TRACE("treatIntersectedPolytopes: prepare to treat " <<  intersectedPolytopes.size() << " intersected polytopes");
-     
+        V_TRACE("treatIntersectedPolytopes: prepare to treat " << intersectedPolytopes.size() << " intersected polytopes");
+
         for (int intersectedIndex = intersectedPolytopes.size() - 1; intersectedIndex >= 0; intersectedIndex--)
         {
-            
             size_t originalPolytopeCount = complex->getPolytopeCount();
-             V_TRACE("originalPolytopeCount stored as  " <<  originalPolytopeCount);
-     
+            V_TRACE("originalPolytopeCount stored as " << originalPolytopeCount);
+
             std::unordered_set<PluckerPolytope<P> *> toDelete;
             std::vector<int> workingArray;
             int originalPolytopeIndex = intersectedPolytopes[intersectedIndex];
-
             workingArray.push_back(originalPolytopeIndex);
 
-
-            V_TRACE("before splitWithAllSilhouetteEdgesm working array is:  " <<  workingArray.size());
+            V_TRACE("before splitWithAllSilhouetteEdges, working array size: " << workingArray.size());
 
             splitWithAllSilhouetteEdges(workingArray, toDelete, edges);
 
             bool atLeastOneNewPolytopeIsBlocked = false;
-     
-            V_TRACE("after splitWithAllSilhouetteEdges, working array is: " <<  workingArray.size());
 
-            for (int i = 0; i < workingArray.size(); i++)
+            V_TRACE("after splitWithAllSilhouetteEdges, working array size: " << workingArray.size());
+
+            for (int i = 0; i < (int)workingArray.size(); i++)
             {
+                if (workingArray[i] < 0)
+                {
+                    continue;
+                }
                 int myPolytopeToBlockIndex = workingArray[i];
                 PluckerPolytope<P> *myPolytopeToBlock = complex->getPolytope(myPolytopeToBlockIndex);
+                if (myPolytopeToBlock == nullptr)
+                {
+                    continue;
+                }
 
-                V_TRACE("computeEdgesIntersectingQuadric for polytope " <<  myPolytopeToBlock << " at index " << myPolytopeToBlockIndex);
-
+                V_TRACE("computeEdgesIntersectingQuadric for polytope " << myPolytopeToBlock << " at index " << myPolytopeToBlockIndex);
                 myPolytopeToBlock->computeEdgesIntersectingQuadric(myPolyhedron, mTolerance);
-               
-                 V_TRACE("classifyRelativeToSilhouette for polytope " <<  myPolytopeToBlock << " at index " << myPolytopeToBlockIndex);
 
-                PolytopePositionType position = classifyRelativeToSilhouette(myPolytopeToBlock, myPolyhedron, edges);
+                V_TRACE("classifyRelativeToSilhouette for polytope " << myPolytopeToBlock << " at index " << myPolytopeToBlockIndex);
+                PolytopePositionType position = classifyRelativeToSilhouette(myPolytopeToBlock, myPolyhedron, edges, aSilhouette);
 
-                //V_ASSERT(position != INTERSECTS);
                 if (position == BLOCKED)
                 {
-
-                 V_TRACE(myPolytopeToBlock <<  " isBlocked");
-
-                    if (toDelete.find(myPolytopeToBlock) != toDelete.end())
-                    {
-                        V_TRACE("Double delete:" << myPolytopeToBlock << " " << myPolytopeToBlockIndex);
-                    }
-                     V_TRACE("toDelete.insert:" << myPolytopeToBlock << " at index " << workingArray[i]);
-                  
+                    V_TRACE(myPolytopeToBlock << " isBlocked");
+                    V_TRACE("toDelete.insert: " << myPolytopeToBlock << " at index " << workingArray[i]);
                     toDelete.insert(myPolytopeToBlock);
                     atLeastOneNewPolytopeIsBlocked = true;
                     complex->setPolytope(myPolytopeToBlockIndex, NULL);
                     workingArray[i] = -1;
                 }
             }
-            
+
             if (atLeastOneNewPolytopeIsBlocked)
             {
-                 V_TRACE("atLeastOneNewPolytopeIsBlocked");
+                V_TRACE("atLeastOneNewPolytopeIsBlocked");
 
-               
-                 V_TRACE("set polytope at index " << originalPolytopeIndex<< " is NULL ");
-
-                 V_TRACE("Start iterating over polytopescount to set the deleted one to NULL ");
-
-                for (int i=0; i < complex->getPolytopeCount(); i++)
+                for (int i = 0; i < (int)complex->getPolytopeCount(); i++)
                 {
-                    PluckerPolytope<P>* myPolytope = complex->getPolytope(i,false);
+                    PluckerPolytope<P> *myPolytope = complex->getPolytope(i, false);
                     if (toDelete.find(myPolytope) != toDelete.end())
                     {
-                        complex->setPolytope(i,NULL);
+                        complex->setPolytope(i, NULL);
                     }
                 }
-               
-                for (auto polytope: toDelete)
-                {
-                    V_TRACE("delete polytopes from delete: " << polytope);
 
+                for (auto polytope : toDelete)
+                {
+                    V_TRACE("delete polytope: " << polytope);
                     delete polytope;
                 }
             }
             else
             {
-                V_TRACE("!atLeastOneNewPolytopeIsBlocked: revert change ");
-
-                V_TRACE(" complex->getPolytopeCount() : " << complex->getPolytopeCount()  << " and  originalPolytopeCount:" << originalPolytopeCount);
+                V_TRACE("!atLeastOneNewPolytopeIsBlocked: revert change");
+                V_TRACE("complex->getPolytopeCount(): " << complex->getPolytopeCount() << " originalPolytopeCount: " << originalPolytopeCount);
 
                 while (complex->getPolytopeCount() != originalPolytopeCount)
                 {
                     V_TRACE("removelast");
-
                     complex->removeLast();
-                     V_TRACE(" complex->getPolytopeCount() : " << complex->getPolytopeCount()  << " and  originalPolytopeCount:" << originalPolytopeCount);
-
-         
                 }
             }
         }
@@ -463,12 +521,40 @@ namespace visilib
         {
             Silhouette *mySilhouette = (*iter);
             auto &edges = mySilhouette->getEdges();
+
+            /* F1 (revised): a silhouette with no edges means the occluder contributes
+            no hyperplanes — there are no visible boundary edges from this patch inside
+            the shaft.  This happens when the entire patch is back-facing or when the
+            convex hull of the two sources is degenerate (point/segment sources).
+
+            In that case we cannot split any polytope, but we can still decide whether
+            each polytope's representative line is blocked by this occluder using the
+            ray test.  Any polytope whose rep line hits the occluder's faces is fully
+            inside the shadow of this patch and must be deleted. */
+
+            if (edges.empty())
+            {
+                V_TRACE("silhouette has no edges: apply ray-test-only classification");
+                for (int polytopeIndex = 0; polytopeIndex < complex->getPolytopeCount(); polytopeIndex++)
+                {
+                    PluckerPolytope<P> *myPolytope = complex->getPolytope(polytopeIndex);
+                    if (myPolytope != nullptr && isBlockedBySilhouette(myPolytope, myPolyhedron, mySilhouette))
+                    {
+                        V_TRACE("polytope " << myPolytope << " blocked by empty-edge silhouette: delete");
+                        delete myPolytope;
+                        complex->setPolytope(polytopeIndex, nullptr);
+                    }
+                }
+                complex->repack();
+                continue;
+            }
+
             createMissingHyperplanes(myPolyhedron, edges);
 
             std::vector<int> intersectedPolytopes;
-            classifyAllPolytopes(edges, complex, myPolyhedron, intersectedPolytopes);
+            classifyAllPolytopes(edges, complex, myPolyhedron, intersectedPolytopes, mySilhouette);
 
-            treatIntersectedPolytopes(edges, complex, myPolyhedron, intersectedPolytopes);
+            treatIntersectedPolytopes(edges, complex, myPolyhedron, intersectedPolytopes, mySilhouette);
 
             complex->repack();
         }
