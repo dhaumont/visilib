@@ -23,6 +23,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include <cstdlib>
 
 #include "../demo/demo_helper.h"
 #include "test_definition.h"
@@ -38,6 +39,11 @@ using namespace visilib;
 using namespace visilibDemo;
 
 /* Differential test for the visibility solvers.
+
+The scene, the source parameters and the expected answers of each configuration
+are loaded from the NN_*.json files of the test case folder, the same files the
+demo's write config feature produces, so the test runs exactly what can be
+replayed and inspected in the interface.
 
 Each configuration is solved twice, with the reference solver
 (EXACT_APERTURE_FINDER) and with the solver under construction
@@ -59,27 +65,6 @@ namespace
     const double cBarycentricMargin = 1e-4;
     const double cBarycentricJitter = 1e-5;
     const double cSurfaceMargin = 1e-7;
-
-    struct CaseDefinition
-    {
-        const char* mName;
-        DemoConfiguration::SCENE_TYPE mScene;
-        size_t mVertexCount0;
-        size_t mVertexCount1;
-        float mScaling;
-        float mGlobalScaling;
-        float mPhi;
-        bool mSilhouetteOptimization;
-        bool mNormalization;
-        bool mDetectApertureOnly;
-
-        /* Expected answers, witness checked by hand. They are what makes the test a
-        regression net rather than a change detector: once the sequential solver is
-        fixed it will be tempted to agree with itself, not with the truth. */
-
-        VisibilityResult mAperture;
-        VisibilityResult mSequential;
-    };
 
     /* One source primitive, ready for uniform sampling. Uses the library's
     GeometryConvexPolygon together with MathGeometry::uniformSampleTriangle for
@@ -409,16 +394,26 @@ namespace
     /* ------------------------------------------------------------------- driver */
 
     VisibilityResult solveWith(GeometryOccluderSet* occluderSet, const std::vector<float>& v0, const std::vector<float>& v1,
-                               const CaseDefinition& testCase, VisibilityExactQueryConfiguration::SolverType solverType)
+                               const DemoConfiguration& configuration, VisibilityExactQueryConfiguration::SolverType solverType)
     {
-        VisibilityExactQueryConfiguration configuration;
-        configuration.detectApertureOnly = testCase.mDetectApertureOnly;
-        configuration.hyperSphereNormalization = testCase.mNormalization;
-        configuration.silhouetteOptimization = testCase.mSilhouetteOptimization;
-        configuration.precision = VisibilityExactQueryConfiguration::DOUBLE;
-        configuration.solverType = solverType;
+        VisibilityExactQueryConfiguration query;
+        query.detectApertureOnly = configuration.detectApertureOnly;
+        query.hyperSphereNormalization = configuration.normalization;
+        query.silhouetteOptimization = configuration.silhouetteOptimisation;
+        query.precision = configuration.precisionType;
+        query.tolerance = configuration.tolerance;
+        query.confidenceValue = configuration.confidenceValue;
+        query.solverType = solverType;
 
-        return visilib::areVisible(occluderSet, &v0[0], v0.size() / 3, &v1[0], v1.size() / 3, configuration, nullptr);
+        /* The demo derives the library threshold from the source size and stores that
+        radius in the case file; redo the same conversion here so the loaded file reproduces
+        the minimumNormalizedApertureSize the case was pinned with. */
+
+        const double side = 2.0 * configuration.scaling;
+        const double aperture = configuration.minimumApertureSize;
+        query.minimumNormalizedApertureSize = (aperture * aperture) / (side * side);
+
+        return visilib::areVisible(occluderSet, &v0[0], v0.size() / 3, &v1[0], v1.size() / 3, query, nullptr);
     }
 
     const char* nameOf(VisibilityResult result)
@@ -432,137 +427,102 @@ namespace
         }
     }
 
-    const char* nameOf(DemoConfiguration::SCENE_TYPE scene)
-    {
-        static const char* names[] =
-        {
-            "SINGLE_TRIANGLE_01", "SINGLE_TRIANGLE_02", "SINGLE_TRIANGLE_03", "SINGLE_TRIANGLE_04",
-            "SLOT_OFF_AXIS_01", "SLOT_OFF_AXIS_02", "SLOT_OFF_AXIS_03", "SLOT_OFF_AXIS_04", "SLOT_OFF_AXIS_05",
-            "SLOT_ON_AXIS_01", "SPHERE_WITH_HOLES", "REGULAR_GRID", "NOISY_SPHERE", "SIMPLE_CUBE",
-            "NOISY_CUBE", "CUBES_AND_GRID", "CUBES_AND_GRID_100"
-        };
-
-        return scene < DemoConfiguration::COUNT ? names[scene] : "SCENE";
-    }
-
-    /* Degenerate sources are exercised on purpose: they get a synthetically built
-    support plane in createInitialPolygons, and they are where the two solvers first
-    part ways. */
-
-    const CaseDefinition cCases[] =
-    {
-        { "polygon to polygon",            DemoConfiguration::SLOT_OFF_AXIS_01,  3, 3, 0.14f, 1.0f, 0.0f, true,  false, false, VISIBLE, VISIBLE },
-        { "point to point",                DemoConfiguration::SLOT_OFF_AXIS_01,  1, 1, 0.14f, 1.0f, 0.0f, true,  false, false, VISIBLE, VISIBLE },
-        { "segment to point",              DemoConfiguration::SLOT_OFF_AXIS_01,  2, 1, 0.14f, 1.0f, 0.0f, true,  false, false, VISIBLE, VISIBLE },
-        { "polygon to point",              DemoConfiguration::SLOT_OFF_AXIS_01,  3, 1, 0.14f, 1.0f, 0.0f, true,  false, false, VISIBLE, VISIBLE },
-        { "segment to segment",            DemoConfiguration::SLOT_OFF_AXIS_01,  2, 2, 0.14f, 1.0f, 0.0f, true,  false, false, VISIBLE, VISIBLE },
-        { "polygon to segment",            DemoConfiguration::SLOT_OFF_AXIS_01,  3, 2, 0.14f, 1.0f, 0.0f, true,  false, false, VISIBLE, VISIBLE },
-        { "normalized polygons",           DemoConfiguration::SLOT_OFF_AXIS_01,  3, 3, 0.14f, 1.0f, 0.0f, true,  true,  false, VISIBLE, VISIBLE },
-        { "no silhouette optimisation",    DemoConfiguration::SLOT_OFF_AXIS_01,  3, 3, 0.14f, 1.0f, 0.0f, false, false, false, VISIBLE, VISIBLE },
-        { "early stop",                    DemoConfiguration::SLOT_OFF_AXIS_01,  3, 3, 0.14f, 1.0f, 0.0f, true,  false, true, VISIBLE, VISIBLE },
-        { "large occluder",                DemoConfiguration::SLOT_OFF_AXIS_01,  3, 3, 0.14f, 5.0f, 0.0f, true,  false, false, VISIBLE, VISIBLE },
-        { "small occluder",                DemoConfiguration::SLOT_OFF_AXIS_01,  3, 3, 0.14f, 0.05f, 0.0f, true, false, false, VISIBLE, VISIBLE },
-        { "thin aperture",                 DemoConfiguration::SLOT_OFF_AXIS_05,  3, 3, 0.14f, 1.0f, 0.0f, true,  false, false, VISIBLE, VISIBLE },
-        { "rotated sources",               DemoConfiguration::SLOT_OFF_AXIS_01,  3, 3, 0.14f, 1.0f, 0.6f, true,  false, false, HIDDEN, HIDDEN },
-        { "slot on axis",                  DemoConfiguration::SLOT_ON_AXIS_01,   3, 3, 0.14f, 1.0f, 0.0f, true,  false, false, VISIBLE, VISIBLE },
-        { "single triangle",               DemoConfiguration::SINGLE_TRIANGLE_01,3, 3, 0.14f, 1.0f, 0.0f, true,  false, false, VISIBLE, VISIBLE },
-        { "subdivided triangle",           DemoConfiguration::SINGLE_TRIANGLE_04,3, 3, 0.14f, 1.0f, 0.0f, true,  false, false, VISIBLE, VISIBLE },
-        { "triangle, point sources",       DemoConfiguration::SINGLE_TRIANGLE_01,1, 1, 0.14f, 1.0f, 0.0f, true,  false, false, VISIBLE, VISIBLE },
-        { "closed cube",                   DemoConfiguration::SIMPLE_CUBE,       3, 3, 0.14f, 1.0f, 0.0f, true,  false, false, HIDDEN, HIDDEN },
-        { "sphere with holes",             DemoConfiguration::SPHERE_WITH_HOLES, 3, 3, 0.14f, 1.0f, 0.0f, true,  false, false, HIDDEN, HIDDEN },
-        { "regular grid",                  DemoConfiguration::REGULAR_GRID,      3, 3, 0.14f, 1.0f, 0.0f, true,  false, false, VISIBLE, VISIBLE },
-
-        /* Degenerate sources: the shaft used to select silhouette edges is the
-        convex hull of the two sources, which collapses when one of them is a point or
-        a segment. This is where the two solvers part ways the most. */
-
-        { "segment to point, on axis",     DemoConfiguration::SLOT_ON_AXIS_01,   2, 1, 0.14f, 1.0f, 0.0f, true,  false, false, VISIBLE, VISIBLE },
-        { "point to point, on axis",       DemoConfiguration::SLOT_ON_AXIS_01,   1, 1, 0.14f, 1.0f, 0.0f, true,  false, false, VISIBLE, VISIBLE },
-        { "point to point, thin aperture", DemoConfiguration::SLOT_OFF_AXIS_05,  1, 1, 0.14f, 1.0f, 0.0f, true,  false, false, VISIBLE, VISIBLE },
-        { "segment to point, thin apert.", DemoConfiguration::SLOT_OFF_AXIS_05,  2, 1, 0.14f, 1.0f, 0.0f, true,  false, false, VISIBLE, HIDDEN },
-        { "segment to point, triangle",    DemoConfiguration::SINGLE_TRIANGLE_01,2, 1, 0.14f, 1.0f, 0.0f, true,  false, false, HIDDEN, VISIBLE },
-        { "segment to point, grid",        DemoConfiguration::REGULAR_GRID,      2, 1, 0.14f, 1.0f, 0.0f, true,  false, false, HIDDEN, VISIBLE },
-        { "segment to point, rotated",     DemoConfiguration::SLOT_OFF_AXIS_01,  2, 1, 0.14f, 1.0f, 0.6f, true,  false, false, HIDDEN, HIDDEN },
-        { "segment to point, large occl.", DemoConfiguration::SLOT_OFF_AXIS_01,  2, 1, 0.14f, 5.0f, 0.0f, true,  false, false, VISIBLE, VISIBLE },
-        { "polygon to point, no silh opt", DemoConfiguration::SLOT_OFF_AXIS_01,  3, 1, 0.14f, 1.0f, 0.0f, false, false, false, VISIBLE, VISIBLE },
-        { "polygon to segment, normalized",DemoConfiguration::SLOT_OFF_AXIS_01,  3, 2, 0.14f, 1.0f, 0.0f, true,  true,  false, VISIBLE, VISIBLE },
-        { "point to point, early stop",    DemoConfiguration::SLOT_OFF_AXIS_01,  1, 1, 0.14f, 1.0f, 0.0f, true,  false, true, VISIBLE, VISIBLE },
-    };
-
     /* Returns false when the case could not be executed at all. Divergences are
     accumulated in failureCount, and the offending configuration is dumped as an
     .obj file for inspection. */
 
-    bool runCase(const CaseDefinition& testCase, size_t caseIndex, std::string& errorMessage, size_t& failureCount)
+    bool runCase(const std::string& path, const std::string& name, size_t caseIndex, std::string& errorMessage, size_t& failureCount)
     {
+        /* The sequential solver draws from rand(), and the demo reseeds in initScene
+        before every query. Do the same here so a case answers the same thing whether it
+        runs alone or after the other tests of the suite. */
+        srand(0);
+
+        DemoConfiguration configuration;
+        configuration.readConfig(path);
+
+        /* readConfig keeps the defaults it was handed when the file is missing or
+        unreadable. Those defaults are an empty source and an out of range scene, so a
+        failed load stops right here rather than crashing in areVisible. */
+
+        if (configuration.vertexCount0 == 0 || configuration.vertexCount1 == 0 || configuration.sceneIndex >= DemoConfiguration::COUNT)
+        {
+            errorMessage = "could not load the geometry of case '" + name + "' from " + path;
+            return false;
+        }
+
+        /* Expected answer, witness checked by hand, pinned inside the case file under
+        "expected": both solvers must reproduce it. It is what makes the test a
+        regression net rather than a change detector: once the sequential solver is
+        fixed it will be tempted to agree with itself, not with the truth. A missing
+        expectation reads back as UNKNOWN, which downgrades the case to a plain
+        cross checking of the two solvers instead of a silent pass. */
+
+        const VisibilityResult expected = DemoConfiguration::resultFromName(configuration.expected);
+
         std::vector<float> v0;
         std::vector<float> v1;
 
-        DemoHelper::generatePolygon(v0, testCase.mVertexCount0, testCase.mScaling, testCase.mPhi - 3.14519f, testCase.mGlobalScaling);
-        DemoHelper::generatePolygon(v1, testCase.mVertexCount1, testCase.mScaling, testCase.mPhi, testCase.mGlobalScaling);
+        DemoHelper::generatePolygon(v0, configuration.vertexCount0, configuration.scaling, configuration.phi - 3.14519f, configuration.globalScaling);
+        DemoHelper::generatePolygon(v1, configuration.vertexCount1, configuration.scaling, configuration.phi, configuration.globalScaling);
 
-        HelperTriangleMeshContainer* meshContainer = DemoHelper::createScene(testCase.mScene, testCase.mGlobalScaling);
+        HelperTriangleMeshContainer* meshContainer = DemoHelper::createScene(configuration.sceneIndex, configuration.globalScaling);
         if (meshContainer == nullptr)
         {
-            errorMessage = std::string("could not create the scene of case '") + testCase.mName + "'";
+            errorMessage = "could not create the scene of case '" + name + "'";
             return false;
         }
 
         GeometryOccluderSet* occluderSet = DemoHelper::createOccluderSet(meshContainer);
 
-        const VisibilityResult aperture = solveWith(occluderSet, v0, v1, testCase, VisibilityExactQueryConfiguration::EXACT_APERTURE_FINDER);
-        const VisibilityResult sequential = solveWith(occluderSet, v0, v1, testCase, VisibilityExactQueryConfiguration::EXACT_SEQUENTIAL_SOLVER);
+        const VisibilityResult aperture = solveWith(occluderSet, v0, v1, configuration, VisibilityExactQueryConfiguration::EXACT_APERTURE_FINDER);
+        const VisibilityResult sequential = solveWith(occluderSet, v0, v1, configuration, VisibilityExactQueryConfiguration::EXACT_SEQUENTIAL_SOLVER);
 
         const WitnessResult witness = probeWithSamples(occluderSet, v0, v1);
 
-        std::cout << "  case '" << testCase.mName << "' scene=" << nameOf(testCase.mScene)
-                  << " sources=" << testCase.mVertexCount0 << "/" << testCase.mVertexCount1
-                  << " scaling=" << testCase.mGlobalScaling
-                  << " phi=" << testCase.mPhi
-                  << " silhouette=" << (testCase.mSilhouetteOptimization ? "on" : "off")
-                  << " normalized=" << (testCase.mNormalization ? "on" : "off")
-                  << " earlystop=" << (testCase.mDetectApertureOnly ? "on" : "off")
-                  << " -> apertureFinder=" << nameOf(aperture)
+        std::cout << "  case '" << name << "' scene=" << DemoConfiguration::sceneName(configuration.sceneIndex)
+                  << " sources=" << configuration.vertexCount0 << "/" << configuration.vertexCount1
+                  << " scaling=" << configuration.globalScaling
+                  << " phi=" << configuration.phi
+                  << " silhouette=" << (configuration.silhouetteOptimisation ? "on" : "off")
+                  << " normalized=" << (configuration.normalization ? "on" : "off")
+                  << " earlystop=" << (configuration.detectApertureOnly ? "on" : "off")
+                  << " -> expected " << nameOf(expected)
+                  << ", apertureFinder=" << nameOf(aperture)
                   << " sequential=" << nameOf(sequential)
                   << " witness: " << witness.description()
                   << std::endl;
 
         bool failed = false;
 
-        if (testCase.mAperture != UNKNOWN && aperture != testCase.mAperture)
+        if (expected != UNKNOWN && aperture != expected)
         {
             std::cout << "    FAIL the reference solver answered " << nameOf(aperture)
-                      << ", expected " << (testCase.mAperture == VISIBLE ? "VISIBLE" : "HIDDEN") << std::endl;
+                      << ", expected " << nameOf(expected) << std::endl;
             failed = true;
         }
 
-        if (testCase.mSequential != UNKNOWN && sequential != testCase.mSequential)
+        if (expected != UNKNOWN && sequential != expected)
         {
             std::cout << "    FAIL the sequential solver answered " << nameOf(sequential)
-                      << ", expected " << (testCase.mSequential == VISIBLE ? "VISIBLE" : "HIDDEN") << std::endl;
+                      << ", expected " << nameOf(expected) << std::endl;
             failed = true;
         }
 
-        /* A case whose two expectations differ is a documented sequential solver bug:
-        report it as a warning so the suite stays meaningful. Once the solver is fixed
-        the pin above starts failing, which is how the bug list gets reviewed. */
-
-        const bool knownDivergence = testCase.mAperture != testCase.mSequential;
+        if (expected == UNKNOWN)
+        {
+            std::cout << "    WARN unpinned case: no expectation in the file, a solvers disagreement would go unarbitrated" << std::endl;
+        }
 
         if (aperture != sequential)
         {
-            if (knownDivergence)
-            {
-                std::cout << "    WARN known divergence: the sequential solver answers "
-                          << nameOf(sequential) << " where the reference solver answers "
-                          << nameOf(aperture) << std::endl;
-            }
-            else
-            {
-                std::cout << "    FAIL the solvers disagree: " << nameOf(aperture)
-                          << " versus " << nameOf(sequential) << std::endl;
-                failed = true;
-            }
+            /* On cases 23 to 25 the two solvers are known to part ways, and the
+            sequential one has yet to be brought in line with the pinned truth. The
+            failures below are that open work, reported as such. */
+
+            std::cout << "    FAIL the solvers disagree: " << nameOf(aperture)
+                      << " versus " << nameOf(sequential) << std::endl;
+            failed = true;
         }
 
         if (aperture == FAILURE || sequential == FAILURE)
@@ -573,15 +533,8 @@ namespace
 
         if (witness.mProvenVisible && sequential == HIDDEN && aperture != HIDDEN)
         {
-            if (knownDivergence)
-            {
-                std::cout << "    WARN the sampling witness backs the reference solver, not the sequential one" << std::endl;
-            }
-            else
-            {
-                std::cout << "    FAIL an unobstructed neighbourhood exists but the sequential solver answered HIDDEN" << std::endl;
-                failed = true;
-            }
+            std::cout << "    FAIL an unobstructed neighbourhood exists but the sequential solver answered HIDDEN" << std::endl;
+            failed = true;
         }
 
         /* The reference solver is contradicted too: either the scene places a source
@@ -605,7 +558,7 @@ namespace
 
             std::stringstream filename;
             filename << "solverConsistency_" << caseIndex << ".obj";
-            DemoHelper::exportQueryToObj(filename.str(), v0, v1, *meshContainer, testCase.mGlobalScaling);
+            DemoHelper::exportQueryToObj(filename.str(), v0, v1, *meshContainer, configuration.globalScaling);
         }
 
         delete occluderSet;
@@ -619,12 +572,28 @@ bool SolverConsistencyTest(std::string& errorMessage)
 {
     std::cout << "SolverConsistencyTest" << std::endl;
 
-    const size_t caseCount = sizeof(cCases) / sizeof(cCases[0]);
+    /* Degenerate sources are exercised on purpose through the NN_*.json case files:
+    the shaft used to select silhouette edges is the convex hull of the two sources,
+    which collapses when one of them is a point or a segment. This is where the two
+    solvers part ways the most. */
+
+    const std::string folder = DemoHelper::testCaseFolder();
+    const std::vector<std::string> files = DemoHelper::listTestCaseFiles(folder);
+
     size_t failureCount = 0;
 
-    for (size_t caseIndex = 0; caseIndex < caseCount; caseIndex++)
+    if (files.empty())
     {
-        if (!runCase(cCases[caseIndex], caseIndex, errorMessage, failureCount))
+        errorMessage = "no case file found in " + folder;
+        std::cout << "    ERROR " << errorMessage << std::endl;
+        return false;
+    }
+
+    for (size_t caseIndex = 0; caseIndex < files.size(); caseIndex++)
+    {
+        const std::string& name = files[caseIndex];
+
+        if (!runCase(folder + "/" + name, name, caseIndex, errorMessage, failureCount))
         {
             std::cout << "    ERROR " << errorMessage << std::endl;
             return false;
@@ -633,7 +602,7 @@ bool SolverConsistencyTest(std::string& errorMessage)
 
     if (failureCount > 0)
     {
-        std::cout << "SolverConsistencyTest FAILED: " << failureCount << " of " << caseCount << " cases diverged" << std::endl;
+        std::cout << "SolverConsistencyTest FAILED: " << failureCount << " of " << files.size() << " cases diverged" << std::endl;
         errorMessage = "solver inconsistency detected";
         return false;
     }

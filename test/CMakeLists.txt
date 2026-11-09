@@ -30,6 +30,8 @@ set(Tests
 
 include_directories( ../visilib/ )
 
+add_definitions(-DTEST_CASES_DIR="${CMAKE_CURRENT_SOURCE_DIR}/test_cases")
+
 add_executable(visilibTest ${Tests})
 
 target_link_libraries(visilibTest ${LIBS})
