@@ -373,7 +373,8 @@ namespace
     const char* const cConfigKeys[] = {
         "vertexCount0", "vertexCount1", "silhouetteOptimisation", "detectApertureOnly",
         "normalization", "scaling", "phi", "eta", "sceneIndex", "globalScaling",
-        "precisionType", "solverType", "tolerance", "minimumApertureSize", "confidenceValue"
+        "precisionType", "solverType", "tolerance", "minimumApertureSize", "confidenceValue",
+        "expected"
 #if EMBREE
         , "embree"
 #endif
@@ -416,6 +417,12 @@ namespace
     void readBool(const nlohmann::json& root, const char* key, bool& value)
     {
         if (root.contains(key) && root[key].is_boolean()) value = root[key].get<bool>();
+        else warnUnexpectedType(root, key);
+    }
+
+    void readString(const nlohmann::json& root, const char* key, std::string& value)
+    {
+        if (root.contains(key) && root[key].is_string()) value = root[key].get<std::string>();
         else warnUnexpectedType(root, key);
     }
 
@@ -587,6 +594,11 @@ std::string DemoConfiguration::jsonString() const
     root["tolerance"] = tolerance;
     root["minimumApertureSize"] = minimumApertureSize;
     root["confidenceValue"] = confidenceValue;
+
+    /* Only written when set: a file exported straight from the interface carries no
+    expectation, and its absence must not show up as an empty key. */
+    if (!expected.empty())
+        root["expected"] = expected;
 #if EMBREE
     root["embree"] = embree;
 #endif
@@ -710,6 +722,7 @@ void DemoConfiguration::readConfig(const std::string& filename)
     readNumber(root, "tolerance", tolerance);
     readNumber(root, "minimumApertureSize", minimumApertureSize);
     readNumber(root, "confidenceValue", confidenceValue);
+    readString(root, "expected", expected);
 #if EMBREE
     readBool(root, "embree", embree);
 #endif
@@ -778,6 +791,27 @@ const std::string DemoConfiguration::toStr(VisibilityExactQueryConfiguration::So
         break;
     }
     return "UNKNOWN";
+}
+
+const char* DemoConfiguration::resultName(visilib::VisibilityResult result)
+{
+    switch (result)
+    {
+    case visilib::VISIBLE: return "VISIBLE";
+    case visilib::HIDDEN:  return "HIDDEN";
+    case visilib::UNKNOWN: return "UNKNOWN";
+    default:               return "FAILURE";
+    }
+}
+
+/* Anything that is not VISIBLE or HIDDEN reads back as UNKNOWN, which the
+consistency test takes for "no pin": a hand edited typo stays honest instead of
+failing with a wrong expectation. */
+visilib::VisibilityResult DemoConfiguration::resultFromName(const std::string& name)
+{
+    if (name == "VISIBLE") return visilib::VISIBLE;
+    if (name == "HIDDEN")  return visilib::HIDDEN;
+    return visilib::UNKNOWN;
 }
 
 void DemoConfiguration::displaySummary()

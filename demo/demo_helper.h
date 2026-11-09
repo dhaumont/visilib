@@ -69,7 +69,13 @@ namespace visilibDemo
         double minimumApertureSize = 0.01;
         double confidenceValue = 0.99;
         VisibilityExactQueryConfiguration::SolverType solverType = VisibilityExactQueryConfiguration::EXACT_APERTURE_FINDER;
-        bool exactArithmetic = false;       
+        bool exactArithmetic = false;
+
+        /* What the solver consistency test expects the solvers to answer, "VISIBLE" or
+        "HIDDEN", empty when the case carries no expectation. Test data living with the
+        configuration it pins: the result of a hand check travels with the case file into
+        the test, instead of a table that has to be kept in sync with the folder. */
+        std::string expected;
 #if EMBREE
         bool embree = false;
 #endif
@@ -95,6 +101,8 @@ namespace visilibDemo
         void displaySummary();
         static const std::string toStr(VisibilityExactQueryConfiguration::PrecisionType p);
         static const std::string toStr(VisibilityExactQueryConfiguration::SolverType p);
+        static const char* resultName(visilib::VisibilityResult result);
+        static visilib::VisibilityResult resultFromName(const std::string& name);
     };
 
     class DemoHelper

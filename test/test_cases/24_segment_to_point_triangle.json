@@ -13,5 +13,6 @@
   "solverType": 1,
   "tolerance": -1,
   "minimumApertureSize": 0.011713240421345882,
-  "confidenceValue": 0.99
+  "confidenceValue": 0.99,
+  "expected": "HIDDEN"
 }
