@@ -42,25 +42,25 @@ using namespace visilibDemo;
 /* Consistency test for the visibility solvers.
 
 The scene, the source parameters and the expected answer of each configuration
-are loaded from the NN_*.json files of the test case folder, the same files the
+are loaded from the json files of the test case folder, the same files the
 demo's write config feature produces, so the test runs exactly what can be
 replayed and inspected in the interface.
 
 Each configuration is solved twice, with the reference solver
 (EXACT_APERTURE_FINDER) and with the solver under construction
-(EXACT_SEQUENTIAL_SOLVER). Each answer is compared to the expectation of the
-case on its own, the solvers are not compared to each other: a pinned case
-fails whichever solver misses the truth. Answers are additionally arbitrated
-by a third witness that shares no code with either solver: uniform sampling
-of segments between the two sources, intersected against the raw occluder
-triangles with a plain double precision segment triangle test.
+(EXACT_SEQUENTIAL_SOLVER), for every combination of global scaling
+{1e-5, 1, 1e5} with the silhouette optimisation and the early stop, on and
+off. The scene scales together with its sources and the two flags only trade
+speed for speed, so none of the three settings may change the answer: the
+expectation of the case is asserted for each combination, and a single
+deviating one fails the case. Each answer is compared to the expectation on
+its own: the solvers are not compared to each other.
 
-The witness can only ever prove visibility, since one unobstructed segment is a
-certificate while the absence of one proves nothing. A candidate is accepted only
-when a whole neighbourhood of it is unobstructed as well, so a sample grazing an
-occluder edge cannot be mistaken for an aperture. Cases where nothing free was
-sampled are therefore reported as inconclusive rather than as a failure, unless a
-solver answered HIDDEN. */
+A sampling witness (probeWithSamples), third to the two solvers and sharing
+no code with them, is kept around but sits idle: it uniformly samples
+segments between the sources, intersected against the raw occluder triangles,
+and can only ever prove visibility, since one unobstructed segment is a
+certificate while the absence of one proves nothing. */
 
 namespace
 {
@@ -69,9 +69,7 @@ namespace
     const double cBarycentricJitter = 1e-5;
     const double cSurfaceMargin = 1e-7;
 
-    /* Column widths of the one line result table: enough for the longest case file
-    name and for FAILURE. */
-    const size_t cNameWidth = 36;
+    /* Column width of the result line: enough for FAILURE and for the variant counts. */
     const size_t cResultWidth = 8;
 
     /* One source primitive, ready for uniform sampling. Uses the library's
@@ -413,17 +411,23 @@ namespace
         }
     }
 
-    /* Returns false when the case could not be executed at all. Divergences are
-    accumulated in failureCount, and the offending configuration is dumped as an
-    .obj file for inspection. */
+    /* Settings swept across each case: the answer is a property of the geometry, and
+    the scene scales with its sources, so none of these may change it. */
+    const float cGlobalScalings[] = { 1e-5f, 1.0f, 1e5f };
+    const bool cSwitches[] = { true, false };
+
+    const size_t cVariantCount = sizeof(cGlobalScalings) / sizeof(cGlobalScalings[0])
+                               * sizeof(cSwitches) / sizeof(cSwitches[0])
+                               * sizeof(cSwitches) / sizeof(cSwitches[0]);
+
+    /* Returns false when the case could not be executed at all. The case announces
+    itself before its sweep and closes with one result line, so a slow or crashing
+    combination is always visible under its header. Failing variants are reported
+    under the header as well, and the offending configuration is dumped as an .obj
+    file for inspection. */
 
     bool runCase(const std::string& path, const std::string& name, size_t caseIndex, std::string& errorMessage, size_t& failureCount)
     {
-        /* The sequential solver draws from rand(), and the demo reseeds in initScene
-        before every query. Do the same here so a case answers the same thing whether it
-        runs alone or after the other tests of the suite. */
-        srand(0);
-
         DemoConfiguration configuration;
         configuration.readConfig(path);
 
@@ -438,81 +442,132 @@ namespace
         }
 
         /* Expected answer, witness checked by hand, pinned inside the case file under
-        "expected": both solvers must reproduce it. It is what makes the test a
-        regression net rather than a change detector: once the sequential solver is
-        fixed it will be tempted to agree with itself, not with the truth. A missing
-        expectation reads back as UNKNOWN, which downgrades the case to a plain
-        cross checking of the two solvers instead of a silent pass. */
+        "expected": both solvers must reproduce it, in every combination of the sweep.
+        It is what makes the test a regression net rather than a change detector: once
+        the sequential solver is fixed it will be tempted to agree with itself, not
+        with the truth. */
 
         const VisibilityResult expected = DemoConfiguration::resultFromName(configuration.expected);
 
-        std::vector<float> v0;
-        std::vector<float> v1;
+        /* The header of the case, printed before any solving: whatever comes next,
+        running or failing, belongs to it. */
+        std::cout << std::endl;
+        std::cout << "  " << name << std::endl;
+        std::cout << "  scene=" << DemoConfiguration::sceneName(configuration.sceneIndex)
+                  << " sources=" << configuration.vertexCount0 << "/" << configuration.vertexCount1
+                  << " scaling=" << configuration.scaling
+                  << " phi=" << configuration.phi
+                  << " normalized=" << (configuration.normalization ? "on" : "off")
+                  << " expected=" << nameOf(expected) << std::endl;
 
-        DemoHelper::generatePolygon(v0, configuration.vertexCount0, configuration.scaling, configuration.phi - 3.14519f, configuration.globalScaling);
-        DemoHelper::generatePolygon(v1, configuration.vertexCount1, configuration.scaling, configuration.phi, configuration.globalScaling);
+        size_t sequentialMatches = 0;
+        size_t apertureMatches = 0;
+        size_t variantFailures = 0;
+        size_t variant = 0;
 
-        HelperTriangleMeshContainer* meshContainer = DemoHelper::createScene(configuration.sceneIndex, configuration.globalScaling);
-        if (meshContainer == nullptr)
+        for (size_t scalingIndex = 0; scalingIndex < sizeof(cGlobalScalings) / sizeof(cGlobalScalings[0]); scalingIndex++)
         {
-            errorMessage = "could not create the scene of case '" + name + "'";
-            return false;
-        }
-
-        GeometryOccluderSet* occluderSet = DemoHelper::createOccluderSet(meshContainer);
-
-        const VisibilityResult aperture = solveWith(occluderSet, v0, v1, configuration, VisibilityExactQueryConfiguration::EXACT_APERTURE_FINDER);
-        const VisibilityResult sequential = solveWith(occluderSet, v0, v1, configuration, VisibilityExactQueryConfiguration::EXACT_SEQUENTIAL_SOLVER);
-
-//        const WitnessResult witness = probeWithSamples(occluderSet, v0, v1);
-
-        /* One row per case: the scene, the sources and the witness stay in the .obj
-        dumps and in the details below, the line only carries what the run must show
-        at a glance. */
-        std::cout << "  " << std::left << std::setw(cNameWidth) << name << " | "
-                  << std::right << std::setw(cResultWidth) << nameOf(expected) << " | "
-                  << std::setw(cResultWidth) << nameOf(sequential) << " | "
-                  << std::setw(cResultWidth) << nameOf(aperture) << std::endl;
-
-        bool failed = false;
-        if (expected == UNKNOWN)
-        {
-            std::cout << "    Reference is UNKNOWN " << std::endl;
-            failed = true;
-        }
-        else if (aperture == FAILURE || sequential == FAILURE)
-        {
-            std::cout << "    FAIL a solver answered FAILURE" << std::endl;
-            failed = true;
-        }
-        else
-        {
-            if (sequential != expected)
+            for (size_t silhIndex = 0; silhIndex < 2; silhIndex++)
             {
-                std::cout << "    FAIL the sequential solver answered " << nameOf(sequential)
-                        << ", expected " << nameOf(expected) << std::endl;
-                failed = true;
+                for (size_t earlyIndex = 0; earlyIndex < 2; earlyIndex++)
+                {
+                    DemoConfiguration settings = configuration;
+                    settings.globalScaling = cGlobalScalings[scalingIndex];
+                    settings.silhouetteOptimisation = cSwitches[silhIndex];
+                    settings.detectApertureOnly = cSwitches[earlyIndex];
+
+                    /* Announced before the (possibly expensive) solves, so the line
+                    standing last in the output names the combination at work. */
+                    std::cout << "  [" << variant << "] gs=" << settings.globalScaling
+                              << " silh=" << (settings.silhouetteOptimisation ? "on" : "off")
+                              << " early=" << (settings.detectApertureOnly ? "on" : "off") << std::endl;
+
+                    /* The global scaling enters both the scene and the sources: rebuild
+                    them for every combination. */
+                    std::vector<float> v0;
+                    std::vector<float> v1;
+
+                    DemoHelper::generatePolygon(v0, settings.vertexCount0, settings.scaling, settings.phi - 3.14519f, settings.globalScaling);
+                    DemoHelper::generatePolygon(v1, settings.vertexCount1, settings.scaling, settings.phi, settings.globalScaling);
+
+                    HelperTriangleMeshContainer* meshContainer = DemoHelper::createScene(settings.sceneIndex, settings.globalScaling);
+                    if (meshContainer == nullptr)
+                    {
+                        errorMessage = "could not create the scene of case '" + name + "'";
+                        return false;
+                    }
+
+                    GeometryOccluderSet* occluderSet = DemoHelper::createOccluderSet(meshContainer);
+
+                    /* The sequential solver draws from rand(), and the demo reseeds in
+                    initScene before every query. Do the same here so a variant answers
+                    the same thing whether it runs alone or after the others. */
+                    srand(0);
+
+                    const VisibilityResult aperture = solveWith(occluderSet, v0, v1, settings, VisibilityExactQueryConfiguration::EXACT_APERTURE_FINDER);
+                    const VisibilityResult sequential = solveWith(occluderSet, v0, v1, settings, VisibilityExactQueryConfiguration::EXACT_SEQUENTIAL_SOLVER);
+
+                    if (sequential == expected) sequentialMatches++;
+                    if (aperture == expected) apertureMatches++;
+
+                    bool variantFailed = false;
+
+                    if (aperture == FAILURE || sequential == FAILURE)
+                    {
+                        std::cout << "    FAIL a solver answered FAILURE: "
+                                  << "sequential " << nameOf(sequential) << ", aperture " << nameOf(aperture) << std::endl;
+                        variantFailed = true;
+                    }
+
+                    if (expected == UNKNOWN)
+                    {
+                        std::cout << "    FAIL the case has no expectation, sequential " << nameOf(sequential)
+                                  << ", aperture " << nameOf(aperture) << std::endl;
+                        variantFailed = true;
+                    }
+                    else
+                    {
+                        if (sequential != expected)
+                        {
+                            std::cout << "    FAIL sequential answered " << nameOf(sequential)
+                                      << ", expected " << nameOf(expected) << std::endl;
+                            variantFailed = true;
+                        }
+
+                        if (aperture != expected)
+                        {
+                            std::cout << "    FAIL aperture answered " << nameOf(aperture)
+                                      << ", expected " << nameOf(expected) << std::endl;
+                            variantFailed = true;
+                        }
+                    }
+
+                    if (variantFailed)
+                    {
+                        variantFailures++;
+
+                        std::stringstream filename;
+                        filename << "solverConsistency_" << caseIndex << "_" << variant << ".obj";
+                        DemoHelper::exportQueryToObj(filename.str(), v0, v1, *meshContainer, settings.globalScaling);
+                    }
+
+                    delete occluderSet;
+                    delete meshContainer;
+
+                    variant++;
+                }
             }
-
-            if (aperture != expected)
-            {
-                std::cout << "    FAIL the aperture solver answered " << nameOf(aperture)
-                        << ", expected " << nameOf(expected) << std::endl;
-                failed = true;
-            }    
-        }
-     
-        if (failed)
-        {
-            failureCount++;
-
-            std::stringstream filename;
-            filename << "solverConsistency_" << caseIndex << ".obj";
-            DemoHelper::exportQueryToObj(filename.str(), v0, v1, *meshContainer, configuration.globalScaling);
         }
 
-        delete occluderSet;
-        delete meshContainer;
+        /* The result line closing the case: the failing combinations have spoken for
+        themselves under the header, the line gives what the sweep must show at a
+        glance. The counts give, per solver, how many variants reproduced the
+        expectation. */
+        std::cout << "  RESULT = " << std::right << std::setw(cResultWidth) << nameOf(expected) << " | "
+                  << std::setw(cResultWidth) << sequentialMatches << "/" << cVariantCount << " | "
+                  << std::setw(cResultWidth) << apertureMatches << "/" << cVariantCount << std::endl;
+
+        failureCount += variantFailures;
 
         return true;
     }
@@ -522,10 +577,8 @@ bool SolverConsistencyTest(std::string& errorMessage)
 {
     std::cout << "SolverConsistencyTest" << std::endl;
 
-    /* Degenerate sources are exercised on purpose through the NN_*.json case files:
-    the shaft used to select silhouette edges is the convex hull of the two sources,
-    which collapses when one of them is a point or a segment. This is where the two
-    solvers part ways the most. */
+    /* The case files are the ones the demo itself writes, so any configuration seen in
+    the interface can be dropped in the folder to join the sweep. */
 
     const std::string folder = DemoHelper::testCaseFolder();
     const std::vector<std::string> files = DemoHelper::listTestCaseFiles(folder);
@@ -538,11 +591,6 @@ bool SolverConsistencyTest(std::string& errorMessage)
         std::cout << "    ERROR " << errorMessage << std::endl;
         return false;
     }
-
-    std::cout << "  " << std::left << std::setw(cNameWidth) << "test case" << " | "
-              << std::right << std::setw(cResultWidth) << "expected" << " | "
-              << std::setw(cResultWidth) << "sequential" << " | "
-              << std::setw(cResultWidth) << "aperture" << std::endl;
 
     for (size_t caseIndex = 0; caseIndex < files.size(); caseIndex++)
     {
@@ -557,7 +605,8 @@ bool SolverConsistencyTest(std::string& errorMessage)
 
     if (failureCount > 0)
     {
-        std::cout << "SolverConsistencyTest FAILED: " << failureCount << " of " << files.size() << " solver subtests answered beside their expectation" << std::endl;
+        std::cout << "SolverConsistencyTest FAILED: " << failureCount << " solver variants answered beside their expectation, over "
+                  << files.size() << " cases and " << cVariantCount << " combinations each" << std::endl;
         errorMessage = "solver inconsistency detected";
         return false;
     }
