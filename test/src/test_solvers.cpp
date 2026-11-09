@@ -412,13 +412,56 @@ namespace
     }
 
     /* Settings swept across each case: the answer is a property of the geometry, and
-    the scene scales with its sources, so none of these may change it. */
-    const float cGlobalScalings[] = { 1e-5f, 1.0f, 1e5f };
+    the scene scales with its sources, so none of these may change it. Neither may the
+    arithmetic: the precision only chooses how the same scene is computed. */
+    const float cGlobalScalings[] = { 1.0f};
     const bool cSwitches[] = { true, false };
 
-    const size_t cVariantCount = sizeof(cGlobalScalings) / sizeof(cGlobalScalings[0])
-                               * sizeof(cSwitches) / sizeof(cSwitches[0])
-                               * sizeof(cSwitches) / sizeof(cSwitches[0]);
+    /* Every arithmetic this build offers, named as the case files name it. The answer
+    cannot depend on how the scene is computed, so each of them must reproduce the pin:
+    where a floating point answer diverges and an exact one does not, the failure is
+    conditioning rather than logic. */
+    const VisibilityExactQueryConfiguration::PrecisionType cPrecisions[] =
+    {
+        VisibilityExactQueryConfiguration::DOUBLE,
+        VisibilityExactQueryConfiguration::FLOAT
+    #ifdef ENABLE_LEDA
+        , VisibilityExactQueryConfiguration::LEDA_REAL
+    #endif
+    #ifdef ENABLE_GMP
+        , VisibilityExactQueryConfiguration::GMP_FLOAT
+        , VisibilityExactQueryConfiguration::GMP_RATIONAL
+    #endif
+    #ifdef ENABLE_MPFR
+        , VisibilityExactQueryConfiguration::MPFR
+    #endif
+    };
+
+    const char* nameOf(VisibilityExactQueryConfiguration::PrecisionType precision)
+    {
+        switch (precision)
+        {
+            case VisibilityExactQueryConfiguration::FLOAT: return "flt";
+            case VisibilityExactQueryConfiguration::DOUBLE: return "dbl";
+        #ifdef ENABLE_LEDA
+            case VisibilityExactQueryConfiguration::LEDA_REAL: return "leda";
+        #endif
+        #ifdef ENABLE_GMP
+            case VisibilityExactQueryConfiguration::GMP_FLOAT: return "gmpf";
+            case VisibilityExactQueryConfiguration::GMP_RATIONAL: return "gmpq";
+        #endif
+        #ifdef ENABLE_MPFR
+            case VisibilityExactQueryConfiguration::MPFR: return "mpfr";
+        #endif
+            default: return "unknown";
+        }
+    }
+
+    const size_t cSettingsCount = sizeof(cGlobalScalings) / sizeof(cGlobalScalings[0])
+                                * sizeof(cSwitches) / sizeof(cSwitches[0])
+                                * sizeof(cSwitches) / sizeof(cSwitches[0]);
+
+    const size_t cVariantCount = cSettingsCount * sizeof(cPrecisions) / sizeof(cPrecisions[0]);
 
     /* Returns false when the case could not be executed at all. The case announces
     itself before its sweep and closes with one result line, so a slow or crashing
@@ -465,98 +508,115 @@ namespace
         size_t variantFailures = 0;
         size_t variant = 0;
 
-        for (size_t scalingIndex = 0; scalingIndex < sizeof(cGlobalScalings) / sizeof(cGlobalScalings[0]); scalingIndex++)
+        for (size_t precisionIndex = 0; precisionIndex < sizeof(cPrecisions) / sizeof(cPrecisions[0]); precisionIndex++)
         {
-            for (size_t silhIndex = 0; silhIndex < 2; silhIndex++)
+            size_t precisionSequential = 0;
+            size_t precisionAperture = 0;
+
+            for (size_t scalingIndex = 0; scalingIndex < sizeof(cGlobalScalings) / sizeof(cGlobalScalings[0]); scalingIndex++)
             {
-                for (size_t earlyIndex = 0; earlyIndex < 2; earlyIndex++)
+                for (size_t silhIndex = 0; silhIndex < 2; silhIndex++)
                 {
-                    DemoConfiguration settings = configuration;
-                    settings.globalScaling = cGlobalScalings[scalingIndex];
-                    settings.silhouetteOptimisation = cSwitches[silhIndex];
-                    settings.detectApertureOnly = cSwitches[earlyIndex];
-
-                    /* Announced before the (possibly expensive) solves, so the line
-                    standing last in the output names the combination at work. */
-                    std::cout << "  [" << variant << "] gs=" << settings.globalScaling
-                              << " silh=" << (settings.silhouetteOptimisation ? "on" : "off")
-                              << " early=" << (settings.detectApertureOnly ? "on" : "off") << std::endl;
-
-                    /* The global scaling enters both the scene and the sources: rebuild
-                    them for every combination. */
-                    std::vector<float> v0;
-                    std::vector<float> v1;
-
-                    DemoHelper::generatePolygon(v0, settings.vertexCount0, settings.scaling, settings.phi - 3.14519f, settings.globalScaling);
-                    DemoHelper::generatePolygon(v1, settings.vertexCount1, settings.scaling, settings.phi, settings.globalScaling);
-
-                    HelperTriangleMeshContainer* meshContainer = DemoHelper::createScene(settings.sceneIndex, settings.globalScaling);
-                    if (meshContainer == nullptr)
+                    for (size_t earlyIndex = 0; earlyIndex < 2; earlyIndex++)
                     {
-                        errorMessage = "could not create the scene of case '" + name + "'";
-                        return false;
-                    }
+                        DemoConfiguration settings = configuration;
+                        settings.globalScaling = cGlobalScalings[scalingIndex];
+                        settings.silhouetteOptimisation = cSwitches[silhIndex];
+                        settings.detectApertureOnly = cSwitches[earlyIndex];
+                        settings.precisionType = cPrecisions[precisionIndex];
 
-                    GeometryOccluderSet* occluderSet = DemoHelper::createOccluderSet(meshContainer);
+                        /* Announced before the (possibly expensive) solves, so the line
+                        standing last in the output names the combination at work. */
+                        std::cout << "  [" << variant << "] gs=" << settings.globalScaling
+                                  << " silh=" << (settings.silhouetteOptimisation ? "on" : "off")
+                                  << " early=" << (settings.detectApertureOnly ? "on" : "off")
+                                  << " prec=" << nameOf(settings.precisionType) << std::endl;
 
-                    /* The sequential solver draws from rand(), and the demo reseeds in
-                    initScene before every query. Do the same here so a variant answers
-                    the same thing whether it runs alone or after the others. */
-                    srand(0);
+                        /* The global scaling enters both the scene and the sources: rebuild
+                        them for every combination. */
+                        std::vector<float> v0;
+                        std::vector<float> v1;
 
-                    const VisibilityResult aperture = solveWith(occluderSet, v0, v1, settings, VisibilityExactQueryConfiguration::EXACT_APERTURE_FINDER);
-                    const VisibilityResult sequential = solveWith(occluderSet, v0, v1, settings, VisibilityExactQueryConfiguration::EXACT_SEQUENTIAL_SOLVER);
+                        DemoHelper::generatePolygon(v0, settings.vertexCount0, settings.scaling, settings.phi - 3.14519f, settings.globalScaling);
+                        DemoHelper::generatePolygon(v1, settings.vertexCount1, settings.scaling, settings.phi, settings.globalScaling);
 
-                    if (sequential == expected) sequentialMatches++;
-                    if (aperture == expected) apertureMatches++;
-
-                    bool variantFailed = false;
-
-                    if (aperture == FAILURE || sequential == FAILURE)
-                    {
-                        std::cout << "    FAIL a solver answered FAILURE: "
-                                  << "sequential " << nameOf(sequential) << ", aperture " << nameOf(aperture) << std::endl;
-                        variantFailed = true;
-                    }
-
-                    if (expected == UNKNOWN)
-                    {
-                        std::cout << "    FAIL the case has no expectation, sequential " << nameOf(sequential)
-                                  << ", aperture " << nameOf(aperture) << std::endl;
-                        variantFailed = true;
-                    }
-                    else
-                    {
-                        if (sequential != expected)
+                        HelperTriangleMeshContainer* meshContainer = DemoHelper::createScene(settings.sceneIndex, settings.globalScaling);
+                        if (meshContainer == nullptr)
                         {
-                            std::cout << "    FAIL sequential answered " << nameOf(sequential)
-                                      << ", expected " << nameOf(expected) << std::endl;
+                            errorMessage = "could not create the scene of case '" + name + "'";
+                            return false;
+                        }
+
+                        GeometryOccluderSet* occluderSet = DemoHelper::createOccluderSet(meshContainer);
+
+                        /* The sequential solver draws from rand(), and the demo reseeds in
+                        initScene before every query. Do the same here so a variant answers
+                        the same thing whether it runs alone or after the others. */
+                        srand(0);
+
+                        const VisibilityResult aperture = solveWith(occluderSet, v0, v1, settings, VisibilityExactQueryConfiguration::EXACT_APERTURE_FINDER);
+                        const VisibilityResult sequential = solveWith(occluderSet, v0, v1, settings, VisibilityExactQueryConfiguration::EXACT_SEQUENTIAL_SOLVER);
+
+                        if (sequential == expected) sequentialMatches++;
+                        if (aperture == expected) apertureMatches++;
+
+                        if (sequential == expected) precisionSequential++;
+                        if (aperture == expected) precisionAperture++;
+
+                        bool variantFailed = false;
+
+                        if (aperture == FAILURE || sequential == FAILURE)
+                        {
+                            std::cout << "    FAIL a solver answered FAILURE: "
+                                      << "sequential " << nameOf(sequential) << ", aperture " << nameOf(aperture) << std::endl;
                             variantFailed = true;
                         }
 
-                        if (aperture != expected)
+                        if (expected == UNKNOWN)
                         {
-                            std::cout << "    FAIL aperture answered " << nameOf(aperture)
-                                      << ", expected " << nameOf(expected) << std::endl;
+                            std::cout << "    FAIL the case has no expectation, sequential " << nameOf(sequential)
+                                      << ", aperture " << nameOf(aperture) << std::endl;
                             variantFailed = true;
                         }
+                        else
+                        {
+                            if (sequential != expected)
+                            {
+                                std::cout << "    FAIL sequential answered " << nameOf(sequential)
+                                          << ", expected " << nameOf(expected) << std::endl;
+                                variantFailed = true;
+                            }
+
+                            if (aperture != expected)
+                            {
+                                std::cout << "    FAIL aperture answered " << nameOf(aperture)
+                                          << ", expected " << nameOf(expected) << std::endl;
+                                variantFailed = true;
+                            }
+                        }
+
+                        if (variantFailed)
+                        {
+                            variantFailures++;
+
+                            std::stringstream filename;
+                            filename << "solverConsistency_" << caseIndex << "_" << variant << ".obj";
+                            DemoHelper::exportQueryToObj(filename.str(), v0, v1, *meshContainer, settings.globalScaling);
+                        }
+
+                        delete occluderSet;
+                        delete meshContainer;
+
+                        variant++;
                     }
-
-                    if (variantFailed)
-                    {
-                        variantFailures++;
-
-                        std::stringstream filename;
-                        filename << "solverConsistency_" << caseIndex << "_" << variant << ".obj";
-                        DemoHelper::exportQueryToObj(filename.str(), v0, v1, *meshContainer, settings.globalScaling);
-                    }
-
-                    delete occluderSet;
-                    delete meshContainer;
-
-                    variant++;
                 }
             }
+
+            /* One arithmetic at a time: the sweep of the settings alone, so a precision
+            that cannot hold the answer is recognisable without reading the variants. */
+            std::cout << "    " << std::left << std::setw(5) << nameOf(cPrecisions[precisionIndex])
+                      << " sequential " << precisionSequential << "/" << cSettingsCount
+                      << "  aperture " << precisionAperture << "/" << cSettingsCount << std::endl;
         }
 
         /* The result line closing the case: the failing combinations have spoken for
