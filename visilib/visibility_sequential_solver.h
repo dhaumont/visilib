@@ -37,6 +37,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include <fstream>
 #include <sstream>
 #include <map>
+#include <set>
 #include <vector>
 
 namespace visilib
@@ -517,10 +518,35 @@ namespace visilib
 
         const std::unordered_set<Silhouette *> &mySilhouettes = VisibilitySolver<P, S>::mQuery->getSilhouettes();
 
+        std::map<size_t, std::vector<Silhouette*>> myOccluders;
+
         for (auto iter = mySilhouettes.begin(); iter != mySilhouettes.end(); iter++)
         {
-            Silhouette *mySilhouette = (*iter);
-            auto &edges = mySilhouette->getEdges();
+            myOccluders[(*iter)->getGeometryId()].push_back(*iter);
+        }
+
+        for (auto occluder = myOccluders.begin(); occluder != myOccluders.end(); occluder++)
+        {
+            std::vector<Silhouette*> &myPatches = occluder->second;
+            Silhouette *mySilhouette = myPatches[0];
+
+            std::vector<SilhouetteEdge> myEdges;
+            std::set<std::pair<SilhouetteMeshFace*, size_t>> mySeen;
+
+            for (size_t patch = 0; patch < myPatches.size(); patch++)
+            {
+                for (SilhouetteEdge &myEdge : myPatches[patch]->getEdges())
+                {
+                    /* An interior edge shared by two faces belongs to both patches, and
+                    splitting twice by the same hyperplane would only add polyhedron faces. */
+                    if (mySeen.insert(std::make_pair(myEdge.mFace, myEdge.mEdgeIndex)).second)
+                    {
+                        myEdges.push_back(myEdge);
+                    }
+                }
+            }
+
+            std::vector<SilhouetteEdge> &edges = myEdges;
 
             /* F1 (revised): a silhouette with no edges means the occluder contributes
             no hyperplanes — there are no visible boundary edges from this patch inside
