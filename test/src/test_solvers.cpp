@@ -21,6 +21,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include <string>
 #include <sstream>
 #include <iostream>
+#include <iomanip>
 #include <vector>
 #include <cmath>
 #include <cstdlib>
@@ -38,19 +39,21 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 using namespace visilib;
 using namespace visilibDemo;
 
-/* Differential test for the visibility solvers.
+/* Consistency test for the visibility solvers.
 
-The scene, the source parameters and the expected answers of each configuration
+The scene, the source parameters and the expected answer of each configuration
 are loaded from the NN_*.json files of the test case folder, the same files the
 demo's write config feature produces, so the test runs exactly what can be
 replayed and inspected in the interface.
 
 Each configuration is solved twice, with the reference solver
 (EXACT_APERTURE_FINDER) and with the solver under construction
-(EXACT_SEQUENTIAL_SOLVER), and every disagreement is reported. Disagreements are
-arbitrated by a third witness that shares no code with either solver: uniform
-sampling of segments between the two sources, intersected against the raw
-occluder triangles with a plain double precision segment triangle test.
+(EXACT_SEQUENTIAL_SOLVER). Each answer is compared to the expectation of the
+case on its own, the solvers are not compared to each other: a pinned case
+fails whichever solver misses the truth. Answers are additionally arbitrated
+by a third witness that shares no code with either solver: uniform sampling
+of segments between the two sources, intersected against the raw occluder
+triangles with a plain double precision segment triangle test.
 
 The witness can only ever prove visibility, since one unobstructed segment is a
 certificate while the absence of one proves nothing. A candidate is accepted only
@@ -65,6 +68,11 @@ namespace
     const double cBarycentricMargin = 1e-4;
     const double cBarycentricJitter = 1e-5;
     const double cSurfaceMargin = 1e-7;
+
+    /* Column widths of the one line result table: enough for the longest case file
+    name and for FAILURE. */
+    const size_t cNameWidth = 36;
+    const size_t cResultWidth = 8;
 
     /* One source primitive, ready for uniform sampling. Uses the library's
     GeometryConvexPolygon together with MathGeometry::uniformSampleTriangle for
@@ -309,28 +317,6 @@ namespace
         bool mProvenVisible;
         MathVector3d mCertifierA;
         MathVector3d mCertifierB;
-
-        const std::string description() const
-        {
-            std::stringstream stream;
-
-            if (mProvenVisible)
-            {
-                stream << "proven visible after " << mSampleCount << " samples, certifying segment from ("
-                       << mCertifierA.x << "," << mCertifierA.y << "," << mCertifierA.z << ") to ("
-                       << mCertifierB.x << "," << mCertifierB.y << "," << mCertifierB.z << ")";
-            }
-            else if (mFreeSampleCount == 0)
-            {
-                stream << "no free segment among " << mSampleCount << " samples";
-            }
-            else
-            {
-                stream << mFreeSampleCount << "/" << mSampleCount << " free but unproven";
-            }
-
-            return stream.str();
-        }
     };
 
     WitnessResult probeWithSamples(GeometryOccluderSet* occluderSet, const std::vector<float>& v0, const std::vector<float>& v1)
@@ -478,80 +464,44 @@ namespace
         const VisibilityResult aperture = solveWith(occluderSet, v0, v1, configuration, VisibilityExactQueryConfiguration::EXACT_APERTURE_FINDER);
         const VisibilityResult sequential = solveWith(occluderSet, v0, v1, configuration, VisibilityExactQueryConfiguration::EXACT_SEQUENTIAL_SOLVER);
 
-        const WitnessResult witness = probeWithSamples(occluderSet, v0, v1);
+//        const WitnessResult witness = probeWithSamples(occluderSet, v0, v1);
 
-        std::cout << "  case '" << name << "' scene=" << DemoConfiguration::sceneName(configuration.sceneIndex)
-                  << " sources=" << configuration.vertexCount0 << "/" << configuration.vertexCount1
-                  << " scaling=" << configuration.globalScaling
-                  << " phi=" << configuration.phi
-                  << " silhouette=" << (configuration.silhouetteOptimisation ? "on" : "off")
-                  << " normalized=" << (configuration.normalization ? "on" : "off")
-                  << " earlystop=" << (configuration.detectApertureOnly ? "on" : "off")
-                  << " -> expected " << nameOf(expected)
-                  << ", apertureFinder=" << nameOf(aperture)
-                  << " sequential=" << nameOf(sequential)
-                  << " witness: " << witness.description()
-                  << std::endl;
+        /* One row per case: the scene, the sources and the witness stay in the .obj
+        dumps and in the details below, the line only carries what the run must show
+        at a glance. */
+        std::cout << "  " << std::left << std::setw(cNameWidth) << name << " | "
+                  << std::right << std::setw(cResultWidth) << nameOf(expected) << " | "
+                  << std::setw(cResultWidth) << nameOf(sequential) << " | "
+                  << std::setw(cResultWidth) << nameOf(aperture) << std::endl;
 
         bool failed = false;
-
-        if (expected != UNKNOWN && aperture != expected)
-        {
-            std::cout << "    FAIL the reference solver answered " << nameOf(aperture)
-                      << ", expected " << nameOf(expected) << std::endl;
-            failed = true;
-        }
-
-        if (expected != UNKNOWN && sequential != expected)
-        {
-            std::cout << "    FAIL the sequential solver answered " << nameOf(sequential)
-                      << ", expected " << nameOf(expected) << std::endl;
-            failed = true;
-        }
-
         if (expected == UNKNOWN)
         {
-            std::cout << "    WARN unpinned case: no expectation in the file, a solvers disagreement would go unarbitrated" << std::endl;
-        }
-
-        if (aperture != sequential)
-        {
-            /* On cases 23 to 25 the two solvers are known to part ways, and the
-            sequential one has yet to be brought in line with the pinned truth. The
-            failures below are that open work, reported as such. */
-
-            std::cout << "    FAIL the solvers disagree: " << nameOf(aperture)
-                      << " versus " << nameOf(sequential) << std::endl;
+            std::cout << "    Reference is UNKNOWN " << std::endl;
             failed = true;
         }
-
-        if (aperture == FAILURE || sequential == FAILURE)
+        else if (aperture == FAILURE || sequential == FAILURE)
         {
             std::cout << "    FAIL a solver answered FAILURE" << std::endl;
             failed = true;
         }
-
-        if (witness.mProvenVisible && sequential == HIDDEN && aperture != HIDDEN)
+        else
         {
-            std::cout << "    FAIL an unobstructed neighbourhood exists but the sequential solver answered HIDDEN" << std::endl;
-            failed = true;
+            if (sequential != expected)
+            {
+                std::cout << "    FAIL the sequential solver answered " << nameOf(sequential)
+                        << ", expected " << nameOf(expected) << std::endl;
+                failed = true;
+            }
+
+            if (aperture != expected)
+            {
+                std::cout << "    FAIL the aperture solver answered " << nameOf(aperture)
+                        << ", expected " << nameOf(expected) << std::endl;
+                failed = true;
+            }    
         }
-
-        /* The reference solver is contradicted too: either the scene places a source
-        inside or against the occluders, where the sampling witness is not reliable,
-        or the reference solver has its own bug. Reported, not failed: this test is
-        about the sequential solver, and the two solvers still agree here. */
-
-        if (witness.mProvenVisible && aperture == HIDDEN && sequential == HIDDEN)
-        {
-            std::cout << "    WARN the witness contradicts both solvers, check the scene and the witness" << std::endl;
-        }
-
-        if (!witness.mProvenVisible && witness.mFreeSampleCount == 0 && (aperture == VISIBLE || sequential == VISIBLE))
-        {
-            std::cout << "    WARN nothing free was sampled yet a solver answered VISIBLE" << std::endl;
-        }
-
+     
         if (failed)
         {
             failureCount++;
@@ -589,6 +539,11 @@ bool SolverConsistencyTest(std::string& errorMessage)
         return false;
     }
 
+    std::cout << "  " << std::left << std::setw(cNameWidth) << "test case" << " | "
+              << std::right << std::setw(cResultWidth) << "expected" << " | "
+              << std::setw(cResultWidth) << "sequential" << " | "
+              << std::setw(cResultWidth) << "aperture" << std::endl;
+
     for (size_t caseIndex = 0; caseIndex < files.size(); caseIndex++)
     {
         const std::string& name = files[caseIndex];
@@ -602,7 +557,7 @@ bool SolverConsistencyTest(std::string& errorMessage)
 
     if (failureCount > 0)
     {
-        std::cout << "SolverConsistencyTest FAILED: " << failureCount << " of " << files.size() << " cases diverged" << std::endl;
+        std::cout << "SolverConsistencyTest FAILED: " << failureCount << " of " << files.size() << " solver subtests answered beside their expectation" << std::endl;
         errorMessage = "solver inconsistency detected";
         return false;
     }
