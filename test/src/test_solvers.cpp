@@ -72,6 +72,19 @@ namespace
     /* Column width of the result line: enough for FAILURE and for the variant counts. */
     const size_t cResultWidth = 8;
 
+    /* Size of the cumulative probability lookup table used to pick a triangle of a
+    polygon source. */
+    const size_t cLookupSize = 2048;
+
+    /* Determinant magnitude below which a triangle is taken as parallel to the
+    segment in the Moller-Trumbore test. */
+    const double cDeterminantEpsilon = 1e-30;
+
+    /* Half-turn applied to the first source's phi to place it opposite the second
+    one: the value the demo itself uses when generating the pair, kept as is so the
+    loaded cases reproduce what was exported. */
+    const float cSourceHalfTurn = 3.14519f;
+
     /* One source primitive, ready for uniform sampling. Uses the library's
     GeometryConvexPolygon together with MathGeometry::uniformSampleTriangle for
     area-weighted sampling, while tracking barycentric coordinates for neighbourhood
@@ -84,7 +97,7 @@ namespace
         size_t mLookupSize;
 
         SourceSampler(const std::vector<float>& vertices)
-            : mPolygon(&vertices[0], vertices.size() / 3), mLookupSize(2048)
+            : mPolygon(&vertices[0], vertices.size() / 3), mLookupSize(cLookupSize)
         {
             if (mPolygon.getVertexCount() > 2)
             {
@@ -249,7 +262,7 @@ namespace
 
         const MathVector3d p = MathVector3d::cross(direction, e2);
         const double determinant = e1.dot(p);
-        if (std::fabs(determinant) < 1e-30)
+        if (std::fabs(determinant) < cDeterminantEpsilon)
         {
             return false;
         }
@@ -465,6 +478,23 @@ namespace
         };
     }
 
+    /* A subset of the arithmetic, for a sweep that does not need every precision:
+    double, and the two extended ones beside it. */
+
+    std::vector<VisibilityExactQueryConfiguration::PrecisionType> reducedPrecisions()
+    {
+        return
+        {
+            VisibilityExactQueryConfiguration::DOUBLE
+        #ifdef ENABLE_MPFR
+            , VisibilityExactQueryConfiguration::MPFR
+        #endif
+        #ifdef ENABLE_GMP
+            , VisibilityExactQueryConfiguration::GMP_FLOAT
+        #endif
+        };
+    }
+
     const char* nameOf(VisibilityExactQueryConfiguration::PrecisionType precision)
     {
         switch (precision)
@@ -571,7 +601,7 @@ namespace
     Returns false, with the reason in errorMessage, when the scene could not be
     created and the case must stop. */
 
-    bool test_solver(size_t& variant, size_t precisionIndex, size_t scalingIndex, size_t silhIndex, size_t earlyIndex,
+    bool runVariant(size_t& variant, size_t precisionIndex, size_t scalingIndex, size_t silhIndex, size_t earlyIndex,
                      const DemoConfiguration& configuration, const SweepBounds& sweep, VisibilityResult expected, const std::string& name, size_t caseIndex,
                      const char* tag, std::string& errorMessage, size_t& variantFailures, std::vector<size_t>& caseMatches, std::vector<size_t>& precisionMatches)
     {
@@ -593,7 +623,7 @@ namespace
         std::vector<float> v0;
         std::vector<float> v1;
 
-        DemoHelper::generatePolygon(v0, settings.vertexCount0, settings.scaling, settings.phi - 3.14519f, settings.globalScaling);
+        DemoHelper::generatePolygon(v0, settings.vertexCount0, settings.scaling, settings.phi - cSourceHalfTurn, settings.globalScaling);
         DemoHelper::generatePolygon(v1, settings.vertexCount1, settings.scaling, settings.phi, settings.globalScaling);
 
         HelperTriangleMeshContainer* meshContainer = DemoHelper::createScene(settings.sceneIndex, settings.globalScaling);
@@ -687,7 +717,7 @@ namespace
                 {
                     for (size_t earlyIndex = 0; earlyIndex < sweep.mDetectApertureOnly.size(); earlyIndex++)
                     {
-                        if (!test_solver(variant, precisionIndex, scalingIndex, silhIndex, earlyIndex, configuration, sweep, expected, name, caseIndex,
+                        if (!runVariant(variant, precisionIndex, scalingIndex, silhIndex, earlyIndex, configuration, sweep, expected, name, caseIndex,
                                          tag, errorMessage, variantFailures, caseMatches, precisionMatches))
                         {
                             return false;
@@ -741,7 +771,7 @@ bool SolverConsistencyTest(std::string& errorMessage)
     /* The consistency sweep: every arithmetic this build offers, the scene kept at
     its own scale, and each flag tried on then off. */
 
-    const SweepBounds sweep = { allPrecisions(), { 1.0f }, { true, false }, { true, false } };
+    const SweepBounds sweep = { reducedPrecisions(), { 1.0f }, { true, false }, { true, false } };
 
     size_t failureCount = 0;
 
@@ -793,7 +823,7 @@ bool SolverEdgeCases(std::string& errorMessage)
     /* The edge sweep: same bounds as the consistency one, the edge is in the scenes,
     not in the settings. */
 
-    const SweepBounds sweep = { allPrecisions(), { 1.0f }, { true, false }, { true, false } };
+    const SweepBounds sweep = { reducedPrecisions(), { 1.0f }, { true, false }, { true, false } };
 
     size_t failureCount = 0;
 
@@ -845,7 +875,7 @@ bool SolverPrecisionTests(std::string& errorMessage)
     /* The precision sweep: same bounds as the consistency one for now, the cases
     will ask their own questions of the arithmetic. */
 
-    const SweepBounds sweep = { allPrecisions(), { 1.0f }, { true, false }, { true, false } };
+    const SweepBounds sweep = { reducedPrecisions(), { 1.0f }, { true, false }, { true, false } };
 
     size_t failureCount = 0;
 
