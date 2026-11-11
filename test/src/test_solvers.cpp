@@ -411,31 +411,59 @@ namespace
         }
     }
 
-    /* Settings swept across each case: the answer is a property of the geometry, and
-    the scene scales with its sources, so none of these may change it. Neither may the
-    arithmetic: the precision only chooses how the same scene is computed. */
-    const float cGlobalScalings[] = { 1.0f};
-    const bool cSwitches[] = { true, false };
+    /* The bounds of the four loops runCase sweeps every case through: the arithmetic,
+    the global scaling of the scene, the silhouette optimisation and the early stop.
+    Each suite builds its own, so it can widen or narrow its sweep without touching
+    the others. The switches are held as values, not counts: the suite sets both the
+    order of the sweep and what on and off mean. The answer is a property of the
+    geometry, and the scene scales with its sources, so none of these may change
+    it. Neither may the arithmetic: the precision only chooses how the same scene is
+    computed. */
+
+    struct SweepBounds
+    {
+        std::vector<VisibilityExactQueryConfiguration::PrecisionType> mPrecisions;
+        std::vector<float> mGlobalScalings;
+        std::vector<bool> mSilhouetteOptimisations;
+        std::vector<bool> mDetectApertureOnly;
+
+        /* The number of scaling/optimisation/early-stop combinations, one arithmetic
+        at a time, and of all combinations including the arithmetic. */
+
+        size_t settingsCount() const
+        {
+            return mGlobalScalings.size() * mSilhouetteOptimisations.size() * mDetectApertureOnly.size();
+        }
+
+        size_t variantCount() const
+        {
+            return settingsCount() * mPrecisions.size();
+        }
+    };
 
     /* Every arithmetic this build offers, named as the case files name it. The answer
     cannot depend on how the scene is computed, so each of them must reproduce the pin:
     where a floating point answer diverges and an exact one does not, the failure is
     conditioning rather than logic. */
-    const VisibilityExactQueryConfiguration::PrecisionType cPrecisions[] =
+
+    std::vector<VisibilityExactQueryConfiguration::PrecisionType> allPrecisions()
     {
-        VisibilityExactQueryConfiguration::DOUBLE,
-        VisibilityExactQueryConfiguration::FLOAT
-    #ifdef ENABLE_LEDA
-        , VisibilityExactQueryConfiguration::LEDA_REAL
-    #endif
-    #ifdef ENABLE_GMP
-        , VisibilityExactQueryConfiguration::GMP_FLOAT
-        , VisibilityExactQueryConfiguration::GMP_RATIONAL
-    #endif
-    #ifdef ENABLE_MPFR
-        , VisibilityExactQueryConfiguration::MPFR
-    #endif
-    };
+        return
+        {
+            VisibilityExactQueryConfiguration::DOUBLE,
+            VisibilityExactQueryConfiguration::FLOAT
+        #ifdef ENABLE_LEDA
+            , VisibilityExactQueryConfiguration::LEDA_REAL
+        #endif
+        #ifdef ENABLE_GMP
+            , VisibilityExactQueryConfiguration::GMP_FLOAT
+            , VisibilityExactQueryConfiguration::GMP_RATIONAL
+        #endif
+        #ifdef ENABLE_MPFR
+            , VisibilityExactQueryConfiguration::MPFR
+        #endif
+        };
+    }
 
     const char* nameOf(VisibilityExactQueryConfiguration::PrecisionType precision)
     {
@@ -457,19 +485,162 @@ namespace
         }
     }
 
-    const size_t cSettingsCount = sizeof(cGlobalScalings) / sizeof(cGlobalScalings[0])
-                                * sizeof(cSwitches) / sizeof(cSwitches[0])
-                                * sizeof(cSwitches) / sizeof(cSwitches[0]);
+    /* The two solvers every variant runs on: the reference (EXACT_APERTURE_FINDER)
+    first, the solver under construction (EXACT_SEQUENTIAL_SOLVER) second. */
+    const std::vector<VisibilityExactQueryConfiguration::SolverType> cSolvers =
+    {
+        VisibilityExactQueryConfiguration::EXACT_APERTURE_FINDER,
+        VisibilityExactQueryConfiguration::EXACT_SEQUENTIAL_SOLVER
+    };
 
-    const size_t cVariantCount = cSettingsCount * sizeof(cPrecisions) / sizeof(cPrecisions[0]);
+    /* One label per solver, as the FAIL and the summary lines name them. */
+    const char* cSolverNames[] = { "aperture", "sequential" };
+
+    /* Prints 'label answer' for every solver, in the order of the cSolvers table. */
+
+    void listAnswers(const std::vector<VisibilityResult>& answers, const char* lead)
+    {
+        std::cout << lead;
+
+        for (size_t solverIndex = 0; solverIndex < cSolvers.size(); solverIndex++)
+        {
+            std::cout << (solverIndex == 0 ? " " : ", ") << cSolverNames[solverIndex] << " " << nameOf(answers[solverIndex]);
+        }
+
+        std::cout << std::endl;
+    }
+
+    /* Validates the answers of a variant against the expectation of the case: each
+    solver's match is counted, per case and per precision, and a FAILURE or an answer
+    beside the expectation is reported under the header. The answers are those of the
+    cSolvers table, in order. Returns whether the variant failed, so the caller can
+    count it and dump its configuration. */
+
+    bool validate(const std::vector<VisibilityResult>& answers, VisibilityResult expected,
+                  std::vector<size_t>& caseMatches, std::vector<size_t>& precisionMatches)
+    {
+        bool anyFailure = false;
+
+        for (size_t solverIndex = 0; solverIndex < cSolvers.size(); solverIndex++)
+        {
+            if (answers[solverIndex] == expected)
+            {
+                caseMatches[solverIndex]++;
+                precisionMatches[solverIndex]++;
+            }
+
+            if (answers[solverIndex] == FAILURE)
+            {
+                anyFailure = true;
+            }
+        }
+
+        bool variantFailed = false;
+
+        if (anyFailure)
+        {
+            listAnswers(answers, "    FAIL a solver answered FAILURE:");
+            variantFailed = true;
+        }
+
+        if (expected == UNKNOWN)
+        {
+            listAnswers(answers, "    FAIL the case has no expectation,");
+            variantFailed = true;
+        }
+        else
+        {
+            for (size_t solverIndex = 0; solverIndex < cSolvers.size(); solverIndex++)
+            {
+                if (answers[solverIndex] != expected)
+                {
+                    std::cout << "    FAIL " << cSolverNames[solverIndex] << " answered " << nameOf(answers[solverIndex])
+                              << ", expected " << nameOf(expected) << std::endl;
+                    variantFailed = true;
+                }
+            }
+        }
+
+        return variantFailed;
+    }
+
+    /* Runs one variant of the sweep of a case: builds the settings chosen by the
+    indices, rebuilds the scene and the sources for them, solves the query with both
+    solvers and compares each answer to the expectation of the case. The variant
+    counter and the per-case and per-precision match counters are updated in place.
+    Returns false, with the reason in errorMessage, when the scene could not be
+    created and the case must stop. */
+
+    bool test_solver(size_t& variant, size_t precisionIndex, size_t scalingIndex, size_t silhIndex, size_t earlyIndex,
+                     const DemoConfiguration& configuration, const SweepBounds& sweep, VisibilityResult expected, const std::string& name, size_t caseIndex,
+                     const char* tag, std::string& errorMessage, size_t& variantFailures, std::vector<size_t>& caseMatches, std::vector<size_t>& precisionMatches)
+    {
+        DemoConfiguration settings = configuration;
+        settings.globalScaling = sweep.mGlobalScalings[scalingIndex];
+        settings.silhouetteOptimisation = sweep.mSilhouetteOptimisations[silhIndex];
+        settings.detectApertureOnly = sweep.mDetectApertureOnly[earlyIndex];
+        settings.precisionType = sweep.mPrecisions[precisionIndex];
+
+        /* Announced before the (possibly expensive) solves, so the line
+        standing last in the output names the combination at work. */
+        std::cout << "  [" << variant << "] gs=" << settings.globalScaling
+                  << " silh=" << (settings.silhouetteOptimisation ? "on" : "off")
+                  << " early=" << (settings.detectApertureOnly ? "on" : "off")
+                  << " prec=" << nameOf(settings.precisionType) << std::endl;
+
+        /* The global scaling enters both the scene and the sources: rebuild
+        them for every combination. */
+        std::vector<float> v0;
+        std::vector<float> v1;
+
+        DemoHelper::generatePolygon(v0, settings.vertexCount0, settings.scaling, settings.phi - 3.14519f, settings.globalScaling);
+        DemoHelper::generatePolygon(v1, settings.vertexCount1, settings.scaling, settings.phi, settings.globalScaling);
+
+        HelperTriangleMeshContainer* meshContainer = DemoHelper::createScene(settings.sceneIndex, settings.globalScaling);
+        if (meshContainer == nullptr)
+        {
+            errorMessage = "could not create the scene of case '" + name + "'";
+            return false;
+        }
+
+        GeometryOccluderSet* occluderSet = DemoHelper::createOccluderSet(meshContainer);
+
+        /* The sequential solver draws from rand(), and the demo reseeds in
+        initScene before every query. Do the same here so a variant answers
+        the same thing whether it runs alone or after the others. */
+        srand(0);
+
+        /* Both solvers answer the same query: the reference first, the solver
+        under construction second. The answers are then reported side by side. */
+        std::vector<VisibilityResult> answers(cSolvers.size());
+        for (size_t solverIndex = 0; solverIndex < cSolvers.size(); solverIndex++)
+        {
+            answers[solverIndex] = solveWith(occluderSet, v0, v1, settings, cSolvers[solverIndex]);
+        }
+
+        if (validate(answers, expected, caseMatches, precisionMatches))
+        {
+            variantFailures++;
+
+            std::stringstream filename;
+            filename << tag << "_" << caseIndex << "_" << variant << ".obj";
+            DemoHelper::exportQueryToObj(filename.str(), v0, v1, *meshContainer, settings.globalScaling);
+        }
+
+        delete occluderSet;
+        delete meshContainer;
+
+        variant++;
+        return true;
+    }
 
     /* Returns false when the case could not be executed at all. The case announces
     itself before its sweep and closes with one result line, so a slow or crashing
     combination is always visible under its header. Failing variants are reported
     under the header as well, and the offending configuration is dumped as an .obj
-    file for inspection. */
+    file named after the suite tag, for inspection. */
 
-    bool runCase(const std::string& path, const std::string& name, size_t caseIndex, std::string& errorMessage, size_t& failureCount)
+    bool runCase(const std::string& path, const std::string& name, size_t caseIndex, const SweepBounds& sweep, const char* tag, std::string& errorMessage, size_t& failureCount)
     {
         DemoConfiguration configuration;
         configuration.readConfig(path);
@@ -503,129 +674,53 @@ namespace
                   << " normalized=" << (configuration.normalization ? "on" : "off")
                   << " expected=" << nameOf(expected) << std::endl;
 
-        size_t sequentialMatches = 0;
-        size_t apertureMatches = 0;
+        std::vector<size_t> caseMatches(cSolvers.size(), 0);
+        std::vector<size_t> precisionMatches(cSolvers.size(), 0);
         size_t variantFailures = 0;
         size_t variant = 0;
 
-        for (size_t precisionIndex = 0; precisionIndex < sizeof(cPrecisions) / sizeof(cPrecisions[0]); precisionIndex++)
+        for (size_t precisionIndex = 0; precisionIndex < sweep.mPrecisions.size(); precisionIndex++)
         {
-            size_t precisionSequential = 0;
-            size_t precisionAperture = 0;
-
-            for (size_t scalingIndex = 0; scalingIndex < sizeof(cGlobalScalings) / sizeof(cGlobalScalings[0]); scalingIndex++)
+            for (size_t scalingIndex = 0; scalingIndex < sweep.mGlobalScalings.size(); scalingIndex++)
             {
-                for (size_t silhIndex = 0; silhIndex < 2; silhIndex++)
+                for (size_t silhIndex = 0; silhIndex < sweep.mSilhouetteOptimisations.size(); silhIndex++)
                 {
-                    for (size_t earlyIndex = 0; earlyIndex < 2; earlyIndex++)
+                    for (size_t earlyIndex = 0; earlyIndex < sweep.mDetectApertureOnly.size(); earlyIndex++)
                     {
-                        DemoConfiguration settings = configuration;
-                        settings.globalScaling = cGlobalScalings[scalingIndex];
-                        settings.silhouetteOptimisation = cSwitches[silhIndex];
-                        settings.detectApertureOnly = cSwitches[earlyIndex];
-                        settings.precisionType = cPrecisions[precisionIndex];
-
-                        /* Announced before the (possibly expensive) solves, so the line
-                        standing last in the output names the combination at work. */
-                        std::cout << "  [" << variant << "] gs=" << settings.globalScaling
-                                  << " silh=" << (settings.silhouetteOptimisation ? "on" : "off")
-                                  << " early=" << (settings.detectApertureOnly ? "on" : "off")
-                                  << " prec=" << nameOf(settings.precisionType) << std::endl;
-
-                        /* The global scaling enters both the scene and the sources: rebuild
-                        them for every combination. */
-                        std::vector<float> v0;
-                        std::vector<float> v1;
-
-                        DemoHelper::generatePolygon(v0, settings.vertexCount0, settings.scaling, settings.phi - 3.14519f, settings.globalScaling);
-                        DemoHelper::generatePolygon(v1, settings.vertexCount1, settings.scaling, settings.phi, settings.globalScaling);
-
-                        HelperTriangleMeshContainer* meshContainer = DemoHelper::createScene(settings.sceneIndex, settings.globalScaling);
-                        if (meshContainer == nullptr)
+                        if (!test_solver(variant, precisionIndex, scalingIndex, silhIndex, earlyIndex, configuration, sweep, expected, name, caseIndex,
+                                         tag, errorMessage, variantFailures, caseMatches, precisionMatches))
                         {
-                            errorMessage = "could not create the scene of case '" + name + "'";
                             return false;
                         }
-
-                        GeometryOccluderSet* occluderSet = DemoHelper::createOccluderSet(meshContainer);
-
-                        /* The sequential solver draws from rand(), and the demo reseeds in
-                        initScene before every query. Do the same here so a variant answers
-                        the same thing whether it runs alone or after the others. */
-                        srand(0);
-
-                        const VisibilityResult aperture = solveWith(occluderSet, v0, v1, settings, VisibilityExactQueryConfiguration::EXACT_APERTURE_FINDER);
-                        const VisibilityResult sequential = solveWith(occluderSet, v0, v1, settings, VisibilityExactQueryConfiguration::EXACT_SEQUENTIAL_SOLVER);
-
-                        if (sequential == expected) sequentialMatches++;
-                        if (aperture == expected) apertureMatches++;
-
-                        if (sequential == expected) precisionSequential++;
-                        if (aperture == expected) precisionAperture++;
-
-                        bool variantFailed = false;
-
-                        if (aperture == FAILURE || sequential == FAILURE)
-                        {
-                            std::cout << "    FAIL a solver answered FAILURE: "
-                                      << "sequential " << nameOf(sequential) << ", aperture " << nameOf(aperture) << std::endl;
-                            variantFailed = true;
-                        }
-
-                        if (expected == UNKNOWN)
-                        {
-                            std::cout << "    FAIL the case has no expectation, sequential " << nameOf(sequential)
-                                      << ", aperture " << nameOf(aperture) << std::endl;
-                            variantFailed = true;
-                        }
-                        else
-                        {
-                            if (sequential != expected)
-                            {
-                                std::cout << "    FAIL sequential answered " << nameOf(sequential)
-                                          << ", expected " << nameOf(expected) << std::endl;
-                                variantFailed = true;
-                            }
-
-                            if (aperture != expected)
-                            {
-                                std::cout << "    FAIL aperture answered " << nameOf(aperture)
-                                          << ", expected " << nameOf(expected) << std::endl;
-                                variantFailed = true;
-                            }
-                        }
-
-                        if (variantFailed)
-                        {
-                            variantFailures++;
-
-                            std::stringstream filename;
-                            filename << "solverConsistency_" << caseIndex << "_" << variant << ".obj";
-                            DemoHelper::exportQueryToObj(filename.str(), v0, v1, *meshContainer, settings.globalScaling);
-                        }
-
-                        delete occluderSet;
-                        delete meshContainer;
-
-                        variant++;
                     }
                 }
             }
 
             /* One arithmetic at a time: the sweep of the settings alone, so a precision
             that cannot hold the answer is recognisable without reading the variants. */
-            std::cout << "    " << std::left << std::setw(5) << nameOf(cPrecisions[precisionIndex])
-                      << " sequential " << precisionSequential << "/" << cSettingsCount
-                      << "  aperture " << precisionAperture << "/" << cSettingsCount << std::endl;
+            std::cout << "    " << std::left << std::setw(5) << nameOf(sweep.mPrecisions[precisionIndex]);
+
+            for (size_t solverIndex = 0; solverIndex < cSolvers.size(); solverIndex++)
+            {
+                std::cout << " " << cSolverNames[solverIndex] << " " << precisionMatches[solverIndex] << "/" << sweep.settingsCount();
+                precisionMatches[solverIndex] = 0;
+            }
+
+            std::cout << std::endl;
         }
 
         /* The result line closing the case: the failing combinations have spoken for
         themselves under the header, the line gives what the sweep must show at a
         glance. The counts give, per solver, how many variants reproduced the
         expectation. */
-        std::cout << "  RESULT = " << std::right << std::setw(cResultWidth) << nameOf(expected) << " | "
-                  << std::setw(cResultWidth) << sequentialMatches << "/" << cVariantCount << " | "
-                  << std::setw(cResultWidth) << apertureMatches << "/" << cVariantCount << std::endl;
+        std::cout << "  RESULT = " << std::right << std::setw(cResultWidth) << nameOf(expected);
+
+        for (size_t solverIndex = 0; solverIndex < cSolvers.size(); solverIndex++)
+        {
+            std::cout << " | " << std::setw(cResultWidth) << caseMatches[solverIndex] << "/" << sweep.variantCount();
+        }
+
+        std::cout << std::endl;
 
         failureCount += variantFailures;
 
@@ -643,6 +738,11 @@ bool SolverConsistencyTest(std::string& errorMessage)
     const std::string folder = DemoHelper::testCaseFolder();
     const std::vector<std::string> files = DemoHelper::listTestCaseFiles(folder);
 
+    /* The consistency sweep: every arithmetic this build offers, the scene kept at
+    its own scale, and each flag tried on then off. */
+
+    const SweepBounds sweep = { allPrecisions(), { 1.0f }, { true, false }, { true, false } };
+
     size_t failureCount = 0;
 
     if (files.empty())
@@ -656,7 +756,7 @@ bool SolverConsistencyTest(std::string& errorMessage)
     {
         const std::string& name = files[caseIndex];
 
-        if (!runCase(folder + "/" + name, name, caseIndex, errorMessage, failureCount))
+        if (!runCase(folder + "/" + name, name, caseIndex, sweep, "solverConsistency", errorMessage, failureCount))
         {
             std::cout << "    ERROR " << errorMessage << std::endl;
             return false;
@@ -666,11 +766,115 @@ bool SolverConsistencyTest(std::string& errorMessage)
     if (failureCount > 0)
     {
         std::cout << "SolverConsistencyTest FAILED: " << failureCount << " solver variants answered beside their expectation, over "
-                  << files.size() << " cases and " << cVariantCount << " combinations each" << std::endl;
+                  << files.size() << " cases and " << sweep.variantCount() << " combinations each" << std::endl;
         errorMessage = "solver inconsistency detected";
         return false;
     }
 
     std::cout << "SolverConsistencyTest SUCCESS" << std::endl;
+    return true;
+}
+
+/* The same sweep run on the edge cases: the configurations parked in the
+deactivate/on_the_edge subfolder, sources flush with an occluder, grazing
+silhouettes and other near-degenerate settings, kept out of the main folder so
+they do not slow the consistency sweep but still must reproduce their pin. */
+
+bool SolverEdgeCases(std::string& errorMessage)
+{
+    std::cout << "SolverEdgeCases" << std::endl;
+
+    /* The edge cases sit in a subfolder of the case folder, and the listing is
+    not recursive, so the main sweep never sees them and this one sees nothing else. */
+
+    const std::string folder = DemoHelper::testCaseFolder() + "/deactivate/on_the_edge";
+    const std::vector<std::string> files = DemoHelper::listTestCaseFiles(folder);
+
+    /* The edge sweep: same bounds as the consistency one, the edge is in the scenes,
+    not in the settings. */
+
+    const SweepBounds sweep = { allPrecisions(), { 1.0f }, { true, false }, { true, false } };
+
+    size_t failureCount = 0;
+
+    if (files.empty())
+    {
+        errorMessage = "no case file found in " + folder;
+        std::cout << "    ERROR " << errorMessage << std::endl;
+        return false;
+    }
+
+    for (size_t caseIndex = 0; caseIndex < files.size(); caseIndex++)
+    {
+        const std::string& name = files[caseIndex];
+
+        if (!runCase(folder + "/" + name, name, caseIndex, sweep, "solverEdge", errorMessage, failureCount))
+        {
+            std::cout << "    ERROR " << errorMessage << std::endl;
+            return false;
+        }
+    }
+
+    if (failureCount > 0)
+    {
+        std::cout << "SolverEdgeCases FAILED: " << failureCount << " solver variants answered beside their expectation, over "
+                  << files.size() << " cases and " << sweep.variantCount() << " combinations each" << std::endl;
+        errorMessage = "solver inconsistency detected";
+        return false;
+    }
+
+    std::cout << "SolverEdgeCases SUCCESS" << std::endl;
+    return true;
+}
+
+/* The same sweep run on the precision cases: the configurations parked in the
+precision_test subfolder, each one pinning a scene whose answer is meant to
+question the arithmetic rather than the logic, so the per-precision lines of the
+sweep are what the case is about. */
+
+bool SolverPrecisionTests(std::string& errorMessage)
+{
+    std::cout << "SolverPrecisionTests" << std::endl;
+
+    /* The precision cases sit in a subfolder of the case folder, and the listing is
+    not recursive, so the main sweep never sees them and this one sees nothing else. */
+
+    const std::string folder = DemoHelper::testCaseFolder() + "/precision_test";
+    const std::vector<std::string> files = DemoHelper::listTestCaseFiles(folder);
+
+    /* The precision sweep: same bounds as the consistency one for now, the cases
+    will ask their own questions of the arithmetic. */
+
+    const SweepBounds sweep = { allPrecisions(), { 1.0f }, { true, false }, { true, false } };
+
+    size_t failureCount = 0;
+
+    if (files.empty())
+    {
+        errorMessage = "no case file found in " + folder;
+        std::cout << "    ERROR " << errorMessage << std::endl;
+        return false;
+    }
+
+    for (size_t caseIndex = 0; caseIndex < files.size(); caseIndex++)
+    {
+        const std::string& name = files[caseIndex];
+
+        if (!runCase(folder + "/" + name, name, caseIndex, sweep, "solverPrecision", errorMessage, failureCount))
+        {
+            std::cout << "    ERROR " << errorMessage << std::endl;
+            return false;
+        }
+    }
+
+    if (failureCount > 0)
+    {
+        std::cout << "SolverPrecisionTests FAILED: " << failureCount << " solver variants answered beside their expectation, over "
+                  << files.size() << " cases and " << sweep.variantCount() << " combinations each" << std::endl;
+        errorMessage = "solver inconsistency detected";
+        return false;
+    }
+
+    std::cout << "SolverPrecisionTests SUCCESS" << std::endl;
     return true;
 }

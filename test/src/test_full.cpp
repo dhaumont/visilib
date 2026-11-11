@@ -44,7 +44,9 @@ const TestDefinition cTests[] =
 {
     { "MathCombinatorialTest", &MathCombinatorialTest },
     { "VisibilityTest", &VisibilityTest },
-    { "SolverConsistencyTest", &SolverConsistencyTest }
+    { "SolverConsistencyTest", &SolverConsistencyTest },
+    { "SolverEdgeCases", &SolverEdgeCases },
+    { "SolverPrecisionTests", &SolverPrecisionTests }
 };
 
 static void printUsage(const char* program)

@@ -23,3 +23,5 @@ bool MathCombinatorialTest(std::string&);
 bool testConfiguration(bool& retflag);
 bool VisibilityTest(std::string&);
 bool SolverConsistencyTest(std::string&);
+bool SolverEdgeCases(std::string&);
+bool SolverPrecisionTests(std::string&);
