@@ -25,6 +25,10 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include <vector>
 #include <cmath>
 #include <cstdlib>
+#include <chrono>
+#include <future>
+#include <memory>
+#include <thread>
 
 #include "../demo/demo_helper.h"
 #include "test_definition.h"
@@ -60,7 +64,16 @@ A sampling witness (probeWithSamples), third to the two solvers and sharing
 no code with them, is kept around but sits idle: it uniformly samples
 segments between the sources, intersected against the raw occluder triangles,
 and can only ever prove visibility, since one unobstructed segment is a
-certificate while the absence of one proves nothing. */
+certificate while the absence of one proves nothing.
+
+Each case runs on a background thread and the suite waits at most
+cCaseTimeoutSeconds for it. A case that does not answer within its budget is
+reported as a failure under its header and left running on its own thread:
+standard threads cannot be killed, and a solver stuck inside a query cannot
+be interrupted without leaving the library's memory in an unknown state, so
+the suite abandons the case rather than waiting for it. The abandoned thread
+reports into memory it owns, and its late output may interleave with the
+cases that follow. */
 
 namespace
 {
@@ -756,6 +769,89 @@ namespace
 
         return true;
     }
+
+    /* The budget of one case: the time the suite waits for the thread carrying
+    its sweep before reporting it failed. Generous enough for the slowest
+    combination of a healthy case, short enough that a solver spinning inside a
+    query does not stall the rest of the folder. */
+
+    const int cCaseTimeoutSeconds = 2;
+
+    /* What the worker thread of a case knows when it finishes, and what the
+    waiting thread reads when it does not time out. The outcome lives on a
+    shared pointer: the worker holds one reference and the waiter another, so
+    an abandoned worker still owns everything it writes to, and the suite may
+    forget about it while it keeps running. Each field has a single writer, so
+    the two threads never race on the same memory. */
+
+    struct CaseOutcome
+    {
+        bool mRan = false;         /* runCase completed, the counters below are its answer */
+        std::string mError;        /* why it could not run at all, when mRan is false */
+        size_t mFailureCount = 0;  /* the variants it answered beside their expectation */
+    };
+
+    /* Runs one case on a background thread and waits for it up to
+    cCaseTimeoutSeconds. The thread owns copies of everything it works with, so
+    a case that overruns its budget is simply detached: the timeout is counted
+    as a failure of the case, its still-pending result is dropped, and the
+    sweep of the folder continues. Returns false only when the case reported
+    that it could not be executed at all, as runCase does, which stops the
+    suite. Note that an abandoned thread may still draw from the shared random
+    sequence the sequential solver uses, so it can perturb the answers of the
+    cases that follow: a timeout is never a silent event, it is reported under
+    the header of its case. */
+
+    bool runCaseWithTimeout(const std::string& path, const std::string& name, size_t caseIndex, const SweepBounds& sweep, const char* tag, std::string& errorMessage, size_t& failureCount, size_t& timeoutCount)
+    {
+        auto outcome = std::make_shared<CaseOutcome>();
+
+        /* The promise is shared rather than moved into the lambda: moving it
+        needs a capture initialiser, and this target may be built with an older
+        standard. An abandoned worker that never signals simply leaves the
+        shared promise unfulfilled, which no one waits on anymore. */
+        auto finished = std::make_shared<std::promise<void>>();
+        std::future<void> signal = finished->get_future();
+
+        /* The worker takes the promise, the outcome and its own copies of the
+        strings and the sweep by value: nothing reaches into the waiting
+        thread's frame, which is what makes detaching it above safe. */
+        std::thread worker([outcome, finished, path, name, caseIndex, sweep, tag]()
+        {
+            std::string error;
+            size_t failures = 0;
+
+            outcome->mRan = runCase(path, name, caseIndex, sweep, tag, error, failures);
+            outcome->mError = error;
+            outcome->mFailureCount = failures;
+
+            finished->set_value();
+        });
+
+        if (signal.wait_for(std::chrono::seconds(cCaseTimeoutSeconds)) == std::future_status::timeout)
+        {
+            worker.detach();
+
+            timeoutCount++;
+
+            std::cout << "    FAIL " << name << " did not answer within " << cCaseTimeoutSeconds
+                      << " s, abandoned to the background" << std::endl;
+            std::cout << "  RESULT = " << std::right << std::setw(cResultWidth) << "TIMEOUT" << std::endl;
+
+            return true;
+        }
+
+        worker.join();
+
+        if (!outcome->mRan)
+        {
+            errorMessage = outcome->mError;
+            return false;
+        }
+
+        failureCount += outcome->mFailureCount;
+        return true;
+    }
 }
 
 bool SolverConsistencyTest(std::string& errorMessage)
@@ -774,6 +870,7 @@ bool SolverConsistencyTest(std::string& errorMessage)
     const SweepBounds sweep = { reducedPrecisions(), { 1.0f }, { true, false }, { true, false } };
 
     size_t failureCount = 0;
+    size_t timeoutCount = 0;
 
     if (files.empty())
     {
@@ -786,18 +883,24 @@ bool SolverConsistencyTest(std::string& errorMessage)
     {
         const std::string& name = files[caseIndex];
 
-        if (!runCase(folder + "/" + name, name, caseIndex, sweep, "solverConsistency", errorMessage, failureCount))
+        if (!runCaseWithTimeout(folder + "/" + name, name, caseIndex, sweep, "solverConsistency", errorMessage, failureCount, timeoutCount))
         {
             std::cout << "    ERROR " << errorMessage << std::endl;
             return false;
         }
     }
 
-    if (failureCount > 0)
+    if (failureCount > 0 || timeoutCount > 0)
     {
-        std::cout << "SolverConsistencyTest FAILED: " << failureCount << " solver variants answered beside their expectation, over "
-                  << files.size() << " cases and " << sweep.variantCount() << " combinations each" << std::endl;
-        errorMessage = "solver inconsistency detected";
+        std::cout << "SolverConsistencyTest FAILED: " << failureCount << " solver variants answered beside their expectation";
+
+        if (timeoutCount > 0)
+        {
+            std::cout << ", " << timeoutCount << (timeoutCount == 1 ? " case timed out" : " cases timed out");
+        }
+
+        std::cout << ", over " << files.size() << " cases and " << sweep.variantCount() << " combinations each" << std::endl;
+        errorMessage = failureCount > 0 ? "solver inconsistency detected" : "solver timeout detected";
         return false;
     }
 
@@ -826,6 +929,7 @@ bool SolverEdgeCases(std::string& errorMessage)
     const SweepBounds sweep = { reducedPrecisions(), { 1.0f }, { true, false }, { true, false } };
 
     size_t failureCount = 0;
+    size_t timeoutCount = 0;
 
     if (files.empty())
     {
@@ -838,18 +942,24 @@ bool SolverEdgeCases(std::string& errorMessage)
     {
         const std::string& name = files[caseIndex];
 
-        if (!runCase(folder + "/" + name, name, caseIndex, sweep, "solverEdge", errorMessage, failureCount))
+        if (!runCaseWithTimeout(folder + "/" + name, name, caseIndex, sweep, "solverEdge", errorMessage, failureCount, timeoutCount))
         {
             std::cout << "    ERROR " << errorMessage << std::endl;
             return false;
         }
     }
 
-    if (failureCount > 0)
+    if (failureCount > 0 || timeoutCount > 0)
     {
-        std::cout << "SolverEdgeCases FAILED: " << failureCount << " solver variants answered beside their expectation, over "
-                  << files.size() << " cases and " << sweep.variantCount() << " combinations each" << std::endl;
-        errorMessage = "solver inconsistency detected";
+        std::cout << "SolverEdgeCases FAILED: " << failureCount << " solver variants answered beside their expectation";
+
+        if (timeoutCount > 0)
+        {
+            std::cout << ", " << timeoutCount << (timeoutCount == 1 ? " case timed out" : " cases timed out");
+        }
+
+        std::cout << ", over " << files.size() << " cases and " << sweep.variantCount() << " combinations each" << std::endl;
+        errorMessage = failureCount > 0 ? "solver inconsistency detected" : "solver timeout detected";
         return false;
     }
 
@@ -878,6 +988,7 @@ bool SolverPrecisionTests(std::string& errorMessage)
     const SweepBounds sweep = { reducedPrecisions(), { 1.0f }, { true, false }, { true, false } };
 
     size_t failureCount = 0;
+    size_t timeoutCount = 0;
 
     if (files.empty())
     {
@@ -890,18 +1001,24 @@ bool SolverPrecisionTests(std::string& errorMessage)
     {
         const std::string& name = files[caseIndex];
 
-        if (!runCase(folder + "/" + name, name, caseIndex, sweep, "solverPrecision", errorMessage, failureCount))
+        if (!runCaseWithTimeout(folder + "/" + name, name, caseIndex, sweep, "solverPrecision", errorMessage, failureCount, timeoutCount))
         {
             std::cout << "    ERROR " << errorMessage << std::endl;
             return false;
         }
     }
 
-    if (failureCount > 0)
+    if (failureCount > 0 || timeoutCount > 0)
     {
-        std::cout << "SolverPrecisionTests FAILED: " << failureCount << " solver variants answered beside their expectation, over "
-                  << files.size() << " cases and " << sweep.variantCount() << " combinations each" << std::endl;
-        errorMessage = "solver inconsistency detected";
+        std::cout << "SolverPrecisionTests FAILED: " << failureCount << " solver variants answered beside their expectation";
+
+        if (timeoutCount > 0)
+        {
+            std::cout << ", " << timeoutCount << (timeoutCount == 1 ? " case timed out" : " cases timed out");
+        }
+
+        std::cout << ", over " << files.size() << " cases and " << sweep.variantCount() << " combinations each" << std::endl;
+        errorMessage = failureCount > 0 ? "solver inconsistency detected" : "solver timeout detected";
         return false;
     }
 
