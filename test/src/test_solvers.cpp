@@ -47,301 +47,9 @@ using namespace visilibDemo;
 
 namespace
 {
-    const size_t cSampleCount = 50000;
-    const double cBarycentricMargin = 1e-4;
-    const double cBarycentricJitter = 1e-5;
-    const double cSurfaceMargin = 1e-7;
-
-    const size_t cResultWidth = 8;
-
-    const size_t cLookupSize = 2048;
-
-    const double cDeterminantEpsilon = 1e-30;
-
+    const size_t cResultWidth = 8; 
     const float cSourceHalfTurn = 3.14519f;
-
-    struct SourceSampler
-    {
-        GeometryConvexPolygon mPolygon;
-        std::vector<int> mCumulativeProbabilityTable;
-        size_t mLookupSize;
-
-        SourceSampler(const std::vector<float>& vertices)
-            : mPolygon(&vertices[0], vertices.size() / 3), mLookupSize(cLookupSize)
-        {
-            if (mPolygon.getVertexCount() > 2)
-            {
-                std::vector<double> triangleFanAreas;
-                MathGeometry::getTriangleFanAreas(mPolygon, triangleFanAreas);
-                MathGeometry::computeCumulativeProbabilityLookupTable(mLookupSize, triangleFanAreas, mCumulativeProbabilityTable);
-            }
-        }
-
-        size_t degreesOfFreedom() const
-        {
-            return mPolygon.getVertexCount() >= 3 ? 2 : mPolygon.getVertexCount() - 1;
-        }
-    };
-
-    struct SourceSample
-    {
-        size_t mCorner[3];
-        double mWeight[3];
-        MathVector3d mPoint;
-    };
-
-    MathVector3d evaluate(const SourceSampler& sampler, const SourceSample& sample)
-    {
-        const std::vector<MathVector3d>& v = sampler.mPolygon.getVertices();
-
-        MathVector3d result = v[sample.mCorner[0]];
-        result *= sample.mWeight[0];
-
-        for (size_t i = 1; i < 3; i++)
-        {
-            MathVector3d term = v[sample.mCorner[i]];
-            term *= sample.mWeight[i];
-            result += term;
-        }
-
-        return result;
-    }
-
-    bool sampleSource(const SourceSampler& sampler, SourceSample& sample)
-    {
-        const size_t count = sampler.mPolygon.getVertexCount();
-        if (count == 0)
-        {
-            return false;
-        }
-
-        const std::vector<MathVector3d>& v = sampler.mPolygon.getVertices();
-
-        sample.mCorner[0] = 0;
-        sample.mCorner[1] = 0;
-        sample.mCorner[2] = 0;
-        sample.mWeight[0] = 1.0;
-        sample.mWeight[1] = 0.0;
-        sample.mWeight[2] = 0.0;
-
-        if (count == 1)
-        {
-            sample.mPoint = v[0];
-            return true;
-        }
-
-        if (count == 2)
-        {
-            const double t = MathArithmetic<double>::getRandom();
-            sample.mCorner[1] = 1;
-            sample.mCorner[2] = 1;
-            sample.mWeight[1] = t;
-            sample.mWeight[0] = 1.0 - t;
-            sample.mPoint = evaluate(sampler, sample);
-
-            return std::fmin(sample.mWeight[0], sample.mWeight[1]) > cBarycentricMargin;
-        }
-
-        size_t triangle = 0;
-        if (!sampler.mCumulativeProbabilityTable.empty())
-        {
-            int randomIndex = (int)(MathArithmetic<float>::getRandom() * (sampler.mLookupSize - 1));
-            triangle = (size_t)sampler.mCumulativeProbabilityTable[randomIndex];
-        }
-
-        MathVector2d u(MathArithmetic<double>::getRandom(), MathArithmetic<double>::getRandom());
-        MathVector3d bary = MathGeometry::uniformSampleTriangle(u);
-
-        sample.mCorner[0] = 0;
-        sample.mCorner[1] = triangle + 1;
-        sample.mCorner[2] = triangle + 2;
-        sample.mWeight[0] = bary.x;
-        sample.mWeight[1] = bary.y;
-        sample.mWeight[2] = bary.z;
-        sample.mPoint = evaluate(sampler, sample);
-
-        return bary.x > cBarycentricMargin && bary.y > cBarycentricMargin && bary.z > cBarycentricMargin;
-    }
-
-    std::vector<MathVector3d> neighbourhood(const SourceSampler& sampler, const SourceSample& sample, double distance)
-    {
-        std::vector<MathVector3d> points;
-        points.push_back(sample.mPoint);
-
-        const size_t freedom = sampler.degreesOfFreedom();
-
-        if (freedom >= 1)
-        {
-            SourceSample offset = sample;
-
-            for (size_t i = 1; i <= freedom; i++)
-            {
-                for (int sign = -1; sign <= 1; sign += 2)
-                {
-                    offset.mWeight[0] = sample.mWeight[0] - sign * cBarycentricJitter;
-                    offset.mWeight[i] = sample.mWeight[i] + sign * cBarycentricJitter;
-
-                    if (offset.mWeight[0] > 0.0 && offset.mWeight[i] > 0.0)
-                    {
-                        points.push_back(evaluate(sampler, offset));
-                    }
-                }
-
-                offset.mWeight[0] = sample.mWeight[0];
-                offset.mWeight[i] = sample.mWeight[i];
-            }
-
-            return points;
-        }
-
-        for (int axis = 0; axis < 3; axis++)
-        {
-            for (int sign = -1; sign <= 1; sign += 2)
-            {
-                points.push_back(MathVector3d(
-                    sample.mPoint.x + (axis == 0 ? sign * distance : 0.0),
-                    sample.mPoint.y + (axis == 1 ? sign * distance : 0.0),
-                    sample.mPoint.z + (axis == 2 ? sign * distance : 0.0)));
-            }
-        }
-
-        return points;
-    }
-
-    bool segmentHitsTriangle(const MathVector3d& origin, const MathVector3d& direction, double length,
-                             const MathVector3d& v0, const MathVector3d& v1, const MathVector3d& v2)
-    {
-        const MathVector3d e1 = v1 - v0;
-        const MathVector3d e2 = v2 - v0;
-
-        const MathVector3d p = MathVector3d::cross(direction, e2);
-        const double determinant = e1.dot(p);
-        if (std::fabs(determinant) < cDeterminantEpsilon)
-        {
-            return false;
-        }
-
-        const MathVector3d s = origin - v0;
-        const double u = s.dot(p) / determinant;
-        if (u <= cBarycentricMargin || u >= 1.0 - cBarycentricMargin)
-        {
-            return false;
-        }
-
-        const MathVector3d q = MathVector3d::cross(s, e1);
-        const double v = direction.dot(q) / determinant;
-        if (v <= cBarycentricMargin || u + v >= 1.0 - cBarycentricMargin)
-        {
-            return false;
-        }
-
-        const double t = e2.dot(q) / determinant;
-        const double gap = length * cSurfaceMargin;
-
-        return t > gap && t < length - gap;
-    }
-
-    bool segmentHitsOccluders(GeometryOccluderSet* occluderSet, const MathVector3d& a, const MathVector3d& b)
-    {
-        MathVector3d direction = b - a;
-        const double length = direction.getNorm();
-        if (length <= 0.0)
-        {
-            return false;
-        }
-        direction *= (1.0 / length);
-
-        for (size_t geometryId = 0; geometryId < occluderSet->getOccluderCount(); geometryId++)
-        {
-            std::vector<SilhouetteMeshFace>* faces = occluderSet->getOccluderConnectedFaces(geometryId);
-
-            for (size_t faceIndex = 0; faceIndex < faces->size(); faceIndex++)
-            {
-                const SilhouetteMeshFace& face = (*faces)[faceIndex];
-
-                for (size_t corner = 1; corner + 1 < face.getVertexCount(); corner++)
-                {
-                    if (segmentHitsTriangle(a, direction, length,
-                                            convert<MathVector3d>(face.getVertex(0)),
-                                            convert<MathVector3d>(face.getVertex(corner)),
-                                            convert<MathVector3d>(face.getVertex(corner + 1))))
-                    {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        return false;
-    }
-
-    struct WitnessResult
-    {
-        size_t mSampleCount;
-        size_t mFreeSampleCount;
-        bool mProvenVisible;
-        MathVector3d mCertifierA;
-        MathVector3d mCertifierB;
-    };
-
-    WitnessResult probeWithSamples(GeometryOccluderSet* occluderSet, const std::vector<float>& v0, const std::vector<float>& v1)
-    {
-        const SourceSampler source0(v0);
-        const SourceSampler source1(v1);
-
-        WitnessResult result = { cSampleCount, 0, false, MathVector3d(), MathVector3d() };
-
-        for (size_t sample = 0; sample < cSampleCount; sample++)
-        {
-            SourceSample a;
-            SourceSample b;
-            if (!sampleSource(source0, a) || !sampleSource(source1, b))
-            {
-                continue;
-            }
-
-            const double length = (b.mPoint - a.mPoint).getNorm();
-            if (length <= 0.0)
-            {
-                continue;
-            }
-
-            if (segmentHitsOccluders(occluderSet, a.mPoint, b.mPoint))
-            {
-                continue;
-            }
-
-            result.mFreeSampleCount++;
-
-            const std::vector<MathVector3d> around0 = neighbourhood(source0, a, length * cSurfaceMargin);
-            const std::vector<MathVector3d> around1 = neighbourhood(source1, b, length * cSurfaceMargin);
-
-            bool neighbourhoodFree = true;
-            for (size_t i = 0; i < around0.size() && neighbourhoodFree; i++)
-            {
-                for (size_t j = 0; j < around1.size() && neighbourhoodFree; j++)
-                {
-                    if ((around1[j] - around0[i]).getNorm() > 0.0 &&
-                        segmentHitsOccluders(occluderSet, around0[i], around1[j]))
-                    {
-                        neighbourhoodFree = false;
-                    }
-                }
-            }
-
-            if (neighbourhoodFree)
-            {
-                result.mProvenVisible = true;
-                result.mSampleCount = sample + 1;
-                result.mCertifierA = a.mPoint;
-                result.mCertifierB = b.mPoint;
-                return result;
-            }
-        }
-
-        return result;
-    }
-
+    
     VisibilityResult solveWith(GeometryOccluderSet* occluderSet, const std::vector<float>& v0, const std::vector<float>& v1,
                                const DemoConfiguration& configuration, VisibilityExactQueryConfiguration::SolverType solverType)
     {
@@ -359,17 +67,6 @@ namespace
         query.minimumNormalizedApertureSize = (aperture * aperture) / (side * side);
 
         return visilib::areVisible(occluderSet, &v0[0], v0.size() / 3, &v1[0], v1.size() / 3, query, nullptr);
-    }
-
-    const char* nameOf(VisibilityResult result)
-    {
-        switch (result)
-        {
-            case VISIBLE: return "VISIBLE";
-            case HIDDEN:  return "HIDDEN";
-            case UNKNOWN: return "UNKNOWN";
-            default:      return "FAILURE";
-        }
     }
 
     struct SweepVariant
@@ -537,26 +234,6 @@ namespace
         };
     }
 
-    const char* nameOf(VisibilityExactQueryConfiguration::PrecisionType precision)
-    {
-        switch (precision)
-        {
-            case VisibilityExactQueryConfiguration::FLOAT: return "flt";
-            case VisibilityExactQueryConfiguration::DOUBLE: return "dbl";
-        #ifdef ENABLE_LEDA
-            case VisibilityExactQueryConfiguration::LEDA_REAL: return "leda";
-        #endif
-        #ifdef ENABLE_GMP
-            case VisibilityExactQueryConfiguration::GMP_FLOAT: return "gmpf";
-            case VisibilityExactQueryConfiguration::GMP_RATIONAL: return "gmpq";
-        #endif
-        #ifdef ENABLE_MPFR
-            case VisibilityExactQueryConfiguration::MPFR: return "mpfr";
-        #endif
-            default: return "unknown";
-        }
-    }
-
     const std::vector<VisibilityExactQueryConfiguration::SolverType> cSolvers =
     {
         VisibilityExactQueryConfiguration::EXACT_APERTURE_FINDER,
@@ -572,7 +249,7 @@ namespace
 
         for (size_t solverIndex = 0; solverIndex < cSolvers.size(); solverIndex++)
         {
-            line << (solverIndex == 0 ? " " : ", ") << cSolverNames[solverIndex] << " " << nameOf(answers[solverIndex]);
+            line << (solverIndex == 0 ? " " : ", ") << cSolverNames[solverIndex] << " " << DemoConfiguration::resultName(answers[solverIndex]);
         }
 
         return line.str();
@@ -614,8 +291,8 @@ namespace
             {
                 if (answers[solverIndex] != expected)
                 {
-                    report << "\n    FAIL " << cSolverNames[solverIndex] << " answered " << nameOf(answers[solverIndex])
-                           << ", expected " << nameOf(expected);
+                    report << "\n    FAIL " << cSolverNames[solverIndex] << " answered " << DemoConfiguration::resultName(answers[solverIndex])
+                           << ", expected " << DemoConfiguration::resultName(expected);
                 }
             }
         }
@@ -672,13 +349,13 @@ namespace
         {
             for (size_t i = 0; i < mOutcomes.size(); i++)
             {
-                std::cout << std::right << std::setw(cResultWidth) << nameOf(mOutcomes[i].mResult) << " | " << mOutcomes[i].mDescription << std::endl;
+                std::cout << std::right << std::setw(cResultWidth) << DemoConfiguration::resultName(mOutcomes[i].mResult) << " | " << mOutcomes[i].mDescription << std::endl;
             }
         }
     };
 
-    void runVariant(const size_t variant, const SweepVariant& sweepVariant, const DemoConfiguration& configuration, VisibilityResult expected, const std::string& name, size_t caseIndex,
-                    const char* tag, size_t& variantFailures, std::vector<size_t>& caseMatches, std::vector<size_t>& precisionMatches, TestResults& results)
+    void runVariant(const SweepVariant& sweepVariant, const DemoConfiguration& configuration, VisibilityResult expected, const std::string& name, size_t caseIndex,
+                    const char* tag, std::vector<size_t>& caseMatches, std::vector<size_t>& precisionMatches, TestResults& results)
     {
         DemoConfiguration settings = configuration;
         settings.globalScaling = sweepVariant.mGlobalScaling;
@@ -687,10 +364,10 @@ namespace
         settings.precisionType = sweepVariant.mPrecision;
 
         std::ostringstream description;
-        description << "  [" << variant << "] gs=" << settings.globalScaling
+        description << " gs=" << settings.globalScaling
                     << " silh=" << (settings.silhouetteOptimisation ? "on" : "off")
                     << " early=" << (settings.detectApertureOnly ? "on" : "off")
-                    << " prec=" << nameOf(settings.precisionType);
+                    << " prec=" << DemoHelper::precisionTag(settings.precisionType);
 
         std::vector<float> v0;
         std::vector<float> v1;
@@ -699,14 +376,7 @@ namespace
         DemoHelper::generatePolygon(v1, settings.vertexCount1, settings.scaling, settings.phi, settings.globalScaling);
 
         HelperTriangleMeshContainer* meshContainer = DemoHelper::createScene(settings.sceneIndex, settings.globalScaling);
-        if (meshContainer == nullptr)
-        {
-            description << "\n    FAIL could not create the scene of case '" << name << "', the sweep stops";
-            results.append(FAILURE, description.str());
-            results.mStopRequested = true;
-
-            return;
-        }
+        V_ASSERT(meshContainer != nullptr);
 
         GeometryOccluderSet* occluderSet = DemoHelper::createOccluderSet(meshContainer);
 
@@ -726,13 +396,7 @@ namespace
         }
         else
         {
-            variantFailures++;
-
             results.append(FAILURE, description.str() + report);
-
-            std::stringstream filename;
-            filename << tag << "_" << caseIndex << "_" << variant << ".obj";
-            DemoHelper::exportQueryToObj(filename.str(), v0, v1, *meshContainer, settings.globalScaling);
         }
 
         delete occluderSet;
@@ -750,21 +414,20 @@ namespace
         TestResults mResults;
         std::vector<size_t> mCaseMatches;
         std::vector<size_t> mPrecisionMatches;
-        size_t mFailures = 0;
     };
 
-    void runVariantWithTimeout(const size_t variant, const SweepVariant& sweepVariant, const DemoConfiguration& configuration, VisibilityResult expected, const std::string& name, size_t caseIndex,
-                               const char* tag, size_t& variantFailures, std::vector<size_t>& caseMatches, std::vector<size_t>& precisionMatches, TestResults& results)
+    void runVariantWithTimeout(const SweepVariant& sweepVariant, const DemoConfiguration& configuration, VisibilityResult expected, const std::string& name, size_t caseIndex,
+                               const char* tag,std::vector<size_t>& caseMatches, std::vector<size_t>& precisionMatches, TestResults& results)
     {
         auto run = std::make_shared<VariantRun>();
 
         auto finished = std::make_shared<std::promise<void>>();
         std::future<void> signal = finished->get_future();
 
-        std::thread worker([run, finished, variant, sweepVariant, configuration, expected, name, caseIndex, tag]()
+        std::thread worker([run, finished, sweepVariant, configuration, expected, name, caseIndex, tag]()
         {
-            runVariant(variant, sweepVariant, configuration, expected, name, caseIndex, tag,
-                       run->mFailures, run->mCaseMatches, run->mPrecisionMatches, run->mResults);
+            runVariant(sweepVariant, configuration, expected, name, caseIndex, tag,
+                       run->mCaseMatches, run->mPrecisionMatches, run->mResults);
 
             finished->set_value();
         });
@@ -774,15 +437,14 @@ namespace
             worker.detach();
 
             std::ostringstream description;
-            description << "  [" << variant << "] gs=" << sweepVariant.mGlobalScaling
+            description << " gs=" << sweepVariant.mGlobalScaling
                         << " silh=" << (sweepVariant.mSilhouetteOptimisation ? "on" : "off")
                         << " early=" << (sweepVariant.mDetectApertureOnly ? "on" : "off")
-                        << " prec=" << nameOf(sweepVariant.mPrecision)
+                        << " prec=" << DemoHelper::precisionTag(sweepVariant.mPrecision)
                         << "\n    FAIL did not answer within " << cVariantTimeoutSeconds << " s, abandoned to the background";
 
             results.append(FAILURE, description.str());
-            variantFailures++;
-
+          
             return;
         }
 
@@ -802,8 +464,6 @@ namespace
             caseMatches[solverIndex] += run->mCaseMatches[solverIndex];
             precisionMatches[solverIndex] += run->mPrecisionMatches[solverIndex];
         }
-
-        variantFailures += run->mFailures;
     }
 
     void runCase(const std::string& path, const std::string& name, size_t caseIndex, const SweepBounds& sweep, const char* tag, TestResults& results)
@@ -819,53 +479,15 @@ namespace
 
         const VisibilityResult expected = DemoConfiguration::resultFromName(configuration.expected);
 
-        std::ostringstream summary;
-
         std::vector<size_t> caseMatches(cSolvers.size(), 0);
         std::vector<std::vector<size_t>> precisionMatches(sweep.mPrecisions.size(), std::vector<size_t>(cSolvers.size(), 0));
-        size_t variantFailures = 0;
-        size_t variant = 0;
-        size_t sweptPrecisions = 0;
-
+       
         for (SweepBounds::Iterator it = sweep.begin(); it != sweep.end() && !results.mStopRequested; ++it)
         {
-            if (it.mPrecisionIndex >= sweptPrecisions)
-            {
-                sweptPrecisions = it.mPrecisionIndex + 1;
-            }
+            runVariantWithTimeout(*it, configuration, expected, name, caseIndex,
+                                  tag, caseMatches, precisionMatches[it.mPrecisionIndex], results);
 
-            runVariantWithTimeout(variant, *it, configuration, expected, name, caseIndex,
-                                  tag, variantFailures, caseMatches, precisionMatches[it.mPrecisionIndex], results);
-
-            variant++;
         }
-
-        for (size_t precisionIndex = 0; precisionIndex < sweptPrecisions; precisionIndex++)
-        {
-            summary << "\n  " << std::left << std::setw(5) << nameOf(sweep.mPrecisions[precisionIndex]);
-
-            for (size_t solverIndex = 0; solverIndex < cSolvers.size(); solverIndex++)
-            {
-                summary << " " << cSolverNames[solverIndex] << " " << precisionMatches[precisionIndex][solverIndex] << "/" << sweep.settingsCount();
-            }
-        }
-
-        std::ostringstream description;
-        description << name
-                    << "\n  scene=" << DemoConfiguration::sceneName(configuration.sceneIndex)
-                    << " sources=" << configuration.vertexCount0 << "/" << configuration.vertexCount1
-                    << " scaling=" << configuration.scaling
-                    << " phi=" << configuration.phi
-                    << " normalized=" << (configuration.normalization ? "on" : "off")
-                    << " expected=" << nameOf(expected)
-                    << summary.str();
-
-        for (size_t solverIndex = 0; solverIndex < cSolvers.size(); solverIndex++)
-        {
-            description << "\n  " << cSolverNames[solverIndex] << " " << std::setw(cResultWidth) << caseMatches[solverIndex] << "/" << sweep.variantCount();
-        }
-
-        results.append(variantFailures == 0 && !results.mStopRequested ? expected : FAILURE, description.str());
     }
 }
 
@@ -900,9 +522,7 @@ bool SolverConsistencyTest(std::string& errorMessage)
 
     if (failureCount > 0)
     {
-        std::cout << "SolverConsistencyTest FAILED: " << failureCount << " outcomes answered FAILURE, over "
-                  << files.size() << " cases and " << sweep.variantCount() << " combinations each" << std::endl;
-        errorMessage = "solver inconsistency or timeout detected";
+         std::cout << "SolverConsistencyTest FAILED" << std::endl;
         return false;
     }
 
@@ -940,10 +560,8 @@ bool SolverEdgeCases(std::string& errorMessage)
     const size_t failureCount = results.failureCount();
 
     if (failureCount > 0)
-    {
-        std::cout << "SolverEdgeCases FAILED: " << failureCount << " outcomes answered FAILURE, over "
-                  << files.size() << " cases and " << sweep.variantCount() << " combinations each" << std::endl;
-        errorMessage = "solver inconsistency or timeout detected";
+    {       
+        std::cout << "SolverEdgeCases FAILED" << std::endl;
         return false;
     }
 
@@ -981,10 +599,8 @@ bool SolverPrecisionTests(std::string& errorMessage)
     const size_t failureCount = results.failureCount();
 
     if (failureCount > 0)
-    {
-        std::cout << "SolverPrecisionTests FAILED: " << failureCount << " outcomes answered FAILURE, over "
-                  << files.size() << " cases and " << sweep.variantCount() << " combinations each" << std::endl;
-        errorMessage = "solver inconsistency or timeout detected";
+    {      
+          std::cout << "SolverPrecisionTests FAILED" << std::endl;
         return false;
     }
 

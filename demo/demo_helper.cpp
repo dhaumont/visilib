@@ -520,18 +520,6 @@ namespace
 
     /* toStr spells the enums out for the console ("double 64 bits; tol = 1e-11"), which
     makes unreadable and space ridden file names, so the names use short codes. */
-    std::string precisionTag(VisibilityExactQueryConfiguration::PrecisionType precision)
-    {
-        const std::string name = tolowerCopy(DemoConfiguration::toStr(precision));
-
-        if (name.find("leda") != std::string::npos) return "leda";
-        if (name.find("rational") != std::string::npos) return "gmpq";
-        if (name.find("gmp") != std::string::npos) return "gmpf";
-        if (name.find("mpfr") != std::string::npos) return "mpfr";
-        if (name.find("float") != std::string::npos) return "flt";
-        return "dbl";
-    }
-
     std::string solverTag(VisibilityExactQueryConfiguration::SolverType solver)
     {
         const std::string name = tolowerCopy(DemoConfiguration::toStr(solver));
@@ -646,7 +634,7 @@ std::string DemoConfiguration::caseFileName() const
         << "__f" << (silhouetteOptimisation ? "1" : "0")
                  << (normalization ? "1" : "0")
                  << (detectApertureOnly ? "1" : "0")
-        << "__" << precisionTag(precisionType)
+        << "__" << DemoHelper::precisionTag(precisionType)
         << "__" << solverTag(solverType)
         << "__tol" << fileNameTag(tolerance)
         << "__ap" << fileNameTag(minimumApertureSize)
@@ -825,6 +813,20 @@ void DemoConfiguration::displaySummary()
 #if EMBREE
 RTCDevice SilhouetteContainerEmbree::mDevice = nullptr;
 #endif
+
+/* toStr spells the enums out for the console ("double 64 bits; tol = 1e-11"), which
+makes unreadable and space ridden file names, so the names use short codes. */
+std::string DemoHelper::precisionTag(VisibilityExactQueryConfiguration::PrecisionType precision)
+{
+    const std::string name = tolowerCopy(DemoConfiguration::toStr(precision));
+
+    if (name.find("leda") != std::string::npos) return "leda";
+    if (name.find("rational") != std::string::npos) return "gmpq";
+    if (name.find("gmp") != std::string::npos) return "gmpf";
+    if (name.find("mpfr") != std::string::npos) return "mpfr";
+    if (name.find("float") != std::string::npos) return "flt";
+    return "dbl";
+}
 
 std::string DemoHelper::testCaseFolder()
 {

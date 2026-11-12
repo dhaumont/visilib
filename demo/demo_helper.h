@@ -123,6 +123,9 @@ namespace visilibDemo
         error: it simply has no cases yet. */
         static std::string testCaseFolder();
         static std::vector<std::string> listTestCaseFiles(const std::string& folder);
+
+        /* The short code a precision goes by in file names and result lines. */
+        static std::string precisionTag(VisibilityExactQueryConfiguration::PrecisionType precision);
     };
 }
 
