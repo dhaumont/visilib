@@ -75,6 +75,7 @@ namespace
         float mGlobalScaling = 1.0f;
         bool mSilhouetteOptimisation = false;
         bool mDetectApertureOnly = false;
+        VisibilityExactQueryConfiguration::SolverType mSolver = VisibilityExactQueryConfiguration::EXACT_APERTURE_FINDER;
     };
 
     struct SweepBounds
@@ -83,10 +84,11 @@ namespace
         std::vector<float> mGlobalScalings;
         std::vector<bool> mSilhouetteOptimisations;
         std::vector<bool> mDetectApertureOnly;
+        std::vector<VisibilityExactQueryConfiguration::SolverType> mSolvers;
 
         size_t settingsCount() const
         {
-            return mGlobalScalings.size() * mSilhouetteOptimisations.size() * mDetectApertureOnly.size();
+            return mGlobalScalings.size() * mSilhouetteOptimisations.size() * mDetectApertureOnly.size() * mSolvers.size();
         }
 
         size_t variantCount() const
@@ -102,41 +104,48 @@ namespace
             typedef const SweepVariant* pointer;
             typedef const SweepVariant& reference;
 
-            Iterator() : mSweep(nullptr), mPrecisionIndex(0), mScalingIndex(0), mSilhouetteIndex(0), mEarlyIndex(0)
+            Iterator() : mSweep(nullptr), mPrecisionIndex(0), mScalingIndex(0), mSilhouetteIndex(0), mEarlyIndex(0), mSolverIndex(0)
             {
             }
 
-            Iterator(const SweepBounds* sweep, size_t precisionIndex, size_t scalingIndex, size_t silhouetteIndex, size_t earlyIndex)
-                : mSweep(sweep), mPrecisionIndex(precisionIndex), mScalingIndex(scalingIndex), mSilhouetteIndex(silhouetteIndex), mEarlyIndex(earlyIndex)
+            Iterator(const SweepBounds* sweep, size_t precisionIndex, size_t scalingIndex, size_t silhouetteIndex, size_t earlyIndex, size_t solverIndex)
+                : mSweep(sweep), mPrecisionIndex(precisionIndex), mScalingIndex(scalingIndex), mSilhouetteIndex(silhouetteIndex), mEarlyIndex(earlyIndex), mSolverIndex(solverIndex)
             {
             }
 
-            SweepVariant at(size_t precisionIndex, size_t scalingIndex, size_t silhouetteIndex, size_t earlyIndex) const
+            SweepVariant at(size_t precisionIndex, size_t scalingIndex, size_t silhouetteIndex, size_t earlyIndex, size_t solverIndex) const
             {
                 SweepVariant variant;
                 variant.mPrecision = mSweep->mPrecisions[precisionIndex];
                 variant.mGlobalScaling = mSweep->mGlobalScalings[scalingIndex];
                 variant.mSilhouetteOptimisation = mSweep->mSilhouetteOptimisations[silhouetteIndex];
                 variant.mDetectApertureOnly = mSweep->mDetectApertureOnly[earlyIndex];
+                variant.mSolver = mSweep->mSolvers[solverIndex];
 
                 return variant;
             }
 
             reference operator*() const
             {
-                mCached = at(mPrecisionIndex, mScalingIndex, mSilhouetteIndex, mEarlyIndex);
+                mCached = at(mPrecisionIndex, mScalingIndex, mSilhouetteIndex, mEarlyIndex, mSolverIndex);
                 return mCached;
             }
 
             pointer operator->() const
             {
-                mCached = at(mPrecisionIndex, mScalingIndex, mSilhouetteIndex, mEarlyIndex);
+                mCached = at(mPrecisionIndex, mScalingIndex, mSilhouetteIndex, mEarlyIndex, mSolverIndex);
                 return &mCached;
             }
 
             Iterator& operator++()
             {
-                mEarlyIndex++;
+                mSolverIndex++;
+
+                if (mSolverIndex == mSweep->mSolvers.size())
+                {
+                    mSolverIndex = 0;
+                    mEarlyIndex++;
+                }
 
                 if (mEarlyIndex == mSweep->mDetectApertureOnly.size())
                 {
@@ -169,7 +178,7 @@ namespace
             bool operator==(const Iterator& other) const
             {
                 return mSweep == other.mSweep && mPrecisionIndex == other.mPrecisionIndex && mScalingIndex == other.mScalingIndex &&
-                       mSilhouetteIndex == other.mSilhouetteIndex && mEarlyIndex == other.mEarlyIndex;
+                       mSilhouetteIndex == other.mSilhouetteIndex && mEarlyIndex == other.mEarlyIndex && mSolverIndex == other.mSolverIndex;
             }
 
             bool operator!=(const Iterator& other) const
@@ -182,6 +191,7 @@ namespace
             size_t mScalingIndex;
             size_t mSilhouetteIndex;
             size_t mEarlyIndex;
+            size_t mSolverIndex;
             mutable SweepVariant mCached;
         };
 
@@ -192,12 +202,12 @@ namespace
                 return end();
             }
 
-            return Iterator(this, 0, 0, 0, 0);
+            return Iterator(this, 0, 0, 0, 0, 0);
         }
 
         Iterator end() const
         {
-            return Iterator(this, mPrecisions.size(), 0, 0, 0);
+            return Iterator(this, mPrecisions.size(), 0, 0, 0, 0);
         }
     };
 
@@ -240,61 +250,27 @@ namespace
         VisibilityExactQueryConfiguration::EXACT_SEQUENTIAL_SOLVER
     };
 
-    const char* cSolverNames[] = { "aperture", "sequential" };
-
-    std::string listAnswers(const std::vector<VisibilityResult>& answers, const char* lead)
+    const char* solverName(VisibilityExactQueryConfiguration::SolverType solver)
     {
-        std::ostringstream line;
-        line << lead;
-
-        for (size_t solverIndex = 0; solverIndex < cSolvers.size(); solverIndex++)
+        switch (solver)
         {
-            line << (solverIndex == 0 ? " " : ", ") << cSolverNames[solverIndex] << " " << DemoConfiguration::resultName(answers[solverIndex]);
+            case VisibilityExactQueryConfiguration::EXACT_SEQUENTIAL_SOLVER: return "sequential";
+            default: return "aperture";
         }
-
-        return line.str();
     }
 
-    std::string validate(const std::vector<VisibilityResult>& answers, VisibilityResult expected,
-                         std::vector<size_t>& caseMatches, std::vector<size_t>& precisionMatches)
+    std::string validate(VisibilityResult answer, VisibilityResult expected)
     {
-        bool anyFailure = false;
-
-        for (size_t solverIndex = 0; solverIndex < cSolvers.size(); solverIndex++)
-        {
-            if (answers[solverIndex] == expected)
-            {
-                caseMatches[solverIndex]++;
-                precisionMatches[solverIndex]++;
-            }
-
-            if (answers[solverIndex] == FAILURE)
-            {
-                anyFailure = true;
-            }
-        }
-
         std::ostringstream report;
-
-        if (anyFailure)
-        {
-            report << "\n    FAIL" << listAnswers(answers, " a solver answered FAILURE:");
-        }
 
         if (expected == UNKNOWN)
         {
-            report << "\n    FAIL" << listAnswers(answers, " the case has no expectation,");
+            report << "\n    FAIL the case has no expectation, the solver answered " << DemoConfiguration::resultName(answer);
         }
-        else
+        else if (answer != expected)
         {
-            for (size_t solverIndex = 0; solverIndex < cSolvers.size(); solverIndex++)
-            {
-                if (answers[solverIndex] != expected)
-                {
-                    report << "\n    FAIL " << cSolverNames[solverIndex] << " answered " << DemoConfiguration::resultName(answers[solverIndex])
-                           << ", expected " << DemoConfiguration::resultName(expected);
-                }
-            }
+            report << "\n    FAIL answered " << DemoConfiguration::resultName(answer)
+                   << ", expected " << DemoConfiguration::resultName(expected);
         }
 
         return report.str();
@@ -354,8 +330,7 @@ namespace
         }
     };
 
-    void runVariant(const SweepVariant& sweepVariant, const DemoConfiguration& configuration, VisibilityResult expected, const std::string& name, size_t caseIndex,
-                    const char* tag, std::vector<size_t>& caseMatches, std::vector<size_t>& precisionMatches, TestResults& results)
+    void runVariant(const SweepVariant& sweepVariant, const DemoConfiguration& configuration, VisibilityResult expected, TestResults& results)
     {
         DemoConfiguration settings = configuration;
         settings.globalScaling = sweepVariant.mGlobalScaling;
@@ -367,7 +342,8 @@ namespace
         description << " gs=" << settings.globalScaling
                     << " silh=" << (settings.silhouetteOptimisation ? "on" : "off")
                     << " early=" << (settings.detectApertureOnly ? "on" : "off")
-                    << " prec=" << DemoHelper::precisionTag(settings.precisionType);
+                    << " prec=" << DemoHelper::precisionTag(settings.precisionType)
+                    << " solver=" << solverName(sweepVariant.mSolver);
 
         std::vector<float> v0;
         std::vector<float> v1;
@@ -382,13 +358,9 @@ namespace
 
         srand(0);
 
-        std::vector<VisibilityResult> answers(cSolvers.size());
-        for (size_t solverIndex = 0; solverIndex < cSolvers.size(); solverIndex++)
-        {
-            answers[solverIndex] = solveWith(occluderSet, v0, v1, settings, cSolvers[solverIndex]);
-        }
+        const VisibilityResult answer = solveWith(occluderSet, v0, v1, settings, sweepVariant.mSolver);
 
-        const std::string report = validate(answers, expected, caseMatches, precisionMatches);
+        const std::string report = validate(answer, expected);
 
         if (report.empty())
         {
@@ -405,29 +377,16 @@ namespace
 
     const int cVariantTimeoutSeconds = 2;
 
-    struct VariantRun
+    void runVariantWithTimeout(const SweepVariant& sweepVariant, const DemoConfiguration& configuration, VisibilityResult expected, TestResults& results)
     {
-        VariantRun() : mCaseMatches(cSolvers.size(), 0), mPrecisionMatches(cSolvers.size(), 0)
-        {
-        }
-
-        TestResults mResults;
-        std::vector<size_t> mCaseMatches;
-        std::vector<size_t> mPrecisionMatches;
-    };
-
-    void runVariantWithTimeout(const SweepVariant& sweepVariant, const DemoConfiguration& configuration, VisibilityResult expected, const std::string& name, size_t caseIndex,
-                               const char* tag,std::vector<size_t>& caseMatches, std::vector<size_t>& precisionMatches, TestResults& results)
-    {
-        auto run = std::make_shared<VariantRun>();
+        auto owned = std::make_shared<TestResults>();
 
         auto finished = std::make_shared<std::promise<void>>();
         std::future<void> signal = finished->get_future();
 
-        std::thread worker([run, finished, sweepVariant, configuration, expected, name, caseIndex, tag]()
+        std::thread worker([owned, finished, sweepVariant, configuration, expected]()
         {
-            runVariant(sweepVariant, configuration, expected, name, caseIndex, tag,
-                       run->mCaseMatches, run->mPrecisionMatches, run->mResults);
+            runVariant(sweepVariant, configuration, expected, *owned);
 
             finished->set_value();
         });
@@ -441,6 +400,7 @@ namespace
                         << " silh=" << (sweepVariant.mSilhouetteOptimisation ? "on" : "off")
                         << " early=" << (sweepVariant.mDetectApertureOnly ? "on" : "off")
                         << " prec=" << DemoHelper::precisionTag(sweepVariant.mPrecision)
+                        << " solver=" << solverName(sweepVariant.mSolver)
                         << "\n    FAIL did not answer within " << cVariantTimeoutSeconds << " s, abandoned to the background";
 
             results.append(FAILURE, description.str());
@@ -450,23 +410,17 @@ namespace
 
         worker.join();
 
-        const bool stopRequested = run->mResults.mStopRequested;
+        const bool stopRequested = owned->mStopRequested;
 
-        results.adopt(run->mResults);
+        results.adopt(*owned);
 
         if (stopRequested)
         {
             results.mStopRequested = true;
         }
-
-        for (size_t solverIndex = 0; solverIndex < cSolvers.size(); solverIndex++)
-        {
-            caseMatches[solverIndex] += run->mCaseMatches[solverIndex];
-            precisionMatches[solverIndex] += run->mPrecisionMatches[solverIndex];
-        }
     }
 
-    void runCase(const std::string& path, const std::string& name, size_t caseIndex, const SweepBounds& sweep, const char* tag, TestResults& results)
+    void runCase(const std::string& path, const std::string& name, const SweepBounds& sweep, TestResults& results)
     {
         DemoConfiguration configuration;
         configuration.readConfig(path);
@@ -479,14 +433,9 @@ namespace
 
         const VisibilityResult expected = DemoConfiguration::resultFromName(configuration.expected);
 
-        std::vector<size_t> caseMatches(cSolvers.size(), 0);
-        std::vector<std::vector<size_t>> precisionMatches(sweep.mPrecisions.size(), std::vector<size_t>(cSolvers.size(), 0));
-       
         for (SweepBounds::Iterator it = sweep.begin(); it != sweep.end() && !results.mStopRequested; ++it)
         {
-            runVariantWithTimeout(*it, configuration, expected, name, caseIndex,
-                                  tag, caseMatches, precisionMatches[it.mPrecisionIndex], results);
-
+            runVariantWithTimeout(*it, configuration, expected, results);
         }
     }
 }
@@ -498,7 +447,7 @@ bool SolverConsistencyTest(std::string& errorMessage)
     const std::string folder = DemoHelper::testCaseFolder();
     const std::vector<std::string> files = DemoHelper::listTestCaseFiles(folder);
 
-    const SweepBounds sweep = { reducedPrecisions(), { 1.0f }, { true, false }, { true, false } };
+    const SweepBounds sweep = { reducedPrecisions(), { 1.0f }, { true, false }, { true, false }, cSolvers };
 
     TestResults results;
 
@@ -513,7 +462,7 @@ bool SolverConsistencyTest(std::string& errorMessage)
     {
         const std::string& name = files[caseIndex];
 
-        runCase(folder + "/" + name, name, caseIndex, sweep, "solverConsistency", results);
+        runCase(folder + "/" + name, name, sweep, results);
     }
 
     results.display();
@@ -537,7 +486,7 @@ bool SolverEdgeCases(std::string& errorMessage)
     const std::string folder = DemoHelper::testCaseFolder() + "/deactivate/on_the_edge";
     const std::vector<std::string> files = DemoHelper::listTestCaseFiles(folder);
 
-    const SweepBounds sweep = { reducedPrecisions(), { 1.0f }, { true, false }, { true, false } };
+    const SweepBounds sweep = { reducedPrecisions(), { 1.0f }, { true, false }, { true, false }, cSolvers };
 
     TestResults results;
 
@@ -552,7 +501,7 @@ bool SolverEdgeCases(std::string& errorMessage)
     {
         const std::string& name = files[caseIndex];
 
-        runCase(folder + "/" + name, name, caseIndex, sweep, "solverEdge", results);
+        runCase(folder + "/" + name, name, sweep, results);
     }
 
     results.display();
@@ -576,7 +525,7 @@ bool SolverPrecisionTests(std::string& errorMessage)
     const std::string folder = DemoHelper::testCaseFolder() + "/precision_test";
     const std::vector<std::string> files = DemoHelper::listTestCaseFiles(folder);
 
-    const SweepBounds sweep = { reducedPrecisions(), { 1.0f }, { true, false }, { true, false } };
+    const SweepBounds sweep = { reducedPrecisions(), { 1.0f }, { true, false }, { true, false }, cSolvers };
 
     TestResults results;
 
@@ -591,7 +540,7 @@ bool SolverPrecisionTests(std::string& errorMessage)
     {
         const std::string& name = files[caseIndex];
 
-        runCase(folder + "/" + name, name, caseIndex, sweep, "solverPrecision", results);
+        runCase(folder + "/" + name, name, sweep, results);
     }
 
     results.display();
