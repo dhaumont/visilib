@@ -359,15 +359,27 @@ namespace visilib
         {
             if (!hasEdge)
             {
-                //We found a final polytope visible
-#ifdef OUTPUT_DEBUG_FILE
-                V_LOG(debugOutput, "visible polytope found: exporting stabbing lines", occlusionTreeNodeSymbol);
-#endif
-                VisibilitySolver<P, S>::extractStabbingLines(myPolyhedron, aPolytope,mTolerance);
-                aGlobalResult = VISIBLE;
-                if (mDetectApertureOnly) // Early stop - an aperture has been found
+                //No silhouette edge of the occluder set crosses the polytope: check that the polytope really contains an unoccluded
+                //line of sight before certifying an aperture. A representative line already validated by the occluder collection is a witness.
+                int leafResult = hasRay ? 1 : VisibilitySolver<P, S>::mQuery->validateLeafPolytope(aPolytope, myPolyhedron);
+                if (leafResult == 1)
                 {
-                    return VISIBLE;
+                    //We found a final polytope visible
+#ifdef OUTPUT_DEBUG_FILE
+                    V_LOG(debugOutput, "visible polytope found: exporting stabbing lines", occlusionTreeNodeSymbol);
+#endif
+                    VisibilitySolver<P, S>::extractStabbingLines(myPolyhedron, aPolytope,mTolerance);
+                    aGlobalResult = VISIBLE;
+                    if (mDetectApertureOnly) // Early stop - an aperture has been found
+                    {
+                        return VISIBLE;
+                    }
+                }
+                else
+                {
+#ifdef OUTPUT_DEBUG_FILE
+                    V_LOG(debugOutput, "LEAF REJECTED", occlusionTreeNodeSymbol);
+#endif
                 }
             }
         }

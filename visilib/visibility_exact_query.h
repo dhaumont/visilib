@@ -124,6 +124,12 @@ namespace visilib
         */
         int collectAllOccluders(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron, std::vector<Silhouette*>& occluders, std::vector<P>& polytopeLines);
 
+        /**@brief Check that the representative line of a leaf polytope is a valid witness of visibility: the line must intersect the two source polygons and must not be blocked by the scene.
+
+        Returns 1 if the representative line is a valid, unoccluded witness, 0 if it is occluded, and -1 if the sample is invalid (its endpoints are not inside both source polygons).
+        */
+        int validateLeafPolytope(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron);
+
         /**@brief Attach a debugger to the query for visual inspection */
         void attachVisualisationDebugger(HelperVisualDebugger* aDebugger);
 
@@ -662,6 +668,39 @@ namespace visilib
                 occluders.push_back(s);
         }
         return hit ? 1 : 0;
+    }
+
+    template<class P, class S>
+    int VisibilityExactQuery_<P, S>::validateLeafPolytope(PluckerPolytope<P> * aPolytope, PluckerPolyhedron<P> * polyhedron)
+    {
+        P myRepresentativeLine;
+        {
+            HelperScopedTimer timer(getStatistic(), STABBING_LINE_EXTRACTION);
+
+            myRepresentativeLine = MathGeometry::computeRepresentativeLine<P>(aPolytope, polyhedron, mTolerance);
+            if (mConfiguration.hyperSphereNormalization)
+                myRepresentativeLine = myRepresentativeLine.getNormalized();
+        }
+
+        const GeometryConvexPolygon& polygon0 = *getQueryPolygon(0);
+        const GeometryConvexPolygon& polygon1 = *getQueryPolygon(1);
+        const MathPlane3d& aPlane0 = polygon0.getPlane();
+        const MathPlane3d& aPlane1 = polygon1.getPlane();
+
+        std::pair<MathVector3d, MathVector3d> centerLine = MathGeometry::getBackTo3D(myRepresentativeLine, aPlane0, aPlane1);
+
+        bool isInsidePolygons = MathGeometry::isPointInsidePolygon(polygon0, centerLine.first, MathArithmetic<double>::Tolerance())
+            && MathGeometry::isPointInsidePolygon(polygon1, centerLine.second, MathArithmetic<double>::Tolerance());
+
+        if (!isInsidePolygons)
+        {
+            return -1;
+        }
+
+        std::set<SilhouetteMeshFace*> intersectedFaces;
+        bool hit = findSceneIntersection(centerLine.first, centerLine.second, intersectedFaces, 0);
+
+        return hit ? 0 : 1;
     }
 
 }
