@@ -122,7 +122,7 @@ namespace visilib
         The occluder finding is done using a ray-tracing operation, the ray(s) direction used to perform the sampling beeing either a "representative line" of the polytope,
         or the extremal stabbing line of the polytope.
         */
-        bool collectAllOccluders(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron, std::vector<Silhouette*>& occluders, std::vector<P>& polytopeLines);
+        int collectAllOccluders(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron, std::vector<Silhouette*>& occluders, std::vector<P>& polytopeLines);
 
         /**@brief Attach a debugger to the query for visual inspection */
         void attachVisualisationDebugger(HelperVisualDebugger* aDebugger);
@@ -584,7 +584,7 @@ namespace visilib
     }
 
     template<class P, class S>
-    bool VisibilityExactQuery_<P, S>::collectAllOccluders(PluckerPolytope<P> * aPolytope, PluckerPolyhedron<P> * polyhedron, std::vector<Silhouette*> & occluders, std::vector<P> & polytopeLines)
+    int VisibilityExactQuery_<P, S>::collectAllOccluders(PluckerPolytope<P> * aPolytope, PluckerPolyhedron<P> * polyhedron, std::vector<Silhouette*> & occluders, std::vector<P> & polytopeLines)
     {
         P myRepresentativeLine;
         {
@@ -597,14 +597,24 @@ namespace visilib
              aPolytope->setRepresentativeLine(myRepresentativeLine);
         }
 
-        const MathPlane3d& aPlane0 = getQueryPolygon(0)->getPlane();
-        const MathPlane3d& aPlane1 = getQueryPolygon(1)->getPlane();
+        const GeometryConvexPolygon& polygon0 = *getQueryPolygon(0);
+        const GeometryConvexPolygon& polygon1 = *getQueryPolygon(1);
+        const MathPlane3d& aPlane0 = polygon0.getPlane();
+        const MathPlane3d& aPlane1 = polygon1.getPlane();
 
         std::pair<MathVector3d, MathVector3d> centerLine = MathGeometry::getBackTo3D(myRepresentativeLine, aPlane0, aPlane1);
 
+        bool isInsidePolygons = MathGeometry::isPointInsidePolygon(polygon0, centerLine.first, MathArithmetic<double>::Tolerance())
+            && MathGeometry::isPointInsidePolygon(polygon1, centerLine.second, MathArithmetic<double>::Tolerance());
+    
+        if (!isInsidePolygons)
+        {          
+            return -1;
+        }
+
         std::set<SilhouetteMeshFace*> intersectedFaces;
         bool hit = findSceneIntersection(centerLine.first, centerLine.second, intersectedFaces, 0);
-    
+        
         if (!hit && !mConfiguration.detectApertureOnly)
         {
             {
@@ -618,8 +628,7 @@ namespace visilib
 
             if(aPolytope->getExtremalStabbingLinesCount() == 0)
             {
-                V_ASSERT(0);
-                return true;
+                return -1;
             }
             S myMaxDistance = 0;
             S myDistance = 0;
@@ -652,7 +661,7 @@ namespace visilib
             if (s)
                 occluders.push_back(s);
         }
-        return hit;
+        return hit ? 1 : 0;
     }
 
 }

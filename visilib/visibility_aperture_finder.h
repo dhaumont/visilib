@@ -59,7 +59,7 @@ namespace visilib
     private:
         VisibilityResult resolveInternal(VisibilityResult& aGlobalResult, PluckerPolytope<P>* aPolytope, const std::string& occlusionTreeNodeSymbol, const std::vector<Silhouette*>& anOccluders, const std::vector<P>& aPolytopeLines, int depth);
         void resize(size_t myInitiaLineCount, PluckerPolyhedron<P>* myPolyhedron, PluckerPolytope<P>* aPolytope);
-    
+
 
         bool mNormalization;
         bool mDetectApertureOnly;
@@ -124,14 +124,21 @@ namespace visilib
         std::vector<P> polytopeLines = aPolytopeLines;
         if (myOccluders.empty())
         {
-            if (!VisibilitySolver<P, S>::mQuery->collectAllOccluders(aPolytope, myPolyhedron, myOccluders, polytopeLines))
+            int result = VisibilitySolver<P, S>::mQuery->collectAllOccluders(aPolytope, myPolyhedron, myOccluders, polytopeLines);
+            if (result == -1)
             {
-                // Early stop - an aperture has been found: the source polygons are mutually visible
 #ifdef OUTPUT_DEBUG_FILE
-                V_LOG(debugOutput, "RAY: IS VISIBLE", occlusionTreeNodeSymbol);
+                V_LOG(debugOutput, "RAY REJECTED (INVALID)", occlusionTreeNodeSymbol);
 #endif
-                hasRay = true;
-                aGlobalResult = VISIBLE;
+                return HIDDEN;
+            }
+            else if (result == 0)
+            {
+#ifdef OUTPUT_DEBUG_FILE
+                    V_LOG(debugOutput, "RAY: IS VISIBLE", occlusionTreeNodeSymbol);
+#endif
+                    hasRay = true;
+                    aGlobalResult = VISIBLE;
                 if (mDetectApertureOnly)
                 {
                     return VISIBLE;
