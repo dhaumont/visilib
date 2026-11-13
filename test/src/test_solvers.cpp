@@ -28,6 +28,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include <chrono>
 #include <future>
 #include <iterator>
+#include <limits>
 #include <memory>
 #include <thread>
 #include <utility>
@@ -61,6 +62,7 @@ namespace
         query.tolerance = configuration.tolerance;
         query.confidenceValue = configuration.confidenceValue;
         query.solverType = solverType;
+        query.displaySplitOccurence = std::numeric_limits<int>::max();
 
         const double side = 2.0 * configuration.scaling;
         const double aperture = configuration.minimumApertureSize;

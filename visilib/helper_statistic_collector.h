@@ -61,6 +61,7 @@ namespace visilib
 
         HelperStatisticCollector()
         {
+            mDisplaySplitOccurence = 10000;
             clear();
 #ifdef WIN32
             unsigned long frequency[2];
@@ -90,6 +91,22 @@ namespace visilib
         int get(CounterType counter) const
         {
             return mCounts[counter];
+        }
+
+        /**@brief Return true if the split count must be displayed, i.e. when it is a multiple of the display split occurrence*/
+        bool hasToDisplaySplitCount() const
+        {
+            return get(POLYTOPE_SPLIT_COUNT) % mDisplaySplitOccurence == 0;
+        }
+
+        void setDisplaySplitOccurence(int aOccurence)
+        {
+            mDisplaySplitOccurence = aOccurence;
+        }
+
+        int getDisplaySplitOccurence() const
+        {
+            return mDisplaySplitOccurence;
         }
 
         void incrementTime(TimerType counter, double time)
@@ -174,6 +191,8 @@ namespace visilib
         std::vector<bool> mTimerIsRunning;
 
         double mTimerFrequency;
+
+        int mDisplaySplitOccurence;                   /**< @brief The split count periodicity for which the statistics are displayed*/
     };
 
     /** @brief A high precision timer, that measures the time ellapsed during the execution of the function inside the scope of the time.

@@ -297,7 +297,7 @@ namespace visilib
 
                     myResult = PluckerPolytopeSplitter<P, S>::split(myPolyhedron, myHyperplane, myPolytopeToSplit, myPolytopeLeft, myPolytopeRight, myPolyhedronFace, mNormalization, mTolerance);
 
-                    if (VisibilitySolver<P, S>::mQuery->getStatistic()->get(POLYTOPE_SPLIT_COUNT) % 10000 == 0)
+                    if (VisibilitySolver<P, S>::mQuery->getStatistic()->hasToDisplaySplitCount())
                     {
                         VisibilitySolver<P, S>::mQuery->getStatistic()->displayCounts();
                         V_TRACE("");

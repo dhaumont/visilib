@@ -219,6 +219,8 @@ namespace visilib
     {
         mComplex = new PluckerPolytopeComplex<P>();
 
+        mStatistic.setDisplaySplitOccurence(aConfiguration.displaySplitOccurence);
+
         {
             HelperScopedTimer timer(getStatistic(), SILHOUETTE_PROCESSING);
             mSilhouetteProcessor = new SilhouetteProcessor(&mStatistic);

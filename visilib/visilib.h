@@ -70,6 +70,7 @@ namespace visilib
             solverType = EXACT_APERTURE_FINDER;
             minimumNormalizedApertureSize = 0.00175;
             confidenceValue = 0.99;
+            displaySplitOccurence = 10000;
         }
 
         VisibilityExactQueryConfiguration(const VisibilityExactQueryConfiguration& other)
@@ -83,6 +84,7 @@ namespace visilib
             solverType = other.solverType;
             minimumNormalizedApertureSize = other.minimumNormalizedApertureSize;
             confidenceValue = other.confidenceValue;
+            displaySplitOccurence = other.displaySplitOccurence;
         }
 
         bool silhouetteOptimization;                  /**< @brief Use silhouette optimization*/
@@ -94,6 +96,7 @@ namespace visilib
         SolverType solverType; 
         double minimumNormalizedApertureSize;
         double confidenceValue;
+        int displaySplitOccurence;                        /**< @brief The split count periodicity for which the statistics are displayed*/
     };
 
 
