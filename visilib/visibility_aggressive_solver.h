@@ -169,6 +169,11 @@ namespace visilib
         V_TRACE("SAMPLES COUNT:" << sampleCount);
         for (size_t i = 0; i < sampleCount;)
         {
+            if (VisibilitySolver<P, S>::isTimedOut())
+            {
+                  return FAILURE;
+            }
+
             bool isTriangle0WhichIsSampled = MathArithmetic<float>::getRandom() < polygonAreaRatio;
             
             GeometryConvexPolygonRandomSampler& sampler = isTriangle0WhichIsSampled ? sampler0 : sampler1;

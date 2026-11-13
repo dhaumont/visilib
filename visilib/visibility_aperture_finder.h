@@ -105,6 +105,14 @@ namespace visilib
             aGlobalResult = FAILURE;
             return FAILURE;
         }
+        if (VisibilitySolver<P, S>::isTimedOut())
+        {
+  #ifdef OUTPUT_DEBUG_FILE
+            V_LOG(debugOutput, "RESULT FAILURE: time budget over", occlusionTreeNodeSymbol);
+#endif
+            aGlobalResult = FAILURE;
+            return FAILURE;
+        }
         {
             HelperScopedTimer timer(VisibilitySolver<P, S>::mQuery->getStatistic(), STABBING_LINE_EXTRACTION);
             aPolytope->computeEdgesIntersectingQuadric(myPolyhedron, mTolerance);

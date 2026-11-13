@@ -115,6 +115,11 @@ namespace visilib
     {
         for (SilhouetteEdge &myVisibilitySilhouetteEdge : edges)
         {
+            if (VisibilitySolver<P, S>::isTimedOut())
+            {
+                return;
+            }
+
             size_t myPolyhedronFace = myVisibilitySilhouetteEdge.mHyperPlaneIndex;
 
             if (myPolyhedronFace == 0)
@@ -136,17 +141,6 @@ namespace visilib
             }
         }
     }
-
-    /* Option B blocked predicate.
-
-    Cast the polytope's representative line against *only the faces belonging to
-    this silhouette patch*.  The representative line is a Plucker point inside the
-    polytope; getBackTo3D converts it to a pair of 3D points (one on each source
-    plane).  A hit means the polytope's lines pass through that occluder patch →
-    BLOCKED; a miss means they clear it → OUTSIDE.
-
-    This avoids the sign-based membership test (F2/F3/F4) entirely: orientation of
-    silhouette edges no longer matters. */
 
     template <class P, class S>
     bool VisibilitySequentialSolver<P, S>::isBlockedBySilhouette(PluckerPolytope<P> *aPolytope,
@@ -261,6 +255,13 @@ namespace visilib
          
         for (const SilhouetteEdge &myVisibilitySilhouetteEdge : edges)
         {
+            /* Every loop of this solver gives up on an over budget query, and only resolve()
+            draws conclusions, which is where the budget is checked again. */
+            if (VisibilitySolver<P, S>::isTimedOut())
+            {
+                return;
+            }
+
             SilhouetteMeshFace *face = myVisibilitySilhouetteEdge.mFace;
 
             V_ASSERT(myVisibilitySilhouetteEdge.mIsActive);
@@ -390,6 +391,11 @@ namespace visilib
 
         for (int polytopeIndex = 0; polytopeIndex < complex->getPolytopeCount(); polytopeIndex++)
         {
+            if (VisibilitySolver<P, S>::isTimedOut())
+            {
+                return;
+            }
+
             PluckerPolytope<P> *myPolytopeToClassify = complex->getPolytope(polytopeIndex);
             V_TRACE("classify " << myPolytopeToClassify << " at index " << polytopeIndex);
 
@@ -527,6 +533,12 @@ namespace visilib
 
         for (auto occluder = myOccluders.begin(); occluder != myOccluders.end(); occluder++)
         {
+            if (VisibilitySolver<P, S>::isTimedOut())
+            {
+                V_TRACE("FAILURE: time budget over");
+                return FAILURE;
+            }
+
             std::vector<Silhouette*> &myPatches = occluder->second;
             Silhouette *mySilhouette = myPatches[0];
 
@@ -537,8 +549,6 @@ namespace visilib
             {
                 for (SilhouetteEdge &myEdge : myPatches[patch]->getEdges())
                 {
-                    /* An interior edge shared by two faces belongs to both patches, and
-                    splitting twice by the same hyperplane would only add polyhedron faces. */
                     if (mySeen.insert(std::make_pair(myEdge.mFace, myEdge.mEdgeIndex)).second)
                     {
                         myEdges.push_back(myEdge);
@@ -547,16 +557,6 @@ namespace visilib
             }
 
             std::vector<SilhouetteEdge> &edges = myEdges;
-
-            /* F1 (revised): a silhouette with no edges means the occluder contributes
-            no hyperplanes — there are no visible boundary edges from this patch inside
-            the shaft.  This happens when the entire patch is back-facing or when the
-            convex hull of the two sources is degenerate (point/segment sources).
-
-            In that case we cannot split any polytope, but we can still decide whether
-            each polytope's representative line is blocked by this occluder using the
-            ray test.  Any polytope whose rep line hits the occluder's faces is fully
-            inside the shadow of this patch and must be deleted. */
 
             if (edges.empty())
             {

@@ -46,10 +46,12 @@ bool testConfiguration(const DemoConfiguration& configuration, VisibilityResult 
     auto meshContainer = DemoHelper::createScene(s, configuration.globalScaling);
     GeometryOccluderSet* occluderSet = DemoHelper::createOccluderSet(meshContainer);
 
-    auto result = visilib::areVisible(occluderSet, &v0[0], v0.size() / 3, &v1[0], v1.size() / 3, config, nullptr);
+     HelperVisualDebugger debugger;
+    debugger.getTimeout().setMaximumDuration(cQueryBudgetSeconds);
+    debugger.setDisplayStatistics(false);
 
-    DemoHelper::exportQueryToObj(filename, v0, v1, *meshContainer, configuration.globalScaling);
-    
+    auto result = visilib::areVisible(occluderSet, &v0[0], v0.size() / 3, &v1[0], v1.size() / 3, config, &debugger);
+  
     return (result == expected);
 }
 

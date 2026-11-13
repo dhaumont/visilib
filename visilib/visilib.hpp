@@ -41,6 +41,12 @@ using namespace visilib;
       return S(configuration.tolerance);
  }
 
+template<class S>
+inline void configureArithmeticPrecision()
+{
+    S::set_default_precision(MathArithmetic<S>::bitsCount());
+}
+
 inline VisibilityResult visilib::areVisible(GeometryOccluderSet* scene, const float* vertices0, size_t numVertices0, const float* vertices1, size_t numVertices1,
     const VisibilityExactQueryConfiguration& configuration, HelperVisualDebugger* debugger)
 {
@@ -75,6 +81,7 @@ inline VisibilityResult visilib::areVisible(GeometryOccluderSet* scene, const fl
 #endif
 #ifdef ENABLE_GMP
     case VisibilityExactQueryConfiguration::GMP_FLOAT:
+        configureArithmeticPrecision<MathGmpFloat>();
         query = new VisibilityExactQuery_<MathPlucker6<MathGmpFloat>, MathGmpFloat>(
             scene,
             configuration,
@@ -89,6 +96,7 @@ inline VisibilityResult visilib::areVisible(GeometryOccluderSet* scene, const fl
 #endif
 #ifdef ENABLE_MPFR
     case VisibilityExactQueryConfiguration::MPFR:
+        configureArithmeticPrecision<MathMpfr>();
         query = new VisibilityExactQuery_<MathPlucker6<MathMpfr>, MathMpfr>(
             scene,
             configuration,
@@ -117,19 +125,22 @@ inline VisibilityResult visilib::areVisible(GeometryOccluderSet* scene, const fl
 
     if (debugger)
     {
-        query->displayStatistic();
         query->getTimingStats(debugger->getTimings());
         query->getCounts(debugger->getCounters());
-        
-        std::cout << "RESULT ";
-        switch(result)
-        {
-            case UNKNOWN: std::cout << "UNKNOWN " << std::endl; break;
-            case FAILURE: std::cout << "FAILURE " << std::endl; break;
-            case VISIBLE: std::cout << "VISIBLE " << std::endl; break;
-            case HIDDEN: std::cout <<  "OCCLUDED" << std::endl; break;
-        }
 
+        if (debugger->getDisplayStatistics())
+        {
+            query->displayStatistic();
+
+            std::cout << "RESULT ";
+            switch(result)
+            {
+                case UNKNOWN: std::cout << "UNKNOWN " << std::endl; break;
+                case FAILURE: std::cout << "FAILURE " << std::endl; break;
+                case VISIBLE: std::cout << "VISIBLE " << std::endl; break;
+                case HIDDEN: std::cout <<  "OCCLUDED" << std::endl; break;
+            }
+        }
     }
     delete query;
 

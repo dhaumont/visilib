@@ -24,6 +24,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include <vector>
 #include "geometry_mesh_description.h"
 #include "geometry_occluder_set.h"
+#include "helper_timeout.h"
 #include "helper_visual_debugger.h"
 
 

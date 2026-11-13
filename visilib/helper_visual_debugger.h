@@ -24,6 +24,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include <map>
 #include "math_vector_3.h"
 #include "visilib.h"
+#include "helper_timeout.h"
 #include <fstream>
 
 namespace visilib
@@ -80,6 +81,22 @@ namespace visilib
         /** @brief Return the timings for the different types of information stored in the debugger*/
         std::map<std::string, double>& getTimings();
 
+        /** @brief Return the wall clock budget the solvers interrupt the query with.
+
+        The timeout is part of the debugger because the debugger is what a client attaches to
+        be told more about a query, and a query without a debugger has no time limit: only the
+        client who sets a budget can be told the answer is missing. */
+        HelperTimeout& getTimeout();
+
+        /** @brief Return the wall clock budget the solvers interrupt the query with*/
+        const HelperTimeout& getTimeout() const;
+
+        /** @brief Set whether the statistics of a query are displayed when it ends*/
+        void setDisplayStatistics(bool aFlag);
+
+        /** @brief Return whether the statistics of a query are displayed when it ends*/
+        bool getDisplayStatistics() const;
+
 #ifdef OUTPUT_DEBUG_FILE
         std::ofstream& getDebugOutput() { return mDebugOutput; };
 #endif
@@ -98,12 +115,17 @@ namespace visilib
 
         std::map<std::string, int>    mCounters; /** <@brief The counters for the different types of information stored in the debugger*/
         std::map<std::string, double> mTimings; /** <@brief The timings for the different types of information stored in the debugger*/
+
+        HelperTimeout mTimeout; /** <@brief The wall clock budget the solvers interrupt the query with*/
+
+        bool mDisplayStatistics; /** <@brief Whether the statistics of a query are displayed when it ends*/
 #ifdef OUTPUT_DEBUG_FILE
         std::ofstream mDebugOutput;
 #endif
     };
 
     inline HelperVisualDebugger::HelperVisualDebugger()
+        : mDisplayStatistics(true)
     {
 
 #ifdef OUTPUT_DEBUG_FILE
@@ -193,6 +215,11 @@ namespace visilib
         mExtremalStabbingLineInformation.vertexCount = 0;
         mExtremalStabbingLineInformation.vertexArray = nullptr;
 
+        /* A query clears the debugger before it starts, and the budget is a query long one,
+        so the clock is set back here rather than left running from whenever the debugger was
+        built. */
+        mTimeout.restart();
+
     }
 
     inline const GeometryTriangleMeshDescription& HelperVisualDebugger::getRemovedTriangles() const
@@ -228,5 +255,25 @@ namespace visilib
     inline std::map<std::string, double>& HelperVisualDebugger::getTimings()
     {
         return mTimings;
+    }
+
+    inline HelperTimeout& HelperVisualDebugger::getTimeout()
+    {
+        return mTimeout;
+    }
+
+    inline const HelperTimeout& HelperVisualDebugger::getTimeout() const
+    {
+        return mTimeout;
+    }
+
+    inline void HelperVisualDebugger::setDisplayStatistics(bool aFlag)
+    {
+        mDisplayStatistics = aFlag;
+    }
+
+    inline bool HelperVisualDebugger::getDisplayStatistics() const
+    {
+        return mDisplayStatistics;
     }
 }

@@ -26,11 +26,8 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include <cmath>
 #include <cstdlib>
 #include <chrono>
-#include <future>
 #include <iterator>
 #include <limits>
-#include <memory>
-#include <thread>
 #include <utility>
 
 #include "../demo/demo_helper.h"
@@ -53,7 +50,8 @@ namespace
     const float cSourceHalfTurn = 3.14519f;
     
     VisibilityResult solveWith(GeometryOccluderSet* occluderSet, const std::vector<float>& v0, const std::vector<float>& v1,
-                               const DemoConfiguration& configuration, VisibilityExactQueryConfiguration::SolverType solverType)
+                               const DemoConfiguration& configuration, VisibilityExactQueryConfiguration::SolverType solverType,
+                               double timeoutSeconds, bool& budgetExhausted)
     {
         VisibilityExactQueryConfiguration query;
         query.detectApertureOnly = configuration.detectApertureOnly;
@@ -68,8 +66,16 @@ namespace
         const double side = 2.0 * configuration.scaling;
         const double aperture = configuration.minimumApertureSize;
         query.minimumNormalizedApertureSize = (aperture * aperture) / (side * side);
+ 
+        HelperVisualDebugger debugger;
+        debugger.getTimeout().setMaximumDuration(timeoutSeconds);
+        debugger.setDisplayStatistics(false);
 
-        return visilib::areVisible(occluderSet, &v0[0], v0.size() / 3, &v1[0], v1.size() / 3, query, nullptr);
+        const VisibilityResult result = visilib::areVisible(occluderSet, &v0[0], v0.size() / 3, &v1[0], v1.size() / 3, query, &debugger);
+
+         budgetExhausted = debugger.getTimeout().isOver();
+
+        return result;
     }
 
     struct SweepVariant
@@ -270,7 +276,8 @@ namespace
     {
         TEST_RESULT_PASS,
         TEST_RESULT_FAIL,
-        TEST_RESULT_UNKNOWN
+        TEST_RESULT_UNKNOWN,
+        TEST_RESULT_TIMEOUT
     };
 
     struct CaseOutcome
@@ -297,6 +304,9 @@ namespace
                 break;
             case TEST_RESULT_UNKNOWN:
                 return "UNKNOWN";
+                break;
+            case TEST_RESULT_TIMEOUT:
+                return "TIMEOUT";
                 break;
             }
             return "UNKNOWN";
@@ -409,11 +419,25 @@ namespace
         CaseOutcome outcome(TEST_RESULT_UNKNOWN, UNKNOWN, expected, description);
         
         outcome.displayPending();
-        outcome.mAnswer = solveWith(occluderSet, v0, v1, settings, sweepVariant.mSolver);
-        
+
+         bool budgetExhausted = false;
+
+        const auto start = std::chrono::steady_clock::now();
+        outcome.mAnswer = solveWith(occluderSet, v0, v1, settings, sweepVariant.mSolver, cQueryBudgetSeconds, budgetExhausted);
+        const long elapsedMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
+
+        outcome.mDescription += " (" + std::to_string(elapsedMs) + "ms)";
+
         if (expected != UNKNOWN)
         {
-            outcome.mResult = (outcome.mAnswer == expected) ? TEST_RESULT_PASS : TEST_RESULT_FAIL;
+            if (outcome.mAnswer == FAILURE && budgetExhausted)
+            {
+               outcome.mResult = TEST_RESULT_TIMEOUT;
+            }
+            else
+            {
+                outcome.mResult = (outcome.mAnswer == expected) ? TEST_RESULT_PASS : TEST_RESULT_FAIL;
+            }
         }
      
         outcome.display();   
@@ -421,49 +445,6 @@ namespace
   
         delete occluderSet;
         delete meshContainer;
-    }
-
-    const int cVariantTimeoutSeconds = 2;
-
-    void runVariantWithTimeout(const SweepVariant& sweepVariant, const DemoConfiguration& configuration, VisibilityResult expected, TestResults& results)
-    {
-        auto owned = std::make_shared<TestResults>();
-
-        auto finished = std::make_shared<std::promise<void>>();
-        std::future<void> signal = finished->get_future();
-
-        std::thread worker([owned, finished, sweepVariant, configuration, expected]()
-        {
-            runVariant(sweepVariant, configuration, expected, *owned);
-
-            finished->set_value();
-        });
-
-        if (signal.wait_for(std::chrono::seconds(cVariantTimeoutSeconds)) == std::future_status::timeout)
-        {
-            worker.detach();
-
-            std::ostringstream line;
-            line << variantDescription(sweepVariant)
-                 << " [TIMEOUT]";
-
-            CaseOutcome outcome(TEST_RESULT_FAIL, UNKNOWN, expected, line.str());
-            outcome.display();
-            results.append(outcome);
-
-            return;
-        }
-
-        worker.join();
-
-        const bool stopRequested = owned->mStopRequested;
-
-        results.adopt(*owned);
-
-        if (stopRequested)
-        {
-            results.mStopRequested = true;
-        }
     }
 
     void runCase(const std::string& path, const std::string& name, const SweepBounds& sweep, TestResults& results)
@@ -483,7 +464,7 @@ namespace
 
         for (SweepBounds::Iterator it = sweep.begin(); it != sweep.end() && !results.mStopRequested; ++it)
         {
-            runVariantWithTimeout(*it, configuration, expected, results);
+           runVariant(*it, configuration, expected, results);
         }
     }
 }

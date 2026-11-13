@@ -47,6 +47,12 @@ namespace visilib
         void extractStabbingLines(PluckerPolyhedron<P>* myPolyhedron, PluckerPolytope<P>* aPolytope, S tolerance);
 
         void attachVisualisationDebugger(HelperVisualDebugger* aDebugger) { mDebugger = aDebugger; }
+
+          bool isTimedOut() const
+        {
+            return mDebugger != nullptr && mDebugger->getTimeout().isOver();
+        }
+
     protected:
         VisibilityExactQuery_<P, S>* mQuery;
         HelperVisualDebugger* mDebugger;

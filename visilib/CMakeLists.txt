@@ -32,6 +32,7 @@ set(HelperSrc
     helper_synthetic_mesh_builder.h
     helper_triangle_mesh.h
     helper_triangle_mesh_container.h
+    helper_timeout.h
 	helper_visual_debugger.h
     )
 
