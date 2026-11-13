@@ -49,6 +49,7 @@ using namespace visilibDemo;
 namespace
 {
     const size_t cResultWidth = 8; 
+    const size_t cAnswerWidth = 18;   // answer plus the optional " != expected" part
     const float cSourceHalfTurn = 3.14519f;
     
     VisibilityResult solveWith(GeometryOccluderSet* occluderSet, const std::vector<float>& v0, const std::vector<float>& v1,
@@ -300,17 +301,40 @@ namespace
             }
             return "UNKNOWN";
         }
-        void display() const
+        /* The line is built once so that the pending and the final display share the
+        exact same fixed width layout, which lets display() overwrite the pending
+        line cleanly with a carriage return. */
+        std::string line() const
         {
-            std::cout << " | " << toStr(mResult) << " | ";
-            std::cout  << DemoConfiguration::toStr(mAnswer);
-                   
+            std::ostringstream answer;
+            answer << DemoConfiguration::toStr(mAnswer);
+
             if (mResult == TEST_RESULT_FAIL)
             {
-                std::cout << " != " << DemoConfiguration::toStr(mExpected);
+                answer << " != " << DemoConfiguration::toStr(mExpected);
             }
-             
-            std::cout   << " | " << mDescription << std::endl;
+
+            std::ostringstream out;
+            out   << " | " << std::left
+                  << std::setw(cResultWidth) << toStr(mResult) << " | "
+                  << std::setw(cAnswerWidth) << answer.str() << " | "
+                  << mDescription;
+
+            return out.str();
+        }
+
+        void display() const
+        {
+            // The leading carriage return replaces the pending line when one was left
+            // unterminated on the current line, and is a no-op on a fresh line.
+            std::cout << "\r" << line() << std::endl;
+        }
+
+        /* Outputs the line without terminating it, so that the subsequent display()
+        call overwrites it once the answer is known. */
+        void displayPending() const
+        {
+            std::cout << line() << std::flush;
         }
     };
     
@@ -382,16 +406,17 @@ namespace
 
         srand(0);
 
-        const VisibilityResult answer = solveWith(occluderSet, v0, v1, settings, sweepVariant.mSolver);
-        TestResult result = TEST_RESULT_UNKNOWN;
+        CaseOutcome outcome(TEST_RESULT_UNKNOWN, UNKNOWN, expected, description);
+        
+        outcome.displayPending();
+        outcome.mAnswer = solveWith(occluderSet, v0, v1, settings, sweepVariant.mSolver);
         
         if (expected != UNKNOWN)
         {
-            result = (answer == expected) ? TEST_RESULT_PASS : TEST_RESULT_FAIL; 
+            outcome.mResult = (outcome.mAnswer == expected) ? TEST_RESULT_PASS : TEST_RESULT_FAIL;
         }
      
-        CaseOutcome outcome(result, answer, expected, description);
-        outcome.display();
+        outcome.display();   
         results.append(outcome);
   
         delete occluderSet;
@@ -445,7 +470,7 @@ namespace
     {
         DemoConfiguration configuration;
         configuration.readConfig(path);
-
+        std::cout << "Case '" << name <<  std::endl;
         if (configuration.vertexCount0 == 0 || configuration.vertexCount1 == 0 || configuration.sceneIndex >= DemoConfiguration::COUNT)
         {
             CaseOutcome outcome(TEST_RESULT_FAIL, UNKNOWN, UNKNOWN, "Could not load the geometry of case '" + name + "' from " + path);
