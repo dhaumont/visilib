@@ -253,6 +253,19 @@ namespace
             default: return "aperture";
         }
     }
+
+    std::string variantDescription(const SweepVariant& sweepVariant)
+    {
+        std::ostringstream description;
+        description << " [ scaling: " << sweepVariant.mGlobalScaling
+                    << ", silhouette: " << (sweepVariant.mSilhouetteOptimisation ? "ON" : "OFF")
+                    << ", earlyStop: " << (sweepVariant.mDetectApertureOnly ? "ON" : "OFF")
+                    << ", precision: " << DemoHelper::precisionTag(sweepVariant.mPrecision)
+                    << ", solver: " << solverName(sweepVariant.mSolver)
+                    << " ]";
+
+        return description.str();
+    }
     enum TestResult
     {
         TEST_RESULT_PASS,
@@ -309,11 +322,32 @@ namespace
             return count;
         }
 
+                
+        const std::string toStr(TestResult p) const
+        {
+            switch (p) 
+            {
+            case TEST_RESULT_PASS:
+                return "PASS";
+                break;
+            case TEST_RESULT_FAIL:
+                return "FAIL";
+                break;
+            case TEST_RESULT_UNKNOWN:
+                return "UNKNOWN";
+                break;
+            }
+            return "UNKNOWN";
+        }
+ 
         void display() const
         {
             for (size_t i = 0; i < mOutcomes.size(); i++)
             {
-                std::cout << std::right << std::setw(cResultWidth) << DemoConfiguration::resultName(mOutcomes[i].mAnswer) << " | " << mOutcomes[i].mDescription << std::endl;
+                std::cout << " | " << toStr(mOutcomes[i].mResult)
+                          << " | " << DemoConfiguration::toStr(mOutcomes[i].mAnswer)
+                          << " | " << DemoConfiguration::toStr(mOutcomes[i].mExpected)
+                          << " | " << mOutcomes[i].mDescription << std::endl;
             }
         }
     };
@@ -326,12 +360,7 @@ namespace
         settings.detectApertureOnly = sweepVariant.mDetectApertureOnly;
         settings.precisionType = sweepVariant.mPrecision;
 
-        std::ostringstream description;
-        description << " gs=" << settings.globalScaling
-                    << " silh=" << (settings.silhouetteOptimisation ? "on" : "off")
-                    << " early=" << (settings.detectApertureOnly ? "on" : "off")
-                    << " prec=" << DemoHelper::precisionTag(settings.precisionType)
-                    << " solver=" << solverName(sweepVariant.mSolver);
+        const std::string description = variantDescription(sweepVariant);
 
         std::vector<float> v0;
         std::vector<float> v1;
@@ -354,7 +383,7 @@ namespace
             result = (answer == expected) ? TEST_RESULT_PASS : TEST_RESULT_FAIL; 
         }
      
-        results.append(result, answer, expected, description.str());
+        results.append(result, answer, expected, description);
   
         delete occluderSet;
         delete meshContainer;
@@ -380,15 +409,11 @@ namespace
         {
             worker.detach();
 
-            std::ostringstream description;
-            description << " gs=" << sweepVariant.mGlobalScaling
-                        << " silh=" << (sweepVariant.mSilhouetteOptimisation ? "on" : "off")
-                        << " early=" << (sweepVariant.mDetectApertureOnly ? "on" : "off")
-                        << " prec=" << DemoHelper::precisionTag(sweepVariant.mPrecision)
-                        << " solver=" << solverName(sweepVariant.mSolver)
-                        << "\n    FAIL did not answer within " << cVariantTimeoutSeconds << " s, abandoned to the background";
+            std::ostringstream line;
+            line << variantDescription(sweepVariant)
+                 << " [TIMEOUT]";
 
-            results.append(TEST_RESULT_FAIL, UNKNOWN, expected, description.str());
+            results.append(TEST_RESULT_FAIL, UNKNOWN, expected, line.str());
           
             return;
         }

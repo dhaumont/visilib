@@ -101,7 +101,7 @@ namespace visilibDemo
         void displaySummary();
         static const std::string toStr(VisibilityExactQueryConfiguration::PrecisionType p);
         static const std::string toStr(VisibilityExactQueryConfiguration::SolverType p);
-        static const char* resultName(visilib::VisibilityResult result);
+        static const std::string toStr(visilib::VisibilityResult result);
         static visilib::VisibilityResult resultFromName(const std::string& name);
     };
 

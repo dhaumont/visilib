@@ -781,14 +781,14 @@ const std::string DemoConfiguration::toStr(VisibilityExactQueryConfiguration::So
     return "UNKNOWN";
 }
 
-const char* DemoConfiguration::resultName(visilib::VisibilityResult result)
+const std::string DemoConfiguration::toStr(visilib::VisibilityResult result)
 {
     switch (result)
     {
-    case visilib::VISIBLE: return "VISIBLE";
-    case visilib::HIDDEN:  return "HIDDEN";
-    case visilib::UNKNOWN: return "UNKNOWN";
-    default:               return "FAILURE";
+        case visilib::VISIBLE: return "VISIBLE";
+        case visilib::HIDDEN:  return "HIDDEN";
+        case visilib::UNKNOWN: return "UNKNOWN";
+        default:               return "FAILURE";
     }
 }
 
@@ -820,12 +820,12 @@ std::string DemoHelper::precisionTag(VisibilityExactQueryConfiguration::Precisio
 {
     const std::string name = tolowerCopy(DemoConfiguration::toStr(precision));
 
-    if (name.find("leda") != std::string::npos) return "leda";
-    if (name.find("rational") != std::string::npos) return "gmpq";
-    if (name.find("gmp") != std::string::npos) return "gmpf";
-    if (name.find("mpfr") != std::string::npos) return "mpfr";
-    if (name.find("float") != std::string::npos) return "flt";
-    return "dbl";
+    if (name.find("leda") != std::string::npos) return "LEDA";
+    if (name.find("rational") != std::string::npos) return "GMPQ";
+    if (name.find("gmp") != std::string::npos) return "GMPF";
+    if (name.find("mpfr") != std::string::npos) return "MPFR";
+    if (name.find("float") != std::string::npos) return "SP";
+    return "DP";
 }
 
 std::string DemoHelper::testCaseFolder()
