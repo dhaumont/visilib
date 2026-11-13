@@ -230,9 +230,6 @@ namespace
         return
         {
             VisibilityExactQueryConfiguration::DOUBLE
-        #ifdef ENABLE_MPFR
-            , VisibilityExactQueryConfiguration::MPFR
-        #endif
         #ifdef ENABLE_GMP
             , VisibilityExactQueryConfiguration::GMP_FLOAT
         #endif
@@ -279,24 +276,52 @@ namespace
         VisibilityResult mAnswer;
         VisibilityResult mExpected;
         std::string mDescription;
-    };
 
+        CaseOutcome(TestResult result, VisibilityResult answer, VisibilityResult expected, const std::string& description)
+         : mResult(result), mAnswer(answer), mExpected(expected), mDescription(description)
+        {
+        }
+
+        const std::string toStr(TestResult p) const
+        {
+            switch (p) 
+            {
+            case TEST_RESULT_PASS:
+                return "PASS";
+                break;
+            case TEST_RESULT_FAIL:
+                return "FAIL";
+                break;
+            case TEST_RESULT_UNKNOWN:
+                return "UNKNOWN";
+                break;
+            }
+            return "UNKNOWN";
+        }
+        void display() const
+        {
+            std::cout << " | " << toStr(mResult) << " | ";
+            std::cout  << DemoConfiguration::toStr(mAnswer);
+                   
+            if (mResult == TEST_RESULT_FAIL)
+            {
+                std::cout << " != " << DemoConfiguration::toStr(mExpected);
+            }
+             
+            std::cout   << " | " << mDescription << std::endl;
+        }
+    };
+    
     struct TestResults
     {
         std::vector<CaseOutcome> mOutcomes;
         bool mStopRequested = false;
         
-        void append(TestResult result, VisibilityResult answer, VisibilityResult expected, const std::string& description)
+        void append(const CaseOutcome& outcome)
         {
-            CaseOutcome outcome;
-            outcome.mResult = result;
-            outcome.mAnswer = answer;
-            outcome.mExpected = expected;
-            outcome.mDescription = description;
-
             mOutcomes.push_back(outcome);
         }
-
+   
         void adopt(TestResults& other)
         {
             for (size_t i = 0; i < other.mOutcomes.size(); i++)
@@ -322,32 +347,12 @@ namespace
             return count;
         }
 
-                
-        const std::string toStr(TestResult p) const
-        {
-            switch (p) 
-            {
-            case TEST_RESULT_PASS:
-                return "PASS";
-                break;
-            case TEST_RESULT_FAIL:
-                return "FAIL";
-                break;
-            case TEST_RESULT_UNKNOWN:
-                return "UNKNOWN";
-                break;
-            }
-            return "UNKNOWN";
-        }
  
         void display() const
         {
-            for (size_t i = 0; i < mOutcomes.size(); i++)
+            for (const auto& outcome : mOutcomes)
             {
-                std::cout << " | " << toStr(mOutcomes[i].mResult)
-                          << " | " << DemoConfiguration::toStr(mOutcomes[i].mAnswer)
-                          << " | " << DemoConfiguration::toStr(mOutcomes[i].mExpected)
-                          << " | " << mOutcomes[i].mDescription << std::endl;
+                outcome.display();
             }
         }
     };
@@ -383,7 +388,9 @@ namespace
             result = (answer == expected) ? TEST_RESULT_PASS : TEST_RESULT_FAIL; 
         }
      
-        results.append(result, answer, expected, description);
+        CaseOutcome outcome(result, answer, expected, description);
+        outcome.display();
+        results.append(outcome);
   
         delete occluderSet;
         delete meshContainer;
@@ -413,8 +420,10 @@ namespace
             line << variantDescription(sweepVariant)
                  << " [TIMEOUT]";
 
-            results.append(TEST_RESULT_FAIL, UNKNOWN, expected, line.str());
-          
+            CaseOutcome outcome(TEST_RESULT_FAIL, UNKNOWN, expected, line.str());
+            outcome.display();
+            results.append(outcome);
+
             return;
         }
 
@@ -437,7 +446,9 @@ namespace
 
         if (configuration.vertexCount0 == 0 || configuration.vertexCount1 == 0 || configuration.sceneIndex >= DemoConfiguration::COUNT)
         {
-            results.append(TEST_RESULT_FAIL, UNKNOWN, UNKNOWN, "Could not load the geometry of case '" + name + "' from " + path);
+            CaseOutcome outcome(TEST_RESULT_FAIL, UNKNOWN, UNKNOWN, "Could not load the geometry of case '" + name + "' from " + path);
+            results.append(outcome);
+            outcome.display();
             return;
         }
 
