@@ -27,4 +27,8 @@ bool SolverEdgeCases(std::string&);
 bool SolverPrecisionTests(std::string&);
 
 void selectSolverTestVariants(const std::string& idList);
-const double cQueryBudgetSeconds = 2.0;
+
+const double cDefaultQueryBudgetSeconds = 2.0;
+
+double queryBudgetSeconds();
+void disableQueryBudget();

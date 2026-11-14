@@ -500,7 +500,7 @@ namespace
          bool budgetExhausted = false;
 
         const auto start = std::chrono::steady_clock::now();
-        outcome.mAnswer = solveWith(occluderSet, v0, v1, settings, sweepVariant.mSolver, cQueryBudgetSeconds, budgetExhausted);
+        outcome.mAnswer = solveWith(occluderSet, v0, v1, settings, sweepVariant.mSolver, queryBudgetSeconds(), budgetExhausted);
         const long elapsedMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
 
         outcome.mDescription += " (" + std::to_string(elapsedMs) + "ms)";
@@ -590,6 +590,21 @@ void selectSolverTestVariants(const std::string& idList)
 
         gSelection.mRequested.push_back(id);
     }
+}
+
+/* The budget lives here rather than in the header constant it starts from, because the runner
+changes it from the command line and both suites read it back. The unlimited value is the one
+HelperTimeout already carries when nobody sets a budget on it. */
+double gQueryBudgetSeconds = cDefaultQueryBudgetSeconds;
+
+double queryBudgetSeconds()
+{
+    return gQueryBudgetSeconds;
+}
+
+void disableQueryBudget()
+{
+    gQueryBudgetSeconds = std::numeric_limits<double>::max();
 }
 
 bool SolverConsistencyTest(std::string& errorMessage)

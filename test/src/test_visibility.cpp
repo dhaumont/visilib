@@ -47,7 +47,7 @@ bool testConfiguration(const DemoConfiguration& configuration, VisibilityResult 
     GeometryOccluderSet* occluderSet = DemoHelper::createOccluderSet(meshContainer);
 
      HelperVisualDebugger debugger;
-    debugger.getTimeout().setMaximumDuration(cQueryBudgetSeconds);
+    debugger.getTimeout().setMaximumDuration(queryBudgetSeconds());
     debugger.setDisplayStatistics(false);
 
     auto result = visilib::areVisible(occluderSet, &v0[0], v0.size() / 3, &v1[0], v1.size() / 3, config, &debugger);
