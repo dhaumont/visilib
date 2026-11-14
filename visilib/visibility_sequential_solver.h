@@ -20,6 +20,8 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 
 #pragma once
 
+#include <algorithm>
+
 #include "visibility_solver.h"
 
 #include "geometry_convex_polygon.h"
@@ -75,7 +77,7 @@ namespace visilib
                                           );
 
         void splitWithAllSilhouetteEdges(std::vector<int> &workingArray,
-                                         std::unordered_set<PluckerPolytope<P> *> &toDelete,
+                                         std::vector<PluckerPolytope<P> *> &toDelete,
                                          const std::vector<SilhouetteEdge> &edges);
 
         void createMissingHyperplanes(PluckerPolyhedron<P> *aPolyhedron,
@@ -236,7 +238,7 @@ namespace visilib
 
     template <class P, class S>
     void VisibilitySequentialSolver<P, S>::splitWithAllSilhouetteEdges(std::vector<int> &workingArray,
-                                                                       std::unordered_set<PluckerPolytope<P> *> &toDelete,
+                                                                       std::vector<PluckerPolytope<P> *> &toDelete,
                                                                        const std::vector<SilhouetteEdge> &edges)
     {
         PluckerPolytopeComplex<P> *complex = VisibilitySolver<P, S>::mQuery->getComplex();
@@ -327,7 +329,10 @@ namespace visilib
                         delete myPolytopeRight;
                         myPolytopeRight = nullptr;
                     }
-                    toDelete.insert(myPolytopeToSplit);                    
+                    if (std::find(toDelete.begin(), toDelete.end(), myPolytopeToSplit) == toDelete.end())
+                    {
+                        toDelete.push_back(myPolytopeToSplit);
+                    }                    
                     V_TRACE("toDelete.insert:" << myPolytopeToSplit << " at index " << workingArray[i]);
                     
                     if (myPolytopeLeft && myPolytopeRight)
@@ -436,7 +441,7 @@ namespace visilib
             size_t originalPolytopeCount = complex->getPolytopeCount();
             V_TRACE("originalPolytopeCount stored as " << originalPolytopeCount);
 
-            std::unordered_set<PluckerPolytope<P> *> toDelete;
+            std::vector<PluckerPolytope<P> *> toDelete;
             std::vector<int> workingArray;
             int originalPolytopeIndex = intersectedPolytopes[intersectedIndex];
             workingArray.push_back(originalPolytopeIndex);
@@ -477,7 +482,10 @@ namespace visilib
                 {
                     V_TRACE(myPolytopeToBlock << " isBlocked");
                     V_TRACE("toDelete.insert: " << myPolytopeToBlock << " at index " << workingArray[i]);
-                    toDelete.insert(myPolytopeToBlock);
+                    if (std::find(toDelete.begin(), toDelete.end(), myPolytopeToBlock) == toDelete.end())
+                    {
+                        toDelete.push_back(myPolytopeToBlock);
+                    }
                     atLeastOneNewPolytopeIsBlocked = true;
                     complex->setPolytope(myPolytopeToBlockIndex, NULL);
                     workingArray[i] = -1;
@@ -491,7 +499,7 @@ namespace visilib
                 for (int i = 0; i < (int)complex->getPolytopeCount(); i++)
                 {
                     PluckerPolytope<P> *myPolytope = complex->getPolytope(i, false);
-                    if (toDelete.find(myPolytope) != toDelete.end())
+                    if (std::find(toDelete.begin(), toDelete.end(), myPolytope) != toDelete.end())
                     {
                         complex->setPolytope(i, NULL);
                     }
