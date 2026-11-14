@@ -617,8 +617,7 @@ bool SolverConsistencyTest(std::string& errorMessage)
         runCase(folder + "/" + name, name, sweep, results);
     }
 
-    results.display();
-
+   
     displaySelectionReport();
 
     const size_t failureCount = results.failureCount();
