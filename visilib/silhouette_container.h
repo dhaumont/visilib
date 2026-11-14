@@ -20,6 +20,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 
 #pragma once
 
+#include <algorithm>
 #include <vector>
 #include "visilib.h"
 #include "math_vector_2.h"
@@ -44,15 +45,15 @@ public:
             delete s;
     }
 
-    const std::unordered_set<Silhouette*>& getSilhouettes()
+    const std::vector<Silhouette*>& getSilhouettes()
     {
         return mSilhouettes;
     }
 
     void addSilhouette(Silhouette* aSilhouette)
     {
-        if (mSilhouettes.find(aSilhouette) == mSilhouettes.end())
-            mSilhouettes.insert(aSilhouette);
+        if (std::find(mSilhouettes.begin(), mSilhouettes.end(), aSilhouette) == mSilhouettes.end())
+            mSilhouettes.push_back(aSilhouette);
     }
 
     virtual bool intersect(VisibilityRay* aRay, double aDistance = 0)
@@ -134,7 +135,7 @@ public:
 
     virtual void prepare() {};
 private:
-    std::unordered_set<Silhouette*> mSilhouettes;
+    std::vector<Silhouette*> mSilhouettes;
 };
 }
 

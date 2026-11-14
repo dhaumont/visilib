@@ -171,16 +171,6 @@ namespace visilib
         MathVector3f direction((float)dir.x, (float)dir.y, (float)dir.z);
         GeometryRay ray(start, direction);
 
-        /* Test the representative line against all faces of this silhouette's
-        occluder geometry, not just the faces in the silhouette patch.  The patch
-        only contains faces that project into the source-to-target shaft; a rep
-        line might exit through an adjacent face that is not in the patch (e.g. the
-        far side of a closed convex occluder).
-
-        getMeshFaces() returns the full face array for this occluder (the same
-        buffer used by the query's silhouette processor), which is the correct
-        geometric reference independent of which occluder set accessor we use. */
-
         const std::vector<SilhouetteMeshFace> &allFaces = aSilhouette->getMeshFaces();
 
         for (const SilhouetteMeshFace &face : allFaces)
@@ -255,13 +245,10 @@ namespace visilib
          
         for (const SilhouetteEdge &myVisibilitySilhouetteEdge : edges)
         {
-            /* Every loop of this solver gives up on an over budget query, and only resolve()
-            draws conclusions, which is where the budget is checked again. */
-            if (VisibilitySolver<P, S>::isTimedOut())
+             if (VisibilitySolver<P, S>::isTimedOut())
             {
                 return;
             }
-
             SilhouetteMeshFace *face = myVisibilitySilhouetteEdge.mFace;
 
             V_ASSERT(myVisibilitySilhouetteEdge.mIsActive);
@@ -437,6 +424,10 @@ namespace visilib
 
         for (int intersectedIndex = intersectedPolytopes.size() - 1; intersectedIndex >= 0; intersectedIndex--)
         {
+           if (VisibilitySolver<P, S>::isTimedOut())
+            {
+                return;
+            }
             size_t originalPolytopeCount = complex->getPolytopeCount();
             V_TRACE("originalPolytopeCount stored as " << originalPolytopeCount);
 
@@ -522,7 +513,7 @@ namespace visilib
         PluckerPolytopeComplex<P> *complex = VisibilitySolver<P, S>::mQuery->getComplex();
         PluckerPolyhedron<P> *myPolyhedron = reinterpret_cast<PluckerPolyhedron<P> *>(VisibilitySolver<P, S>::mQuery->getComplex()->getPolyhedron());
 
-        const std::unordered_set<Silhouette *> &mySilhouettes = VisibilitySolver<P, S>::mQuery->getSilhouettes();
+        const std::vector<Silhouette *> &mySilhouettes = VisibilitySolver<P, S>::mQuery->getSilhouettes();
 
         std::map<size_t, std::vector<Silhouette*>> myOccluders;
 

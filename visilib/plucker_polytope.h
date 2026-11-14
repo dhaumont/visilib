@@ -569,7 +569,7 @@ namespace visilib
                 const P& v1 = polyhedron->get(*iter);
                 const P& v2 = polyhedron->get(*i);
 
-                if (!MathPredicates::getVertexPlaneRelativePosition(v1, v2, tolerance) == ON_BOUNDARY)
+                if (MathPredicates::getVertexPlaneRelativePosition(v1, v2, tolerance) != ON_BOUNDARY)
                 {
                     std::cerr << "   IsValid error: polytope vertex " << *iter << " is not on the facet " << *i << std::endl;
                     std::cerr << "        P:" << polyhedron->get(*iter) << std::endl;
