@@ -82,7 +82,7 @@ namespace visilib
 
         resolveInternal(myGlobalResult, reinterpret_cast<PluckerPolytope<P>*>(VisibilitySolver<P, S>::mQuery->getComplex()->getRoot()), "*", std::vector<Silhouette*>(), std::vector<P>(), 0);
 
-        return myGlobalResult;
+        return VisibilitySolver<P, S>::conclude(myGlobalResult);
     }
 
     template<class P, class S>

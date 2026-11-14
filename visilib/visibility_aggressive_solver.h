@@ -214,7 +214,7 @@ namespace visilib
             }
         }
 
-        return myGlobalResult;
+        return VisibilitySolver<P, S>::conclude(myGlobalResult);
 
     }
 

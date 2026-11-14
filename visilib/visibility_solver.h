@@ -48,9 +48,14 @@ namespace visilib
 
         void attachVisualisationDebugger(HelperVisualDebugger* aDebugger) { mDebugger = aDebugger; }
 
-          bool isTimedOut() const
+        bool isTimedOut() const
         {
             return mDebugger != nullptr && mDebugger->getTimeout().isOver();
+        }
+
+        VisibilityResult conclude(VisibilityResult aResult) const
+        {
+            return isTimedOut() ? FAILURE : aResult;
         }
 
     protected:

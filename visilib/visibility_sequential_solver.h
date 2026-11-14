@@ -272,6 +272,11 @@ namespace visilib
             GeometryPositionType myResult = ON_UNKNOWN_POSITION;
             for (int i = workingArray.size() - 1; i >= 0; i--)
             {
+                if (VisibilitySolver<P, S>::isTimedOut())
+                {
+                    return;
+                }
+
                 PluckerPolytope<P> *myPolytopeToSplit = complex->getPolytope(workingArray[i]);
                 V_TRACE("Split  " << myPolytopeToSplit);
          
@@ -446,6 +451,11 @@ namespace visilib
 
             for (int i = 0; i < (int)workingArray.size(); i++)
             {
+                if (VisibilitySolver<P, S>::isTimedOut())
+                {
+                    return;
+                }
+
                 if (workingArray[i] < 0)
                 {
                     continue;
@@ -575,12 +585,20 @@ namespace visilib
 
             complex->repack();
         }
+        /* No conclusion before this: the loops above give up on an over budget query, and the
+        work they left undone is not an answer. */
+        if (VisibilitySolver<P, S>::isTimedOut())
+        {
+            V_TRACE("FAILURE: time budget over");
+            return FAILURE;
+        }
+
         V_TRACE("End of procedure:" << complex->getPolytopeCount() << " left");
         if (complex->getPolytopeCount() == 0)
         {
              V_TRACE("HIDDEN: done");
        
-            return HIDDEN;
+            return VisibilitySolver<P, S>::conclude(HIDDEN);
         }
          V_TRACE("visible: prepare to extract stabbinglines");
        
@@ -592,6 +610,6 @@ namespace visilib
    
             VisibilitySolver<P, S>::extractStabbingLines(myPolyhedron, myPolytope, mTolerance);
         }
-        return VISIBLE;
+        return VisibilitySolver<P, S>::conclude(VISIBLE);
     }
 }
