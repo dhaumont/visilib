@@ -25,4 +25,6 @@ bool VisibilityTest(std::string&);
 bool SolverConsistencyTest(std::string&);
 bool SolverEdgeCases(std::string&);
 bool SolverPrecisionTests(std::string&);
+
+void selectSolverTestVariants(const std::string& idList);
 const double cQueryBudgetSeconds = 2.0;

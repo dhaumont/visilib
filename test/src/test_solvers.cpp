@@ -23,6 +23,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include <iostream>
 #include <iomanip>
 #include <vector>
+#include <algorithm>
 #include <cmath>
 #include <cstdlib>
 #include <chrono>
@@ -45,9 +46,82 @@ using namespace visilibDemo;
 
 namespace
 {
+    const size_t cIdWidth = 6;
     const size_t cResultWidth = 8; 
     const size_t cAnswerWidth = 18;   // answer plus the optional " != expected" part
     const float cSourceHalfTurn = 3.14519f;
+
+    /* The variants of the solver sweeps are numbered, from 1, in the order they would run, and
+    the command line can name a few of those numbers to run only them. A variant that is not
+    named still spends its number, which is what keeps a number meaning the same variant from one
+    run to the next; naming no number runs everything, which is the default. */
+    struct VariantSelection
+    {
+        std::vector<size_t> mRequested;   // empty means every variant
+        std::vector<bool> mSeen;          // mSeen[id], ids start at 1
+        size_t mHandedOut = 0;            // how many ids the sweeps have spent
+        size_t mExecuted = 0;             // how many of those have run
+    };
+
+    VariantSelection gSelection;
+
+    size_t nextVariantId()
+    {
+        const size_t id = ++gSelection.mHandedOut;
+
+        if (gSelection.mSeen.size() <= id)
+        {
+            gSelection.mSeen.resize(id + 1, false);
+        }
+
+        return id;
+    }
+
+    bool isVariantSelected(size_t id)
+    {
+        if (gSelection.mRequested.empty())
+        {
+            return true;
+        }
+
+        const bool selected = std::find(gSelection.mRequested.begin(), gSelection.mRequested.end(), id) != gSelection.mRequested.end();
+
+        if (selected)
+        {
+            gSelection.mSeen[id] = true;
+        }
+
+        return selected;
+    }
+
+    /* What a selection leaves out is worth stating, because the run looks short otherwise, and
+    a number that no variant carried says the sweep has changed since the number was read. */
+    void displaySelectionReport()
+    {
+        if (gSelection.mRequested.empty())
+        {
+            return;
+        }
+
+        std::cout << "    " << gSelection.mExecuted << " of " << gSelection.mHandedOut << " variants selected" << std::endl;
+
+        std::ostringstream missing;
+
+        for (size_t i = 0; i < gSelection.mRequested.size(); i++)
+        {
+            const size_t id = gSelection.mRequested[i];
+
+            if (id >= gSelection.mSeen.size() || !gSelection.mSeen[id])
+            {
+                missing << (missing.str().empty() ? "" : ", ") << id;
+            }
+        }
+
+        if (!missing.str().empty())
+        {
+            std::cout << "    no variant with id " << missing.str() << " was run" << std::endl;
+        }
+    }
     
     VisibilityResult solveWith(GeometryOccluderSet* occluderSet, const std::vector<float>& v0, const std::vector<float>& v1,
                                const DemoConfiguration& configuration, VisibilityExactQueryConfiguration::SolverType solverType,
@@ -282,13 +356,14 @@ namespace
 
     struct CaseOutcome
     {
+        size_t mId;
         TestResult  mResult;
         VisibilityResult mAnswer;
         VisibilityResult mExpected;
         std::string mDescription;
 
-        CaseOutcome(TestResult result, VisibilityResult answer, VisibilityResult expected, const std::string& description)
-         : mResult(result), mAnswer(answer), mExpected(expected), mDescription(description)
+        CaseOutcome(size_t id, TestResult result, VisibilityResult answer, VisibilityResult expected, const std::string& description)
+         : mId(id), mResult(result), mAnswer(answer), mExpected(expected), mDescription(description)
         {
         }
 
@@ -324,8 +399,10 @@ namespace
                 answer << " != " << DemoConfiguration::toStr(mExpected);
             }
 
+            const std::string id = "#" + std::to_string(mId);
+
             std::ostringstream out;
-            out   << " | " << std::left
+            out   << " " << std::right << std::setw(cIdWidth) << id << " | " << std::left
                   << std::setw(cResultWidth) << toStr(mResult) << " | "
                   << std::setw(cAnswerWidth) << answer.str() << " | "
                   << mDescription;
@@ -393,7 +470,7 @@ namespace
         }
     };
 
-    void runVariant(const SweepVariant& sweepVariant, const DemoConfiguration& configuration, VisibilityResult expected, TestResults& results)
+    void runVariant(size_t variantId, const SweepVariant& sweepVariant, const DemoConfiguration& configuration, VisibilityResult expected, TestResults& results)
     {
         DemoConfiguration settings = configuration;
         settings.globalScaling = sweepVariant.mGlobalScaling;
@@ -416,7 +493,7 @@ namespace
 
         srand(0);
 
-        CaseOutcome outcome(TEST_RESULT_UNKNOWN, UNKNOWN, expected, description);
+        CaseOutcome outcome(variantId, TEST_RESULT_UNKNOWN, UNKNOWN, expected, description);
         
         outcome.displayPending();
 
@@ -451,10 +528,12 @@ namespace
     {
         DemoConfiguration configuration;
         configuration.readConfig(path);
-        std::cout << "Case '" << name <<  std::endl;
+
         if (configuration.vertexCount0 == 0 || configuration.vertexCount1 == 0 || configuration.sceneIndex >= DemoConfiguration::COUNT)
         {
-            CaseOutcome outcome(TEST_RESULT_FAIL, UNKNOWN, UNKNOWN, "Could not load the geometry of case '" + name + "' from " + path);
+            std::cout << "Case '" << name <<  std::endl;
+
+            const CaseOutcome outcome(nextVariantId(), TEST_RESULT_FAIL, UNKNOWN, UNKNOWN, "Could not load the geometry of case '" + name + "' from " + path);
             results.append(outcome);
             outcome.display();
             return;
@@ -462,10 +541,54 @@ namespace
 
         const VisibilityResult expected = DemoConfiguration::resultFromName(configuration.expected);
 
+        bool headerDisplayed = false;
+
         for (SweepBounds::Iterator it = sweep.begin(); it != sweep.end() && !results.mStopRequested; ++it)
         {
-           runVariant(*it, configuration, expected, results);
+            const size_t variantId = nextVariantId();
+
+            if (!isVariantSelected(variantId))
+            {
+                continue;
+            }
+
+            if (!headerDisplayed)
+            {
+                std::cout << "Case '" << name <<  std::endl;
+                headerDisplayed = true;
+            }
+
+            gSelection.mExecuted++;
+
+            runVariant(variantId, *it, configuration, expected, results);
         }
+    }
+}
+
+void selectSolverTestVariants(const std::string& idList)
+{
+    std::istringstream stream(idList);
+    std::string token;
+
+    while (std::getline(stream, token, ','))
+    {
+        token.erase(std::remove_if(token.begin(), token.end(), [](char c) { return c == ' ' || c == '\t'; }), token.end());
+
+        if (token.empty())
+        {
+            continue;
+        }
+
+        std::istringstream number(token);
+        size_t id = 0;
+
+        if (!(number >> id) || id == 0)
+        {
+            std::cerr << "    ignoring '" << token << "': not a variant number" << std::endl;
+            continue;
+        }
+
+        gSelection.mRequested.push_back(id);
     }
 }
 
@@ -495,6 +618,8 @@ bool SolverConsistencyTest(std::string& errorMessage)
     }
 
     results.display();
+
+    displaySelectionReport();
 
     const size_t failureCount = results.failureCount();
 
@@ -535,6 +660,8 @@ bool SolverEdgeCases(std::string& errorMessage)
 
     results.display();
 
+    displaySelectionReport();
+
     const size_t failureCount = results.failureCount();
 
     if (failureCount > 0)
@@ -573,6 +700,8 @@ bool SolverPrecisionTests(std::string& errorMessage)
     }
 
     results.display();
+
+    displaySelectionReport();
 
     const size_t failureCount = results.failureCount();
 

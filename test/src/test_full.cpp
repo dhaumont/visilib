@@ -23,11 +23,12 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 
 #include "test_definition.h"
 
-/* The visitor returns true when a test name should run, which lets a single test be
-selected from the command line without rebuilding:
+/* The first argument selects the suites by name, the second narrows the sweeps of the solver
+suites to the variant numbers their output prints:
 
     visilibTest                         run every test
     visilibTest Solver                  run every test whose name contains "Solver"
+    visilibTest Solver 12,14,15         of those, run only the variants 12, 14 and 15
     visilibTest -l                      list the available tests
     visilibTest -h                      print this help
 */
@@ -51,9 +52,12 @@ const TestDefinition cTests[] =
 
 static void printUsage(const char* program)
 {
-    std::cout << "usage: " << program << " [filter] [-l] [-h]" << std::endl
+    std::cout << "usage: " << program << " [filter] [ids] [-l] [-h]" << std::endl
               << "  runs the test suites of the library, one line of result per test" << std::endl
               << "  filter   substring of a test name, e.g. '" << program << " Solver'" << std::endl
+              << "  ids      comma separated variant numbers to run, e.g. '12,14,15'," << std::endl
+              << "           as printed in the '#n' column of the solver suites; every" << std::endl
+              << "           variant runs when it is left out" << std::endl
               << "  -l       list the available tests and exit" << std::endl
               << "  -h       print this message and exit" << std::endl << "  tests:" << std::endl;
 
@@ -81,6 +85,13 @@ int main(int argc, char** argv)
     }
 
     const std::string filter = argc > 1 ? argv[1] : std::string();
+
+    /* A second argument narrows the solver sweeps to the variant numbers they print. */
+    if (argc > 2)
+    {
+        selectSolverTestVariants(argv[2]);
+    }
+
     size_t selectedCount = 0;
     size_t failureCount = 0;
 
