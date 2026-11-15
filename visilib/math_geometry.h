@@ -184,73 +184,32 @@ namespace visilib
         /** @brief   */
         static bool hasVertexOutsidePlane(const MathPlane3d& plane, SilhouetteMeshFace* face);
 
-        /** @brief  Compute a Plucker line that is representative of a polytope
+        /** @brief  Compute a line representative of a polytope, and report how it came out
 
-        This procedure is not formally correct from a mathematical point of view: the gravity center in Pluker space do not correspond to a real line in 3D since the gravity center
-         does not belongs to the Plucker quadric. However, it works well in practice to find an average polytope representative line
-        */
-        template<class P, class S> static P computeRepresentativeLine(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron, const S & tolerance);
-
-        /** @brief  Compute a line representative of a polytope, with the procedure the configuration asks for
-
-        The optimised procedure looks for a point of the Plucker quadric as far from the facets of the polytope
-        as possible, and reports the margin it reached. The other one is the gravity center of the polytope
-        projected onto the quadric, kept because it is what the search did for years and because comparing the
-        two lines is how a wrong answer is tracked down; its result is reported unverified.
-
-        The statistics, when one is given, are told what was asked for and how it came out, which is where the
-        interface reads how often the two procedures disagree about a cell.*/
+        The computation is the one computeRepresentativeLine does, with the procedure the configuration asks
+        for. The statistics, when one is given, are told what was asked for and how it came out, which is where
+        the interface reads how often the two steps disagree about a cell.*/
         template<class P, class S> static RepresentativeLine<P> representativeLine(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron, const S & tolerance, bool optimised, HelperStatisticCollector* statistics = nullptr);
 
-        /** @brief  Look for a point of the Plucker quadric inside the polytope, as far from its facets as possible
+        /** @brief  Compute a line representative of a polytope, in two steps, the second one the configuration asks for
 
-        The problem is solved in double precision whatever the arithmetic of the query is: the search only
-        proposes a candidate, and what is said about it is decided afterwards by the exact predicates of the
-        query. It starts from the line computeRepresentativeLine gives, which is already the answer for most
-        polytopes, and walks it towards the interior of the cell along the facets it fails.*/
-        template<class P, class S> static RepresentativeLine<P> computeOptimisedRepresentativeLine(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron, const S & tolerance);
+        The first step is the gravity center of the polytope projected onto the Plucker quadric, checked against
+        the cell: it is the answer of most cells, and it is also what the query takes when the optimised procedure
+        is not asked for. Where the line is not valid and the optimised procedure is asked for, the second step
+        looks for a point of the quadric as far from the facets of the polytope as possible: the problem is solved
+        in double precision whatever the arithmetic of the query is, the search only proposes a candidate, held to
+        the sphere the gravity center lies on, and what is said about it is decided afterwards by the exact
+        predicates of the query. The line it gives when it cannot reach the interior is still checked, which is
+        how a wrong answer is tracked down.*/
+        template<class P, class S> static RepresentativeLine<P> computeRepresentativeLine(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron, const S & tolerance, bool optimised);
 
-        /** @brief  Check a line against the Plucker quadric and against every facet of the polytope
+        /** @brief  Check a line against the Plucker quadric and against the given facets of a polytope
 
         The result carries the line, whether the two conditions hold within the tolerance, and the distance to
-        the nearest facet.*/
-        template<class P, class S> static RepresentativeLine<P> verifyRepresentativeLine(const P& line, PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron, const S & tolerance);
-
-        /** @brief  One facet of a polytope, in double precision, with the side the polytope lies on
-
-        The plane is divided by its norm, so that the value it takes on a point of unit norm is a distance.*/
-        struct CellFacet
-        {
-            MathVector3d direction;   /**< @brief The direction part of the plane*/
-            MathVector3d location;    /**< @brief The location part of the plane*/
-            double sign;              /**< @brief 1 when the cell lies where the plane is negative, -1 where it is positive, 0 when the whole cell lies in the plane*/
-            size_t index;             /**< @brief The index of the plane in the polyhedron*/
-        };
-
-        /** @brief  Collect the facets of a polytope, that is the planes tight on one of its vertices
-
-        Every facet of the convex hull of the vertices carries one of these planes, so they describe the cell
-        completely. A plane the whole cell lies in comes back with a sign of nought, an equality the line has to
-        lie in as well, and is what the flat flag tells of: behind such a plane there is no interior to reach.*/
-        template<class P, class S> static size_t getCellFacets(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron, const S & tolerance, std::vector<CellFacet>& facets, bool& flat);
-
-        /** @brief A Plucker line in double precision, the arithmetic the search for an interior line runs in */
-        typedef MathPlucker6<double> Line;
-
-        /** @brief The line of an arithmetic, with its coefficients turned into double precision */
-        template<class S> static Line lineToDouble(const MathPlucker6<S>& line);
-
-        /** @brief A double precision line turned into the arithmetic of a query */
-        template<class S> static MathPlucker6<S> lineToType(const Line& line);
-
-        /** @brief The scalar product of two lines in the six dimensional space they live in
-
-        MathPlucker6::dot is the Klein form, which vanishes exactly for the pairs of lines meeting; the search
-        projects directions onto the quadric and onto the sphere, and those need the ordinary product.*/
-        static double lineDot(const Line& a, const Line& b);
-
-        /** @brief The gradient at a line of the equation of the Plucker quadric */
-        static Line quadricGradient(const Line& line);
+        the nearest facet. The facets are the ones the polytope gives: they describe the cell every line is
+        checked in, and they are collected once by the query and handed over, rather than read again for
+        each line.*/
+        template<class P, class S> static RepresentativeLine<P> verifyRepresentativeLine(const P& line, PluckerPolyhedron<P>* polyhedron, const S & tolerance, const std::vector<typename PluckerPolytope<P>::CellFacet>& facets);
 
         /** @brief  Compute the intersection of an edge with a plane */
         static MathVector3_<double> getPlaneIntersectionWithEdge(const MathVector3_<double>& myV1, const MathVector3_<double>& myV2, const MathPlane3_<double>& aPlane);
@@ -1041,120 +1000,20 @@ namespace visilib
     }
 
     template<class P, class S>
-    inline P MathGeometry::computeRepresentativeLine(PluckerPolytope<P> * polytope, PluckerPolyhedron<P> * polyhedron, const S & tolerance)
-    {
-        P  myGravityCenterImaginary = P::Zero();
-        auto myVertices = polytope->getVertices();
-
-        for (auto iter = myVertices.begin(); iter != myVertices.end(); iter++)
-        {
-            size_t v = *iter;
-            myGravityCenterImaginary += polyhedron->get(v);
-        }
-
-        P myGravityCenterReal = getProjectionOnQuadric<P,S>(myGravityCenterImaginary);
-//        P myGravityCenterReal = getClosestQuadricPoint<P,S>(myGravityCenterImaginary);
-        V_ASSERT(MathPredicates::getQuadricRelativePosition(myGravityCenterReal, tolerance) == ON_BOUNDARY);
-        return myGravityCenterReal;
-    }
-
-    template<class S>
-    inline MathGeometry::Line MathGeometry::lineToDouble(const MathPlucker6<S>& line)
-    {
-        const MathVector3_<S>& a = line.getDirection();
-        const MathVector3_<S>& b = line.getLocation();
-
-        return Line(MathArithmetic<S>::to_double(a.x), MathArithmetic<S>::to_double(a.y), MathArithmetic<S>::to_double(a.z),
-                    MathArithmetic<S>::to_double(b.x), MathArithmetic<S>::to_double(b.y), MathArithmetic<S>::to_double(b.z));
-    }
-
-    template<class S>
-    inline MathPlucker6<S> MathGeometry::lineToType(const Line& line)
-    {
-        const MathVector3d& a = line.getDirection();
-        const MathVector3d& b = line.getLocation();
-
-        return MathPlucker6<S>(S(a.x), S(a.y), S(a.z), S(b.x), S(b.y), S(b.z));
-    }
-
-    inline double MathGeometry::lineDot(const Line& a, const Line& b)
-    {
-        return a.getDirection().dot(b.getDirection()) + a.getLocation().dot(b.getLocation());
-    }
-
-    inline MathGeometry::Line MathGeometry::quadricGradient(const Line& line)
-    {
-        /* The quadric is the zero set of Q(a, b) = a . b, whose gradient at (a, b) is (b, a).*/
-        const MathVector3d& a = line.getDirection();
-        const MathVector3d& b = line.getLocation();
-
-        return Line(b.x, b.y, b.z, a.x, a.y, a.z);
-    }
-
-    template<class P, class S>
-    inline size_t MathGeometry::getCellFacets(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron, const S & tolerance, std::vector<CellFacet>& facets, bool& flat)
-    {
-        facets.clear();
-        flat = false;
-
-        std::set<size_t> myFacetIndices;
-        polytope->getFacets(myFacetIndices, polyhedron);
-
-        for (auto index = myFacetIndices.begin(); index != myFacetIndices.end(); index++)
-        {
-            const P plane = polyhedron->get(*index);
-
-            const GeometryPositionType position = MathPredicates::getRelativePosition(polytope, polyhedron, plane, tolerance);
-
-            /* The cell lies on one side of its own facets, and the side is read from its vertices. A plane the whole
-            cell lies in is kept too, as an equality: a line that leaves it is outside the cell, however well it
-            satisfies the rest. A plane with vertices on both sides is not a facet of the hull and is left out. */
-            if (position == ON_BOTH_SIDES) continue;
-
-            const Line asLine = lineToDouble(plane);
-            const double norm = MathArithmetic<double>::getSqrt(lineDot(asLine, asLine));
-
-            if (!(norm > 0.0)) continue;
-
-            CellFacet facet;
-            facet.index = *index;
-
-            if (position == ON_BOUNDARY)
-            {
-                facet.sign = 0.0;
-                flat = true;
-            }
-            else
-            {
-                facet.sign = position == ON_NEGATIVE_SIDE ? 1.0 : -1.0;
-            }
-            facet.direction = MathVector3d(asLine.getDirection().x / norm, asLine.getDirection().y / norm, asLine.getDirection().z / norm);
-            facet.location = MathVector3d(asLine.getLocation().x / norm, asLine.getLocation().y / norm, asLine.getLocation().z / norm);
-
-            facets.push_back(facet);
-        }
-
-        return facets.size();
-    }
-
-    template<class P, class S>
-    RepresentativeLine<P> MathGeometry::verifyRepresentativeLine(const P& line, PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron, const S & tolerance)
+    RepresentativeLine<P> MathGeometry::verifyRepresentativeLine(const P& line, PluckerPolyhedron<P>* polyhedron, const S & tolerance, const std::vector<typename PluckerPolytope<P>::CellFacet>& facets)
     {
         RepresentativeLine<P> result;
         result.line = line;
         result.onQuadric = MathPredicates::getQuadricRelativePosition(line, tolerance) == ON_BOUNDARY;
 
-        std::vector<CellFacet> facets;
-        bool flat = false;
-        getCellFacets(polytope, polyhedron, tolerance, facets, flat);
-
-        const Line y = lineToDouble(line);
-        const double norm = MathArithmetic<double>::getSqrt(lineDot(y, y));
+        const MathPlucker6d y = convert<MathPlucker6d>(line);
+        const double norm = MathArithmetic<double>::getSqrt(y.scalarDot(y));
 
         if (!(norm > 0.0)) return result;
 
         bool strictlyInside = true;
         bool insideOrOnBoundary = true;
+        bool flat = false;
         double margin = 0.0;
         bool measured = false;
 
@@ -1172,8 +1031,15 @@ namespace visilib
                 ? position == ON_BOUNDARY
                 : position == (facets[i].sign > 0.0 ? ON_NEGATIVE_SIDE : ON_POSITIVE_SIDE);
 
-            if (facets[i].sign == 0.0) strictlyInside = false;
-            else strictlyInside = strictlyInside && satisfied;
+            if (facets[i].sign == 0.0)
+            {
+                strictlyInside = false;
+                flat = true;
+            }
+            else
+            {
+                strictlyInside = strictlyInside && satisfied;
+            }
 
             insideOrOnBoundary = insideOrOnBoundary && (satisfied || position == ON_BOUNDARY);
 
@@ -1199,19 +1065,7 @@ namespace visilib
     template<class P, class S>
     RepresentativeLine<P> MathGeometry::representativeLine(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron, const S & tolerance, bool optimised, HelperStatisticCollector* statistics)
     {
-        RepresentativeLine<P> result;
-
-        if (optimised)
-        {
-            result = computeOptimisedRepresentativeLine<P, S>(polytope, polyhedron, tolerance);
-        }
-        else
-        {
-            /* The old procedure, kept to compare with: its line is checked for the statistics, but the search that
-            asked for it goes on taking the line whether or not it lies in the cell, which is what it has always done.*/
-            result = verifyRepresentativeLine<P, S>(computeRepresentativeLine<P, S>(polytope, polyhedron, tolerance), polytope, polyhedron, tolerance);
-            result.direct = true;
-        }
+        RepresentativeLine<P> result = computeRepresentativeLine<P, S>(polytope, polyhedron, tolerance, optimised);
 
         if (statistics != nullptr)
         {
@@ -1238,20 +1092,22 @@ namespace visilib
     {
         /* The distance from a point of the six dimensional space to one facet of a cell, as the plane is stored
         with the side of the cell first, so that a positive value is a point inside.*/
-        inline double cellFacetSlack(const MathGeometry::CellFacet& facet, const MathGeometry::Line& point)
+        template<class P>
+        inline double cellFacetSlack(const typename PluckerPolytope<P>::CellFacet& facet, const MathPlucker6d& point)
         {
             return facet.sign * (facet.direction.dot(point.getDirection()) + facet.location.dot(point.getLocation()));
         }
 
         /* The same, divided by the norm of the point: a Plucker line stands for its line whatever length it is
         given, so only such a ratio means anything.*/
-        inline double worstCellFacetSlack(const std::vector<MathGeometry::CellFacet>& facets, const MathGeometry::Line& point, double norm)
+        template<class P>
+        inline double worstCellFacetSlack(const std::vector<typename PluckerPolytope<P>::CellFacet>& facets, const MathPlucker6d& point, double norm)
         {
             double worst = 0.0;
 
             for (size_t i = 0; i < facets.size(); i++)
             {
-                const double slack = cellFacetSlack(facets[i], point) / norm;
+                const double slack = cellFacetSlack<P>(facets[i], point) / norm;
                 if (i == 0 || slack < worst) worst = slack;
             }
 
@@ -1260,10 +1116,10 @@ namespace visilib
 
         /* Put a point back onto the quadric, and onto the sphere of a chosen radius: the Plucker correction lands
         on the quadric, and rescaling it cannot leave the quadric because its equation is homogeneous.*/
-        inline MathGeometry::Line retractToQuadric(const MathGeometry::Line& point, double radius)
+        inline MathPlucker6d retractToQuadric(const MathPlucker6d& point, double radius)
         {
-            const MathGeometry::Line corrected = MathGeometry::getProjectionOnQuadric<MathGeometry::Line, double>(point);
-            const double norm = MathArithmetic<double>::getSqrt(MathGeometry::lineDot(corrected, corrected));
+            const MathPlucker6d corrected = MathGeometry::getProjectionOnQuadric<MathPlucker6d, double>(point);
+            const double norm = MathArithmetic<double>::getSqrt(corrected.scalarDot(corrected));
 
             if (!(norm > 0.0)) return corrected;
 
@@ -1273,13 +1129,13 @@ namespace visilib
         /* Bring a point back into the planes the whole cell lies in, then onto the quadric and onto the sphere. The
         two do not commute, so this is one step of alternating projections rather than a solution: what the point is
         worth is decided by the check that follows it. */
-        inline MathGeometry::Line retractToWalls(const MathGeometry::Line& point, const std::vector<MathGeometry::Line>& walls, double radius)
+        inline MathPlucker6d retractToWalls(const MathPlucker6d& point, const std::vector<MathPlucker6d>& walls, double radius)
         {
-            MathGeometry::Line y = point;
+            MathPlucker6d y = point;
 
             for (size_t i = 0; i < walls.size(); i++)
             {
-                y -= walls[i] * (MathGeometry::lineDot(y, walls[i]) / MathGeometry::lineDot(walls[i], walls[i]));
+                y -= walls[i] * (y.scalarDot(walls[i]) / walls[i].scalarDot(walls[i]));
             }
 
             return retractToQuadric(y, radius);
@@ -1287,58 +1143,76 @@ namespace visilib
     }
 
     template<class P, class S>
-    RepresentativeLine<P> MathGeometry::computeOptimisedRepresentativeLine(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron, const S & tolerance)
+    RepresentativeLine<P> MathGeometry::computeRepresentativeLine(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron, const S & tolerance, bool optimised)
     {
-        std::vector<CellFacet> facets;
-        bool flat = false;
-        getCellFacets(polytope, polyhedron, tolerance, facets, flat);
-
-        /* The walk starts where the old procedure lands, and it is held to the sphere the gravity center of the
-        polytope lies on: a sphere is the simplest gauge that meets each line of the cell once.*/
-        P myGravityCenter = P::Zero();
+        /* First step, the procedure the search did for years: the gravity center of the polytope projected onto the
+        Plucker quadric. It is not formally correct from a mathematical point of view: the gravity center in Plucker
+        space does not correspond to a real line in 3D since it does not belong to the Plucker quadric. However, it
+        works well in practice to find an average polytope representative line, and it is checked here rather than
+        taken as it was.*/
+        P myGravityCenterImaginary = P::Zero();
         auto myVertices = polytope->getVertices();
 
         for (auto iter = myVertices.begin(); iter != myVertices.end(); iter++)
         {
-            myGravityCenter += polyhedron->get(*iter);
+            size_t v = *iter;
+            myGravityCenterImaginary += polyhedron->get(v);
         }
 
-        const Line start = lineToDouble(myGravityCenter);
-        const double radius = MathArithmetic<double>::getSqrt(lineDot(start, start));
+        P myGravityCenterReal = getProjectionOnQuadric<P, S>(myGravityCenterImaginary);
+        V_ASSERT(MathPredicates::getQuadricRelativePosition(myGravityCenterReal, tolerance) == ON_BOUNDARY);
+
+        /* The facets describe the cell the line is checked in: they are read once here, and the same list goes
+        to the verification and, should it come to it, to the walk.*/
+        std::vector<typename PluckerPolytope<P>::CellFacet> facets;
+        bool flat = false;
+        polytope->getCellFacets(polyhedron, tolerance, facets, flat);
+
+        RepresentativeLine<P> result = verifyRepresentativeLine<P, S>(myGravityCenterReal, polyhedron, tolerance, facets);
+        result.direct = true;
+
+        /* A valid line, or a query that did not ask for the optimised procedure, stops here: the two steps answer
+        the same thing, which is what the direct flag tells of.*/
+        if (!optimised || result.insideCell)
+        {
+            return result;
+        }
+
+        /* Second step, the walk. It starts where the first step lands, and it is held to the sphere the gravity
+        center of the polytope lies on: a sphere is the simplest gauge that meets each line of the cell once. A
+        cell the gravity center does not answer goes on taking the line the walk gives, or the best it could
+        reach, whether or not it lies in the cell.*/
+        const MathPlucker6d start = convert<MathPlucker6d>(myGravityCenterImaginary);
+        const double radius = MathArithmetic<double>::getSqrt(start.scalarDot(start));
 
         if (!(radius > 0.0) || facets.empty())
         {
-            RepresentativeLine<P> centre = verifyRepresentativeLine<P, S>(computeRepresentativeLine<P, S>(polytope, polyhedron, tolerance), polytope, polyhedron, tolerance);
-            centre.direct = true;
-            return centre;
+            /* Nothing to walk on, or nowhere to walk to: the line of the first step is kept as it was checked.*/
+            return result;
         }
 
-        Line x = retractToQuadric(start, radius);
+        MathPlucker6d x = retractToQuadric(start, radius);
 
         /* The planes the whole cell lies in are equalities the line has to stay in, so the walk is held in their
         intersection as well as on the quadric.*/
-        std::vector<Line> walls;
+        std::vector<MathPlucker6d> walls;
 
         for (size_t i = 0; i < facets.size(); i++)
         {
             if (facets[i].sign != 0.0) continue;
 
-            Line wall(facets[i].direction.x, facets[i].direction.y, facets[i].direction.z,
+            MathPlucker6d wall(facets[i].direction.x, facets[i].direction.y, facets[i].direction.z,
                       facets[i].location.x, facets[i].location.y, facets[i].location.z);
 
             for (size_t j = 0; j < walls.size(); j++)
             {
-                wall -= walls[j] * (lineDot(wall, walls[j]) / lineDot(walls[j], walls[j]));
+                wall -= walls[j] * (wall.scalarDot(walls[j]) / walls[j].scalarDot(walls[j]));
             }
 
-            if (MathArithmetic<double>::getSqrt(lineDot(wall, wall)) > 1e-12) walls.push_back(wall);
+            if (MathArithmetic<double>::getSqrt(wall.scalarDot(wall)) > 1e-12) walls.push_back(wall);
         }
 
         x = retractToWalls(x, walls, radius);
-
-        /* Whether the center already lay inside the cell is what the two procedures are compared by: where it
-        does, the walk has nothing to say that the old line did not. */
-        const bool direct = worstCellFacetSlack(facets, x, radius) >= 0.0;
 
         const size_t cIterationCount = 64;
         const double cActiveBand = 1e-6;
@@ -1346,7 +1220,7 @@ namespace visilib
 
         for (size_t iteration = 0; iteration < cIterationCount; iteration++)
         {
-            const double worst = worstCellFacetSlack(facets, x, radius);
+            const double worst = worstCellFacetSlack<P>(facets, x, radius);
 
             /* Move away from the facets within a band of the worst, all of them together: following the worst one
             alone walks to the middle of the next and gets no further.*/
@@ -1356,7 +1230,7 @@ namespace visilib
 
             for (size_t i = 0; i < facets.size(); i++)
             {
-                if (cellFacetSlack(facets[i], x) / radius > worst + cActiveBand) continue;
+                if (cellFacetSlack<P>(facets[i], x) / radius > worst + cActiveBand) continue;
 
                 const double sign = facets[i].sign;
                 pd = MathVector3d(pd.x + facets[i].direction.x * sign, pd.y + facets[i].direction.y * sign, pd.z + facets[i].direction.z * sign);
@@ -1370,27 +1244,27 @@ namespace visilib
             normals of those two are orthogonal to one another on the quadric, so taking each out in turn is the
             whole of the projection.*/
             const double scale = -1.0 / (double)active;
-            Line d(pd.x * scale, pd.y * scale, pd.z * scale, pl.x * scale, pl.y * scale, pl.z * scale);
+            MathPlucker6d d(pd.x * scale, pd.y * scale, pd.z * scale, pl.x * scale, pl.y * scale, pl.z * scale);
 
-            d -= x * (lineDot(d, x) / lineDot(x, x));
+            d -= x * (d.scalarDot(x) / x.scalarDot(x));
 
-            const Line gradient = quadricGradient(x);
-            d -= gradient * (lineDot(d, gradient) / lineDot(gradient, gradient));
+            const MathPlucker6d gradient = x.quadricGradient();
+            d -= gradient * (d.scalarDot(gradient) / gradient.scalarDot(gradient));
 
             for (size_t i = 0; i < walls.size(); i++)
             {
-                d -= walls[i] * (lineDot(d, walls[i]) / lineDot(walls[i], walls[i]));
+                d -= walls[i] * (d.scalarDot(walls[i]) / walls[i].scalarDot(walls[i]));
             }
 
-            if (!(MathArithmetic<double>::getSqrt(lineDot(d, d)) > 1e-15 * radius)) break;
+            if (!(MathArithmetic<double>::getSqrt(d.scalarDot(d)) > 1e-15 * radius)) break;
 
             bool moved = false;
 
             for (size_t attempt = 0; attempt < 4 && !moved; attempt++)
             {
-                const Line candidate = retractToWalls(x + d * step, walls, radius);
+                const MathPlucker6d candidate = retractToWalls(x + d * step, walls, radius);
 
-                if (worstCellFacetSlack(facets, candidate, radius) > worst + 1e-12)
+                if (worstCellFacetSlack<P>(facets, candidate, radius) > worst + 1e-12)
                 {
                     x = candidate;
                     step *= 1.5;
@@ -1405,26 +1279,26 @@ namespace visilib
             if (!moved) break;
         }
 
-        RepresentativeLine<P> result = verifyRepresentativeLine<P, S>(lineToType<S>(x), polytope, polyhedron, tolerance);
-        result.direct = direct;
+        /* The walk took over where the first step failed, so the two steps do not answer the same thing here: the
+        direct flag tells the statistics that only the second one can be taken for the cell.*/
+        RepresentativeLine<P> walked = verifyRepresentativeLine<P, S>(convert<P>(x), polyhedron, tolerance, facets);
+        walked.direct = false;
 
-        if (result.insideCell) return result;
+        if (walked.insideCell) return walked;
 
         /* Nothing strictly inside was reached, which is what a thin cell, or one flattened against one of its
         planes, has to answer. The extremal stabbing lines of the cell lie on the quadric and in the closed cell by
         construction, so the best of them goes instead: it certifies as much as a line on the boundary can.*/
-        RepresentativeLine<P> best = result;
+        RepresentativeLine<P> best = walked;
 
         for (size_t i = 0; i < polytope->getExtremalStabbingLinesCount(); i++)
         {
-            const RepresentativeLine<P> candidate = verifyRepresentativeLine<P, S>(polytope->getExtremalStabbingLine(i), polytope, polyhedron, tolerance);
+            const RepresentativeLine<P> candidate = verifyRepresentativeLine<P, S>(polytope->getExtremalStabbingLine(i), polyhedron, tolerance, facets);
 
             if (candidate.onQuadric && candidate.margin > best.margin) best = candidate;
         }
 
-        RepresentativeLine<P> chosen = best.boundary ? best : result;
-        chosen.direct = direct;
-        return chosen;
+        return best.boundary ? best : walked;
     }
 
     inline void MathGeometry::computeRayParameters(const GeometryRay & aRay, double& Sx, double& Sy, double& Sz, int& kx, int& ky, int& kz)

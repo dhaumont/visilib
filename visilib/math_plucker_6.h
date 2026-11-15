@@ -174,6 +174,25 @@ namespace visilib
             return mDirection.dot(p2.mLocation) + mLocation.dot(p2.mDirection);
         }
 
+        /** @brief Compute the ordinary scalar product of the two points in the six dimensional Plucker space
+
+        This is not the Klein form that dot gives, which vanishes exactly for the pairs of lines meeting: taken
+        with itself it is the squared six dimensional norm, which is what the projections onto the quadric and
+        onto the sphere are made of.*/
+        S scalarDot(const MathPlucker6<S>& p2) const
+        {
+            return mDirection.dot(p2.mDirection) + mLocation.dot(p2.mLocation);
+        }
+
+        /** @brief Compute the gradient of the equation of the Plucker quadric at this point
+
+        The quadric is the zero set of Q(a, b) = a . b, whose gradient at (a, b) is (b, a).
+        */
+        MathPlucker6<S> quadricGradient() const
+        {
+            return MathPlucker6<S>(mLocation.x, mLocation.y, mLocation.z, mDirection.x, mDirection.y, mDirection.z);
+        }
+
         /** @brief Return a normalized Plucker point by projection on the unit hypersphere */
         MathPlucker6<S> getNormalized() const
         {
@@ -242,4 +261,139 @@ namespace visilib
         MathVector3_<S> mLocation;    /**< @brief Location part of the Plucker point*/
 
     };
+
+    typedef MathPlucker6<float> MathPlucker6f;
+    typedef MathPlucker6<double> MathPlucker6d;
+
+    template<>
+    inline MathPlucker6f convert(const MathPlucker6d& f)
+    {
+        const MathVector3d& a = f.getDirection();
+        const MathVector3d& b = f.getLocation();
+
+        return MathPlucker6f((float)a.x, (float)a.y, (float)a.z, (float)b.x, (float)b.y, (float)b.z);
+    }
+
+    template<>
+    inline MathPlucker6d convert(const MathPlucker6f& f)
+    {
+        const MathVector3f& a = f.getDirection();
+        const MathVector3f& b = f.getLocation();
+
+        return MathPlucker6d((double)a.x, (double)a.y, (double)a.z, (double)b.x, (double)b.y, (double)b.z);
+    }
+
+    template<>
+    inline MathPlucker6f convert(const MathPlucker6f& f)
+    {
+        return f;
+    }
+
+    template<>
+    inline MathPlucker6d convert(const MathPlucker6d& f)
+    {
+        return f;
+    }
+
+#ifdef ENABLE_LEDA
+    template<>
+    inline MathPlucker6d convert(const MathPlucker6<MathLedaReal>& f)
+    {
+        const MathVector3_<MathLedaReal>& a = f.getDirection();
+        const MathVector3_<MathLedaReal>& b = f.getLocation();
+
+        return MathPlucker6d(
+            MathArithmetic<MathLedaReal>::to_double(a.x),
+            MathArithmetic<MathLedaReal>::to_double(a.y),
+            MathArithmetic<MathLedaReal>::to_double(a.z),
+            MathArithmetic<MathLedaReal>::to_double(b.x),
+            MathArithmetic<MathLedaReal>::to_double(b.y),
+            MathArithmetic<MathLedaReal>::to_double(b.z));
+    }
+
+    template<>
+    inline MathPlucker6<MathLedaReal> convert(const MathPlucker6d& f)
+    {
+        const MathVector3d& a = f.getDirection();
+        const MathVector3d& b = f.getLocation();
+
+        return MathPlucker6<MathLedaReal>(a.x, a.y, a.z, b.x, b.y, b.z);
+    }
+#endif
+
+#if ENABLE_GMP
+    template<>
+    inline MathPlucker6d convert(const MathPlucker6<MathGmpFloat>& f)
+    {
+        const MathVector3_<MathGmpFloat>& a = f.getDirection();
+        const MathVector3_<MathGmpFloat>& b = f.getLocation();
+
+        return MathPlucker6d(
+            MathArithmetic<MathGmpFloat>::to_double(a.x),
+            MathArithmetic<MathGmpFloat>::to_double(a.y),
+            MathArithmetic<MathGmpFloat>::to_double(a.z),
+            MathArithmetic<MathGmpFloat>::to_double(b.x),
+            MathArithmetic<MathGmpFloat>::to_double(b.y),
+            MathArithmetic<MathGmpFloat>::to_double(b.z));
+    }
+
+    template<>
+    inline MathPlucker6<MathGmpFloat> convert(const MathPlucker6d& f)
+    {
+        const MathVector3d& a = f.getDirection();
+        const MathVector3d& b = f.getLocation();
+
+        return MathPlucker6<MathGmpFloat>(a.x, a.y, a.z, b.x, b.y, b.z);
+    }
+
+    template<>
+    inline MathPlucker6d convert(const MathPlucker6<MathGmpRational>& f)
+    {
+        const MathVector3_<MathGmpRational>& a = f.getDirection();
+        const MathVector3_<MathGmpRational>& b = f.getLocation();
+
+        return MathPlucker6d(
+            MathArithmetic<MathGmpRational>::to_double(a.x),
+            MathArithmetic<MathGmpRational>::to_double(a.y),
+            MathArithmetic<MathGmpRational>::to_double(a.z),
+            MathArithmetic<MathGmpRational>::to_double(b.x),
+            MathArithmetic<MathGmpRational>::to_double(b.y),
+            MathArithmetic<MathGmpRational>::to_double(b.z));
+    }
+
+    template<>
+    inline MathPlucker6<MathGmpRational> convert(const MathPlucker6d& f)
+    {
+        const MathVector3d& a = f.getDirection();
+        const MathVector3d& b = f.getLocation();
+
+        return MathPlucker6<MathGmpRational>(a.x, a.y, a.z, b.x, b.y, b.z);
+    }
+#endif
+
+#if ENABLE_MPFR
+    template<>
+    inline MathPlucker6d convert(const MathPlucker6<MathMpfr>& f)
+    {
+        const MathVector3_<MathMpfr>& a = f.getDirection();
+        const MathVector3_<MathMpfr>& b = f.getLocation();
+
+        return MathPlucker6d(
+            MathArithmetic<MathMpfr>::to_double(a.x),
+            MathArithmetic<MathMpfr>::to_double(a.y),
+            MathArithmetic<MathMpfr>::to_double(a.z),
+            MathArithmetic<MathMpfr>::to_double(b.x),
+            MathArithmetic<MathMpfr>::to_double(b.y),
+            MathArithmetic<MathMpfr>::to_double(b.z));
+    }
+
+    template<>
+    inline MathPlucker6<MathMpfr> convert(const MathPlucker6d& f)
+    {
+        const MathVector3d& a = f.getDirection();
+        const MathVector3d& b = f.getLocation();
+
+        return MathPlucker6<MathMpfr>(a.x, a.y, a.z, b.x, b.y, b.z);
+    }
+#endif
 }

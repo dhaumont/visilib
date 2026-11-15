@@ -166,6 +166,24 @@ namespace visilib
         */
         void getFacets(std::set<size_t>& facets, PluckerPolyhedron<P>* polyhedron);
 
+        /** @brief  One facet of the polytope, in double precision, with the side the polytope lies on
+
+        The plane is divided by its norm, so that the value it takes on a point of unit norm is a distance.*/
+        struct CellFacet
+        {
+            MathVector3d direction;   /**< @brief The direction part of the plane*/
+            MathVector3d location;    /**< @brief The location part of the plane*/
+            double sign;              /**< @brief 1 when the cell lies where the plane is negative, -1 where it is positive, 0 when the whole cell lies in the plane*/
+            size_t index;             /**< @brief The index of the plane in the polyhedron*/
+        };
+
+        /** @brief  Collect the facets of the polytope, that is the planes tight on one of its vertices
+
+        Every facet of the convex hull of the vertices carries one of these planes, so they describe the cell
+        completely. A plane the whole cell lies in comes back with a sign of nought, an equality a line of the cell
+        has to lie in as well, and is what the flat flag tells of: behind such a plane there is no interior to reach.*/
+        template<class S> size_t getCellFacets(PluckerPolyhedron<P>* polyhedron, const S & tolerance, std::vector<CellFacet>& facets, bool& flat);
+
         /** @brief Add a silhouette to the polyptope */
         void addSilhouette(Silhouette* silhouette)
         {
@@ -653,5 +671,51 @@ namespace visilib
             const std::vector<size_t>& f = polyhedron->getFacetsDescription(*iter);
             facets.insert(f.begin(), f.end());
         }
+    }
+
+    template<class P> template<class S>
+    size_t PluckerPolytope<P>::getCellFacets(PluckerPolyhedron<P>* polyhedron, const S & tolerance, std::vector<CellFacet>& facets, bool& flat)
+    {
+        facets.clear();
+        flat = false;
+
+        std::set<size_t> myFacetIndices;
+        getFacets(myFacetIndices, polyhedron);
+
+        for (auto index = myFacetIndices.begin(); index != myFacetIndices.end(); index++)
+        {
+            const P plane = polyhedron->get(*index);
+
+            const GeometryPositionType position = MathPredicates::getRelativePosition(this, polyhedron, plane, tolerance);
+
+            /* The cell lies on one side of its own facets, and the side is read from its vertices. A plane the whole
+            cell lies in is kept too, as an equality: a line that leaves it is outside the cell, however well it
+            satisfies the rest. A plane with vertices on both sides is not a facet of the hull and is left out. */
+            if (position == ON_BOTH_SIDES) continue;
+
+            const MathPlucker6d asLine = convert<MathPlucker6d>(plane);
+            const double norm = MathArithmetic<double>::getSqrt(asLine.scalarDot(asLine));
+
+            if (!(norm > 0.0)) continue;
+
+            CellFacet facet;
+            facet.index = *index;
+
+            if (position == ON_BOUNDARY)
+            {
+                facet.sign = 0.0;
+                flat = true;
+            }
+            else
+            {
+                facet.sign = position == ON_NEGATIVE_SIDE ? 1.0 : -1.0;
+            }
+            facet.direction = MathVector3d(asLine.getDirection().x / norm, asLine.getDirection().y / norm, asLine.getDirection().z / norm);
+            facet.location = MathVector3d(asLine.getLocation().x / norm, asLine.getLocation().y / norm, asLine.getLocation().z / norm);
+
+            facets.push_back(facet);
+        }
+
+        return facets.size();
     }
 }
