@@ -261,7 +261,7 @@ namespace visilib
             max = aVertex0;
         }
         V_ASSERT(aVertex0 != aVertex1);
-        V_ASSERT(MathCombinatorial::haveAtLeastNCommonFacets(aPolyhedron->getFacetsDescription(aVertex0), aPolyhedron->getFacetsDescription(aVertex1)));
+        V_ASSERT(MathCombinatorial::haveAtLeastNCommonFacets(aPolyhedron->getFacetsDescription(aVertex0), aPolyhedron->getFacetsDescription(aVertex1), MathPluckerCellTraits<P>::cCommonFacetsForEdge));
         if (mEdges.find(std::pair<size_t, size_t>(min, max)) == mEdges.end())
         {
             mEdges.insert(std::pair<size_t, size_t>(min, max));
@@ -296,7 +296,7 @@ namespace visilib
         {
             for (size_t j = i + 1; j < mExtremalStabbingLines.size(); j++)
             {
-                if (MathCombinatorial::haveAtLeastNCommonFacets(mExtremalStabbingLinesFacets[i], mExtremalStabbingLinesFacets[j], 3))
+                if (MathCombinatorial::haveAtLeastNCommonFacets(mExtremalStabbingLinesFacets[i], mExtremalStabbingLinesFacets[j], MathPluckerCellTraits<P>::cCommonFacetsForEdge))
                 {
                     aStabbingLines.push_back(std::pair<MathVector3d, MathVector3d>( aStabbingLines[i].first,  aStabbingLines[j].first));
                     aStabbingLines.push_back(std::pair<MathVector3d, MathVector3d>( aStabbingLines[i].second, aStabbingLines[j].second));
@@ -505,7 +505,7 @@ namespace visilib
             const std::vector<size_t>& facets1 = polyhedron->getFacetsDescription(iter->first);
             const std::vector<size_t>& facets2 = polyhedron->getFacetsDescription(iter->second);
             std::vector<size_t> edgeFacets;
-            MathCombinatorial::initFacets(facets1, facets2, polyhedron->getLinesCount(), edgeFacets);
+            MathCombinatorial::initFacets(facets1, facets2, polyhedron->getLinesCount(), edgeFacets, MathPluckerCellTraits<P>::cCommonFacetsForEdge);
             edgeFacets.pop_back();
 
             if (MathGeometry::findPluckerEdgeWithQuadricIntersection<P, S>(v1, v2, p1, p2, p, tolerance))

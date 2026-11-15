@@ -73,6 +73,7 @@ namespace visilib
             minimumNormalizedApertureSize = 0.00175;
             confidenceValue = 0.99;
             displaySplitOccurence = 10000;
+            directionalLight = false;
         }
 
         VisibilityExactQueryConfiguration(const VisibilityExactQueryConfiguration& other)
@@ -88,6 +89,7 @@ namespace visilib
             minimumNormalizedApertureSize = other.minimumNormalizedApertureSize;
             confidenceValue = other.confidenceValue;
             displaySplitOccurence = other.displaySplitOccurence;
+            directionalLight = other.directionalLight;
         }
 
         bool silhouetteOptimization;                  /**< @brief Use silhouette optimization*/
@@ -101,6 +103,7 @@ namespace visilib
         double minimumNormalizedApertureSize;
         double confidenceValue;
         int displaySplitOccurence;                        /**< @brief The split count periodicity for which the statistics are displayed*/
+        bool directionalLight;                            /**< @brief Solve the query for a directional light, whose rays are all parallel to the line joining the two source centers*/
     };
 
 

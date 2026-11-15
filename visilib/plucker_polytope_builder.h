@@ -119,7 +119,7 @@ namespace visilib
             const MathVector3d& v1 = v[i % count];
             const MathVector3d& v2 = v[(i + 1) % count];
 
-            P  line = clockWise ? P(v1, v2) : P(v2, v1);
+            P  line = clockWise ? MathGeometry::createEdgeFromPoints<P>(v1, v2) : MathGeometry::createEdgeFromPoints<P>(v2, v1);
             if (mNormalization)
             {
                 line = line.getNormalized();
@@ -229,7 +229,7 @@ namespace visilib
         {
             for (int j = i + 1; j < aPolyhedron->getLinesCount(); j++)
             {
-                if (MathCombinatorial::haveAtLeastNCommonFacets(aPolyhedron->getFacetsDescription(i), aPolyhedron->getFacetsDescription(j)))
+                if (MathCombinatorial::haveAtLeastNCommonFacets(aPolyhedron->getFacetsDescription(i), aPolyhedron->getFacetsDescription(j), MathPluckerCellTraits<P>::cCommonFacetsForEdge))
                 {
                     polytope->addEdge(i, j, aPolyhedron);
                 }

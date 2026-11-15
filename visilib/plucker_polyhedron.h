@@ -26,6 +26,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include "geometry_position_type.h"
 #include "math_combinatorial.h"
 #include "math_plucker_6.h"
+#include "math_plucker_parallel_6.h"
 
 namespace visilib
 {
@@ -212,7 +213,7 @@ namespace visilib
         }
 
         // sanity checks
-        if (!MathCombinatorial::haveAtLeastNCommonFacets(getFacetsDescription(aVerticeSource1), getFacetsDescription(aVerticeSource2)))
+        if (!MathCombinatorial::haveAtLeastNCommonFacets(getFacetsDescription(aVerticeSource1), getFacetsDescription(aVerticeSource2), MathPluckerCellTraits<P>::cCommonFacetsForEdge))
             return false;
 
 #ifdef FULL_VALIDITY_CHECK
@@ -225,9 +226,9 @@ namespace visilib
             return false;
         if (!isValid(aVerticeSource2))
             return false;
-        if (!MathCombinatorial::haveAtLeastNCommonFacets(getFacetsDescription(aVerticeSource1), getFacetsDescription(aVerticeDestination)))
+        if (!MathCombinatorial::haveAtLeastNCommonFacets(getFacetsDescription(aVerticeSource1), getFacetsDescription(aVerticeDestination), MathPluckerCellTraits<P>::cCommonFacetsForEdge))
             return false;
-        if (!MathCombinatorial::haveAtLeastNCommonFacets(getFacetsDescription(aVerticeSource2), getFacetsDescription(aVerticeDestination)))
+        if (!MathCombinatorial::haveAtLeastNCommonFacets(getFacetsDescription(aVerticeSource2), getFacetsDescription(aVerticeDestination), MathPluckerCellTraits<P>::cCommonFacetsForEdge))
             return false;
         return true;
     }

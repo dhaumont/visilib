@@ -33,7 +33,7 @@ namespace visilib
     public:
         static bool haveAtLeastNCommonFacets(const std::vector<size_t>& aFacetsDescription1, const std::vector<size_t>& aFacetsDescription2, size_t n = 3);
         static void getCommonFacets(const std::vector<size_t>& aFacetsDescription1, const std::vector<size_t>& aFacetsDescription2, std::vector<size_t>& aCommonFactes);
-        static void initFacets(const std::vector<size_t>& aFacetsDescription1, const std::vector<size_t>& aFacetsDescription2, size_t anHyperplane, std::vector<size_t>& aResultFacetsDescription);
+        static void initFacets(const std::vector<size_t>& aFacetsDescription1, const std::vector<size_t>& aFacetsDescription2, size_t anHyperplane, std::vector<size_t>& aResultFacetsDescription, size_t n = 3);
         static void initFacets(const std::vector<size_t>& aFacetsDescription1, const std::vector<size_t>& aFacetsDescription2, std::vector<size_t>& result);
         static bool hasFacet(const std::vector<size_t>& facets, size_t aFace);
     };
@@ -67,9 +67,9 @@ namespace visilib
     The resulting facets description is a sorted list of facets, containing the intersection set of the two input facets descriptions list and the additional facet anHyperplane.
     Remark: the precondition is that the input facets list are sorted, that they have at least n common facets and that anHyperplane is greater than the facets of the lists.*/
 
-    inline void MathCombinatorial::initFacets(const std::vector<size_t>& aFacetsDescription1, const std::vector<size_t>& aFacetsDescription2, size_t anHyperplane, std::vector<size_t>& result)
+    inline void MathCombinatorial::initFacets(const std::vector<size_t>& aFacetsDescription1, const std::vector<size_t>& aFacetsDescription2, size_t anHyperplane, std::vector<size_t>& result, size_t n)
     {
-        V_ASSERT(MathCombinatorial::haveAtLeastNCommonFacets(aFacetsDescription1, aFacetsDescription2));
+        V_ASSERT(MathCombinatorial::haveAtLeastNCommonFacets(aFacetsDescription1, aFacetsDescription2, n));
         bool requireSorting = anHyperplane <= aFacetsDescription1[aFacetsDescription1.size() - 1]
          || anHyperplane <= aFacetsDescription2[aFacetsDescription2.size() - 1];
 

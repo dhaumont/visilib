@@ -217,7 +217,7 @@ namespace visilib
 
                 if (myPolyhedronFace == 0)
                 {
-                    P myHyperplane(a, b);
+                    P myHyperplane = MathGeometry::createEdgeFromPoints<P>(a, b);
                     if (mNormalization)
                     {
                         myHyperplane = myHyperplane.getNormalized();

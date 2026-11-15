@@ -140,7 +140,7 @@ namespace visilib
                 MathVector3d a = convert<MathVector3d>(face->getVertex(edge.x));
                 MathVector3d b = convert<MathVector3d>(face->getVertex(edge.y));
 
-                P myHyperplane(a, b);
+                P myHyperplane = MathGeometry::createEdgeFromPoints<P>(a, b);
                 if (mNormalization)
                 {
                     myHyperplane = myHyperplane.getNormalized();

@@ -208,7 +208,8 @@ namespace visilib
                     MathCombinatorial::initFacets(facetsI1,
                                                   facetsI2,
                                                   aPlaneID,
-                                                  myFacets);
+                                                  myFacets,
+                                                  MathPluckerCellTraits<P>::cCommonFacetsForEdge);
 
 
                     bool hasVertex = false;
@@ -267,7 +268,7 @@ namespace visilib
                 const std::vector<size_t>& facetsQm = aPolyhedron->getFacetsDescription(Qm);
                 const std::vector<size_t>& facetsQn = aPolyhedron->getFacetsDescription(Qn);
 
-                if (MathCombinatorial::haveAtLeastNCommonFacets(facetsQm, facetsQn))
+                if (MathCombinatorial::haveAtLeastNCommonFacets(facetsQm, facetsQn, MathPluckerCellTraits<P>::cCommonFacetsForEdge))
                 {
                     V_ASSERT(Qm != Qn);
                     if (!MathPredicates::isEdgeCollapsed(aPolyhedron->get(Qn), aPolyhedron->get(Qm), tolerance))

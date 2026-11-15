@@ -23,6 +23,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include "visilib_core.h"
 #include "math_arithmetic.h"
 #include "math_vector_3.h"
+#include "math_plucker_traits.h"
 
 namespace visilib
 {
@@ -355,4 +356,28 @@ namespace visilib
 
     typedef MathPluckerParallel6<float> MathPluckerParallel6f;
     typedef MathPluckerParallel6<double> MathPluckerParallel6d;
+
+    /* The family is the case the traits header describes: every one of its lines is
+    real, and its cells are polygons on the screen, vertices at two lines, edges
+    joining vertices that share one. */
+
+    template<class S>
+    struct MathPluckerCellTraits<MathPluckerParallel6<S>>
+    {
+        static constexpr size_t cCommonFacetsForEdge = 1;
+        static constexpr bool cAllLinesReal = true;
+    };
+
+    /* A 3D edge is not a ray of the family, its direction is its own: the edge comes
+    in as the carrier throughEdge describes it, the pair the Klein form reads against
+    a ray, which is the half space the edge imposes on the screen. */
+
+    template<class S>
+    struct PluckerEdgeCarrier<MathPluckerParallel6<S>>
+    {
+        static MathPluckerParallel6<S> fromPoints(const MathVector3d& a, const MathVector3d& b)
+        {
+            return MathPluckerParallel6<S>::throughEdge(convert<MathVector3_<S>>(a), convert<MathVector3_<S>>(b));
+        }
+    };
 }

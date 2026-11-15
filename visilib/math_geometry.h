@@ -22,6 +22,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 
 #include "math_plucker_2.h"
 #include "math_plucker_6.h"
+#include "math_plucker_parallel_6.h"
 #include "math_predicates.h"
 #include "silhouette_mesh_face.h"
 #include "geometry_position_type.h"
@@ -115,6 +116,14 @@ namespace visilib
         @result aResult: the interpolated vertex computed by aResult = alpha * Vertice1 + beta * aVertice2
         */
         template<class P, class S> static P interpolate(S anOffset1, S anOffset2, const P& aVertice1, const P& aVertice2, const S & tolerance);
+
+        /** @brief Carry a 3D edge, given by its two endpoints, as a plane of the space of P
+
+        The six dimensional space stores the edge itself, the two points being two of
+        its lines; a line family stores the carrier the edge imposes on its rays. The
+        builders and the solvers ask for the edge through this factory, so that they
+        never take of a family the pair constructor of the general point. */
+        template<class P> static P createEdgeFromPoints(const MathVector3d& a, const MathVector3d& b);
 
         /** @brief  Get the 3D anchor point of a Plucker point
 
@@ -428,6 +437,12 @@ namespace visilib
         return myVector1;
     }
 
+    template<class P>
+    inline P MathGeometry::createEdgeFromPoints(const MathVector3d& a, const MathVector3d& b)
+    {
+        return PluckerEdgeCarrier<P>::fromPoints(a, b);
+    }
+
     template<>
     inline bool MathGeometry::findPluckerEdgeWithQuadricIntersection<MathPlucker6<float>, float>(const MathPlucker6<float> & v1, const MathPlucker6<float> & v2, GeometryPositionType p1, GeometryPositionType p2, std::vector<MathPlucker6<float>> & result, const float & tolerance)
     {
@@ -580,6 +595,16 @@ namespace visilib
         }
 #endif
         return result.size() > 0;
+    }
+
+    /* The generic six argument call, what the specializations of each Plucker type
+    forward to, and what the families whose every line is real fall into: their edges
+    meet the quadric at their endpoints, which the first steps of the seven argument
+    procedure already return. */
+    template<class P, class S>
+    inline bool MathGeometry::findPluckerEdgeWithQuadricIntersection(const P & v1, const P & v2, GeometryPositionType p1, GeometryPositionType p2, std::vector<P> & result, const S & tolerance)
+    {
+        return findPluckerEdgeWithQuadricIntersection<P, S>(v1, v2, p1, p2, result, true, tolerance);
     }
 
     template<class P, class S>
@@ -968,7 +993,7 @@ namespace visilib
         bool hasPointInside2 = false;
 
         {
-            P  myHyperplane(a, a + e1);
+            P  myHyperplane = MathGeometry::createEdgeFromPoints<P>(a, a + e1);
 
             for (auto v : aPolytope->getVertices())
             {
@@ -983,7 +1008,7 @@ namespace visilib
         }
 
         {
-            P  myHyperplane(b, b + e1);
+            P  myHyperplane = MathGeometry::createEdgeFromPoints<P>(b, b + e1);
 
             for (auto v : aPolytope->getVertices())
             {
