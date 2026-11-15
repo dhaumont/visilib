@@ -119,6 +119,7 @@ namespace visilibDemo
             VisibilityExactQueryConfiguration config;
             config.silhouetteOptimization = mDemoConfiguration.silhouetteOptimisation;
             config.hyperSphereNormalization = mDemoConfiguration.normalization;
+            config.optimisedRepresentativeLine = mDemoConfiguration.optimisedRepresentativeLine;
             config.precision = mDemoConfiguration.precisionType;
             config.solverType = mDemoConfiguration.solverType;
             config.detectApertureOnly = mDemoConfiguration.detectApertureOnly;
@@ -294,6 +295,7 @@ namespace visilibDemo
 
                 forceDisplay |= ImGui::Checkbox("silhouette optimisation", &mDemoConfiguration.silhouetteOptimisation);
                 forceDisplay |= ImGui::Checkbox("normalization", &mDemoConfiguration.normalization);
+                forceDisplay |= ImGui::Checkbox("optimised representative line", &mDemoConfiguration.optimisedRepresentativeLine);
 
                 const char* solver_type[] = { "Aperture", "Sequential", "MontCarlo" };
                
@@ -483,6 +485,7 @@ namespace visilibDemo
             { 
                 std::map<std::string, double> timings = debugger->getTimings();
                 std::map<std::string, int> counters = debugger->getCounters();
+                std::map<std::string, double> measures = debugger->getMeasures();
                 ImGui::Begin("Stats");                
                 for (const auto& timing : timings)
                 {
@@ -491,6 +494,12 @@ namespace visilibDemo
                 for (const auto& counter : counters)
                 { 
                     ImGui::Text("%s : %i", counter.first.c_str(), counter.second);
+                }
+                /* The margin of the thinnest cell the search certified a line through is a distance in the
+                Plucker space of the query, not a share of the time, so it is said in its own units. */
+                for (const auto& measure : measures)
+                {
+                    ImGui::Text("%s : %.3e", measure.first.c_str(), measure.second);
                 }
            
                 ImGui::End();
@@ -523,6 +532,8 @@ namespace visilibDemo
             std::cout << "  a: enable/disable aggressive" << std::endl;
 
             std::cout << "  n: enable/disable Plucker normalization" << std::endl;
+
+            std::cout << "  r: enable/disable the optimised representative line" << std::endl;
             
             std::cout << "  x: change scene " << std::endl;
             std::cout << "  +/-: increase/decrease scaling of query polygons" << std::endl;
@@ -670,6 +681,12 @@ namespace visilibDemo
 
             case 'n':
                 mDemoConfiguration.normalization = !mDemoConfiguration.normalization;
+
+                forceDisplay = true;
+                break;
+
+            case 'r':
+                mDemoConfiguration.optimisedRepresentativeLine = !mDemoConfiguration.optimisedRepresentativeLine;
 
                 forceDisplay = true;
                 break;

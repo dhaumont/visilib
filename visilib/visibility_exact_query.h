@@ -72,6 +72,12 @@ namespace visilib
         virtual void displayStatistic() = 0;
         virtual void getTimingStats(std::map<std::string, double> & stats) = 0;
         virtual void getCounts(std::map<std::string, int> & stats) = 0;
+
+        /**@brief Return the measurements of the query, the values that are neither tallies nor times
+
+        Not a pure virtual: a query that measures nothing has nothing to say about it, and an
+        implementation written before the question existed is not made wrong by it being asked. */
+        virtual void getMeasures(std::map<std::string, double> & /*measures*/) {}
     };
 
 
@@ -169,6 +175,12 @@ namespace visilib
         }
         bool isOccluded(PluckerPolytope<P> * polytope, PluckerPolyhedron<P>* polyhedron, const std::vector <Silhouette*> & silhouettes, const std::vector<P> & polytopeLines);
 
+        /**@brief Return the configuration the query is running with */
+        const VisibilityExactQueryConfiguration& getConfiguration() const
+        {
+            return mConfiguration;
+        }
+
         /**@brief Return the statistic collector */
         HelperStatisticCollector* getStatistic()
         {
@@ -189,6 +201,11 @@ namespace visilib
         void getCounts(std::map<std::string, int> & stats)
         {
             return mStatistic.getCounts(stats);
+        }
+
+        void getMeasures(std::map<std::string, double> & stats)
+        {
+            return mStatistic.getMeasures(stats);
         }
     private:
 
@@ -592,15 +609,27 @@ namespace visilib
     template<class P, class S>
     int VisibilityExactQuery_<P, S>::collectAllOccluders(PluckerPolytope<P> * aPolytope, PluckerPolyhedron<P> * polyhedron, std::vector<Silhouette*> & occluders, std::vector<P> & polytopeLines)
     {
-        P myRepresentativeLine;
+        RepresentativeLine<P> myRepresentative;
         {
              HelperScopedTimer timer(getStatistic(), STABBING_LINE_EXTRACTION);
 
-             myRepresentativeLine = MathGeometry::computeRepresentativeLine<P>(aPolytope, polyhedron, mTolerance);
-             if (mConfiguration.hyperSphereNormalization)
-                 myRepresentativeLine = myRepresentativeLine.getNormalized();
-             polytopeLines.push_back(myRepresentativeLine);
-             aPolytope->setRepresentativeLine(myRepresentativeLine);
+             myRepresentative = MathGeometry::representativeLine<P, S>(aPolytope, polyhedron, mTolerance, mConfiguration.optimisedRepresentativeLine, &mStatistic);
+        }
+
+        P myRepresentativeLine = myRepresentative.line;
+
+        if (mConfiguration.hyperSphereNormalization)
+            myRepresentativeLine = myRepresentativeLine.getNormalized();
+
+        polytopeLines.push_back(myRepresentativeLine);
+        aPolytope->setRepresentativeLine(myRepresentativeLine);
+        aPolytope->setRepresentativeLineMargin(myRepresentative.margin);
+
+        /* Which occluders a cell still has to be cut by is not to be read from a line lying outside of it: the cell
+        is left alone, and the search comes back to it with a smaller one. */
+        if (mConfiguration.optimisedRepresentativeLine && !myRepresentative.insideCell && !myRepresentative.boundary)
+        {
+            return -1;
         }
 
         const GeometryConvexPolygon& polygon0 = *getQueryPolygon(0);
@@ -673,13 +702,23 @@ namespace visilib
     template<class P, class S>
     int VisibilityExactQuery_<P, S>::validateLeafPolytope(PluckerPolytope<P> * aPolytope, PluckerPolyhedron<P> * polyhedron)
     {
-        P myRepresentativeLine;
+        RepresentativeLine<P> myRepresentative;
         {
             HelperScopedTimer timer(getStatistic(), STABBING_LINE_EXTRACTION);
 
-            myRepresentativeLine = MathGeometry::computeRepresentativeLine<P>(aPolytope, polyhedron, mTolerance);
-            if (mConfiguration.hyperSphereNormalization)
-                myRepresentativeLine = myRepresentativeLine.getNormalized();
+            myRepresentative = MathGeometry::representativeLine<P, S>(aPolytope, polyhedron, mTolerance, mConfiguration.optimisedRepresentativeLine, &mStatistic);
+        }
+
+        P myRepresentativeLine = myRepresentative.line;
+
+        if (mConfiguration.hyperSphereNormalization)
+            myRepresentativeLine = myRepresentativeLine.getNormalized();
+
+        /* A leaf is certified visible from a line that is a real line of the cell: one outside of it says nothing,
+        and saying so here keeps the answer short of a wrong one. */
+        if (mConfiguration.optimisedRepresentativeLine && !myRepresentative.insideCell && !myRepresentative.boundary)
+        {
+            return -1;
         }
 
         const GeometryConvexPolygon& polygon0 = *getQueryPolygon(0);

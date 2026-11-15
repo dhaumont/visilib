@@ -40,8 +40,9 @@ with its own argument rather than by putting a number where the suite name goes:
 
     visilibTest SolverConsistencyTest NO_TIMEOUT     answer every variant, however long it takes
 
-The budget, 2.0s, stops a variant that has stopped being interesting; NO_TIMEOUT lifts it, which
-is how a variant reported as TIMEOUT gets looked at. */
+The budget, 2.0s for the small scenes and 10.0s for the models of demo/data, stops a variant that
+has stopped being interesting; NO_TIMEOUT lifts it, which is how a variant reported as TIMEOUT gets
+looked at. */
 const char* const cNoTimeoutArgument = "NO_TIMEOUT";
 
 typedef bool (*TestFunction)(std::string&);

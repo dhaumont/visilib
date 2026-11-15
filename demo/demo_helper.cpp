@@ -529,20 +529,21 @@ HelperTriangleMeshContainer* DemoHelper::createScene(DemoConfiguration::SCENE_TY
 
         case DemoConfiguration::DEGENERATE_SPIKE:
         {
-            /* A ball with sixty needles stuck in it, a cactus, centered on the view axis. Every
-            needle is a thin tetrahedron whose apex is the center of the ball, so the three long
+            /* A ball with thirty thorns stuck in it, a small cactus, centered on the view axis. Every
+            thorn is a thin tetrahedron whose apex is the center of the ball, so the three long
             edges of all of them run through that one point and the point is where the sight lines
             are densest: the facets they cut are the facets of the lines through a point, a plane
-            lying on the Klein quadric, and any sight line through the center answers all of them at
-            once. The needles stand out in five rings of twelve, the middle ring holding the
-            directions along the axis itself so that a sight line sent down the middle meets a tip
-            on, and each ring is turned half a step from the one before. A needle is twelve
-            thousandths thick at its base for thirty two hundredths of length, which makes its three
-            edges a cluster of nearly identical facets, and the hundred and eighty of them a family
-            that no tolerance set apart from another. */
+            lying on the Klein quadric, and the sight line down the axis itself, which goes through
+            that point, answers all of them at once. The thorns stand out in five rings of six, two
+            rings about each pole and one about the equator, so that the polar ones point almost down
+            the axis and their tips nearly touch it, and each ring is turned half a step from the one
+            before. A thorn is four thousandths thick at its base for a tenth of length, and shorter
+            than the radius of the ball it grows from, so it reads as a thorn rather than as an arm:
+            its three edges are a cluster of nearly identical facets, and the ninety of them a family
+            that no tolerance sets apart from another. */
             const float ballRadius = 0.15f;
-            const float needleLength = 0.32f;
-            const float needleRadius = 0.012f;
+            const float needleLength = 0.10f;
+            const float needleRadius = 0.004f;
             const float rings[5] = { 0.3f, 0.75f, (float)M_PI_2, (float)M_PI - 0.75f, (float)M_PI - 0.3f };
 
             HelperTriangleMesh* ball = HelperSyntheticMeshBuilder::generateSphere(1);
@@ -551,10 +552,10 @@ HelperTriangleMeshContainer* DemoHelper::createScene(DemoConfiguration::SCENE_TY
 
             for (int ring = 0; ring < 5; ring++)
             {
-                for (int j = 0; j < 12; j++)
+                for (int j = 0; j < 6; j++)
                 {
-                    const float azimuth = 2.f * (float)M_PI * (float)j / 12.f
-                        + (ring % 2 == 0 ? 0.0f : (float)M_PI / 12.f);
+                    const float azimuth = 2.f * (float)M_PI * (float)j / 6.f
+                        + (ring % 2 == 0 ? 0.0f : (float)M_PI / 6.f);
 
                     /* Turning the needle about x by the polar angle tips its axis out of z, and the
                     roll afterwards swings that axis around the view axis, which is how the ring is
@@ -716,6 +717,7 @@ void DemoConfiguration::displaySettings()
     std::cout << "  [Early stop: " << getStatusString(detectApertureOnly) << "]";
     std::cout << "[Silhouette: " << getStatusString(silhouetteOptimisation) << "]";
     std::cout << "[Normalization: " << getStatusString(normalization) << "]";
+    std::cout << "[Rep. line: " << (optimisedRepresentativeLine ? "OPTIMISED" : "GRAVITY CENTER") << "]";
     std::cout << "[SolverType: " << toStr(solverType)<< "]";
   
     std::cout << "  [Arithmetic: " << toStr(precisionType) << "]" << std::endl;

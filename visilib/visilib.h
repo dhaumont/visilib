@@ -64,6 +64,7 @@ namespace visilib
         {
             silhouetteOptimization = true;
             hyperSphereNormalization = false;
+            optimisedRepresentativeLine = true;
             precision = DOUBLE;
             detectApertureOnly = true;
             useEmbree = false;
@@ -78,6 +79,7 @@ namespace visilib
         {
             silhouetteOptimization = other.silhouetteOptimization;
             hyperSphereNormalization = other.hyperSphereNormalization;
+            optimisedRepresentativeLine = other.optimisedRepresentativeLine;
             precision = other.precision;
             detectApertureOnly = other.detectApertureOnly;
             useEmbree = other.useEmbree;
@@ -90,6 +92,7 @@ namespace visilib
 
         bool silhouetteOptimization;                  /**< @brief Use silhouette optimization*/
         bool hyperSphereNormalization;                /**< @brief Normalize the Plucker point (projection on unit hypersphere)*/
+        bool optimisedRepresentativeLine;
         PrecisionType precision;                      /**< @brief Arithmetic model precision t*/
         bool detectApertureOnly;                      /**< @brief Stop the query as soon as a visible line has been found*/
         bool useEmbree;

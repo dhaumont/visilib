@@ -61,12 +61,15 @@ namespace visilib
         VisibilityResult resolve();
 
     private:
-        /* Option B blocked predicate: cast the polytope's representative line
+        /* Option B blocked predicate: cast the representative line of the polytope
         (converted back to 3D) against the faces of the given silhouette only.
-        Returns true when the line is occluded by that patch, false otherwise.
-        A polytope with no real lines is always occluded. */
+        Returns BLOCKED when the line is occluded by that patch, OUTSIDE when it clears it,
+        and UNDEFINED when no line inside the polytope could be found to cast, which is decided
+        only by the optimised procedure: the gravity center one is used as it stands.
+        A polytope with no real lines is always occluded.
+        The result is an enum where BLOCKED is nought: compare it, never test it as a condition. */
 
-        bool isBlockedBySilhouette(PluckerPolytope<P> *aPolytope,
+        PolytopePositionType isBlockedBySilhouette(PluckerPolytope<P> *aPolytope,
                                    PluckerPolyhedron<P> *aPolyhedron,
                                    const Silhouette *aSilhouette);
 
@@ -99,6 +102,7 @@ namespace visilib
 
         bool mNormalization;
         bool mDetectApertureOnly;
+        bool mOptimisedRepresentativeLine;   /**< @brief Whether the representative line of a cell is looked for inside it, or taken from the gravity center*/
         S mTolerance;
     };
 
@@ -109,6 +113,9 @@ namespace visilib
           mTolerance(tolerance),
           mDetectApertureOnly(detectApertureOnly)
     {
+        /* How the representative line of a cell is found belongs to the query, not to the caller: the interface
+        switches it to compare the two procedures, everything else runs the one the configuration asks for. */
+        mOptimisedRepresentativeLine = mQuery->getConfiguration().optimisedRepresentativeLine;
     }
 
     template <class P, class S>
@@ -145,16 +152,28 @@ namespace visilib
     }
 
     template <class P, class S>
-    bool VisibilitySequentialSolver<P, S>::isBlockedBySilhouette(PluckerPolytope<P> *aPolytope,
+    PolytopePositionType VisibilitySequentialSolver<P, S>::isBlockedBySilhouette(PluckerPolytope<P> *aPolytope,
                                                                   PluckerPolyhedron<P> *aPolyhedron,
                                                                   const Silhouette *aSilhouette)
     {
         if (!aPolytope->containsRealLines())
         {
-            return true;
+            return BLOCKED;
         }
 
-        P repLine = MathGeometry::computeRepresentativeLine<P>(aPolytope, aPolyhedron, mTolerance);
+        const RepresentativeLine<P> representative = MathGeometry::representativeLine<P, S>(aPolytope, aPolyhedron, mTolerance, mOptimisedRepresentativeLine,
+                                                            VisibilitySolver<P, S>::mQuery->getStatistic());
+
+        /* A line that lies outside the cell tells nothing about it: it may graze an occluder the cell itself does
+        not see, or miss one it does. Asked for a certificate, the search says it does not know and the cell is
+        split further instead of concluded from. */
+        if (mOptimisedRepresentativeLine && !representative.insideCell && !representative.boundary)
+        {
+            V_TRACE("polytope " << aPolytope << " has no verified representative line (margin " << representative.margin << ")");
+            return UNDEFINED;
+        }
+
+        P repLine = representative.line;
 
         const MathPlane3d &plane0 = VisibilitySolver<P, S>::mQuery->getQueryPolygon(0)->getPlane();
         const MathPlane3d &plane1 = VisibilitySolver<P, S>::mQuery->getQueryPolygon(1)->getPlane();
@@ -165,7 +184,7 @@ namespace visilib
         const double len = dir.getNorm();
         if (len <= 0.0)
         {
-            return false;
+            return mOptimisedRepresentativeLine ? UNDEFINED : OUTSIDE;
         }
         dir *= (1.0 / len);
 
@@ -179,10 +198,10 @@ namespace visilib
         {
             if (MathGeometry::hitsTriangle<float>(ray, face.getVertex(0), face.getVertex(1), face.getVertex(2)))
             {
-                return true;
+                return BLOCKED;
             }
         }
-        return false;
+        return OUTSIDE;
     }
 
     template <class P, class S>
@@ -226,14 +245,9 @@ namespace visilib
         /* Second pass (Option B): the polytope is on one side of every hyperplane.
         Cast its representative line against the silhouette faces to decide. */
 
-        if (isBlockedBySilhouette(aPolytope, aPolyhedron, aSilhouette))
-        {
-            V_TRACE("polytope " << aPolytope << " representative line hits occluder: BLOCKED");
-            return BLOCKED;
-        }
-
-        V_TRACE("polytope " << aPolytope << " clears occluder: OUTSIDE");
-        return OUTSIDE;
+        const PolytopePositionType position = isBlockedBySilhouette(aPolytope, aPolyhedron, aSilhouette);
+        V_TRACE("polytope " << aPolytope << " representative line decides " << position);
+        return position;
     }
 
     template <class P, class S>
@@ -398,7 +412,9 @@ namespace visilib
 
             PolytopePositionType position = classifyRelativeToSilhouette(myPolytopeToClassify, myPolyhedron, edges, aSilhouette);
 
-            if (position == INTERSECTS)
+            /* A cell that could not be decided is treated as one the silhouette cuts across: it gets split, which
+            costs a split and loses nothing. Concluding from a line that is not inside the cell is what loses. */
+            if (position == INTERSECTS || position == UNDEFINED)
             {
                 V_TRACE("adding to intersectedPolytopes " << myPolytopeToClassify << " at " << polytopeIndex);
                 intersectedPolytopes.push_back(polytopeIndex);
@@ -573,7 +589,8 @@ namespace visilib
                 for (int polytopeIndex = 0; polytopeIndex < complex->getPolytopeCount(); polytopeIndex++)
                 {
                     PluckerPolytope<P> *myPolytope = complex->getPolytope(polytopeIndex);
-                    if (myPolytope != nullptr && isBlockedBySilhouette(myPolytope, myPolyhedron, mySilhouette))
+                    /* BLOCKED is nought in that enum, which is why it is compared and never just tested. */
+                    if (myPolytope != nullptr && isBlockedBySilhouette(myPolytope, myPolyhedron, mySilhouette) == BLOCKED)
                     {
                         V_TRACE("polytope " << myPolytope << " blocked by empty-edge silhouette: delete");
                         delete myPolytope;
@@ -610,14 +627,33 @@ namespace visilib
         }
          V_TRACE("visible: prepare to extract stabbinglines");
        
+        bool validated = false;
+
         for (int i = 0; i < complex->getPolytopeCount(); i++)
         {
             PluckerPolytope<P> *myPolytope = complex->getPolytope(i);
             V_TRACE(" extract stabbinglines for " << myPolytope << " at " << i);
-       
-   
+
+            /* A cell no silhouette proved blocked is not yet a sight line. The patches only carry the faces the
+            silhouette kept, and an occluder that is not closed has faces no silhouette edge bounds: a line can
+            cross one of them and still miss every patch. The scene is asked, in full, before it is called visible. */
+            if (mOptimisedRepresentativeLine
+                && VisibilitySolver<P, S>::mQuery->validateLeafPolytope(myPolytope, myPolyhedron) != 1)
+            {
+                V_TRACE(myPolytope << " survives the silhouettes but its line is not a sight line");
+                continue;
+            }
+
             VisibilitySolver<P, S>::extractStabbingLines(myPolyhedron, myPolytope, mTolerance);
+            validated = true;
         }
+
+        if (!validated)
+        {
+            V_TRACE("HIDDEN: no surviving polytope holds a sight line");
+            return VisibilitySolver<P, S>::conclude(HIDDEN);
+        }
+
         return VisibilitySolver<P, S>::conclude(VISIBLE);
     }
 }

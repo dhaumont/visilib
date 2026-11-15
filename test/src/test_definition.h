@@ -32,5 +32,12 @@ void selectSolverTestVariants(const std::string& idList);
 
 const double cDefaultQueryBudgetSeconds = 2.0;
 
+/* The models of demo/data are read whole, and the big ones are answered by a search that has to
+walk a polytope complex of tens of thousands of triangles before it can say anything. The two
+seconds the small synthetic scenes are graded with stops them before the scene is even built, so
+their suite asks for ten. */
+const double cModelQueryBudgetSeconds = 10.0;
+
 double queryBudgetSeconds();
+void setQueryBudgetSeconds(double seconds);
 void disableQueryBudget();

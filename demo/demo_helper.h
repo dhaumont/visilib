@@ -98,6 +98,11 @@ namespace visilibDemo
         VisibilityExactQueryConfiguration::PrecisionType precisionType = VisibilityExactQueryConfiguration::DOUBLE;
         bool detectApertureOnly = false;
         bool normalization = false;
+        /* Which of the two procedures finds the representative line of a cell. It is deliberately not part of a
+        test case file, and so not in its name either: it is there to be switched in the interface and watched,
+        not to be pinned down as the data of a case. The tests run the optimised one, which the library default
+        already is. */
+        bool optimisedRepresentativeLine = true;
         float scaling = 0.1f;
         float phi = 0;
         float eta = 0;

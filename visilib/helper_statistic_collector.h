@@ -50,7 +50,29 @@ namespace visilib
         RAY_COUNT,
         POLYTOPE_SPLIT_COUNT,
         OCCLUDER_TRIANGLE_COUNT,
+        /** @brief The representative lines the search asked for, and how each one came out
+
+        A line is DIRECT when the gravity center of the cell already lies inside it, which is what the
+        procedure did for years and what it still answers most of the time. It is WALKED when the centre
+        lay outside and the search moved onto the quadric into the cell instead. It is REJECTED when
+        nothing inside the cell could be found, which leaves the cell to be split further rather than
+        concluded from. The three add up to ASKED. */
+        REPRESENTATIVE_LINE_ASKED_COUNT,
+        REPRESENTATIVE_LINE_DIRECT_COUNT,
+        REPRESENTATIVE_LINE_WALKED_COUNT,
+        REPRESENTATIVE_LINE_REJECTED_COUNT,
         COUNTER_LAST
+    };
+
+    /** @brief What the statistics keep as a real number rather than a tally
+
+    There is one, the thinnest cell the search certified a sight line through: the smallest margin, in
+    the Plucker space of the query, over the lines it accepted. It is what says how close to the wall a
+    certified line was, and so how much room a coarser arithmetic had left to it.*/
+    enum MeasureType
+    {
+        WORST_ACCEPTED_MARGIN,
+        MEASURE_LAST
     };
 
     /** @brief Container for statistic and timing information collected during visibility determination operations   */
@@ -81,6 +103,8 @@ namespace visilib
             mCounts.resize(COUNTER_LAST, 0);
             mTimers.resize(TIMER_LAST, 0);
             mTimerIsRunning.resize(TIMER_LAST, false);
+            mMeasures.assign(MEASURE_LAST, 0.0);
+            mMeasuresSet.assign(MEASURE_LAST, false);
         }
 
         void inc(CounterType counter)
@@ -91,6 +115,29 @@ namespace visilib
         int get(CounterType counter) const
         {
             return mCounts[counter];
+        }
+
+        /**@brief Keep a measurement, of which only the smallest value seen is kept
+
+        A margin that has never been measured is not a zero margin: the first value seen sets it, and
+        the ones after it can only bring it down. */
+        void recordMeasure(MeasureType measure, double value)
+        {
+            if (!mMeasuresSet[measure] || value < mMeasures[measure])
+            {
+                mMeasures[measure] = value;
+                mMeasuresSet[measure] = true;
+            }
+        }
+
+        double getMeasure(MeasureType measure) const
+        {
+            return mMeasuresSet[measure] ? mMeasures[measure] : 0.0;
+        }
+
+        bool hasMeasure(MeasureType measure) const
+        {
+            return mMeasuresSet[measure];
         }
 
         /**@brief Return true if the split count must be displayed, i.e. when it is a multiple of the display split occurrence*/
@@ -161,6 +208,19 @@ namespace visilib
             counts["Rays"] = mCounts[RAY_COUNT];
             counts["Splits"] = mCounts[POLYTOPE_SPLIT_COUNT];
             counts["Occluders"] = mCounts[OCCLUDER_TRIANGLE_COUNT];
+            counts["Rep. lines"] = mCounts[REPRESENTATIVE_LINE_ASKED_COUNT];
+            counts["  in cell"] = mCounts[REPRESENTATIVE_LINE_DIRECT_COUNT];
+            counts["  walked in"] = mCounts[REPRESENTATIVE_LINE_WALKED_COUNT];
+            counts["  refused"] = mCounts[REPRESENTATIVE_LINE_REJECTED_COUNT];
+        }
+
+        /**@brief The real valued statistics, of which only the smallest seen is kept
+
+        A measure that has never been taken is left out of the map rather than given a value of nought:
+        a query that never certified a line did not certify a thin one. */
+        void getMeasures(std::map<std::string, double> & measures)
+        {
+            if (mMeasuresSet[WORST_ACCEPTED_MARGIN]) measures["Thinnest cell"] = mMeasures[WORST_ACCEPTED_MARGIN];
         }
 
         void display()
@@ -182,13 +242,24 @@ namespace visilib
         {
             std::cout << "  [Rays:           " << mCounts[RAY_COUNT] << "]"<< std::endl
                       << "  [Splits:         " << mCounts[POLYTOPE_SPLIT_COUNT] << "]" << std::endl
-                      << "  [Occluder:       " << mCounts[OCCLUDER_TRIANGLE_COUNT] << "]" << std::endl;
+                      << "  [Occluder:       " << mCounts[OCCLUDER_TRIANGLE_COUNT] << "]" << std::endl
+                      << "  [Rep. lines:     " << mCounts[REPRESENTATIVE_LINE_ASKED_COUNT]
+                      << " (in cell " << mCounts[REPRESENTATIVE_LINE_DIRECT_COUNT]
+                      << ", walked " << mCounts[REPRESENTATIVE_LINE_WALKED_COUNT]
+                      << ", refused " << mCounts[REPRESENTATIVE_LINE_REJECTED_COUNT] << ")]" << std::endl;
+
+            if (mMeasuresSet[WORST_ACCEPTED_MARGIN])
+            {
+                std::cout << "  [Thinnest cell:  " << std::scientific << mMeasures[WORST_ACCEPTED_MARGIN] << std::fixed << " (distance of the closest line certified through a cell to its wall)]" << std::endl;
+            }
         }
 
     private:
         std::vector<int> mCounts;
         std::vector<double> mTimers;
         std::vector<bool> mTimerIsRunning;
+        std::vector<double> mMeasures;            /**< @brief The smallest value seen for each MeasureType*/
+        std::vector<bool> mMeasuresSet;           /**< @brief Whether anything has been seen for each MeasureType*/
 
         double mTimerFrequency;
 

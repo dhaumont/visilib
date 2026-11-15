@@ -81,6 +81,9 @@ namespace visilib
         /** @brief Return the timings for the different types of information stored in the debugger*/
         std::map<std::string, double>& getTimings();
 
+        /** @brief Return the measurements of the query, the values that are neither tallies nor times*/
+        std::map<std::string, double>& getMeasures();
+
         /** @brief Return the wall clock budget the solvers interrupt the query with.
 
         The timeout is part of the debugger because the debugger is what a client attaches to
@@ -115,6 +118,7 @@ namespace visilib
 
         std::map<std::string, int>    mCounters; /** <@brief The counters for the different types of information stored in the debugger*/
         std::map<std::string, double> mTimings; /** <@brief The timings for the different types of information stored in the debugger*/
+        std::map<std::string, double> mMeasures; /** <@brief The measurements of the query, kept beside the tallies and the times*/
 
         HelperTimeout mTimeout; /** <@brief The wall clock budget the solvers interrupt the query with*/
 
@@ -255,6 +259,11 @@ namespace visilib
     inline std::map<std::string, double>& HelperVisualDebugger::getTimings()
     {
         return mTimings;
+    }
+
+    inline std::map<std::string, double>& HelperVisualDebugger::getMeasures()
+    {
+        return mMeasures;
     }
 
     inline HelperTimeout& HelperVisualDebugger::getTimeout()

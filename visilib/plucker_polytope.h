@@ -185,6 +185,16 @@ namespace visilib
             return mRepresentativeLine;
         }
 
+        void setRepresentativeLineMargin(double margin)
+        {
+            mRepresentativeLineMargin = margin;
+        }
+
+        double getRepresentativeLineMargin() const
+        {
+            return mRepresentativeLineMargin;
+        }
+
         /** @brief Test if the polytope is valid (complete check)
 
         The test performs a complete validation of the validity of the polytope
@@ -202,11 +212,18 @@ namespace visilib
         std::vector<std::vector<size_t> > mExtremalStabbingLinesFacets;
         double mRadius;
         P mRepresentativeLine;
+        /** @brief How far the line above stands from the nearest facet of the polytope, in its own arithmetic
+
+        A representative line is what the search casts when it wants to know about a cell, and the margin is
+        what says how much room the cast has: a line of no margin was accepted as good as by luck, and is the
+        one to look at when the cast and the cell disagree. */
+        double mRepresentativeLineMargin;
     };
 
     template<class P>
     PluckerPolytope<P>::PluckerPolytope()
-        :    mRadius(0)
+        :    mRadius(0),
+             mRepresentativeLineMargin(0.0)
     {
     }
 
@@ -279,6 +296,7 @@ namespace visilib
         o << "Polytope ESL: " << mExtremalStabbingLines.size() << std::endl;
         o << "Polytope Edges: " << mEdges.size() << std::endl;
         o << "Polytope Vertices: " << mVertices.size() << std::endl;
+        o << "Polytope representative line margin: " << mRepresentativeLineMargin << std::endl;
 
         if (polyhedron != nullptr)
         {

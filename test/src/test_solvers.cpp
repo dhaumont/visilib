@@ -597,14 +597,49 @@ changes it from the command line and both suites read it back. The unlimited val
 HelperTimeout already carries when nobody sets a budget on it. */
 double gQueryBudgetSeconds = cDefaultQueryBudgetSeconds;
 
+/* NO_TIMEOUT has the last word: a suite that asks for a budget of its own must not put the limit
+back on a run the command line took it off. */
+bool gQueryBudgetDisabled = false;
+
 double queryBudgetSeconds()
 {
     return gQueryBudgetSeconds;
 }
 
+void setQueryBudgetSeconds(double seconds)
+{
+    if (gQueryBudgetDisabled) return;
+
+    gQueryBudgetSeconds = seconds;
+}
+
 void disableQueryBudget()
 {
+    gQueryBudgetDisabled = true;
     gQueryBudgetSeconds = std::numeric_limits<double>::max();
+}
+
+namespace
+{
+    /* The budget a suite runs with, put back the way it was when the suite is over: the suites
+    follow one another in one process, and one of them is not to decide the next one's limit. */
+    class ScopedQueryBudget
+    {
+    public:
+        explicit ScopedQueryBudget(double seconds):
+            mPrevious(queryBudgetSeconds())
+        {
+            setQueryBudgetSeconds(seconds);
+        }
+
+        ~ScopedQueryBudget()
+        {
+            setQueryBudgetSeconds(mPrevious);
+        }
+
+    private:
+        double mPrevious;
+    };
 }
 
 bool SolverConsistencyTest(std::string& errorMessage)
@@ -691,9 +726,11 @@ bool SolverEdgeCases(std::string& errorMessage)
 /* One suite of the solver sweeps: the files of a folder, run through the same sweep the
 consistency test uses. The suite is named by what it is called with, so that the three suites
 that differ only by their folder say so once rather than three times over. */
-static bool runSolverSuite(const char* suiteName, const std::string& folder, std::string& errorMessage)
+static bool runSolverSuite(const char* suiteName, const std::string& folder, double budgetSeconds, std::string& errorMessage)
 {
     std::cout << suiteName << std::endl;
+
+    ScopedQueryBudget budget(budgetSeconds);
 
     const std::vector<std::string> files = DemoHelper::listTestCaseFiles(folder);
 
@@ -734,7 +771,7 @@ bool SolverDegenerateTests(std::string& errorMessage)
     /* The aligned geometries of the scene builder, the ones that bring a splitting hyperplane
     next to a facet the polytope already carries. They are expected to be slow and to be the last
     cases still standing when an answer is wrong, so they run as a suite of their own. */
-    return runSolverSuite("SolverDegenerateTests", DemoHelper::testCaseFolder() + "/degenerate", errorMessage);
+    return runSolverSuite("SolverDegenerateTests", DemoHelper::testCaseFolder() + "/degenerate", cDefaultQueryBudgetSeconds, errorMessage);
 }
 
 bool SolverModelTests(std::string& errorMessage)
@@ -743,8 +780,9 @@ bool SolverModelTests(std::string& errorMessage)
     surfaces rather than hand built ones, with their degenerate faces left in and their tens of
     thousands of triangles, which is where a search either finds a sight line early or never comes
     back at all. They are a suite of their own because they are slow: the small ones are answered in
-    a few milliseconds and the big ones are cut short by the time budget. */
-    return runSolverSuite("SolverModelTests", DemoHelper::testCaseFolder() + "/models", errorMessage);
+    a few milliseconds and the big ones are cut short by the time budget, which is the longer one
+    the models ask for rather than the default. */
+    return runSolverSuite("SolverModelTests", DemoHelper::testCaseFolder() + "/models", cModelQueryBudgetSeconds, errorMessage);
 }
 
 bool SolverPrecisionTests(std::string& errorMessage)

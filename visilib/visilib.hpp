@@ -127,6 +127,7 @@ inline VisibilityResult visilib::areVisible(GeometryOccluderSet* scene, const fl
     {
         query->getTimingStats(debugger->getTimings());
         query->getCounts(debugger->getCounters());
+        query->getMeasures(debugger->getMeasures());
 
         if (debugger->getDisplayStatistics())
         {
