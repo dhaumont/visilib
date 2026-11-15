@@ -1031,8 +1031,11 @@ namespace visilib
         result.line = line;
         result.onQuadric = MathPredicates::getQuadricRelativePosition(line, tolerance) == ON_BOUNDARY;
 
-        const MathPlucker6d y = convert<MathPlucker6d>(line);
-        const double norm = MathArithmetic<double>::getSqrt(y.scalarDot(y));
+        /* The parts of the line in double precision, and their six dimensional norm:
+        the conversion to MathPlucker6d carried the same parts through. */
+        const MathVector3d lineDirection = convert<MathVector3d>(line.getDirection());
+        const MathVector3d lineLocation = convert<MathVector3d>(line.getLocation());
+        const double norm = MathArithmetic<double>::getSqrt(lineDirection.dot(lineDirection) + lineLocation.dot(lineLocation));
 
         if (!(norm > 0.0)) return result;
 
@@ -1068,9 +1071,23 @@ namespace visilib
 
             insideOrOnBoundary = insideOrOnBoundary && (satisfied || position == ON_BOUNDARY);
 
+            /* The depth of the line in the facet, in the very quantity the predicate
+            above reads: the six dimensional space has always measured it by the
+            ordinary scalar product of the parts, and the family, whose facets are
+            lines on a screen, is asked by the Klein form what its points are worth. */
+            double pairing;
+            if constexpr (MathPluckerCellTraits<P>::cAllLinesReal)
+            {
+                pairing = facets[i].direction.dot(lineLocation) + facets[i].location.dot(lineDirection);
+            }
+            else
+            {
+                pairing = facets[i].direction.dot(lineDirection) + facets[i].location.dot(lineLocation);
+            }
+
             const double slack = facets[i].sign == 0.0
                 ? 0.0
-                : facets[i].sign * (facets[i].direction.dot(y.getDirection()) + facets[i].location.dot(y.getLocation())) / norm;
+                : facets[i].sign * pairing / norm;
             if (!measured || slack < margin)
             {
                 margin = slack;
@@ -1170,6 +1187,37 @@ namespace visilib
     template<class P, class S>
     RepresentativeLine<P> MathGeometry::computeRepresentativeLine(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron, const S & tolerance, bool optimised)
     {
+        if constexpr (MathPluckerCellTraits<P>::cAllLinesReal)
+        {
+            /* The family knows no second step, for it has no first step to recover
+            from: the gravity center of the rays of the cell is itself a ray, every
+            ray of the family being on the quadric, and the cell, a convex polygon on
+            the flat screen of the family, contains its own center. What remains to be
+            said is how deep it lies in the facets, which is the verification's, and
+            the walk the general space takes to reach a line the projection missed has
+            nowhere to go from a line already within. */
+            (void)optimised;
+
+            P myGravityCenter = P::Zero();
+            auto myVertices = polytope->getVertices();
+
+            for (auto iter = myVertices.begin(); iter != myVertices.end(); iter++)
+            {
+                myGravityCenter += polyhedron->get(*iter);
+            }
+
+            std::vector<typename PluckerPolytope<P>::CellFacet> facets;
+            bool flat = false;
+            polytope->getCellFacets(polyhedron, tolerance, facets, flat);
+
+            RepresentativeLine<P> result = verifyRepresentativeLine<P, S>(myGravityCenter, polyhedron, tolerance, facets);
+            result.direct = true;
+
+            return result;
+        }
+        else
+        {
+
         /* First step, the procedure the search did for years: the gravity center of the polytope projected onto the
         Plucker quadric. It is not formally correct from a mathematical point of view: the gravity center in Plucker
         space does not correspond to a real line in 3D since it does not belong to the Plucker quadric. However, it
@@ -1330,6 +1378,7 @@ namespace visilib
         }
 
         return best.boundary ? best : walked;
+        }
     }
 
     inline void MathGeometry::computeRayParameters(const GeometryRay & aRay, double& Sx, double& Sy, double& Sz, int& kx, int& ky, int& kz)

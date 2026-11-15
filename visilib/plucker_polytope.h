@@ -693,8 +693,12 @@ namespace visilib
             satisfies the rest. A plane with vertices on both sides is not a facet of the hull and is left out. */
             if (position == ON_BOTH_SIDES) continue;
 
-            const MathPlucker6d asLine = convert<MathPlucker6d>(plane);
-            const double norm = MathArithmetic<double>::getSqrt(asLine.scalarDot(asLine));
+            /* The plane read in its own coordinates: the conversion to MathPlucker6d
+            carried the same parts through, and its scalar product with itself is the
+            six dimensional norm they make, whichever space holds them. */
+            const MathVector3d planeDirection = convert<MathVector3d>(plane.getDirection());
+            const MathVector3d planeLocation = convert<MathVector3d>(plane.getLocation());
+            const double norm = MathArithmetic<double>::getSqrt(planeDirection.dot(planeDirection) + planeLocation.dot(planeLocation));
 
             if (!(norm > 0.0)) continue;
 
@@ -710,8 +714,8 @@ namespace visilib
             {
                 facet.sign = position == ON_NEGATIVE_SIDE ? 1.0 : -1.0;
             }
-            facet.direction = MathVector3d(asLine.getDirection().x / norm, asLine.getDirection().y / norm, asLine.getDirection().z / norm);
-            facet.location = MathVector3d(asLine.getLocation().x / norm, asLine.getLocation().y / norm, asLine.getLocation().z / norm);
+            facet.direction = MathVector3d(planeDirection.x / norm, planeDirection.y / norm, planeDirection.z / norm);
+            facet.location = MathVector3d(planeLocation.x / norm, planeLocation.y / norm, planeLocation.z / norm);
 
             facets.push_back(facet);
         }

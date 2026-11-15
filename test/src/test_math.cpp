@@ -28,6 +28,8 @@ space are caught in a circle of includes otherwise. */
 #include "math_combinatorial.h"
 
 #include "math_plucker_parallel_6.h"
+#include "plucker_polytope_builder.h"
+#include "plucker_polytope_splitter.h"
 
 #ifdef ENABLE_GMP
 #include "math_gmp_rational.h"
@@ -276,6 +278,120 @@ namespace
 
         return true;
     }
+
+    /* The directional initialization: the cell of the light through two sources,
+    built from the direction the centers tell and the vertices of the first source,
+    clipped by the half planes of the second. No pair of vertices is ever taken for
+    a line here, which is what the general builder does. */
+    bool checkDirectionalScreenCell()
+    {
+        typedef MathPluckerParallel6d ParallelLine;
+        typedef PluckerPolyhedron<ParallelLine> ParallelPolyhedron;
+        typedef PluckerPolytope<ParallelLine> ParallelPolytope;
+
+        const double tolerance = MathArithmetic<double>::Tolerance();
+
+        // Two unit squares facing each other along x, centers (0,0,0) and (2,0,0).
+        const float squareA[] = { 0, -1, -1, 0, 1, -1, 0, 1, 1, 0, -1, 1 };
+        const float squareB[] = { 2, -1, -1, 2, 1, -1, 2, 1, 1, 2, -1, 1 };
+
+        // The same square, half the size: its shadow lies within the first one.
+        const float squareS[] = { 2, -0.5, -0.5, 2, 0.5, -0.5, 2, 0.5, 0.5, 2, -0.5, 0.5 };
+        const float squareW[] = { 0, -2, -2, 0, 2, -2, 0, 2, 2, 0, -2, 2 };
+
+        // Two bars crossing at right angles, their shadows overlapping in a square.
+        const float barA[] = { 0, -2, -0.5, 0, 2, -0.5, 0, 2, 0.5, 0, -2, 0.5 };
+        const float barB[] = { 2, -0.5, -2, 2, 0.5, -2, 2, 0.5, 2, 2, -0.5, 2 };
+
+        // Coincident shadows: the cell is the square, four corners each lying on two
+        // lines of either source, and the center ray answers for it.
+        {
+            GeometryConvexPolygon a(squareA, 4);
+            GeometryConvexPolygon b(squareB, 4);
+
+            ParallelPolyhedron polyhedron;
+            PluckerPolytopeBuilder<ParallelLine, double> builder(false, tolerance);
+            ParallelPolytope* polytope = builder.build(a, b, &polyhedron);
+
+            if (polytope->getVertices().size() != 4) return fail(__LINE__);
+            if (polytope->getEdgeCount() != 4) return fail(__LINE__);
+            if (polytope->getExtremalStabbingLinesCount() != 4) return fail(__LINE__);
+            if (!polytope->containsRealLines()) return fail(__LINE__);
+
+            const RepresentativeLine<ParallelLine> rep = MathGeometry::representativeLine<ParallelLine, double>(polytope, &polyhedron, tolerance, true);
+            if (!rep.insideCell) return fail(__LINE__);
+            if (!sameVector(rep.line.getScreenPoint(), MathVector3d(0, 0, 0), tolerance)) return fail(__LINE__);
+
+            delete polytope;
+        }
+
+        // A shadow within the other: the cell is the small square, four corners.
+        {
+            GeometryConvexPolygon a(squareW, 4);
+            GeometryConvexPolygon b(squareS, 4);
+
+            ParallelPolyhedron polyhedron;
+            PluckerPolytopeBuilder<ParallelLine, double> builder(false, tolerance);
+            ParallelPolytope* polytope = builder.build(a, b, &polyhedron);
+
+            if (polytope->getVertices().size() != 4) return fail(__LINE__);
+            if (polytope->getEdgeCount() != 4) return fail(__LINE__);
+
+            delete polytope;
+        }
+
+        /* The crossing bars: the cell is the square of the overlap, its four corners
+        each held by a line of either source. A silhouette plane then cuts it, the
+        very split of the solver, and both children keep a certified representative. */
+        {
+            GeometryConvexPolygon a(barA, 4);
+            GeometryConvexPolygon b(barB, 4);
+
+            ParallelPolyhedron polyhedron;
+            PluckerPolytopeBuilder<ParallelLine, double> builder(false, tolerance);
+            ParallelPolytope* polytope = builder.build(a, b, &polyhedron);
+
+            if (polytope->getVertices().size() != 4) return fail(__LINE__);
+            if (polytope->getEdgeCount() != 4) return fail(__LINE__);
+
+            const RepresentativeLine<ParallelLine> rep = MathGeometry::representativeLine<ParallelLine, double>(polytope, &polyhedron, tolerance, true);
+            if (!rep.insideCell) return fail(__LINE__);
+            if (!sameVector(rep.line.getScreenPoint(), MathVector3d(0, 0, 0), tolerance)) return fail(__LINE__);
+
+            // A screen line at y = 0.25, carried by an edge standing in the light.
+            const ParallelLine silPlane = ParallelLine::throughEdge(MathVector3d(0, 0.25, -5), MathVector3d(0, 0.25, 5));
+            const size_t silIndex = polyhedron.add(silPlane, ON_BOUNDARY, false, tolerance);
+
+            ParallelPolytope* left = new ParallelPolytope();
+            ParallelPolytope* right = new ParallelPolytope();
+
+            const GeometryPositionType position = PluckerPolytopeSplitter<ParallelLine, double>::split(&polyhedron, silPlane, polytope, left, right, silIndex, false, tolerance);
+            if (position != ON_BOTH_SIDES) return fail(__LINE__);
+
+            left->computeEdgesIntersectingQuadric(&polyhedron, tolerance);
+            right->computeEdgesIntersectingQuadric(&polyhedron, tolerance);
+
+            if (!left->containsRealLines()) return fail(__LINE__);
+            if (!right->containsRealLines()) return fail(__LINE__);
+            if (left->getVertices().size() != 4) return fail(__LINE__);
+            if (right->getVertices().size() != 4) return fail(__LINE__);
+
+            const RepresentativeLine<ParallelLine> repLeft = MathGeometry::representativeLine<ParallelLine, double>(left, &polyhedron, tolerance, true);
+            const RepresentativeLine<ParallelLine> repRight = MathGeometry::representativeLine<ParallelLine, double>(right, &polyhedron, tolerance, true);
+            if (!repLeft.insideCell) return fail(__LINE__);
+            if (!repRight.insideCell) return fail(__LINE__);
+
+            // The children stand on either side of the plane that split them.
+            if (MathPredicates::getRelativePosition(left, &polyhedron, silPlane, tolerance) != ON_NEGATIVE_SIDE) return fail(__LINE__);
+            if (MathPredicates::getRelativePosition(right, &polyhedron, silPlane, tolerance) != ON_POSITIVE_SIDE) return fail(__LINE__);
+
+            delete polytope;
+            delete left;
+            delete right;
+        }
+
+        return true;
+    }
 }
 
 bool MathPluckerParallelTest(std::string& )
@@ -301,6 +417,8 @@ bool MathPluckerParallelTest(std::string& )
 #endif
 
     if (!checkParallelQueryTypes())
+        return false;
+    if (!checkDirectionalScreenCell())
         return false;
 
     std::cout << "MathPluckerParallelTest SUCCESS" << std::endl;

@@ -51,6 +51,16 @@ namespace visilib
         /** @brief Add the extremal stabbing lines of a and b as hyperplanes of the polyhedron */
         void addExtremalStabbingLines(PluckerPolytope<P>* polytope, GeometryConvexPolygon& a, GeometryConvexPolygon& b, PluckerPolyhedron<P>* polyhedron);
 
+        /** @brief Create the initial cell of a line family from a direction, the shadow of the first source clipped by the half planes of the second.
+
+        The rays of the family that go through both sources are the rays whose screen
+        point lies in the shadow of each of them, and their cell is the intersection of
+        two convex polygons, a cell of two dimensions rather than four. No vertex pair
+        of the sources is ever taken for a line here, which the general builder has to
+        do: the direction of the light, and the vertices of the first source, are all
+        the initialization asks for. */
+        void addDirectionalScreenCell(PluckerPolytope<P>* polytope, GeometryConvexPolygon& a, GeometryConvexPolygon& b, PluckerPolyhedron<P>* polyhedron);
+
         /** @brief Create the edges from the facets representation to obtain the polytope skeleton*/
         void addEdges(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* aPolyhedron);
 
@@ -211,13 +221,159 @@ namespace visilib
         addSourcePolygonEdgesAsHyperplanes(aPolyhedron, a, true, gb - ga);
         addSourcePolygonEdgesAsHyperplanes(aPolyhedron, b, false, ga - gb);
 
-        addExtremalStabbingLines(myPolytope, a, b, aPolyhedron);
-        addEdges(myPolytope, aPolyhedron);
+        if constexpr (MathPluckerCellTraits<P>::cAllLinesReal)
+        {
+            addDirectionalScreenCell(myPolytope, a, b, aPolyhedron);
+
+            if (myPolytope->getVertices().empty())
+            {
+                /* The shadows do not meet: no ray of the light goes through both
+                sources, and the empty cell is the answer, not an error waiting to
+                be asserted. */
+                return myPolytope;
+            }
+        }
+        else
+        {
+            addExtremalStabbingLines(myPolytope, a, b, aPolyhedron);
+            addEdges(myPolytope, aPolyhedron);
+        }
 
         myPolytope->computeEdgesIntersectingQuadric(aPolyhedron, mTolerance);
         V_ASSERT(myPolytope->isValid(aPolyhedron, mNormalization, mTolerance));
 
         return myPolytope;
+    }
+
+    template<class P, class S>
+    inline void PluckerPolytopeBuilder<P, S>::addDirectionalScreenCell(PluckerPolytope<P>* polytope, GeometryConvexPolygon & a, GeometryConvexPolygon & b, PluckerPolyhedron<P> * aPolyhedron)
+    {
+        // The light runs from the center of the first source to the center of the second.
+        MathVector3d ga = MathGeometry::getGravityCenter(a);
+        MathVector3d gb = MathGeometry::getGravityCenter(b);
+        MathVector3d d = gb - ga;
+        V_ASSERT(!d.isZero(MathArithmetic<double>::Tolerance()));
+
+        size_t countA = a.getVertexCount();
+        size_t countB = b.getVertexCount();
+
+        // The shadow of a degenerated source is a point or a line on the screen, and
+        // the cell of such a light is the work of the days after this one.
+        V_ASSERT(countA >= 3 && countB >= 3);
+
+        const MathVector3_<S> myD = convert<MathVector3_<S>>(d);
+
+        // The center ray of the second shadow lies strictly inside all its half planes,
+        // and tells each of them which side the shadow is on.
+        const P refB(myD, convert<MathVector3_<S>>(gb));
+
+        /* The screen polygon starts as the shadow of the first source, the ray of the
+        family through each of its vertices, and is clipped by the half planes of the
+        edges of the second. The hyperplanes of both sources were added first, in order,
+        by addSourcePolygonEdgesAsHyperplanes: the edges of b are planes countA to
+        countA + countB. */
+        std::vector<P> screen;
+        for (size_t i = 0; i < countA; i++)
+        {
+            screen.push_back(P(myD, convert<MathVector3_<S>>(a.getVertex(i))));
+        }
+
+        for (size_t e = 0; e < countB && !screen.empty(); e++)
+        {
+            const P& plane = aPolyhedron->get(countA + e);
+
+            const S ref = plane.dot(refB);
+            V_ASSERT(MathArithmetic<S>::getAbs(ref) > mTolerance);
+            const bool positive = ref > S(0.0);
+
+            std::vector<P> clipped;
+            const size_t n = screen.size();
+
+            for (size_t i = 0; i < n; i++)
+            {
+                const P& cur = screen[i];
+                const P& next = screen[(i + 1) % n];
+
+                const S dc = plane.dot(cur);
+                const S dn = plane.dot(next);
+
+                const bool inCur = positive ? dc >= -mTolerance : dc <= mTolerance;
+                const bool inNext = positive ? dn >= -mTolerance : dn <= mTolerance;
+
+                if (inCur)
+                {
+                    clipped.push_back(cur);
+
+                    if (!inNext)
+                    {
+                        clipped.push_back(MathGeometry::interpolate(dc, dn, cur, next, mTolerance));
+                    }
+                }
+                else if (inNext)
+                {
+                    clipped.push_back(MathGeometry::interpolate(dc, dn, cur, next, mTolerance));
+                }
+            }
+
+            screen.swap(clipped);
+        }
+
+        // The debris of a clip grazing an edge, two consecutive names of the same ray,
+        // come down to one vertex.
+        std::vector<P> cell;
+        for (size_t i = 0; i < screen.size(); i++)
+        {
+            if (!cell.empty() && MathPredicates::isEdgeCollapsed(cell.back(), screen[i], mTolerance))
+            {
+                continue;
+            }
+            cell.push_back(screen[i]);
+        }
+        if (cell.size() > 1 && MathPredicates::isEdgeCollapsed(cell.front(), cell.back(), mTolerance))
+        {
+            cell.pop_back();
+        }
+
+        if (cell.size() < 3)
+        {
+            // Less than a polygon on the screen: the light has no cell to show.
+            return;
+        }
+
+        /* A vertex of the cell lies on the boundary lines of the shadow it stands at,
+        whichever source they come from: the incidence asks the Klein form of every
+        hyperplane, and no bookkeeping of the clip is trusted with the facets. */
+        const size_t planeCount = countA + countB;
+
+        std::vector<size_t> indices;
+        for (size_t i = 0; i < cell.size(); i++)
+        {
+            std::vector<size_t> facets;
+            for (size_t f = 0; f < planeCount; f++)
+            {
+                if (MathPredicates::getRelativePosition(aPolyhedron->get(f).dot(cell[i]), mTolerance) == ON_BOUNDARY)
+                {
+                    facets.push_back(f);
+                }
+            }
+            V_ASSERT(!facets.empty());
+
+            size_t vertexIndex = aPolyhedron->add(cell[i], ON_BOUNDARY, mNormalization, mTolerance);
+            aPolyhedron->initFacetsDescription(vertexIndex, facets);
+
+            // The vertices of the family are real rays themselves, the extremal
+            // stabbing lines of the cell are its own corners.
+            polytope->addExtremalStabbingLine(cell[i]);
+
+            indices.push_back(vertexIndex);
+        }
+
+        // The edges join consecutive corners of the screen polygon, each pair of them
+        // held by the boundary line they lie on together.
+        for (size_t i = 0; i < indices.size(); i++)
+        {
+            polytope->addEdge(indices[i], indices[(i + 1) % indices.size()], aPolyhedron);
+        }
     }
 
     template<class P, class S>
