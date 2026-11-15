@@ -651,7 +651,7 @@ bool SolverEdgeCases(std::string& errorMessage)
 {
     std::cout << "SolverEdgeCases" << std::endl;
 
-    const std::string folder = DemoHelper::testCaseFolder() + "/deactivate/on_the_edge";
+    const std::string folder = DemoHelper::testCaseFolder() + "/on_the_edge";
     const std::vector<std::string> files = DemoHelper::listTestCaseFiles(folder);
 
     const SweepBounds sweep = { reducedPrecisions(), { 1.0f }, { true, false }, { true, false }, cSolvers };
@@ -686,6 +686,65 @@ bool SolverEdgeCases(std::string& errorMessage)
 
     std::cout << "SolverEdgeCases SUCCESS" << std::endl;
     return true;
+}
+
+/* One suite of the solver sweeps: the files of a folder, run through the same sweep the
+consistency test uses. The suite is named by what it is called with, so that the three suites
+that differ only by their folder say so once rather than three times over. */
+static bool runSolverSuite(const char* suiteName, const std::string& folder, std::string& errorMessage)
+{
+    std::cout << suiteName << std::endl;
+
+    const std::vector<std::string> files = DemoHelper::listTestCaseFiles(folder);
+
+    const SweepBounds sweep = { reducedPrecisions(), { 1.0f }, { true, false }, { true, false }, cSolvers };
+
+    TestResults results;
+
+    if (files.empty())
+    {
+        errorMessage = "no case file found in " + folder;
+        std::cout << "    ERROR " << errorMessage << std::endl;
+        return false;
+    }
+
+    for (size_t caseIndex = 0; caseIndex < files.size(); caseIndex++)
+    {
+        const std::string& name = files[caseIndex];
+
+        runCase(folder + "/" + name, name, sweep, results);
+    }
+
+    results.display();
+
+    displaySelectionReport();
+
+    if (results.failureCount() > 0)
+    {
+        std::cout << suiteName << " FAILED" << std::endl;
+        return false;
+    }
+
+    std::cout << suiteName << " SUCCESS" << std::endl;
+    return true;
+}
+
+bool SolverDegenerateTests(std::string& errorMessage)
+{
+    /* The aligned geometries of the scene builder, the ones that bring a splitting hyperplane
+    next to a facet the polytope already carries. They are expected to be slow and to be the last
+    cases still standing when an answer is wrong, so they run as a suite of their own. */
+    return runSolverSuite("SolverDegenerateTests", DemoHelper::testCaseFolder() + "/degenerate", errorMessage);
+}
+
+bool SolverModelTests(std::string& errorMessage)
+{
+    /* The models shipped in demo/data, each one read whole and brought to the unit box. Real
+    surfaces rather than hand built ones, with their degenerate faces left in and their tens of
+    thousands of triangles, which is where a search either finds a sight line early or never comes
+    back at all. They are a suite of their own because they are slow: the small ones are answered in
+    a few milliseconds and the big ones are cut short by the time budget. */
+    return runSolverSuite("SolverModelTests", DemoHelper::testCaseFolder() + "/models", errorMessage);
 }
 
 bool SolverPrecisionTests(std::string& errorMessage)

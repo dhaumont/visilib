@@ -107,6 +107,45 @@ double DemoHelper::getApertureSize(DemoConfiguration::SCENE_TYPE s)
     return 1.0;
 }
 
+namespace
+{
+
+    void addFusionLayers(HelperTriangleMeshContainer* container, float width, float height, float slit,
+                         float stagger, float slide)
+    {
+        const int layerCount = 10;
+        const float pitch = height + slit;
+        const float firstDepth = -0.45f;
+        const float depthStep = 0.1f;
+
+        for (int i = 0; i < layerCount; i++)
+        {
+            /* The alternating half pitch puts the plates of one layer opposite the slits of the
+            layer turned a quarter of a turn from it; the stagger does the same for the layers of
+            the one orientation, which are four turns apart. */
+            const float base = 0.5f * pitch * (i % 2 == 0 ? -1.0f : 1.0f)
+                + stagger * ((i / 2) % 2);
+            const float turn = (float)M_PI_2 * (float)i;
+            const float along = slide * ((float)i - 0.5f * (float)(layerCount - 1));
+
+            for (int k = 0; k < 5; k++)
+            {
+                /* The bar runs along y with its thickness along x, and the turn the other facing
+                plates use puts it in a plane x = constant: width across, height up. The plate is set
+                in its row along that height, the whole row is slipped along its own length and swung
+                about the view axis, and only then is it moved out to the depth of its layer. */
+                HelperTriangleMesh* mesh = HelperSyntheticMeshBuilder::generateBar(width, height);
+                HelperSyntheticMeshBuilder::rotate(mesh, 0, (float)M_PI_2, (float)M_PI);
+                HelperSyntheticMeshBuilder::translate(mesh, MathVector3f(0.0f, along, base + ((float)k - 2.0f) * pitch));
+                HelperSyntheticMeshBuilder::rotate(mesh, turn, 0.0f, 0.0f);
+                HelperSyntheticMeshBuilder::translate(mesh, MathVector3f(firstDepth + (float)i * depthStep, 0.0f, 0.0f));
+
+                container->add(mesh);
+            }
+        }
+    }
+}
+
 HelperTriangleMeshContainer* DemoHelper::createScene(DemoConfiguration::SCENE_TYPE s, float globalScalingFactor)
 {
     HelperTriangleMeshContainer* myMeshContainer = new HelperTriangleMeshContainer();
@@ -261,6 +300,327 @@ HelperTriangleMeshContainer* DemoHelper::createScene(DemoConfiguration::SCENE_TY
 
 
             rescale = false;
+        }break;
+
+        case DemoConfiguration::DEGENERATE_FAN_PLATE:
+        {
+            /* A facing plate cut as a fan, so every spoke ends on the apex, and the ring edges
+            come in pairs parallel to each other and lying in the one plane of the plate. The apex
+            is set at the centre of the view axis: any sight line through it satisfies all the
+            spoke constraints at once, which is the plane of the lines through a point, a plane
+            lying on the Klein quadric itself. The facets of the polytope are then not in general
+            position, and the cut applied near the apex has to be read against a facet that is
+            already there. */
+            HelperTriangleMesh* mesh = HelperSyntheticMeshBuilder::generateRegularPolygon(6, 2);
+            HelperSyntheticMeshBuilder::scale(mesh, 0.3f);
+            HelperSyntheticMeshBuilder::rotate(mesh, 0, (float)M_PI_2, (float)M_PI);
+
+            const MathVector3f apex = mesh->getVertices()[0];
+            HelperSyntheticMeshBuilder::translate(mesh, MathVector3f(-apex.x, -apex.y, -apex.z));
+
+            myMeshContainer->add(mesh);
+            rescale = false;
+        }break;
+
+        case DemoConfiguration::DEGENERATE_HAIRLINE_SLOT:
+        {
+            /* Two facing plates, each pierced by a crack two thousandths across, the second slid
+            sideways by half a crack so that the two cracks only partly line up. The two edges
+            bounding one crack are parallel lines a hair apart in the same plane, so their
+            hyperplanes are as close to duplicates as the arrangement allows without being equal,
+            and the aperture they leave is far below the minimum aperture size: the tolerance alone
+            decides what the answer is. */
+            const float crack = 0.002f;
+
+            for (int i = 0; i < 2; i++)
+            {
+                HelperTriangleMesh* mesh = HelperSyntheticMeshBuilder::generateSlot(0.0f, 0.0f, crack, crack);
+                HelperSyntheticMeshBuilder::scale(mesh, 2.0f);
+                HelperSyntheticMeshBuilder::rotate(mesh, 0, (float)M_PI_2, (float)M_PI);
+                HelperSyntheticMeshBuilder::translate(mesh, MathVector3f(0.33f * (float)i, 0.5f * crack * (float)i, 0.0f));
+                myMeshContainer->add(mesh);
+            }
+
+            rescale = false;
+        }break;
+
+        case DemoConfiguration::DEGENERATE_ALIGNED_STACK:
+        {
+            /* Two plates hinged on the view axis itself, one a hair behind the other, opened like
+            a partly shut book across the way the two query polygons face each other. The edges
+            they present to the sight are the same line to within two thousandths, so the second
+            plate cuts the polytope by a hyperplane repeating a facet it already carries, and the
+            sight line down the middle of the axis is on the boundary of the answer rather than
+            inside it. */
+            const float offset = 0.002f;
+            const float hinge[2] = { 0.35f, (float)M_PI - 0.35f };
+
+            for (int i = 0; i < 2; i++)
+            {
+                HelperTriangleMesh* mesh = HelperSyntheticMeshBuilder::generateRegularGrid(0);
+                HelperSyntheticMeshBuilder::scale(mesh, 0.5f);
+                /* One edge of the plate is laid along the local x axis, so that the rotation
+                about x hinges the plate on that edge and the edge stays on the view axis. */
+                HelperSyntheticMeshBuilder::translate(mesh, MathVector3f(0.0f, 0.25f, 0.0f));
+                HelperSyntheticMeshBuilder::rotate(mesh, hinge[i], 0.0f, 0.0f);
+                HelperSyntheticMeshBuilder::translate(mesh, MathVector3f(0.15f * (float)i, 0.0f, offset * (float)i));
+                myMeshContainer->add(mesh);
+            }
+
+            rescale = false;
+        }break;
+
+        case DemoConfiguration::DEGENERATE_REGULUS_FRAME:
+        {
+            /* Six slats, each of them a plate parallel to the two query polygons, set at six
+            depths across the way between them and turned in their own plane by an angle that grows
+            with the depth, so that the six stripes they cast run in six slightly different
+            directions across the sight region. Their long axes are six generators of one ruling of
+            the saddle z = x * y, and the lines of one ruling have the whole other ruling common to
+            them, every one of those transversals running along the view axis, so the six
+            constraints leave the search a flat lying on the quadric instead of pinning down a
+            vertex. Lifting each slat two thousandths off the saddle, alternately up and down, takes
+            the flat away and leaves the splitter a pair of extremal stabbing lines to tell apart.
+            Being plates rather than blades seen edge on, they are wide enough to cover the sight
+            region and block most of what goes through. */
+            const float slat[6] = { -0.5f, -0.3f, -0.1f, 0.1f, 0.3f, 0.5f };
+            const float lift = 0.002f;
+
+            for (int i = 0; i < 6; i++)
+            {
+                HelperTriangleMesh* mesh = HelperSyntheticMeshBuilder::generateBar(1.6f, 0.16f);
+                /* The same turn the other facing plates use, which puts the bar in a plane
+                x = constant with its long side horizontal, and then a spin about that plane's
+                normal, atan(t) for the slat at depth t, tilting its long axis to (0, 1, t). */
+                HelperSyntheticMeshBuilder::rotate(mesh, 0, (float)M_PI_2, (float)M_PI);
+                HelperSyntheticMeshBuilder::rotate(mesh, atanf(slat[i]), 0.0f, 0.0f);
+                HelperSyntheticMeshBuilder::translate(mesh, MathVector3f(slat[i], 0.0f, (i % 2 == 0 ? lift : -lift)));
+                myMeshContainer->add(mesh);
+            }
+
+            rescale = false;
+        }break;
+
+        case DemoConfiguration::DEGENERATE_CUBE_ON_GRID:
+        {
+            /* A grid plate, whose interior edges are coplanar with the plate and parallel two by
+            two, and a cube standing on it with one edge a thousandth aside one of those interior
+            lines. Two occluders therefore contribute facets whose hyperplanes nearly coincide,
+            which is the seam a real scene has wherever two meshes meet, and the silhouette filter
+            keeps both because they belong to different meshes. */
+            HelperTriangleMesh* plate = HelperSyntheticMeshBuilder::generateRegularGrid(1);
+            HelperSyntheticMeshBuilder::scale(plate, 0.6f);
+            HelperSyntheticMeshBuilder::rotate(plate, 0, (float)M_PI_2, (float)M_PI);
+            myMeshContainer->add(plate);
+
+            HelperTriangleMesh* cube = HelperSyntheticMeshBuilder::generateCube(0);
+            HelperSyntheticMeshBuilder::scale(cube, 0.3f);
+            /* The edges along z then lie at x and y of -0.15 and 0.15, so half a side brings two
+            of them into the plane of the plate; the odd thousandth keeps one of them just off the
+            plate's own interior edge instead of exactly on it, which is the near miss the search
+            cannot resolve. */
+            HelperSyntheticMeshBuilder::translate(cube, MathVector3f(0.15f, 0.151f, 0.0f));
+            myMeshContainer->add(cube);
+
+            rescale = false;
+        }break;
+
+        case DemoConfiguration::DEGENERATE_TRIANGLE_FAN_DISK:
+        {
+            /* A disk cut as a fan whose shared vertex is its center, one layer of elongated
+            triangles, each a slender wedge from the center out to the rim. Twenty four of them all
+            meet at the one point, and that point sits on the view axis where the sight lines are
+            densest: any sight line through the center answers all the spoke constraints at once,
+            which is the plane of the lines through a point, a plane lying on the Klein quadric
+            itself. The rim edges face each other across the center, parallel and in the one plane
+            of the disk. */
+            HelperTriangleMesh* mesh = HelperSyntheticMeshBuilder::generateTriangleFan(24, 0);
+            HelperSyntheticMeshBuilder::scale(mesh, 0.35f);
+            HelperSyntheticMeshBuilder::rotate(mesh, 0, (float)M_PI_2, (float)M_PI);
+
+            myMeshContainer->add(mesh);
+            rescale = false;
+        }break;
+
+        case DemoConfiguration::DEGENERATE_CUBE_GRID:
+        {
+            /* Five by five by five cubes on a regular lattice, every face axis aligned, two
+            hundredths apart, so that the only way through is the lattice of gaps in three
+            dimensions. Each face is parallel to twenty of its neighbours and its edges are collinear
+            with theirs, so the arrangement carries whole families of facets whose hyperplanes agree
+            to within the width of a gap, and a sight line threaded through one gap passes faces that
+            cannot be told apart. */
+            const int count = 5;
+            const float side = 0.1f;
+            const float pitch = 0.12f;
+
+            for (int i = 0; i < count; i++)
+            {
+                for (int j = 0; j < count; j++)
+                {
+                    for (int k = 0; k < count; k++)
+                    {
+                        HelperTriangleMesh* mesh = HelperSyntheticMeshBuilder::generateCube(0);
+                        HelperSyntheticMeshBuilder::scale(mesh, side);
+                        HelperSyntheticMeshBuilder::translate(mesh,
+                            MathVector3f(((float)i - (float)(count - 1) * 0.5f) * pitch,
+                                         ((float)j - (float)(count - 1) * 0.5f) * pitch,
+                                         ((float)k - (float)(count - 1) * 0.5f) * pitch));
+
+                        myMeshContainer->add(mesh);
+                    }
+                }
+            }
+
+            rescale = false;
+        }break;
+
+        case DemoConfiguration::DEGENERATE_CRACKED_CUBES:
+        {
+            /* Two cubes of one size, all faces parallel to each other, four thousandths apart so
+            that the two faces they turn to each other open a crack through the middle of the sight.
+            Unlike a hole in a plate this is a slit with depth: a sight line has to hold its two
+            thousandths of y across the whole width of the cubes to get through, and the two faces
+            are the same plane to within the crack, so the second cube cuts the polytope with a
+            hyperplane repeating a facet the first one already supplied. */
+            const float crack = 0.004f;
+            const float side = 0.4f;
+
+            for (int i = 0; i < 2; i++)
+            {
+                HelperTriangleMesh* mesh = HelperSyntheticMeshBuilder::generateCube(0);
+                HelperSyntheticMeshBuilder::scale(mesh, side);
+                HelperSyntheticMeshBuilder::translate(mesh,
+                    MathVector3f(0.0f, (i == 0 ? -1.0f : 1.0f) * (side * 0.5f + crack * 0.5f), 0.0f));
+
+                myMeshContainer->add(mesh);
+            }
+
+            rescale = false;
+        }break;
+
+        case DemoConfiguration::DEGENERATE_OCCLUSION_FUSION:
+        {
+            /* Ten layers of five small plates each, every plate parallel to the two query polygons:
+            each of the fifty plates blocks some lines, no single layer blocks the query, and it is
+            the fusion of them that comes close to leaving nothing through, which is the answer no
+            occluder can be asked for on its own. Being parallel plates stacked in rows, their edges
+            run in families of parallel lines whose hyperplanes stay close to one another over the
+            whole search. */
+            addFusionLayers(myMeshContainer, 0.5f, 0.048f, 0.04f, 0.0f, 0.02f);
+
+            rescale = false;
+        }break;
+
+        case DemoConfiguration::DEGENERATE_OCCLUSION_FUSION_BLOCKED:
+        {
+            /* The same ten turned layers, with the plates widened from half to nine tenths across
+            and from a fiftyth to a seventh and a half high, the slits between them narrowed from
+            four hundredths to two, and every second layer of an orientation given half a pitch of
+            stagger. The rows then reach past the sight region in every direction they are turned
+            to, and a ray that holds a slit at one depth has to jump six hundredths of height to
+            hold one two tenths of depth further on, which is more than the two query polygons a
+            fifth apart and four tenths of height wide allow it. The fusion closes, and the query is
+            hidden by the pile rather than by any one plate in it. */
+            addFusionLayers(myMeshContainer, 0.9f, 0.14f, 0.02f, 0.08f, 0.025f);
+
+            rescale = false;
+        }break;
+
+        case DemoConfiguration::DEGENERATE_SPIKE:
+        {
+            /* A ball with sixty needles stuck in it, a cactus, centered on the view axis. Every
+            needle is a thin tetrahedron whose apex is the center of the ball, so the three long
+            edges of all of them run through that one point and the point is where the sight lines
+            are densest: the facets they cut are the facets of the lines through a point, a plane
+            lying on the Klein quadric, and any sight line through the center answers all of them at
+            once. The needles stand out in five rings of twelve, the middle ring holding the
+            directions along the axis itself so that a sight line sent down the middle meets a tip
+            on, and each ring is turned half a step from the one before. A needle is twelve
+            thousandths thick at its base for thirty two hundredths of length, which makes its three
+            edges a cluster of nearly identical facets, and the hundred and eighty of them a family
+            that no tolerance set apart from another. */
+            const float ballRadius = 0.15f;
+            const float needleLength = 0.32f;
+            const float needleRadius = 0.012f;
+            const float rings[5] = { 0.3f, 0.75f, (float)M_PI_2, (float)M_PI - 0.75f, (float)M_PI - 0.3f };
+
+            HelperTriangleMesh* ball = HelperSyntheticMeshBuilder::generateSphere(1);
+            HelperSyntheticMeshBuilder::scale(ball, ballRadius);
+            myMeshContainer->add(ball);
+
+            for (int ring = 0; ring < 5; ring++)
+            {
+                for (int j = 0; j < 12; j++)
+                {
+                    const float azimuth = 2.f * (float)M_PI * (float)j / 12.f
+                        + (ring % 2 == 0 ? 0.0f : (float)M_PI / 12.f);
+
+                    /* Turning the needle about x by the polar angle tips its axis out of z, and the
+                    roll afterwards swings that axis around the view axis, which is how the ring is
+                    completed. */
+                    HelperTriangleMesh* needle = HelperSyntheticMeshBuilder::generateSpike(needleLength, needleRadius);
+                    HelperSyntheticMeshBuilder::rotate(needle, rings[ring], 0.0f, azimuth);
+
+                    myMeshContainer->add(needle);
+                }
+            }
+
+            rescale = false;
+        }break;
+
+        case DemoConfiguration::DEGENERATE_SPIRAL:
+        {
+            /* The regulus frame carried all the way round: twelve plates parallel to the two query
+            polygons, at twelve depths across the corridor, each one turned in its own plane a
+            thirtieth of a full turn further than the last, so that the stripe it casts has swept
+            thirty degrees on from the previous and the twelve together have gone the whole way
+            round. Their long axes are twelve generators of one ruling of the saddle z = x * y,
+            lifted two thousandths off it one plate up and two down, so the flat of common
+            transversals the ruling leaves is only just taken away, and the stripes cover the sight
+            region in every direction at once. */
+            const float plate[12] = { -0.55f, -0.45f, -0.35f, -0.25f, -0.15f, -0.05f,
+                                       0.05f,  0.15f,  0.25f,  0.35f,  0.45f,  0.55f };
+            const float lift = 0.002f;
+
+            for (int i = 0; i < 12; i++)
+            {
+                HelperTriangleMesh* mesh = HelperSyntheticMeshBuilder::generateBar(1.6f, 0.16f);
+                HelperSyntheticMeshBuilder::rotate(mesh, 0, (float)M_PI_2, (float)M_PI);
+                HelperSyntheticMeshBuilder::rotate(mesh, 2.f * (float)M_PI * (float)i / 12.f, 0.0f, 0.0f);
+                HelperSyntheticMeshBuilder::translate(mesh, MathVector3f(plate[i], 0.0f, (i % 2 == 0 ? lift : -lift)));
+
+                myMeshContainer->add(mesh);
+            }
+
+            rescale = false;
+        }break;
+
+        case DemoConfiguration::MODEL_ABACUS:
+        case DemoConfiguration::MODEL_BIRCH01:
+        case DemoConfiguration::MODEL_CAVATAP2:
+        case DemoConfiguration::MODEL_CENTERPLANT:
+        case DemoConfiguration::MODEL_CENTERPLANT3:
+        case DemoConfiguration::MODEL_CERCLE:
+        case DemoConfiguration::MODEL_CHAINLNK:
+        case DemoConfiguration::MODEL_CONE:
+        case DemoConfiguration::MODEL_DNA:
+        case DemoConfiguration::MODEL_GLASSES:
+        case DemoConfiguration::MODEL_HAND:
+        case DemoConfiguration::MODEL_SMALL:
+        case DemoConfiguration::MODEL_SPHERE_WITH_HOLES:
+        case DemoConfiguration::MODEL_SPHERE_WITH_HOLES2:
+        case DemoConfiguration::MODEL_TENNIS_RACKET:
+        {
+            /* The models shipped in demo/data, each one read as it stands and brought to the unit
+            box by the rescale below, so that whatever units a file was written in, the thing set
+            between the two query polygons is one box wide. Faces left degenerate by the reading are
+            dropped on the way in, which is what the hand built scenes never need and real data
+            often does. A file that is not there gives no scene at all rather than an empty box. */
+            if (!DemoHelper::load(myMeshContainer, DemoHelper::dataFolder() + "/" + DemoConfiguration::modelName(s), true))
+                return nullptr;
+
+            rescale = true;
         }break;
         }
     if (rescale)
@@ -614,11 +974,40 @@ const char* DemoConfiguration::sceneName(SCENE_TYPE scene)
         "SINGLE_TRIANGLE_01", "SINGLE_TRIANGLE_02", "SINGLE_TRIANGLE_03", "SINGLE_TRIANGLE_04",
         "SLOT_OFF_AXIS_01", "SLOT_OFF_AXIS_02", "SLOT_OFF_AXIS_03", "SLOT_OFF_AXIS_04", "SLOT_OFF_AXIS_05",
         "SLOT_ON_AXIS_01", "SPHERE_WITH_HOLES", "REGULAR_GRID", "NOISY_SPHERE", "SIMPLE_CUBE",
-        "NOISY_CUBE", "CUBES_AND_GRID", "CUBES_AND_GRID_100"
+        "NOISY_CUBE", "CUBES_AND_GRID", "CUBES_AND_GRID_100",
+        "DEGENERATE_FAN_PLATE", "DEGENERATE_HAIRLINE_SLOT", "DEGENERATE_ALIGNED_STACK",
+        "DEGENERATE_REGULUS_FRAME", "DEGENERATE_CUBE_ON_GRID",
+        "DEGENERATE_TRIANGLE_FAN_DISK", "DEGENERATE_CUBE_GRID", "DEGENERATE_CRACKED_CUBES",
+        "DEGENERATE_OCCLUSION_FUSION", "DEGENERATE_SPIKE", "DEGENERATE_SPIRAL",
+        "DEGENERATE_OCCLUSION_FUSION_BLOCKED",
+        "MODEL_ABACUS", "MODEL_BIRCH01", "MODEL_CAVATAP2", "MODEL_CENTERPLANT", "MODEL_CENTERPLANT3",
+        "MODEL_CERCLE", "MODEL_CHAINLNK", "MODEL_CONE", "MODEL_DNA", "MODEL_GLASSES", "MODEL_HAND",
+        "MODEL_SMALL", "MODEL_SPHERE_WITH_HOLES", "MODEL_SPHERE_WITH_HOLES2", "MODEL_TENNIS_RACKET"
     };
 
     const size_t count = sizeof(names) / sizeof(names[0]);
+    static_assert(count == DemoConfiguration::COUNT, "one name per scene, in the order of SCENE_TYPE");
     return scene >= 0 && static_cast<size_t>(scene) < count ? names[scene] : "UNKNOWN_SCENE";
+}
+
+const char* DemoConfiguration::modelName(SCENE_TYPE scene)
+{
+    /* The files of demo/data, from the first MODEL_* scene on, in the order of that block. The
+    names are the ones the folder holds, capitalisation and all, so that a scene can be matched to
+    its file at a glance. */
+    static const char* files[] =
+    {
+        "abacus.obj", "BIRCH01.obj", "CAVATAP2.obj", "centerplant.obj", "centerplant3.obj",
+        "cercle.obj", "CHAINLNK.obj", "cone.obj", "DNA.obj", "GLASSES.obj", "hand.obj",
+        "small.obj", "sphereWithHoles.obj", "sphereWithHoles2.obj", "tennis-racket.obj"
+    };
+
+    const size_t first = MODEL_ABACUS;
+    const size_t count = sizeof(files) / sizeof(files[0]);
+    static_assert(static_cast<size_t>(MODEL_TENNIS_RACKET - MODEL_ABACUS) + 1 == count, "one file per model scene");
+
+    return scene >= 0 && static_cast<size_t>(scene) >= first
+        && static_cast<size_t>(scene) < first + count ? files[static_cast<size_t>(scene) - first] : "";
 }
 
 std::string DemoConfiguration::caseFileName() const
@@ -836,6 +1225,15 @@ std::string DemoHelper::testCaseFolder()
     return TEST_CASES_DIR;
 #else
     return "test_cases";
+#endif
+}
+
+std::string DemoHelper::dataFolder()
+{
+#ifdef DEMO_DATA_DIR
+    return DEMO_DATA_DIR;
+#else
+    return "demo/data";
 #endif
 }
 

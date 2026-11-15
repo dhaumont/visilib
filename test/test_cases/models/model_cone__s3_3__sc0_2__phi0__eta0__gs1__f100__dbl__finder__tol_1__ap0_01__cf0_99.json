@@ -1,0 +1,17 @@
+{
+  "confidenceValue": 0.99,
+  "detectApertureOnly": false,
+  "eta": 0,
+  "globalScaling": 1,
+  "minimumApertureSize": 0.01,
+  "normalization": false,
+  "phi": 0,
+  "precisionType": 0,
+  "scaling": 0.2,
+  "sceneIndex": 36,
+  "silhouetteOptimisation": true,
+  "solverType": 0,
+  "tolerance": -1,
+  "vertexCount0": 3,
+  "vertexCount1": 3
+}

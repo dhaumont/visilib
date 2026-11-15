@@ -24,6 +24,8 @@ bool testConfiguration(bool& retflag);
 bool VisibilityTest(std::string&);
 bool SolverConsistencyTest(std::string&);
 bool SolverEdgeCases(std::string&);
+bool SolverDegenerateTests(std::string&);
+bool SolverModelTests(std::string&);
 bool SolverPrecisionTests(std::string&);
 
 void selectSolverTestVariants(const std::string& idList);

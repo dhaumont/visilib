@@ -73,6 +73,30 @@ namespace visilib
         /** @brief Generate a slot in the xy plane centered around the origin*/
         static HelperTriangleMesh* generateRegularPolygon(size_t vertexCount, int subdivision);
 
+        /** @brief Generate a thin rectangular bar in the xy plane, centered around the origin, long side along y*/
+        static HelperTriangleMesh* generateBar(float length, float thickness);
+
+        /** @brief Generate a disk as a triangle fan, the shared apex being the center*/
+        static HelperTriangleMesh* generateTriangleFan(size_t vertexCount, int subdivision);
+
+        /** @brief Generate a cone with its apex at the origin and its base at z = height*/
+        static HelperTriangleMesh* generateCone(float height, float baseRadius, int sides);
+
+        /** @brief Generate a thin tetrahedral spike, apex at the origin, base at z = height*/
+        static HelperTriangleMesh* generateSpike(float height, float baseRadius);
+
+        /** @brief Generate the vertices of a tetrahedral spike, apex at the origin*/
+        static void generateSpike(std::vector<int>& indices, std::vector<MathVector3f>& vertices, float height, float baseRadius);
+
+        /** @brief Generate the vertices of a cone, apex at the origin*/
+        static void generateCone(std::vector<int>& indices, std::vector<MathVector3f>& vertices, float height, float baseRadius, int sides);
+
+        /** @brief Generate the vertices of a disk fan around its center*/
+        static void generateTriangleFan(std::vector<int>& indices, std::vector<MathVector3f>& vertices, size_t vertexCount);
+
+        /** @brief Generate the vertex table and index table of a thin bar along y*/
+        static void generateBar(std::vector<int>& indices, std::vector<MathVector3f>& vertices, float length, float thickness);
+
         
         /** @brief Generate the vertices of a regular polygon*/
         static void generateRegularPolygon(std::vector<int>& indices, std::vector<MathVector3f>& vertices, size_t vertexCount);
@@ -351,6 +375,131 @@ namespace visilib
         indices.push_back(7); indices.push_back(0);     indices.push_back(8);
 
 
+    }
+
+    inline void HelperSyntheticMeshBuilder::generateBar(std::vector<int>& indices, std::vector<MathVector3f>& vertices, float length, float thickness)
+    {
+        const float x = 0.5f * thickness;
+        const float y = 0.5f * length;
+
+        vertices.push_back(MathVector3f(-x, -y, 0));
+        vertices.push_back(MathVector3f(-x, y, 0));
+        vertices.push_back(MathVector3f(x, y, 0));
+        vertices.push_back(MathVector3f(x, -y, 0));
+
+        indices.push_back(0); indices.push_back(1); indices.push_back(2);
+        indices.push_back(0); indices.push_back(2); indices.push_back(3);
+    }
+
+    inline HelperTriangleMesh* HelperSyntheticMeshBuilder::generateBar(float length, float thickness)
+    {
+        std::vector<MathVector3f> vertices;
+        std::vector<int> indices;
+
+        generateBar(indices, vertices, length, thickness);
+
+        return new HelperTriangleMesh(vertices, indices);
+    }
+
+    inline void HelperSyntheticMeshBuilder::generateTriangleFan(std::vector<int>& indices, std::vector<MathVector3f>& vertices, size_t vertexCount)
+    {
+        /* The apex first, and it is the center: every triangle of the disk then holds the center
+        among its vertices, which is what puts all the spokes through one point. */
+        vertices.push_back(MathVector3f::Zero());
+
+        const float dt = -2.f * (float)M_PI / (float)vertexCount;
+        float theta = dt / 2.;
+
+        for (size_t i = 0; i < vertexCount; i++)
+        {
+            vertices.push_back(MathVector3f(cos(theta), sin(theta), 0));
+            theta += dt;
+        }
+
+        for (size_t i = 0; i < vertexCount; i++)
+        {
+            indices.push_back(0);
+            indices.push_back(1 + (int)i);
+            indices.push_back(1 + (int)((i + 1) % vertexCount));
+        }
+    }
+
+    inline HelperTriangleMesh* HelperSyntheticMeshBuilder::generateTriangleFan(size_t vertexCount, int subdivision)
+    {
+        std::vector<MathVector3f> vertices;
+        std::vector<int> indices;
+
+        generateTriangleFan(indices, vertices, vertexCount);
+
+        for (size_t i = 0; i < subdivision; i++)
+        {
+            subdivide(indices, vertices);
+        }
+
+        return new HelperTriangleMesh(vertices, indices);
+    }
+
+    inline void HelperSyntheticMeshBuilder::generateCone(std::vector<int>& indices, std::vector<MathVector3f>& vertices, float height, float baseRadius, int sides)
+    {
+        /* The apex is the origin, so that a cone placed by rotation alone has its tip wherever the
+        scene puts the center, and every edge of its wall runs through that one point. */
+        vertices.push_back(MathVector3f::Zero());
+        vertices.push_back(MathVector3f(0, 0, height));
+
+        for (int i = 0; i < sides; i++)
+        {
+            const float theta = 2.f * (float)M_PI * (float)i / (float)sides;
+            vertices.push_back(MathVector3f(baseRadius * cos(theta), baseRadius * sin(theta), height));
+        }
+
+        for (int i = 0; i < sides; i++)
+        {
+            const int current = 2 + i;
+            const int next = 2 + (i + 1) % sides;
+
+            indices.push_back(0); indices.push_back(next); indices.push_back(current);
+            indices.push_back(1); indices.push_back(current); indices.push_back(next);
+        }
+    }
+
+    inline HelperTriangleMesh* HelperSyntheticMeshBuilder::generateCone(float height, float baseRadius, int sides)
+    {
+        std::vector<MathVector3f> vertices;
+        std::vector<int> indices;
+
+        generateCone(indices, vertices, height, baseRadius, sides);
+
+        return new HelperTriangleMesh(vertices, indices);
+    }
+
+    inline void HelperSyntheticMeshBuilder::generateSpike(std::vector<int>& indices, std::vector<MathVector3f>& vertices, float height, float baseRadius)
+    {
+        /* Four vertices and four triangles, the apex at the origin: a spike thin enough to be a
+        cactus needle, and closed, so that the three faces that run out from the apex are the whole
+        of it. Being four rather than many, the edges of a spike are few and each of them is a long
+        one, which is what a search has to resolve when it splits a polytope by the facet of one. */
+        vertices.push_back(MathVector3f::Zero());
+
+        for (int i = 0; i < 3; i++)
+        {
+            const float theta = 2.f * (float)M_PI * (float)i / 3.f;
+            vertices.push_back(MathVector3f(baseRadius * cos(theta), baseRadius * sin(theta), height));
+        }
+
+        indices.push_back(0); indices.push_back(2); indices.push_back(1);
+        indices.push_back(0); indices.push_back(3); indices.push_back(2);
+        indices.push_back(0); indices.push_back(1); indices.push_back(3);
+        indices.push_back(1); indices.push_back(2); indices.push_back(3);
+    }
+
+    inline HelperTriangleMesh* HelperSyntheticMeshBuilder::generateSpike(float height, float baseRadius)
+    {
+        std::vector<MathVector3f> vertices;
+        std::vector<int> indices;
+
+        generateSpike(indices, vertices, height, baseRadius);
+
+        return new HelperTriangleMesh(vertices, indices);
     }
 
     inline void HelperSyntheticMeshBuilder::generateRegularPolygon(std::vector<int>& indices, std::vector<MathVector3f> & vertices, size_t vertexCount)

@@ -47,6 +47,44 @@ namespace visilibDemo
             NOISY_CUBE,
             CUBES_AND_GRID,
             CUBES_AND_GRID_100,
+
+            /* The aligned geometries the degenerate suite runs. Each one puts a splitting
+            hyperplane close to a facet the polytope already has, which is where the exact
+            search stops being able to tell two answers apart: see the comment of the matching
+            branch of DemoHelper::createScene for what is aligned with what. */
+            DEGENERATE_FAN_PLATE,
+            DEGENERATE_HAIRLINE_SLOT,
+            DEGENERATE_ALIGNED_STACK,
+            DEGENERATE_REGULUS_FRAME,
+            DEGENERATE_CUBE_ON_GRID,
+            DEGENERATE_TRIANGLE_FAN_DISK,
+            DEGENERATE_CUBE_GRID,
+            DEGENERATE_CRACKED_CUBES,
+            DEGENERATE_OCCLUSION_FUSION,
+            DEGENERATE_SPIKE,
+            DEGENERATE_SPIRAL,
+            DEGENERATE_OCCLUSION_FUSION_BLOCKED,
+
+            /* The models shipped in demo/data, the suite SolverModelTests runs. Each one is read as
+            it stands and brought to the unit box, so that the blocker between the two query polygons
+            is of one size whatever units the file itself uses. Same order as the names of
+            DemoConfiguration::sceneName, the files of DemoConfiguration::modelName, and the Scene
+            combo of the interface. */
+            MODEL_ABACUS,
+            MODEL_BIRCH01,
+            MODEL_CAVATAP2,
+            MODEL_CENTERPLANT,
+            MODEL_CENTERPLANT3,
+            MODEL_CERCLE,
+            MODEL_CHAINLNK,
+            MODEL_CONE,
+            MODEL_DNA,
+            MODEL_GLASSES,
+            MODEL_HAND,
+            MODEL_SMALL,
+            MODEL_SPHERE_WITH_HOLES,
+            MODEL_SPHERE_WITH_HOLES2,
+            MODEL_TENNIS_RACKET,
             COUNT
         };
 
@@ -98,6 +136,9 @@ namespace visilibDemo
 
         static const char* sceneName(SCENE_TYPE scene);
 
+        /* The file of a MODEL_* scene in the data folder, empty for every other scene. */
+        static const char* modelName(SCENE_TYPE scene);
+
         void displaySummary();
         static const std::string toStr(VisibilityExactQueryConfiguration::PrecisionType p);
         static const std::string toStr(VisibilityExactQueryConfiguration::SolverType p);
@@ -122,6 +163,10 @@ namespace visilibDemo
         the .json files it holds, sorted by name. Listing a missing folder is not an
         error: it simply has no cases yet. */
         static std::string testCaseFolder();
+
+        /* The folder holding the .obj models the MODEL_* scenes read, known at configure
+        time for the same reason. */
+        static std::string dataFolder();
         static std::vector<std::string> listTestCaseFiles(const std::string& folder);
 
         /* The short code a precision goes by in file names and result lines. */

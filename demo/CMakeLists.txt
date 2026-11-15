@@ -41,6 +41,7 @@ set(Src
 set(TEST_CASES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../test/test_cases)
 file(MAKE_DIRECTORY ${TEST_CASES_DIR})
 add_definitions(-DTEST_CASES_DIR="${TEST_CASES_DIR}")
+add_definitions(-DDEMO_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data")
 
 include_directories( external/freeglut/include/ )
 include_directories( ../visilib/ )
