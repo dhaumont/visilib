@@ -98,6 +98,12 @@ namespace visilibDemo
         VisibilityExactQueryConfiguration::PrecisionType precisionType = VisibilityExactQueryConfiguration::DOUBLE;
         bool detectApertureOnly = false;
         bool normalization = false;
+        /* The directional light: the rays all run parallel to the line joining the
+        centers of the two query polygons, and the solver works on the screen of that
+        family rather than the full six dimensional space. It is a light of the
+        configuration, not of the scene: the same walls, the same squares, and the
+        query answers for the sun instead of the lamp. */
+        bool directionalLight = false;
         /* Which of the two procedures finds the representative line of a cell. It is deliberately not part of a
         test case file, and so not in its name either: it is there to be switched in the interface and watched,
         not to be pinned down as the data of a case. The tests run the optimised one, which the library default

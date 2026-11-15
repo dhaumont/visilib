@@ -120,6 +120,7 @@ namespace visilibDemo
             config.silhouetteOptimization = mDemoConfiguration.silhouetteOptimisation;
             config.hyperSphereNormalization = mDemoConfiguration.normalization;
             config.optimisedRepresentativeLine = mDemoConfiguration.optimisedRepresentativeLine;
+            config.directionalLight = mDemoConfiguration.directionalLight;
             config.precision = mDemoConfiguration.precisionType;
             config.solverType = mDemoConfiguration.solverType;
             config.detectApertureOnly = mDemoConfiguration.detectApertureOnly;
@@ -299,6 +300,7 @@ namespace visilibDemo
 
                 forceDisplay |= ImGui::Checkbox("silhouette optimisation", &mDemoConfiguration.silhouetteOptimisation);
                 forceDisplay |= ImGui::Checkbox("normalization", &mDemoConfiguration.normalization);
+                forceDisplay |= ImGui::Checkbox("directional light", &mDemoConfiguration.directionalLight);
                 forceDisplay |= ImGui::Checkbox("optimised representative line", &mDemoConfiguration.optimisedRepresentativeLine);
 
                 const char* solver_type[] = { "Aperture", "Sequential", "MontCarlo" };
@@ -526,6 +528,7 @@ namespace visilibDemo
             std::cout << "Visilib 1.0. Demo application " << std::endl;
 
             std::cout << "  s: enable/disable silhouette optimisation" << std::endl;
+            std::cout << "  l: enable/disable the directional light (the exact solvers only)" << std::endl;
             std::cout << "  n: enable/disable nomalization" << std::endl;
             std::cout << "  e: enable/disable exact arithmetic" << std::endl;
 
@@ -635,6 +638,11 @@ namespace visilibDemo
                 break;
             case 's':
                 mDemoConfiguration.silhouetteOptimisation = !mDemoConfiguration.silhouetteOptimisation;
+                forceDisplay = true;
+                break;
+            case 'l':
+                mDemoConfiguration.directionalLight = !mDemoConfiguration.directionalLight;
+                displaySettings();
                 forceDisplay = true;
                 break;
             case 'a':

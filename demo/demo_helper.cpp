@@ -717,6 +717,7 @@ void DemoConfiguration::displaySettings()
     std::cout << "  [Early stop: " << getStatusString(detectApertureOnly) << "]";
     std::cout << "[Silhouette: " << getStatusString(silhouetteOptimisation) << "]";
     std::cout << "[Normalization: " << getStatusString(normalization) << "]";
+    std::cout << "[Light: " << (directionalLight ? "DIRECTIONAL" : "POINT") << "]";
     std::cout << "[Rep. line: " << (optimisedRepresentativeLine ? "OPTIMISED" : "GRAVITY CENTER") << "]";
     std::cout << "[SolverType: " << toStr(solverType)<< "]";
   
@@ -736,7 +737,7 @@ namespace
         "vertexCount0", "vertexCount1", "silhouetteOptimisation", "detectApertureOnly",
         "normalization", "scaling", "scaling0", "scaling1", "phi", "eta", "sceneIndex", "globalScaling",
         "precisionType", "solverType", "tolerance", "minimumApertureSize", "confidenceValue",
-        "expected"
+        "expected", "directionalLight"
 #if EMBREE
         , "embree"
 #endif
@@ -955,6 +956,11 @@ std::string DemoConfiguration::jsonString() const
     expectation, and its absence must not show up as an empty key. */
     if (!expected.empty())
         root["expected"] = expected;
+
+    /* Same sparingness for the light: the point light is what every file written
+    before the directional query means, and it says nothing. */
+    if (directionalLight)
+        root["directionalLight"] = directionalLight;
 #if EMBREE
     root["embree"] = embree;
 #endif
@@ -1042,6 +1048,11 @@ std::string DemoConfiguration::caseFileName() const
         << "__tol" << fileNameTag(tolerance)
         << "__ap" << fileNameTag(minimumApertureSize)
         << "__cf" << fileNameTag(confidenceValue);
+
+    /* The point light needs no mark: the cases written before the directional query
+    keep the names they have, and only the sun takes a segment of its own. */
+    if (directionalLight)
+        file << "__dir1";
 #if EMBREE
     file << "__emb" << (embree ? "1" : "0");
 #endif
@@ -1103,6 +1114,7 @@ void DemoConfiguration::readConfig(const std::string& filename)
     readBool(root, "silhouetteOptimisation", silhouetteOptimisation);
     readBool(root, "detectApertureOnly", detectApertureOnly);
     readBool(root, "normalization", normalization);
+    readBool(root, "directionalLight", directionalLight);
 
     /* A file of before the per-source sizes gives one "scaling" to the two of them: it
     fills both, where the per-source keys, which a newer file carries, have the last word. */
