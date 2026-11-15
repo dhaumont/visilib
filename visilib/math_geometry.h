@@ -1286,9 +1286,15 @@ namespace visilib
 
         if (walked.insideCell) return walked;
 
-        /* Nothing strictly inside was reached, which is what a thin cell, or one flattened against one of its
-        planes, has to answer. The extremal stabbing lines of the cell lie on the quadric and in the closed cell by
-        construction, so the best of them goes instead: it certifies as much as a line on the boundary can.*/
+        /* The walk could not do better than the first step: where that step certified its line, it stands as the
+        answer. It is the only line of the cell that is neither outside of it nor lying on its own walls, and a line
+        lying on a wall grazes the silhouette edge it belongs to, which a cast against the scene reads as a hit.*/
+        if (result.boundary) return result;
+
+        /* Nothing strictly inside was reached, and the gravity center was not certified either, which is what a
+        thin cell, or one flattened against one of its planes, has to answer. The extremal stabbing lines of the
+        cell lie on the quadric and in the closed cell by construction, so the best of them goes instead: it
+        certifies as much as a line on the boundary can.*/
         RepresentativeLine<P> best = walked;
 
         for (size_t i = 0; i < polytope->getExtremalStabbingLinesCount(); i++)
