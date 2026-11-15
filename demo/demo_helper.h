@@ -103,7 +103,11 @@ namespace visilibDemo
         not to be pinned down as the data of a case. The tests run the optimised one, which the library default
         already is. */
         bool optimisedRepresentativeLine = true;
-        float scaling = 0.1f;
+        /* The size of each query polygon, S then R, in the order of the vertex
+        counts. The interface edits them independently, as it does the counts; a
+        case file written before the split carries one "scaling" for both. */
+        float scaling0 = 0.1f;
+        float scaling1 = 0.1f;
         float phi = 0;
         float eta = 0;
         DemoConfiguration::SCENE_TYPE sceneIndex = DemoConfiguration::SINGLE_TRIANGLE_01;

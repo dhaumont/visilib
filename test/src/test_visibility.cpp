@@ -33,8 +33,8 @@ bool testConfiguration(const DemoConfiguration& configuration, VisibilityResult 
     std::vector<float> v0, v1;
 
 
-    DemoHelper::generatePolygon(v0, configuration.vertexCount0, configuration.scaling, configuration.phi - 3.14519f, configuration.globalScaling);
-    DemoHelper::generatePolygon(v1, configuration.vertexCount1, configuration.scaling, configuration.phi, configuration.globalScaling);
+    DemoHelper::generatePolygon(v0, configuration.vertexCount0, configuration.scaling0, configuration.phi - 3.14519f, configuration.globalScaling);
+    DemoHelper::generatePolygon(v1, configuration.vertexCount1, configuration.scaling1, configuration.phi, configuration.globalScaling);
 
     VisibilityExactQueryConfiguration config;
     config.silhouetteOptimization = true;
@@ -99,7 +99,8 @@ bool VisibilityTest(std::string& )
                                 configuration.solverType = VisibilityExactQueryConfiguration::EXACT_APERTURE_FINDER;
                                 configuration.exactArithmetic = false;
                                 configuration.normalization = normalization;
-                                configuration.scaling = 0.14;
+                                configuration.scaling0 = 0.14;
+                                configuration.scaling1 = 0.14;
                                 configuration.silhouetteOptimisation = silhouette;
                                 std::stringstream ss;
                                 ss << v0 << "_" << v1 << ".obj";

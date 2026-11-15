@@ -708,7 +708,7 @@ void DemoConfiguration::displaySettings()
     std::cout << std::endl << "Current Demo Settings: " << std::endl;
 
     std::cout << "  [OccluderSet index:" << sceneIndex << "]";
-    std::cout << "[Source Size: " << scaling << "]";
+    std::cout << "[Source Size: " << scaling0 << " and " << scaling1 << "]";
     std::cout << "[Source Vertices: " << vertexCount0 << " and " << vertexCount1 << "]";
     std::cout << "[GlobalScaling:" << globalScaling << "]";
     std::cout << "[Tolerance:" << tolerance << "]";
@@ -734,7 +734,7 @@ namespace
     a newer build of the demo. */
     const char* const cConfigKeys[] = {
         "vertexCount0", "vertexCount1", "silhouetteOptimisation", "detectApertureOnly",
-        "normalization", "scaling", "phi", "eta", "sceneIndex", "globalScaling",
+        "normalization", "scaling", "scaling0", "scaling1", "phi", "eta", "sceneIndex", "globalScaling",
         "precisionType", "solverType", "tolerance", "minimumApertureSize", "confidenceValue",
         "expected"
 #if EMBREE
@@ -934,7 +934,13 @@ std::string DemoConfiguration::jsonString() const
     root["silhouetteOptimisation"] = silhouetteOptimisation;
     root["detectApertureOnly"] = detectApertureOnly;
     root["normalization"] = normalization;
-    root["scaling"] = asJsonNumber(scaling);
+    root["scaling0"] = asJsonNumber(scaling0);
+    root["scaling1"] = asJsonNumber(scaling1);
+
+    /* While the two sizes are one, the file also carries the single key of the builds that
+    know no other: they read it, and ignore the per-source ones. */
+    if (scaling0 == scaling1)
+        root["scaling"] = asJsonNumber(scaling0);
     root["phi"] = asJsonNumber(phi);
     root["eta"] = asJsonNumber(eta);
     root["sceneIndex"] = sceneIndex;
@@ -1018,8 +1024,14 @@ std::string DemoConfiguration::caseFileName() const
 
     file << tolowerCopy(sceneName(sceneIndex))
         << "__s" << vertexCount0 << "_" << vertexCount1
-        << "__sc" << fileNameTag(scaling)
-        << "__phi" << fileNameTag(phi)
+        << "__sc" << fileNameTag(scaling0);
+
+    /* The name takes a second size only when the two differ, so that the files of the
+    case where they are one keep the name they always had. */
+    if (scaling0 != scaling1)
+        file << "_" << fileNameTag(scaling1);
+
+    file << "__phi" << fileNameTag(phi)
         << "__eta" << fileNameTag(eta)
         << "__gs" << fileNameTag(globalScaling)
         << "__f" << (silhouetteOptimisation ? "1" : "0")
@@ -1091,7 +1103,17 @@ void DemoConfiguration::readConfig(const std::string& filename)
     readBool(root, "silhouetteOptimisation", silhouetteOptimisation);
     readBool(root, "detectApertureOnly", detectApertureOnly);
     readBool(root, "normalization", normalization);
-    readNumber(root, "scaling", scaling);
+
+    /* A file of before the per-source sizes gives one "scaling" to the two of them: it
+    fills both, where the per-source keys, which a newer file carries, have the last word. */
+    if (root.contains("scaling") && root["scaling"].is_number())
+    {
+        readNumber(root, "scaling", scaling0);
+        scaling1 = scaling0;
+    }
+    readNumber(root, "scaling0", scaling0);
+    readNumber(root, "scaling1", scaling1);
+
     readNumber(root, "phi", phi);
     readNumber(root, "eta", eta);
     readEnum(root, "sceneIndex", sceneIndex, DemoConfiguration::COUNT);

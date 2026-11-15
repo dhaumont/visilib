@@ -125,7 +125,11 @@ namespace visilibDemo
             config.detectApertureOnly = mDemoConfiguration.detectApertureOnly;
             config.tolerance = mDemoConfiguration.tolerance;
             config.confidenceValue = mDemoConfiguration.confidenceValue;
-            double areaSources = 2 * mDemoConfiguration.scaling;
+            /* The aperture is normalised by the area of the sources, and there are two of them
+            now: the larger rules, so that the threshold does not tighten when the smaller
+            alone is moved. */
+            double areaSources = 2 * (mDemoConfiguration.scaling0 > mDemoConfiguration.scaling1
+                ? mDemoConfiguration.scaling0 : mDemoConfiguration.scaling1);
             areaSources *= areaSources;
             double minimumAreAperture =  mDemoConfiguration.minimumApertureSize;
             minimumAreAperture *= minimumAreAperture;
@@ -155,8 +159,8 @@ namespace visilibDemo
 
             if (forceDisplay)
             {
-                DemoHelper::generatePolygon(v0, mDemoConfiguration.vertexCount0, mDemoConfiguration.scaling, mDemoConfiguration.phi - (float)M_PI, mDemoConfiguration.globalScaling);
-                DemoHelper::generatePolygon(v1, mDemoConfiguration.vertexCount1, mDemoConfiguration.scaling, mDemoConfiguration.phi, mDemoConfiguration.globalScaling);
+                DemoHelper::generatePolygon(v0, mDemoConfiguration.vertexCount0, mDemoConfiguration.scaling0, mDemoConfiguration.phi - (float)M_PI, mDemoConfiguration.globalScaling);
+                DemoHelper::generatePolygon(v1, mDemoConfiguration.vertexCount1, mDemoConfiguration.scaling1, mDemoConfiguration.phi, mDemoConfiguration.globalScaling);
 
                 resolveVisibility();
 
@@ -398,9 +402,9 @@ namespace visilibDemo
                 int vertexCount1 = mDemoConfiguration.vertexCount1;
                 int vertexCount2 = mDemoConfiguration.vertexCount1;
            
-                float scaling0 = mDemoConfiguration.scaling;
-                float scaling1 = mDemoConfiguration.scaling;
-                float scaling2 = mDemoConfiguration.scaling;
+                float scaling0 = mDemoConfiguration.scaling0;
+                float scaling1 = mDemoConfiguration.scaling1;
+                float scaling2 = mDemoConfiguration.scaling1;
            
                 if (active_source == 0 )
                 {
@@ -408,7 +412,7 @@ namespace visilibDemo
                     
                     forceDisplay |= ImGui::SliderFloat("Size S", &scaling0, 0.01, 1.0);
                     mDemoConfiguration.vertexCount0 = vertexCount0;
-                    mDemoConfiguration.scaling = scaling0;
+                    mDemoConfiguration.scaling0 = scaling0;
                 }
                 else if (active_source == 1)
                 {
@@ -416,16 +420,17 @@ namespace visilibDemo
                     forceDisplay |= ImGui::SliderFloat("Size R", &scaling1, 0.01, 1.0);
                     
                      mDemoConfiguration.vertexCount1 = vertexCount1;
-                      mDemoConfiguration.scaling = scaling1;
+                      mDemoConfiguration.scaling1 = scaling1;
                 }
                 else if (active_source == 2)
                 {
                     forceDisplay |= ImGui::SliderInt("Vertices R & S", &vertexCount2, 1, 12);
-                    forceDisplay |= ImGui::SliderFloat("Size S", &scaling2, 0.01, 1.0);
+                    forceDisplay |= ImGui::SliderFloat("Size R & S", &scaling2, 0.01, 1.0);
                     
                     mDemoConfiguration.vertexCount0 = vertexCount2;
                     mDemoConfiguration.vertexCount1 = vertexCount2;
-                     mDemoConfiguration.scaling = scaling2;
+                    mDemoConfiguration.scaling0 = scaling2;
+                    mDemoConfiguration.scaling1 = scaling2;
                 }
              
 
@@ -575,14 +580,20 @@ namespace visilibDemo
                 break;
 
             case '+':
-                if (mDemoConfiguration.scaling < 1.00f)
-                    mDemoConfiguration.scaling += 0.01f;
+                /* The pair at once, as the key did before the sizes were split: the interface
+                edits them one at a time, the keyboard moves both. */
+                if (mDemoConfiguration.scaling0 < 1.00f)
+                    mDemoConfiguration.scaling0 += 0.01f;
+                if (mDemoConfiguration.scaling1 < 1.00f)
+                    mDemoConfiguration.scaling1 += 0.01f;
                 forceDisplay = true;
                 break;
 
             case '-':
-                if (mDemoConfiguration.scaling > 0.02f)
-                    mDemoConfiguration.scaling -= 0.01f;
+                if (mDemoConfiguration.scaling0 > 0.02f)
+                    mDemoConfiguration.scaling0 -= 0.01f;
+                if (mDemoConfiguration.scaling1 > 0.02f)
+                    mDemoConfiguration.scaling1 -= 0.01f;
 
                 forceDisplay = true;
                 break;

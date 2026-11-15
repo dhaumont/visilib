@@ -137,7 +137,7 @@ namespace
         query.solverType = solverType;
         query.displaySplitOccurence = std::numeric_limits<int>::max();
 
-        const double side = 2.0 * configuration.scaling;
+        const double side = 2.0 * (configuration.scaling0 > configuration.scaling1 ? configuration.scaling0 : configuration.scaling1);
         const double aperture = configuration.minimumApertureSize;
         query.minimumNormalizedApertureSize = (aperture * aperture) / (side * side);
  
@@ -483,8 +483,8 @@ namespace
         std::vector<float> v0;
         std::vector<float> v1;
 
-        DemoHelper::generatePolygon(v0, settings.vertexCount0, settings.scaling, settings.phi - cSourceHalfTurn, settings.globalScaling);
-        DemoHelper::generatePolygon(v1, settings.vertexCount1, settings.scaling, settings.phi, settings.globalScaling);
+        DemoHelper::generatePolygon(v0, settings.vertexCount0, settings.scaling0, settings.phi - cSourceHalfTurn, settings.globalScaling);
+        DemoHelper::generatePolygon(v1, settings.vertexCount1, settings.scaling1, settings.phi, settings.globalScaling);
 
         HelperTriangleMeshContainer* meshContainer = DemoHelper::createScene(settings.sceneIndex, settings.globalScaling);
         V_ASSERT(meshContainer != nullptr);
