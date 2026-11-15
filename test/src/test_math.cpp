@@ -21,7 +21,21 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include <string>
 #include <iostream>
 
+/* The umbrella first, as every consumer of the library takes it: the headers of the
+space are caught in a circle of includes otherwise. */
+#include "visilib.h"
+
 #include "math_combinatorial.h"
+
+#include "math_plucker_parallel_6.h"
+
+#ifdef ENABLE_GMP
+#include "math_gmp_rational.h"
+#include "math_gmp_float.h"
+#endif
+#ifdef ENABLE_MPFR
+#include "math_mpfr.h"
+#endif
 
 using namespace visilib;
 
@@ -103,4 +117,193 @@ bool MathCombinatorialTest(std::string& )
     std::cout << "MathCombinatorialTest SUCCESS" << std::endl;
 
 	return true;
+}
+
+namespace
+{
+    /* The vectors of the checks are all of integer, or half, coordinates: the moments,
+    the projections and the Klein products stay exact whatever the arithmetic, so the
+    same expected values hold for double, float and the exact types alike. The square
+    rooted checks, normalization and distance, ask of the wrapper arithmetics what
+    they do not promise, and are left to the floating ones. */
+
+    template<class S>
+    MathVector3_<S> v3(double x, double y, double z)
+    {
+        return convert<MathVector3_<S>>(MathVector3d(x, y, z));
+    }
+
+    bool fail(const int line)
+    {
+        std::cout << "Error in line " << line << std::endl;
+        return false;
+    }
+
+    template<class S>
+    bool isNought(const S& value, const S& tolerance)
+    {
+        return MathArithmetic<S>::getAbs(value) <= tolerance;
+    }
+
+    /* The exact arithmetics compare with < and <= only, so equality is asked as the
+    vanishing of a difference; the data of the checks being exact, a nought
+    difference is a nought difference whatever the model. */
+    template<class S>
+    bool sameVector(const MathVector3_<S>& a, const MathVector3_<S>& b, const S& tolerance)
+    {
+        return MathVector3_<S>(a - b).isZero(tolerance);
+    }
+
+    template<class P, class S>
+    bool checkParallelAlgebra(bool checkSqrt)
+    {
+        const S tolerance = MathArithmetic<S>::Tolerance();
+
+        const MathVector3_<S> dx = v3<S>(1, 0, 0);
+
+        // The rays of the family, along x, through three points.
+        const P ray1(dx, v3<S>(2, 3, 5));
+        const P ray2(dx, v3<S>(2, -1, 4));
+        const P ray3(dx, v3<S>(2, 7, 0));
+
+        // The moment is the cross product, the screen point recovers the projected point,
+        // and the quadric is identically nought.
+        if (!sameVector(ray1.getLocation(), v3<S>(0, 5, -3), tolerance)) return fail(__LINE__);
+        if (!sameVector(ray1.getScreenPoint(), v3<S>(0, 3, 5), tolerance)) return fail(__LINE__);
+        if (!isNought(ray1.getQuadric(), tolerance)) return fail(__LINE__);
+
+        // An edge carried by the class: its plane against the rays of the family.
+        const P edge = P::throughEdge(v3<S>(0, 1, 1), v3<S>(0, -1, 1));
+        const P skewRay(dx, v3<S>(0, 0, 2));
+        const P meetRay(dx, v3<S>(0, 0, 1));
+
+        if (!isNought(edge.getQuadric(), tolerance)) return fail(__LINE__);
+        if (!isNought(edge.dot(edge), tolerance)) return fail(__LINE__);
+        if (!isNought(edge.dot(meetRay), tolerance)) return fail(__LINE__);
+        if (!isNought(edge.dot(skewRay) + S(2.0), tolerance)) return fail(__LINE__);
+
+        // The accumulation of the rays from the zero, the gravity center of the family
+        // on its screen: what the polytopes are made of, with no correction to chase.
+        P acc = P::Zero();
+        if (!acc.isZero(tolerance)) return fail(__LINE__);
+        acc += ray1;
+        acc += ray2;
+        acc += ray3;
+        acc = acc / S(3.0);
+
+        if (!sameVector(acc.getDirection(), dx, tolerance)) return fail(__LINE__);
+        if (!sameVector(acc.getLocation(), v3<S>(0, 3, -3), tolerance)) return fail(__LINE__);
+        if (!sameVector(acc.getScreenPoint(), v3<S>(0, 3, 3), tolerance)) return fail(__LINE__);
+        if (!isNought(acc.getQuadric(), tolerance)) return fail(__LINE__);
+
+        // A sum across families, where the projection of the moment is what keeps the
+        // result a line at all.
+        const P rayY(v3<S>(0, 1, 0), v3<S>(1, 0, 0));
+        const P mixed = ray1 + rayY;
+        if (!sameVector(mixed.getDirection(), v3<S>(1, 1, 0), tolerance)) return fail(__LINE__);
+        if (!sameVector(mixed.getLocation(), v3<S>(-2.5, 2.5, -2), tolerance)) return fail(__LINE__);
+        if (!isNought(mixed.getQuadric(), tolerance)) return fail(__LINE__);
+
+        // Scaling both parts renormalizes the coordinates and does not move the ray.
+        const P doubled = ray1 * S(2.0);
+        if (!sameVector(doubled.getLocation(), v3<S>(0, 10, -6), tolerance)) return fail(__LINE__);
+        if (!sameVector(doubled.getScreenPoint(), ray1.getScreenPoint(), tolerance)) return fail(__LINE__);
+
+        // The gradient of the quadric swaps the parts, and satisfies the same invariant.
+        const P grad = ray1.quadricGradient();
+        if (!sameVector(grad.getDirection(), ray1.getLocation(), tolerance)) return fail(__LINE__);
+        if (!sameVector(grad.getLocation(), ray1.getDirection(), tolerance)) return fail(__LINE__);
+        if (!isNought(grad.getQuadric(), tolerance)) return fail(__LINE__);
+
+        // The ordinary six dimensional norm: 1 + 25 + 9.
+        if (!isNought(ray1.scalarDot(ray1) - S(35.0), tolerance)) return fail(__LINE__);
+
+        // A copy, and the output operator the assertions read through.
+        const P copy(ray1);
+        if (!sameVector(copy.getLocation(), ray1.getLocation(), tolerance)) return fail(__LINE__);
+        if (!sameVector(copy.getDirection(), ray1.getDirection(), tolerance)) return fail(__LINE__);
+
+        if (checkSqrt)
+        {
+            const P one = ray1.getNormalized();
+            if (!isNought(one.scalarDot(one) - S(1.0), tolerance * 100)) return fail(__LINE__);
+            if (!(one.getScreenPoint() - ray1.getScreenPoint()).isZero(tolerance * 100)) return fail(__LINE__);
+
+            // The offset of two rays of the family, their screen points one unit apart.
+            const P next(dx, v3<S>(0, 3, 6));
+            if (!isNought(ray1.getDistance(next) - S(1.0), tolerance * 100)) return fail(__LINE__);
+        }
+
+        return true;
+    }
+
+    /* The supporting types of the exact query, taken with the family as their point
+    type. The pipeline itself is not run: what is checked here is that the machinery
+    of the space accepts the class, and keeps its predicates and its containers honest
+    on the values of the family. */
+    bool checkParallelQueryTypes()
+    {
+        typedef MathPluckerParallel6d ParallelLine;
+        typedef PluckerPolyhedron<ParallelLine> ParallelPolyhedron;
+        typedef PluckerPolytope<ParallelLine> ParallelPolytope;
+        typedef VisibilityExactQuery_<ParallelLine, double> ParallelQuery;
+
+        const double tolerance = MathArithmetic<double>::Tolerance();
+
+        ParallelPolyhedron polyhedron;
+        const ParallelLine edge = ParallelLine::throughEdge(MathVector3d(0, 1, 1), MathVector3d(0, -1, 1));
+        const ParallelLine ray(MathVector3d(1, 0, 0), MathVector3d(0, 0, 2));
+
+        const size_t index = polyhedron.add(edge, ON_BOUNDARY, false, tolerance);
+        if (index != 0) return fail(__LINE__);
+        if (polyhedron.getLinesCount() != 1) return fail(__LINE__);
+        if (polyhedron.getQuadricRelativePosition(0) != ON_BOUNDARY) return fail(__LINE__);
+        if (polyhedron.get(0).dot(ray) >= -tolerance) return fail(__LINE__);
+
+        ParallelPolytope polytope;
+        polytope.setRepresentativeLine(ray);
+        polytope.addExtremalStabbingLine(ray);
+        if (polytope.getExtremalStabbingLinesCount() != 1) return fail(__LINE__);
+        if (polytope.getExtremalStabbingLine(0).getLocation() != ray.getLocation()) return fail(__LINE__);
+
+        // The predicates of the space, read on the planes and the rays of the family.
+        if (MathPredicates::getVertexPlaneRelativePosition(edge, ray, tolerance) != ON_NEGATIVE_SIDE) return fail(__LINE__);
+        if (MathPredicates::getQuadricRelativePosition(ray, tolerance) != ON_BOUNDARY) return fail(__LINE__);
+
+        // The query takes the family as its point type: the definition stands, the run
+        // of the pipeline is the work of the days after this one.
+        (void)sizeof(ParallelQuery);
+
+        return true;
+    }
+}
+
+bool MathPluckerParallelTest(std::string& )
+{
+    if (!checkParallelAlgebra<MathPluckerParallel6f, float>(true))
+        return false;
+    if (!checkParallelAlgebra<MathPluckerParallel6d, double>(true))
+        return false;
+#ifdef ENABLE_GMP
+    if (!checkParallelAlgebra<MathPluckerParallel6<MathGmpRational>, MathGmpRational>(false))
+        return false;
+    if (!checkParallelAlgebra<MathPluckerParallel6<MathGmpFloat>, MathGmpFloat>(false))
+        return false;
+#endif
+#ifdef ENABLE_LEDA
+    if (!checkParallelAlgebra<MathPluckerParallel6<MathLedaReal>, MathLedaReal>(false))
+        return false;
+#endif
+#ifdef ENABLE_MPFR
+    MathMpfr::set_default_precision(MathArithmetic<MathMpfr>::bitsCount());
+    if (!checkParallelAlgebra<MathPluckerParallel6<MathMpfr>, MathMpfr>(false))
+        return false;
+#endif
+
+    if (!checkParallelQueryTypes())
+        return false;
+
+    std::cout << "MathPluckerParallelTest SUCCESS" << std::endl;
+
+    return true;
 }

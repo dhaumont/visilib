@@ -20,6 +20,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 
 
 bool MathCombinatorialTest(std::string&);
+bool MathPluckerParallelTest(std::string&);
 bool testConfiguration(bool& retflag);
 bool VisibilityTest(std::string&);
 bool SolverConsistencyTest(std::string&);

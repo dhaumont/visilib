@@ -56,6 +56,7 @@ struct TestDefinition
 const TestDefinition cTests[] =
 {
     { "MathCombinatorialTest", &MathCombinatorialTest },
+    { "MathPluckerParallelTest", &MathPluckerParallelTest },
     { "VisibilityTest", &VisibilityTest },
     { "SolverConsistencyTest", &SolverConsistencyTest },
     { "SolverEdgeCases", &SolverEdgeCases },
