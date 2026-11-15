@@ -23,6 +23,7 @@ bool MathCombinatorialTest(std::string&);
 bool MathPluckerParallelTest(std::string&);
 bool testConfiguration(bool& retflag);
 bool VisibilityTest(std::string&);
+bool DirectionalVisibilityTest(std::string&);
 bool SolverConsistencyTest(std::string&);
 bool SolverEdgeCases(std::string&);
 bool SolverDegenerateTests(std::string&);

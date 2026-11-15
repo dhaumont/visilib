@@ -127,3 +127,107 @@ bool VisibilityTest(std::string& )
 
     return result;
 }
+
+namespace
+{
+    /* A wall standing across the light: the quad of the plane x, between y0 and y1,
+    between z0 and z1, as the two triangles of a mesh. */
+    HelperTriangleMesh* createWall(float x, float y0, float y1, float z0, float z1)
+    {
+        std::vector<float> vertices =
+        {
+            x, y0, z0,
+            x, y1, z0,
+            x, y1, z1,
+            x, y0, z1
+        };
+        std::vector<int> triangles = { 0, 1, 2, 0, 2, 3 };
+        return new HelperTriangleMesh(vertices, triangles);
+    }
+
+    GeometryOccluderSet* createWallScene(const std::vector<HelperTriangleMesh*>& walls)
+    {
+        HelperTriangleMeshContainer* container = new HelperTriangleMeshContainer();
+        for (auto wall : walls)
+        {
+            container->add(wall);
+        }
+        return DemoHelper::createOccluderSet(container);
+    }
+
+    /* One query of the directional pipeline: two unit squares facing each other along
+    x, their centers giving the direction of the light, solved by one of the two
+    exact solvers. */
+    VisibilityResult runDirectionalQuery(GeometryOccluderSet* scene, VisibilityExactQueryConfiguration::SolverType solverType)
+    {
+        std::vector<float> v0 = { 0, -1, -1, 0, 1, -1, 0, 1, 1, 0, -1, 1 };
+        std::vector<float> v1 = { 2, -1, -1, 2, -1, 1, 2, 1, 1, 2, 1, -1 };
+
+        VisibilityExactQueryConfiguration config;
+        config.directionalLight = true;
+        config.precision = VisibilityExactQueryConfiguration::DOUBLE;
+        config.solverType = solverType;
+        config.detectApertureOnly = false;
+
+        HelperVisualDebugger debugger;
+        debugger.getTimeout().setMaximumDuration(queryBudgetSeconds());
+        debugger.setDisplayStatistics(false);
+
+        return visilib::areVisible(scene, &v0[0], v0.size() / 3, &v1[0], v1.size() / 3, config, &debugger);
+    }
+
+    bool checkDirectionalCase(const char* name, const std::vector<HelperTriangleMesh*>& walls, VisibilityResult expected)
+    {
+        bool result = true;
+        const VisibilityExactQueryConfiguration::SolverType solvers[] =
+        {
+            VisibilityExactQueryConfiguration::EXACT_SEQUENTIAL_SOLVER,
+            VisibilityExactQueryConfiguration::EXACT_APERTURE_FINDER
+        };
+
+        for (auto solverType : solvers)
+        {
+            GeometryOccluderSet* scene = createWallScene(walls);
+            const VisibilityResult answer = runDirectionalQuery(scene, solverType);
+
+            if (answer != expected)
+            {
+                std::cout << "DirectionalVisibilityTest: " << name << " with solver "
+                          << (solverType == VisibilityExactQueryConfiguration::EXACT_SEQUENTIAL_SOLVER ? "SEQUENTIAL" : "APERTURE")
+                          << " answered " << (int)answer << ", expected " << (int)expected << std::endl;
+                result = false;
+            }
+        }
+        return result;
+    }
+}
+
+/* The directional pipeline, end to end: the query of VisibilityExactQuery_ run with
+the family as its point type, from the factory of visilib.hpp to the answer. The
+scenes are the four shapes a wall can take across the light between two squares. */
+bool DirectionalVisibilityTest(std::string& )
+{
+    bool result = true;
+
+    // No occluder: the two squares see each other.
+    if (!checkDirectionalCase("empty scene", {}, VISIBLE))
+        result = false;
+
+    // A wall wider than both shadows: nothing of the light gets through.
+    if (!checkDirectionalCase("full wall", { createWall(1.0f, -3.0f, 3.0f, -3.0f, 3.0f) }, HIDDEN))
+        result = false;
+
+    // A wall covering half of the beam: the other half passes.
+    if (!checkDirectionalCase("half wall", { createWall(1.0f, -3.0f, 0.0f, -3.0f, 3.0f) }, VISIBLE))
+        result = false;
+
+    // A patch outside the shadow of either square: it hides nothing.
+    if (!checkDirectionalCase("off beam patch", { createWall(1.0f, 2.0f, 3.0f, 2.0f, 3.0f) }, VISIBLE))
+        result = false;
+
+    if (!result)
+        return false;
+
+    std::cout << "DirectionalVisibilityTest SUCCESS" << std::endl;
+    return true;
+}

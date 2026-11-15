@@ -69,6 +69,62 @@ inline VisibilityResult visilib::areVisible(GeometryOccluderSet* scene, const fl
 
     VisibilityExactQuery* query = nullptr;
 
+    if (configuration.directionalLight)
+    {
+        /* The directional light: the query holds rays of a family, all parallel to
+        the direction the two source centers tell, and the initialization of the
+        polytopes reads the screen of that family rather than the pairs of vertices
+        of the general space. */
+        switch (configuration.precision)
+        {
+#ifdef ENABLE_LEDA
+        case VisibilityExactQueryConfiguration::LEDA_REAL:
+            query = new VisibilityExactQuery_<MathPluckerParallel6<MathLedaReal>, MathLedaReal>(
+                scene,
+                configuration,
+                getComputationTolerance<MathLedaReal>(configuration));
+            break;
+#endif
+#ifdef ENABLE_GMP
+        case VisibilityExactQueryConfiguration::GMP_FLOAT:
+            configureArithmeticPrecision<MathGmpFloat>();
+            query = new VisibilityExactQuery_<MathPluckerParallel6<MathGmpFloat>, MathGmpFloat>(
+                scene,
+                configuration,
+                getComputationTolerance<MathGmpFloat>(configuration));
+            break;
+        case VisibilityExactQueryConfiguration::GMP_RATIONAL:
+            query = new VisibilityExactQuery_<MathPluckerParallel6<MathGmpRational>, MathGmpRational>(
+                scene,
+                configuration,
+                getComputationTolerance<MathGmpRational>(configuration));
+            break;
+#endif
+#ifdef ENABLE_MPFR
+        case VisibilityExactQueryConfiguration::MPFR:
+            configureArithmeticPrecision<MathMpfr>();
+            query = new VisibilityExactQuery_<MathPluckerParallel6<MathMpfr>, MathMpfr>(
+                scene,
+                configuration,
+                getComputationTolerance<MathMpfr>(configuration));
+            break;
+#endif
+        case VisibilityExactQueryConfiguration::DOUBLE:
+            query = new VisibilityExactQuery_<MathPluckerParallel6<double>, double>(
+                scene,
+                configuration,
+                getComputationTolerance<double>(configuration));
+            break;
+
+        default:
+            query = new VisibilityExactQuery_<MathPluckerParallel6<float>, float>(
+                scene,
+                configuration,
+                getComputationTolerance<float>(configuration));
+            break;
+        }
+    }
+    else
     switch (configuration.precision)
     {
 #ifdef ENABLE_LEDA
