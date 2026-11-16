@@ -425,3 +425,164 @@ bool MathPluckerParallelTest(std::string& )
 
     return true;
 }
+
+    /* The beam capsule: the convex hull of two balls, one at each end of the axis with the
+    radius of that end, which the aperture finder casts wide when its thin line misses — the
+    body is made to hold every line of a cell, so that casting it can miss no occluder.
+
+    All the hit and miss points below are dyadic: the float and the double runs compute the
+    very same numbers exactly, and no contact asked of the test sits closer to its grazing
+    than a sixteenth of a radius, which neither arithmetic rounds across. The nearest-point
+    checks use one tenth and six tenths, and are held to a tolerance rather than to nought. */
+    template <class S>
+    static bool checkBeamCapsule()
+    {
+        typedef MathVector3_<S> V;
+
+        const V a = v3<S>(0, 0, 0);
+        const V b = v3<S>(0, 0, 1);
+
+        auto hits = [](const V& start, const V& end, S r0, S r1, const V& t0, const V& t1, const V& t2)
+        {
+            return MathGeometry::hitsBeamCapsule<S>(start, end, r0, r1, t0, t1, t2);
+        };
+
+        const S r0(0.125);
+        const S r1(0.25);
+
+        /* The crossing face: the beam measures 0.1875 at mid-height. */
+        {
+            const V t0 = v3<S>(0.125, 0, 0.5);
+            const V t1 = v3<S>(0.5, 0.25, 0.5);
+            const V t2 = v3<S>(0.5, -0.25, 0.5);
+            if (!hits(a, b, r0, r1, t0, t1, t2)) return fail(__LINE__);
+        }
+        {
+            const V t0 = v3<S>(0.25, 0, 0.5);
+            const V t1 = v3<S>(0.5, 0.25, 0.5);
+            const V t2 = v3<S>(0.5, -0.25, 0.5);
+            if (hits(a, b, r0, r1, t0, t1, t2)) return fail(__LINE__);
+        }
+
+        /* The face lying in a plane parallel to the axis: the old test of the cylinder pierced
+        the plane with the axis and called such a face a miss however close it stood — a
+        grazing occluder, which is the one a shadow is made of. The ball answers it plainly:
+        the axis is 0.125 from the face, the beam is wider there. */
+        {
+            const V t0 = v3<S>(0.125, 0, 0.4375);
+            const V t1 = v3<S>(0.125, 0, 0.5625);
+            const V t2 = v3<S>(0.5, 0, 0.5);
+            if (!hits(a, b, r0, r1, t0, t1, t2)) return fail(__LINE__);
+        }
+
+        /* Beyond the caps: the beam is a body of measure, not an infinite cylinder — a face
+        lying past the wide end, four tenths of an axis beyond it, stands out of every ball. */
+        {
+            const V t0 = v3<S>(0.125, 0, 1.4);
+            const V t1 = v3<S>(-0.125, 0.125, 1.4);
+            const V t2 = v3<S>(-0.125, -0.125, 1.4);
+            if (hits(a, b, r0, r1, t0, t1, t2)) return fail(__LINE__);
+        }
+
+        /* Through the cap of the start, on the far side of the axis and yet inside the ball. */
+        {
+            const V t0 = v3<S>(0.0625, 0, -0.0625);
+            const V t1 = v3<S>(-0.125, 0.125, -0.1875);
+            const V t2 = v3<S>(-0.125, -0.125, -0.1875);
+            if (!hits(a, b, r0, r1, t0, t1, t2)) return fail(__LINE__);
+        }
+
+        /* Near the wide end: at the cap itself the beam is a quarter wide. */
+        {
+            const V t0 = v3<S>(0.2, 0, 1);
+            const V t1 = v3<S>(0.5, 0.25, 1);
+            const V t2 = v3<S>(0.5, -0.25, 1);
+            if (!hits(a, b, r0, r1, t0, t1, t2)) return fail(__LINE__);
+        }
+        {
+            const V t0 = v3<S>(0.3, 0, 1);
+            const V t1 = v3<S>(0.5, 0.25, 1);
+            const V t2 = v3<S>(0.5, -0.25, 1);
+            if (hits(a, b, r0, r1, t0, t1, t2)) return fail(__LINE__);
+        }
+
+        /* A beam drawn to nothing is the axis itself: a face straddling the segment is held,
+        a face beside it is not. */
+        {
+            const V t0 = v3<S>(0.0625, 0.0625, 0.5);
+            const V t1 = v3<S>(-0.0625, 0.0625, 0.5);
+            const V t2 = v3<S>(0, -0.0625, 0.5);
+            if (!hits(a, b, S(0), S(0), t0, t1, t2)) return fail(__LINE__);
+
+            const V g0 = v3<S>(0.0625, 0.0625, 0.5);
+            const V g1 = v3<S>(0.5, 0.0625, 0.5);
+            const V g2 = v3<S>(0.5, -0.0625, 0.5);
+            if (hits(a, b, S(0), S(0), g0, g1, g2)) return fail(__LINE__);
+        }
+
+        /* The degenerate axis: the beam is the bigger of the two balls it wanted to be. */
+        {
+            const V t0 = v3<S>(0.2, 0, -0.125);
+            const V t1 = v3<S>(0.2, 0.25, 0.125);
+            const V t2 = v3<S>(0.4, 0, 0);
+            if (!hits(a, a, r1, r0, t0, t1, t2)) return fail(__LINE__);
+
+            const V g0 = v3<S>(0.5, 0, -0.125);
+            const V g1 = v3<S>(0.5, 0.25, 0.125);
+            const V g2 = v3<S>(0.75, 0, 0);
+            if (hits(a, a, r1, r0, g0, g1, g2)) return fail(__LINE__);
+        }
+
+        /* The degenerate faces: an edge, then a point — the nearest point of the triangle
+        holds for both, and the beam answers them as what they are. */
+        {
+            const V t0 = v3<S>(0.0625, 0, 0.5);
+            const V t1 = v3<S>(0.0625, 0, 0.5);
+            const V t2 = v3<S>(0.5, 0, 0.5);
+            if (!hits(a, b, r0, r1, t0, t1, t2)) return fail(__LINE__);
+
+            const V g0 = v3<S>(0.3, 0, 0.5);
+            const V g1 = v3<S>(0.3, 0, 0.5);
+            const V g2 = v3<S>(0.3, 0, 0.5);
+            if (hits(a, b, r0, r1, g0, g1, g2)) return fail(__LINE__);
+
+            const V p0 = v3<S>(0.0625, 0, 0.5);
+            if (!hits(a, b, r0, r1, p0, p0, p0)) return fail(__LINE__);
+        }
+
+        /* The nearest point itself: the front face, a vertex's region, an edge's region. */
+        {
+            const V tri0 = v3<S>(0, -1, 0);
+            const V tri1 = v3<S>(0, 1, 0);
+            const V tri2 = v3<S>(0, 0, 1);
+
+            auto offBy = [](const V& one, const V& other)
+            {
+                V delta = one - other;
+                return delta.getSquaredNorm();
+            };
+
+            const V front = MathGeometry::closestPointOnTriangle(v3<S>(0.25, 0.1, 0.5), tri0, tri1, tri2);
+            if (offBy(front, v3<S>(0, 0.1, 0.5)) > S(1e-12)) return fail(__LINE__);
+
+            const V corner = MathGeometry::closestPointOnTriangle(v3<S>(1, 2, 3), tri0, tri1, tri2);
+            if (offBy(corner, v3<S>(0, 0, 1)) > S(1e-12)) return fail(__LINE__);
+
+            const V along = MathGeometry::closestPointOnTriangle(v3<S>(1, 0.6, 0.6), tri0, tri1, tri2);
+            if (offBy(along, v3<S>(0, 0.5, 0.5)) > S(1e-12)) return fail(__LINE__);
+        }
+
+        return true;
+    }
+
+bool MathBeamCapsuleTest(std::string& )
+{
+    if (!checkBeamCapsule<double>())
+        return false;
+    if (!checkBeamCapsule<float>())
+        return false;
+
+    std::cout << "MathBeamCapsuleTest SUCCESS" << std::endl;
+
+    return true;
+}

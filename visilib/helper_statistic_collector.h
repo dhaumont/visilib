@@ -71,6 +71,14 @@ namespace visilib
         SILHOUETTE_FACE_REJECTED_COUNT,
         SILHOUETTE_EDGE_DROPPED_COUNT,
         POLYTOPE_SHADOW_BLOCKED_COUNT,
+        /** @brief What the aperture finder cast wide, and what the width found
+
+        The finder selects the occluders of a cell by casting its representative line. When that
+        thin line misses and the full visibility is asked for, the cell is cast again as the beam
+        capsule that holds every one of its lines: a CAST is such a wide cast, and the FACES are
+        the scene faces it reached — the occluders the thin line would have missed. */
+        FAT_RAY_CAST_COUNT,
+        FAT_RAY_FACE_COUNT,
         COUNTER_LAST
     };
 
@@ -231,6 +239,14 @@ namespace visilib
             counts["  in cell"] = mCounts[REPRESENTATIVE_LINE_DIRECT_COUNT];
             counts["  walked in"] = mCounts[REPRESENTATIVE_LINE_WALKED_COUNT];
             counts["  refused"] = mCounts[REPRESENTATIVE_LINE_REJECTED_COUNT];
+
+            /* The wide casts are the exception, not the course of a query: they are of the map
+            only when one was made, like the measures that were taken. */
+            if (mCounts[FAT_RAY_CAST_COUNT] || mCounts[FAT_RAY_FACE_COUNT])
+            {
+                counts["  fat casts"] = mCounts[FAT_RAY_CAST_COUNT];
+                counts["  fat faces"] = mCounts[FAT_RAY_FACE_COUNT];
+            }
         }
 
         /**@brief The real valued statistics, of which only the smallest seen is kept
@@ -272,6 +288,12 @@ namespace visilib
                 std::cout << "  [Beam cull:      " << mCounts[SILHOUETTE_FACE_REJECTED_COUNT] << " faces, "
                           << mCounts[SILHOUETTE_EDGE_DROPPED_COUNT] << " edges, "
                           << mCounts[POLYTOPE_SHADOW_BLOCKED_COUNT] << " cells buried]" << std::endl;
+            }
+
+            if (mCounts[FAT_RAY_CAST_COUNT] || mCounts[FAT_RAY_FACE_COUNT])
+            {
+                std::cout << "  [Fat ray:        " << mCounts[FAT_RAY_CAST_COUNT] << " wide casts, "
+                          << mCounts[FAT_RAY_FACE_COUNT] << " faces found beyond the thin line]" << std::endl;
             }
 
             if (mMeasuresSet[WORST_ACCEPTED_MARGIN])

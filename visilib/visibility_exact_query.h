@@ -23,6 +23,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include <unordered_map>
 #include <unordered_set>
 #include <random>
+#include <cmath>
 #include "geometry_convex_polygon.h"
 #include "silhouette_mesh_face.h"
 #include "geometry_occluder_set.h"
@@ -116,10 +117,16 @@ namespace visilib
 
         When an intersection is found, the silhouette are extracted from the intersected face and the silhouette is linked to the polytope
         The links is used for occluder selection.
+
+        With a radius at each end of the segment the test is not the thin line but the beam
+        capsule that spans it — every line joining a point of the disk at one end to a point
+        of the disk at the other. A cast of that body finds every face any line of the beam
+        can touch: an occluder selection made with it cannot miss one the segment itself
+        grazes past.
         */
-        bool findSceneIntersection(const MathVector3d& aBegin, const MathVector3d& anEnd, std::set<SilhouetteMeshFace*>& intersectedFaces, const S& aDistance = 0);
+        bool findSceneIntersection(const MathVector3d& aBegin, const MathVector3d& anEnd, std::set<SilhouetteMeshFace*>& intersectedFaces, double radiusAtStart = 0, double radiusAtEnd = 0);
         
-        bool hasSceneIntersection(const MathVector3d& aBegin, const MathVector3d& anEnd, const S& aDistance = 0);
+        bool hasSceneIntersection(const MathVector3d& aBegin, const MathVector3d& anEnd);
 
         void extractAllSilhouettes();
 
@@ -129,6 +136,29 @@ namespace visilib
         or the extremal stabbing line of the polytope.
         */
         int collectAllOccluders(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron, std::vector<Silhouette*>& occluders, std::vector<P>& polytopeLines);
+
+        /**@brief Compute the beam capsule that encloses every line of a polytope cell.
+
+        The extremal stabbing lines of the cell pierce the two query planes at the points
+        that bound the piercing region of the cell: the enclosing disk of each end's points
+        gives one ball of the capsule, and every line of the cell — a segment joining a
+        point of one region to a point of the other — runs through the body between them.
+
+        The two centers are the mean of each end's points and the two radii the greatest
+        distance to them, the representative line's own piercing points counted among them;
+        a smallest enclosing circle would tighten each end further and is left as a later
+        refinement.
+
+        A stabbing line piercing far outside its polygon is an artifact of the arithmetic —
+        a line near-parallel to the plane has its piercing point anywhere — and is left out
+        of both disks, while every real vertex of the cell is checked against them and the
+        radius grown to hold one that escapes: the beam's purpose is to miss no occluder,
+        so it errs by width and never by measure.
+
+        Returns false when the cell has nothing to bound the region with; the caller then
+        abstains, as it did before any beam was asked.
+        */
+        bool computeOccluderSearchBeam(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron, const P& representativeLine, MathVector3d& beamStart, MathVector3d& beamEnd, double& radiusStart, double& radiusEnd);
 
         /**@brief Check that the representative line of a leaf polytope is a valid witness of visibility: the line must intersect the two source polygons and must not be blocked by the scene.
 
@@ -502,8 +532,10 @@ namespace visilib
     }
 
     template<class P, class S>
-    bool VisibilityExactQuery_<P, S>::findSceneIntersection(const MathVector3d & aBegin, const MathVector3d & anEnd, std::set<SilhouetteMeshFace*> & anIntersectedFaces, const S& aDistance)
+    bool VisibilityExactQuery_<P, S>::findSceneIntersection(const MathVector3d & aBegin, const MathVector3d & anEnd, std::set<SilhouetteMeshFace*> & anIntersectedFaces, double radiusAtStart, double radiusAtEnd)
     {
+        const bool thin = (radiusAtStart == 0.0 && radiusAtEnd == 0.0);
+
         MathVector3d myBegin = aBegin;
         MathVector3d myDir = anEnd - aBegin;
         double myMax = myDir.normalize();
@@ -518,7 +550,7 @@ namespace visilib
         myRay.tfar = (float)myMax;
         myRay.tnear = 0;
 
-        if (mDebugger != nullptr)
+        if (mDebugger != nullptr && thin)
         {
             mDebugger->addSamplingLine(convert<MathVector3f>(aBegin), convert<MathVector3f>(anEnd));
         }
@@ -529,7 +561,7 @@ namespace visilib
             HelperScopedTimer timer(getStatistic(), RAY_INTERSECTION);
             getStatistic()->inc(RAY_COUNT);
 
-            intersect = mSilhouetteContainer->intersect(&myRay, MathArithmetic<S>::to_double(aDistance));
+            intersect = mSilhouetteContainer->intersect(&myRay, radiusAtStart, radiusAtEnd);
         }
 
         if (intersect)
@@ -547,7 +579,7 @@ namespace visilib
             return true;
         }
 
-        if (mDebugger != nullptr)
+        if (mDebugger != nullptr && thin)
         {
             mDebugger->addStabbingLine(convert<MathVector3f>(aBegin), convert<MathVector3f>(anEnd));
         }
@@ -556,7 +588,7 @@ namespace visilib
     }
 
     template<class P, class S>
-    bool VisibilityExactQuery_<P, S>::hasSceneIntersection(const MathVector3d & aBegin, const MathVector3d & anEnd, const S& aDistance)
+    bool VisibilityExactQuery_<P, S>::hasSceneIntersection(const MathVector3d & aBegin, const MathVector3d & anEnd)
     {
         MathVector3d myBegin = aBegin;
         MathVector3d myDir = anEnd - aBegin;
@@ -582,8 +614,8 @@ namespace visilib
         {
             HelperScopedTimer timer(getStatistic(), RAY_INTERSECTION);
             getStatistic()->inc(RAY_COUNT);
-            
-            intersect = mSilhouetteContainer->intersect(&myRay, MathArithmetic<S>::to_double(aDistance));
+
+            intersect = mSilhouetteContainer->intersect(&myRay);
         }
 
         return intersect;
@@ -648,47 +680,39 @@ namespace visilib
         }
 
         std::set<SilhouetteMeshFace*> intersectedFaces;
-        bool hit = findSceneIntersection(centerLine.first, centerLine.second, intersectedFaces, 0);
-        
+        const bool hit = findSceneIntersection(centerLine.first, centerLine.second, intersectedFaces);
+
+        /* The thin line went through and saw nothing: what it crossed is not nothing. Cast
+        beside it the beam capsule that holds every line of this cell — the wall a grazing
+        aperture hides is a face the beam reaches — and take what it finds for the cell's
+        occluders. The verdict of the thin line stands, and nought is what comes back: the
+        cell is visible, and the gathered silhouettes are what the subdivision still has to
+        peel the shadow off. */
         if (!hit && !mConfiguration.detectApertureOnly)
         {
-            {
-                HelperScopedTimer timer(getStatistic(), STABBING_LINE_EXTRACTION);
+            MathVector3d beamStart;
+            MathVector3d beamEnd;
+            double radiusStart = 0.0;
+            double radiusEnd = 0.0;
 
-                    if (aPolytope->getExtremalStabbingLinesCount() == 0)
-                    {
-                        aPolytope->computeExtremalStabbingLines(polyhedron, mTolerance);
-                    }
+            if (computeOccluderSearchBeam(aPolytope, polyhedron, myRepresentativeLine, beamStart, beamEnd, radiusStart, radiusEnd))
+            {
+                getStatistic()->inc(FAT_RAY_CAST_COUNT);
+
+                const size_t facesBefore = intersectedFaces.size();
+                if (findSceneIntersection(beamStart, beamEnd, intersectedFaces, radiusStart, radiusEnd))
+                {
+                    getStatistic()->add(FAT_RAY_FACE_COUNT, intersectedFaces.size() - facesBefore);
+                }
             }
-
-            if(aPolytope->getExtremalStabbingLinesCount() == 0)
+            else
             {
+                /* Nothing to bound the cell with, nothing to answer the cell from: it is left
+                undecided, as the pass always did when its line could not be trusted. */
                 return -1;
             }
-            S myMaxDistance = 0;
-            S myDistance = 0;
+        }
 
-            for (size_t i = 0; i < aPolytope->getExtremalStabbingLinesCount(); i++)
-            {
-                std::pair<MathVector3d, MathVector3d> line = MathGeometry::getBackTo3D(aPolytope->getExtremalStabbingLine(i),
-                                                                                    aPlane0,
-                                                                                    aPlane1);
-
-                myDistance = (line.first - centerLine.first).getSquaredNorm();
-                if (myDistance> myMaxDistance)
-                {
-                    myMaxDistance = myDistance;
-                }
-
-                myDistance = (line.second - centerLine.second).getSquaredNorm();
-                if (myDistance> myMaxDistance)
-                {
-                    myMaxDistance = myDistance;
-                }
-            }
-            myMaxDistance = MathArithmetic<S>::getSqrt(myMaxDistance);
-            findSceneIntersection(centerLine.first, centerLine.second, intersectedFaces, myMaxDistance);
-        }            
         for (auto myFace : intersectedFaces)
         {
             Silhouette* s = mSilhouetteProcessor->findSilhouette(myFace);
@@ -697,6 +721,151 @@ namespace visilib
                 occluders.push_back(s);
         }
         return hit ? 1 : 0;
+    }
+
+    template<class P, class S>
+    bool VisibilityExactQuery_<P, S>::computeOccluderSearchBeam(PluckerPolytope<P> * aPolytope, PluckerPolyhedron<P> * polyhedron, const P & representativeLine, MathVector3d & beamStart, MathVector3d & beamEnd, double & radiusStart, double & radiusEnd)
+    {
+        {
+            HelperScopedTimer timer(getStatistic(), STABBING_LINE_EXTRACTION);
+
+            if (aPolytope->getExtremalStabbingLinesCount() == 0)
+            {
+                aPolytope->computeExtremalStabbingLines(polyhedron, mTolerance);
+            }
+        }
+
+        if (aPolytope->getExtremalStabbingLinesCount() == 0)
+        {
+            return false;
+        }
+
+        const GeometryConvexPolygon& polygon0 = *getQueryPolygon(0);
+        const GeometryConvexPolygon& polygon1 = *getQueryPolygon(1);
+        const MathPlane3d& aPlane0 = polygon0.getPlane();
+        const MathPlane3d& aPlane1 = polygon1.getPlane();
+
+        /* The safety disk of a polygon: a line of the cell pierces its polygon, so a
+        piercing point fallen well outside stands no chance of being an extreme of the cell
+        at all — the back to three dimensions of a stabbing line run near-parallel to the
+        plane lands anywhere, and a point like that must bound nothing. */
+        auto safetyDisk = [](const GeometryConvexPolygon& polygon)
+        {
+            const MathVector3d center = MathGeometry::getGravityCenter(polygon);
+            double radius = 0.0;
+            for (size_t vertex = 0; vertex < polygon.getVertexCount(); vertex++)
+            {
+                MathVector3d toVertex = convert<MathVector3d>(polygon.getVertex(vertex)) - center;
+                const double distance = toVertex.getNorm();
+                if (distance > radius)
+                {
+                    radius = distance;
+                }
+            }
+            return std::make_pair(center, radius * 1.25 + MathArithmetic<double>::Tolerance());
+        };
+
+        const std::pair<MathVector3d, double> disk0 = safetyDisk(polygon0);
+        const std::pair<MathVector3d, double> disk1 = safetyDisk(polygon1);
+
+        auto piercesWithin = [](const MathVector3d& point, const std::pair<MathVector3d, double>& disk)
+        {
+            if (!std::isfinite(point.x) || !std::isfinite(point.y) || !std::isfinite(point.z))
+            {
+                return false;
+            }
+            MathVector3d toPoint = point - disk.first;
+            return toPoint.getSquaredNorm() <= disk.second * disk.second;
+        };
+
+        std::vector<MathVector3d> ends0;
+        std::vector<MathVector3d> ends1;
+
+        for (size_t i = 0; i < aPolytope->getExtremalStabbingLinesCount(); i++)
+        {
+            const std::pair<MathVector3d, MathVector3d> line = MathGeometry::getBackTo3D(aPolytope->getExtremalStabbingLine(i), aPlane0, aPlane1);
+
+            if (piercesWithin(line.first, disk0) && piercesWithin(line.second, disk1))
+            {
+                ends0.push_back(line.first);
+                ends1.push_back(line.second);
+            }
+            else
+            {
+                V_TRACE("extremal stabbing line pierces outside its polygon: left out of the beam");
+            }
+        }
+
+        if (ends0.empty())
+        {
+            return false;
+        }
+
+        auto enclose = [](const std::vector<MathVector3d>& points, MathVector3d& center, double& radius)
+        {
+            center = MathVector3d();
+            for (size_t i = 0; i < points.size(); i++)
+            {
+                center += points[i];
+            }
+            center *= 1.0 / (double)points.size();
+
+            radius = 0.0;
+            for (size_t i = 0; i < points.size(); i++)
+            {
+                MathVector3d toPoint = points[i] - center;
+                const double distance = toPoint.getNorm();
+                if (distance > radius)
+                {
+                    radius = distance;
+                }
+            }
+        };
+
+        /* The mean and the greatest distance per end: a smallest enclosing circle would
+        tighten both ends further, and is the refinement left standing for later. */
+        enclose(ends0, beamStart, radiusStart);
+        enclose(ends1, beamEnd, radiusEnd);
+
+        /* The representative line is a line of the cell: its piercing points, which the
+        caller held inside the polygons, bound as much as any stabbing line does. */
+        const std::pair<MathVector3d, MathVector3d> centerLine = MathGeometry::getBackTo3D(representativeLine, aPlane0, aPlane1);
+        MathVector3d toStart = centerLine.first - beamStart;
+        radiusStart = std::max(radiusStart, toStart.getNorm());
+        MathVector3d toEnd = centerLine.second - beamEnd;
+        radiusEnd = std::max(radiusEnd, toEnd.getNorm());
+
+        /* The guard the beam keeps on itself: the disk of an end must hold the piercing
+        points of every real line of the cell, not only of the stabbing lines believed to
+        bound them. The cell's vertices that are real lines are such lines, and they are at
+        hand: the radius that fails to hold one grows to hold it, and says so. */
+        for (size_t vertexIndex : aPolytope->getVertices())
+        {
+            if (polyhedron->getQuadricRelativePosition(vertexIndex) != ON_BOUNDARY)
+            {
+                continue;
+            }
+
+            const std::pair<MathVector3d, MathVector3d> line = MathGeometry::getBackTo3D(polyhedron->get(vertexIndex), aPlane0, aPlane1);
+
+            if (piercesWithin(line.first, disk0) && (line.first - beamStart).getNorm() > radiusStart)
+            {
+                V_TRACE("beam grown at its start for a cell vertex the stabbing lines left outside");
+                radiusStart = (line.first - beamStart).getNorm();
+            }
+            if (piercesWithin(line.second, disk1) && (line.second - beamEnd).getNorm() > radiusEnd)
+            {
+                V_TRACE("beam grown at its end for a cell vertex the stabbing lines left outside");
+                radiusEnd = (line.second - beamEnd).getNorm();
+            }
+        }
+
+        /* A breath of room over the exact enclosing: the beam is cast in floats, and the
+        face it must not miss is often the one it grazes. */
+        radiusStart = radiusStart * 1.0001 + MathArithmetic<double>::Tolerance();
+        radiusEnd = radiusEnd * 1.0001 + MathArithmetic<double>::Tolerance();
+
+        return true;
     }
 
     template<class P, class S>
@@ -737,7 +906,7 @@ namespace visilib
         }
 
         std::set<SilhouetteMeshFace*> intersectedFaces;
-        bool hit = findSceneIntersection(centerLine.first, centerLine.second, intersectedFaces, 0);
+        bool hit = findSceneIntersection(centerLine.first, centerLine.second, intersectedFaces);
 
         return hit ? 0 : 1;
     }

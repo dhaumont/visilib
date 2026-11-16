@@ -89,7 +89,27 @@ namespace visilib
         */
         template <class S> static bool hitsTriangle(const GeometryRay& ray, const MathVector3_<S>& v0, const MathVector3_<S>& v1, const MathVector3_<S>& v2);
 
-        template <class S> static bool hitsCylinder(const GeometryRay& ray, const S& distance, const MathVector3_<S>& v0, const MathVector3_<S>& v1, const MathVector3_<S>& v2);
+        /** @brief Compute whether a triangle touches a beam capsule
+
+        A beam capsule is the convex hull of two spheres, one centred at each axis end with the
+        radius of that end: the union of the balls whose centers run along the axis and whose
+        radii vary linearly. Every segment joining a point of the first disk to a point of the
+        second lies inside it — which is what makes the beam the right body to cast when no
+        occluder of a cell may be missed: the lines of a cell join their two piercing regions.
+
+        A triangle touches the body exactly when some ball reaches it, that is, when the
+        distance from the axis point to the triangle minus the ball radius takes a
+        non-positive value somewhere along the axis. The distance is convex along the axis,
+        the radius is linear, so the least of that difference is global wherever the search
+        finds it, and a ternary descent on the interval computes it. Unlike a test that
+        pierces the triangle's plane with the axis, this one answers the grazing and the
+        parallel cases like every other: a sphere touching a face edge-on is a disc of
+        contact, and the disc reaches the triangle exactly when the sphere does.
+        */
+        template <class S> static bool hitsBeamCapsule(const MathVector3_<S>& axisStart, const MathVector3_<S>& axisEnd, const S& radiusAtStart, const S& radiusAtEnd, const MathVector3_<S>& v0, const MathVector3_<S>& v1, const MathVector3_<S>& v2);
+
+        /** @brief Compute the nearest point of a triangle to a point, degenerate triangles included */
+        template <class S> static MathVector3_<S> closestPointOnTriangle(const MathVector3_<S>& aPoint, const MathVector3_<S>& v0, const MathVector3_<S>& v1, const MathVector3_<S>& v2);
 
         /** @brief  Compute if a ray has an intersection with a bounding box
 
@@ -185,8 +205,6 @@ namespace visilib
 
         /** @brief  Compute the gravity center of a polygon */
         static MathVector3d getGravityCenter(const GeometryConvexPolygon& polygon);
-
-        template<class S> static MathVector3_<S> getGravityCenter(const MathVector3_<S>& v0, const MathVector3_<S>& v1, const MathVector3_<S>& v2);
 
         static bool hasVertexOnFrontSide(const MathPlane3d& plane, SilhouetteMeshFace* face);
 
@@ -341,18 +359,6 @@ namespace visilib
         return center;
     }
 
-
-    template<class S>
-    inline MathVector3_<S> MathGeometry::getGravityCenter(const MathVector3_<S>& v0, const MathVector3_<S>& v1, const MathVector3_<S> & v2)
-    {
-        MathVector3_<S> center(v0);
-        center+=v1;
-        center+=v2;
-
-        center *= (1. / 3.);
-
-        return center;
-    }
 
     template<class P>
     inline MathVector3d MathGeometry::getAnchorPoint(const P & line)
@@ -954,29 +960,203 @@ namespace visilib
 
 
     template<class S>
-    inline bool MathGeometry::hitsCylinder(const GeometryRay & ray, const S& distance,
-                                           const MathVector3_<S> & v0,
-                                           const MathVector3_<S> & v1,
-                                           const MathVector3_<S> & v2)
+    inline MathVector3_<S> MathGeometry::closestPointOnTriangle(const MathVector3_<S> & aPoint,
+                                                                const MathVector3_<S> & v0,
+                                                                const MathVector3_<S> & v1,
+                                                                const MathVector3_<S> & v2)
     {
-        const S epsilon = MathArithmetic<S>::Tolerance();
-        MathPlane3_<S> myPlane;
-        myPlane = MathPlane3_<S>::computeTrianglePlane(v0,v1,v2, epsilon);
+        /* The Voronoi regions of the triangle, tested by dot products (Ericson, Real-Time
+        Collision Detection, 5.1.5): the nearest point is a vertex, a point of an edge, or a
+        point of the face, and the same products tell which. The divisions are guarded, so
+        the degenerate triangles — a repeated vertex, a line, a point — fall to the region
+        they collapse into rather than to a NaN. */
 
-        MathVector3_<S> myRayPiercingPointInPlane;
-        bool hit = getPlaneIntersection(myPlane, ray.getStart(), ray.getDirection(), myRayPiercingPointInPlane, epsilon);
-        if (!hit)
-            return false;
+        const S tolerance = MathArithmetic<S>::Tolerance();
 
-        MathVector3_<S> gravityCenter = getGravityCenter(v0,v1,v2);
+        MathVector3_<S> ab = v1 - v0;
+        MathVector3_<S> ac = v2 - v0;
+        MathVector3_<S> ap = aPoint - v0;
 
-        S enclosingCircleRadius = (gravityCenter-v0).getSquaredNorm();
-        enclosingCircleRadius = std::max(enclosingCircleRadius, (gravityCenter -v1).getSquaredNorm());
-        enclosingCircleRadius = std::max(enclosingCircleRadius, (gravityCenter -v2).getSquaredNorm());
-        enclosingCircleRadius = MathArithmetic<S>::getSqrt(enclosingCircleRadius);
+        const S d1 = ab.dot(ap);
+        const S d2 = ac.dot(ap);
+        if (d1 <= S(0) && d2 <= S(0))
+        {
+            return v0;
+        }
 
-        S d = distance + enclosingCircleRadius;
-        return (myRayPiercingPointInPlane - gravityCenter).getSquaredNorm() < d * d;
+        MathVector3_<S> bp = aPoint - v1;
+        const S d3 = ab.dot(bp);
+        const S d4 = ac.dot(bp);
+        if (d3 >= S(0) && d4 <= d3)
+        {
+            return v1;
+        }
+
+        const S vc = d1 * d4 - d3 * d2;
+        if (vc <= S(0) && d1 >= S(0) && d3 <= S(0))
+        {
+            const S span = d1 - d3;
+            if (span > tolerance)
+            {
+                MathVector3_<S> result = ab;
+                result *= (d1 / span);
+                result += v0;
+                return result;
+            }
+            return v0;
+        }
+
+        MathVector3_<S> cp = aPoint - v2;
+        const S d5 = ab.dot(cp);
+        const S d6 = ac.dot(cp);
+        if (d6 >= S(0) && d5 <= d6)
+        {
+            return v2;
+        }
+
+        const S vb = d5 * d2 - d1 * d6;
+        if (vb <= S(0) && d2 >= S(0) && d6 <= S(0))
+        {
+            const S span = d2 - d6;
+            if (span > tolerance)
+            {
+                MathVector3_<S> result = ac;
+                result *= (d2 / span);
+                result += v0;
+                return result;
+            }
+            return v0;
+        }
+
+        const S va = d3 * d6 - d5 * d4;
+        if (va <= S(0) && (d4 - d3) >= S(0) && (d5 - d6) >= S(0))
+        {
+            const S span = (d4 - d3) + (d5 - d6);
+            if (span > tolerance)
+            {
+                MathVector3_<S> edge = v2 - v1;
+                edge *= ((d4 - d3) / span);
+                edge += v1;
+                return edge;
+            }
+            return v1;
+        }
+
+        const S denom = va + vb + vc;
+        if (denom > tolerance)
+        {
+            const S inverse = S(1) / denom;
+            MathVector3_<S> along = ac;
+            along *= (vc * inverse);
+            MathVector3_<S> across = ab;
+            across *= (vb * inverse);
+            along += across;
+            along += v0;
+            return along;
+        }
+
+        return v0;
+    }
+
+    template<class S>
+    inline bool MathGeometry::hitsBeamCapsule(const MathVector3_<S> & axisStart,
+                                              const MathVector3_<S> & axisEnd,
+                                              const S & radiusAtStart,
+                                              const S & radiusAtEnd,
+                                              const MathVector3_<S> & v0,
+                                              const MathVector3_<S> & v1,
+                                              const MathVector3_<S> & v2)
+    {
+        const S tolerance = MathArithmetic<S>::Tolerance();
+
+        MathVector3_<S> step = axisEnd - axisStart;
+        const S axisSquaredLength = step.getSquaredNorm();
+
+        /* A beam that has no length is a ball, the bigger of the two it wanted to be. */
+        if (axisSquaredLength <= tolerance * tolerance)
+        {
+            const S radius = radiusAtStart > radiusAtEnd ? radiusAtStart : radiusAtEnd;
+            MathVector3_<S> toNearest = closestPointOnTriangle(axisStart, v0, v1, v2);
+            toNearest = axisStart - toNearest;
+            return toNearest.getSquaredNorm() <= radius * radius + tolerance;
+        }
+
+        auto slackAt = [&](const S t)
+        {
+            MathVector3_<S> center = axisStart;
+            MathVector3_<S> offset = step;
+            offset *= t;
+            center += offset;
+
+            MathVector3_<S> toNearest = closestPointOnTriangle(center, v0, v1, v2);
+            toNearest = center - toNearest;
+
+            const S radius = radiusAtStart + (radiusAtEnd - radiusAtStart) * t;
+            return MathArithmetic<S>::getSqrt(toNearest.getSquaredNorm()) - radius;
+        };
+
+        auto smaller = [](const S& one, const S& other)
+        {
+            return one < other ? one : other;
+        };
+
+        /* The slack of the ball to the triangle is convex along the axis: the ternary
+        descent below shrinks the interval it lives on by a third and two at a time, and
+        its least, once taken below nought, is a contact — as is any value it takes on
+        the way, which is why those are returned at once. */
+        S lo = S(0);
+        S hi = S(1);
+        S best = slackAt(lo);
+        if (best <= S(0))
+        {
+            return true;
+        }
+        best = smaller(best, slackAt(hi));
+
+        for (int iteration = 0; iteration < 128; iteration++)
+        {
+            /* The descent stops where the interval falls under the tolerance: the slack of
+            a ball one tolerance further along the axis differs by no more than that, so the
+            least the descent holds is within a tolerance of the least there is. */
+            if (hi - lo <= MathArithmetic<S>::Tolerance())
+            {
+                break;
+            }
+
+            const S first = lo + (hi - lo) / S(3);
+            const S second = hi - (hi - lo) / S(3);
+
+            if (first <= lo || second >= hi)
+            {
+                break;
+            }
+
+            const S slackFirst = slackAt(first);
+            if (slackFirst <= S(0))
+            {
+                return true;
+            }
+            const S slackSecond = slackAt(second);
+            if (slackSecond <= S(0))
+            {
+                return true;
+            }
+
+            if (slackFirst < slackSecond)
+            {
+                hi = second;
+                best = smaller(best, slackFirst);
+            }
+            else
+            {
+                lo = first;
+                best = smaller(best, slackSecond);
+            }
+        }
+
+        /* Two tolerances close what the descent stopped a hair short of, and round the
+        float error of the whole test: contact reported a breath early misses nothing. */
+        return best <= S(2) * tolerance;
     }
 
     template<class P, class S>

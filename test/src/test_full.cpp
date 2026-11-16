@@ -57,6 +57,7 @@ const TestDefinition cTests[] =
 {
     { "MathCombinatorialTest", &MathCombinatorialTest },
     { "MathPluckerParallelTest", &MathPluckerParallelTest },
+    { "MathBeamCapsuleTest", &MathBeamCapsuleTest },
     { "VisibilityTest", &VisibilityTest },
     { "DirectionalVisibilityTest", &DirectionalVisibilityTest },
     { "SolverConsistencyTest", &SolverConsistencyTest },

@@ -56,9 +56,26 @@ public:
             mSilhouettes.push_back(aSilhouette);
     }
 
-    virtual bool intersect(VisibilityRay* aRay, double aDistance = 0)
+    /** @brief Test the ray, or a beam capsule along it, against the faces of the container
+
+    With both radii nought the test is the thin ray as ever. With a radius at each end it is
+    the beam capsule whose axis is the ray segment: every line joining a point of the first
+    disk to a point of the second passes through the body, which is what makes the cast one
+    that cannot miss an occluder of the cell those disks were drawn from. */
+    virtual bool intersect(VisibilityRay* aRay, double radiusAtStart = 0, double radiusAtEnd = 0)
     {
         GeometryRay myGeometryRay(*aRay);
+
+        const bool thin = (radiusAtStart == 0.0 && radiusAtEnd == 0.0);
+
+        MathVector3f beamEnd;
+        if (!thin)
+        {
+            beamEnd = MathVector3f(myGeometryRay.getStart());
+            MathVector3f travel(myGeometryRay.getDirection());
+            travel *= aRay->tfar;
+            beamEnd += travel;
+        }
 
         bool hasIntersection = false;
         for (auto s : mSilhouettes)
@@ -68,20 +85,20 @@ public:
             {
                 const SilhouetteMeshFace& face = myMeshFaces[faceIndex];
                 bool hit = false;
-                if (aDistance == 0.0)
+                if (thin)
                 {
                     hit = MathGeometry::hitsTriangle<float>(myGeometryRay, face.getVertex(0), face.getVertex(1), face.getVertex(2));
                 }
                 else
                 {
-                    hit = MathGeometry::hitsCylinder<float>(myGeometryRay, aDistance, face.getVertex(0), face.getVertex(1), face.getVertex(2));
+                    hit = MathGeometry::hitsBeamCapsule<float>(myGeometryRay.getStart(), beamEnd, (float)radiusAtStart, (float)radiusAtEnd, face.getVertex(0), face.getVertex(1), face.getVertex(2));
                 }
 
                 if (hit)
                 {
                     aRay->addIntersection(s->getGeometryId(), faceIndex, 0.0);
                     hasIntersection = true;
-                    if (aDistance == 0)
+                    if (thin)
                     {
                         break;
                     }

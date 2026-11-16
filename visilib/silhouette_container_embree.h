@@ -22,6 +22,8 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 
 #ifdef EMBREE
 
+#include <iostream>
+
 #include "embree3/rtcore.h"
 #include "embree3/rtcore_ray.h"
 #include "helper_triangle_mesh_container.h"
@@ -43,9 +45,15 @@ namespace visilib
 
         /** @brief Intersect the ray with the geometry
 
-        The function calls embree to perform the intersection
+        The function calls embree to perform the intersection.
+
+        Embree is asked for the thin ray only: a beam capsule needs the face test of the
+        swept balls, which the kernel does not offer. A cast asked wide while it answers
+        thin would let an occluder slip through unrecorded, and the call that selects a
+        cell's occluders is exactly such a cast — so the wide radii are refused here,
+        loudly, until the wide test is written for this backend.
         */
-        virtual bool intersect(VisibilityRay* aRay) override;
+        virtual bool intersect(VisibilityRay* aRay, double radiusAtStart = 0, double radiusAtEnd = 0) override;
 
 
         /** @brief Prepare the scene before ray tracing
@@ -147,8 +155,14 @@ namespace visilib
 
         valid[0] = 0;
   }
-    inline bool SilhouetteContainerEmbree::intersect(VisibilityRay* aRay)
+    inline bool SilhouetteContainerEmbree::intersect(VisibilityRay* aRay, double radiusAtStart, double radiusAtEnd)
     {
+        if (radiusAtStart != 0.0 || radiusAtEnd != 0.0)
+        {
+            std::cerr << "Error: the Embree container does not cast a beam capsule" << std::endl;
+            return false;
+        }
+
         GeometryRayMultiHit ray;
         ray.firstHit = 0;
         ray.lastHit = 0;
