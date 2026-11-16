@@ -1,0 +1,20 @@
+{
+  "confidenceValue": 0.99,
+  "detectApertureOnly": false,
+  "directionalLight": true,
+  "eta": 0.0,
+  "globalScaling": 1.0,
+  "minimumApertureSize": 0.01,
+  "normalization": false,
+  "phi": 0.0,
+  "precisionType": 1,
+  "scaling": 0.1,
+  "scaling0": 0.1,
+  "scaling1": 0.1,
+  "sceneIndex": 30,
+  "silhouetteOptimisation": false,
+  "solverType": 1,
+  "tolerance": -1.0,
+  "vertexCount0": 3,
+  "vertexCount1": 3
+}
