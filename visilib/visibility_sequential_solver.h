@@ -45,6 +45,34 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 
 namespace visilib
 {
+    /** @brief One silhouette triangle, with its three edge hyperplanes calibrated.
+
+    A plane is stored as the polyhedron face of its edge, given the sign of the side a line
+    through the face centroid stands on: that line crosses the triangle, so the three signed
+    planes describe the same thing whatever orientation the edges carry, and no orientation
+    question is left to the tests made on them. */
+
+    struct FaceShadow
+    {
+        const SilhouetteMeshFace *mFace = nullptr;
+        int mPlanes[3] = { 0, 0, 0 };
+    };
+
+    /** @brief How a cell of lines stands with respect to one calibrated face.
+
+    The crossing of the plane of a triangle carries its three edge forms alike: a line hitting
+    it is strictly inside the three planes, or, taken from the back, strictly outside the three.
+    A cell inside one plane and outside another therefore holds nothing that reaches the face,
+    and a cell uniform on the three holds nothing but lines that do. Anything less strict, a
+    cell touching a plane or resting on one vertex, settles nothing and is left unknown. */
+
+    enum CellFacePosition
+    {
+        FACE_UNKNOWN = 0,   /**< @brief the cell is not strict enough on the planes for a verdict*/
+        FACE_BLOCKS,        /**< @brief every line of the cell hits the face*/
+        FACE_AVOIDS         /**< @brief no line of the cell hits the face*/
+    };
+
     template <class P>
     class PluckerPolytope;
 
@@ -77,15 +105,47 @@ namespace visilib
         PolytopePositionType classifyRelativeToSilhouette(PluckerPolytope<P> *myPolytopeToClassify,
                                           PluckerPolyhedron<P> *myPolyhedron,
                                           const std::vector<SilhouetteEdge> &edges,
-                                          const Silhouette *aSilhouette
+                                          const Silhouette *aSilhouette,
+                                          bool skipStraddleScan = false
                                           );
 
         void splitWithAllSilhouetteEdges(std::vector<int> &workingArray,
                                          std::unordered_set<PluckerPolytope<P> *> &toDelete,
-                                         const std::vector<SilhouetteEdge> &edges);
+                                         const std::vector<SilhouetteEdge> &edges,
+                                         const std::map<const SilhouetteMeshFace *, FaceShadow> &shadows,
+                                         bool &earlyBlocked);
 
         void createMissingHyperplanes(PluckerPolyhedron<P> *aPolyhedron,
                                       std::vector<SilhouetteEdge> &edges);
+
+        /* The calibrated faces of a silhouette: one entry per triangle whose three edges are
+        all of the pass, once their planes exist. Dense occluders only, whose arrangement is
+        the one that never ends without these tests; a sparse silhouette gets an empty map and
+        every caller falls back on the pass as it was. */
+
+        void collectFaceShadows(PluckerPolyhedron<P> *aPolyhedron,
+                                const std::vector<SilhouetteEdge> &edges,
+                                std::map<const SilhouetteMeshFace *, FaceShadow> &shadows) const;
+
+        bool isPolytopeStrictlyInside(PluckerPolytope<P> *aPolytope,
+                                      PluckerPolyhedron<P> *aPolyhedron,
+                                      int calibratedPlaneId) const;
+
+        CellFacePosition cellAgainstFace(PluckerPolytope<P> *aPolytope,
+                                         PluckerPolyhedron<P> *aPolyhedron,
+                                         const FaceShadow &shadow) const;
+
+        /* The faces of the occluder on duty that no line of the beam can reach: out of the
+        edges of the pass, and out of the ray cast. A face is dropped with its three planes
+        and kept with them, never one without the other: the classification concludes that a
+        cell is clear of the faces it still casts, and that answer needs the planes of every
+        face it keeps. A face missing from the calibrated set is kept: it was not proved of
+        anything. */
+
+        void filterUnreachableFaces(const std::map<const SilhouetteMeshFace *, FaceShadow> &shadows,
+                                    PluckerPolyhedron<P> *aPolyhedron,
+                                    PluckerPolytope<P> *beam,
+                                    std::vector<SilhouetteEdge> &edges);
 
         void classifyAllPolytopes(
             const std::vector<SilhouetteEdge> &edges,
@@ -96,6 +156,7 @@ namespace visilib
 
         void treatIntersectedPolytopes(
             const std::vector<SilhouetteEdge> &edges,
+            const std::map<const SilhouetteMeshFace *, FaceShadow> &shadows,
             PluckerPolytopeComplex<P> *complex,
             PluckerPolyhedron<P> *myPolyhedron,
             const std::vector<int> &intersectedPolytopes,
@@ -105,6 +166,12 @@ namespace visilib
         bool mDetectApertureOnly;
         bool mOptimisedRepresentativeLine;   /**< @brief Whether the representative line of a cell is looked for inside it, or taken from the gravity center*/
         S mTolerance;
+
+        /* The faces of the occluder on duty that no line of the beam reaches, proved against
+        the beam itself before any cell was cut. They are out of the ray cast of the blocked
+        predicate: a face no line of the beam touches cannot decide anything for any cell, and
+        the arrangement keeps the planes of every face it does cast. */
+        std::unordered_set<const SilhouetteMeshFace *> mUnreachableFaces;
     };
 
     template <class P, class S>
@@ -153,6 +220,194 @@ namespace visilib
     }
 
     template <class P, class S>
+    void VisibilitySequentialSolver<P, S>::collectFaceShadows(PluckerPolyhedron<P> *aPolyhedron,
+                                                              const std::vector<SilhouetteEdge> &edges,
+                                                              std::map<const SilhouetteMeshFace *, FaceShadow> &shadows) const
+    {
+        shadows.clear();
+
+        if (edges.size() <= 300)
+        {
+            return;
+        }
+
+        std::map<const SilhouetteMeshFace *, std::vector<const SilhouetteEdge *>> grouped;
+        for (const SilhouetteEdge &myEdge : edges)
+        {
+            if (myEdge.mFace != nullptr)
+            {
+                grouped[myEdge.mFace].push_back(&myEdge);
+            }
+        }
+
+        for (const auto &group : grouped)
+        {
+            /* Only a triangle whose three edges are of the pass can be calibrated: a face
+            missing one of them has a plane nobody created, and the cone it draws is
+            incomplete. */
+            if (group.second.size() != 3)
+            {
+                continue;
+            }
+
+            const SilhouetteMeshFace *face = group.first;
+            MathVector3f v0 = face->getVertex(0);
+            MathVector3f v1 = face->getVertex(1);
+            MathVector3f v2 = face->getVertex(2);
+            MathVector3f normal = MathVector3f::cross(v1 - v0, v2 - v0);
+            if (normal.getSquaredNorm() <= 0.0f)
+            {
+                continue;
+            }
+            MathVector3f centroid((v0.x + v1.x + v2.x) / 3.0f, (v0.y + v1.y + v2.y) / 3.0f, (v0.z + v1.z + v2.z) / 3.0f);
+            MathVector3d testPoint = convert<MathVector3d>(MathVector3f(centroid.x + normal.x, centroid.y + normal.y, centroid.z + normal.z));
+            MathVector3d testOrigin = convert<MathVector3d>(MathVector3f(centroid.x - normal.x, centroid.y - normal.y, centroid.z - normal.z));
+            P testLine = MathGeometry::createEdgeFromPoints<P>(testOrigin, testPoint);
+            if (mNormalization)
+            {
+                testLine = testLine.getNormalized();
+            }
+
+            FaceShadow shadow;
+            shadow.mFace = face;
+            bool calibrated = true;
+            for (int k = 0; k < 3; k++)
+            {
+                const SilhouetteEdge &se = *group.second[k];
+                if (se.mHyperPlaneIndex == 0)
+                {
+                    calibrated = false;
+                    break;
+                }
+                const P &plane = aPolyhedron->get(se.mHyperPlaneIndex);
+                S side = plane.dot(testLine);
+                /* A centroid line standing exactly on a plane of its own face draws no
+                inside at all: the face is left aside. The exact scalars have no equality,
+                and the two strict signs say everything there is to know. */
+                if (!(side > S(0)) && !(side < S(0)))
+                {
+                    calibrated = false;
+                    break;
+                }
+                shadow.mPlanes[k] = side > S(0) ? (int)se.mHyperPlaneIndex : -(int)se.mHyperPlaneIndex;
+            }
+
+            if (calibrated)
+            {
+                shadows[face] = shadow;
+            }
+        }
+    }
+
+    template <class P, class S>
+    bool VisibilitySequentialSolver<P, S>::isPolytopeStrictlyInside(PluckerPolytope<P> *aPolytope,
+                                                                    PluckerPolyhedron<P> *aPolyhedron,
+                                                                    int calibratedPlaneId) const
+    {
+        if (aPolytope == nullptr)
+        {
+            return false;
+        }
+
+        const std::unordered_set<size_t> &vertices = aPolytope->getVertices();
+        if (vertices.empty())
+        {
+            return false;
+        }
+
+        const size_t plane = calibratedPlaneId < 0 ? (size_t)-calibratedPlaneId : (size_t)calibratedPlaneId;
+        const P &hyperplane = aPolyhedron->get(plane);
+        const GeometryPositionType wanted = calibratedPlaneId > 0 ? ON_POSITIVE_SIDE : ON_NEGATIVE_SIDE;
+
+        for (size_t v : vertices)
+        {
+            if (MathPredicates::getRelativePosition(hyperplane.dot(aPolyhedron->get(v)), mTolerance) != wanted)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    template <class P, class S>
+    CellFacePosition VisibilitySequentialSolver<P, S>::cellAgainstFace(PluckerPolytope<P> *aPolytope,
+                                                                       PluckerPolyhedron<P> *aPolyhedron,
+                                                                       const FaceShadow &shadow) const
+    {
+        int side[3] = { 0, 0, 0 };
+        for (int k = 0; k < 3; k++)
+        {
+            if (isPolytopeStrictlyInside(aPolytope, aPolyhedron, shadow.mPlanes[k]))
+            {
+                side[k] = 1;
+            }
+            else if (isPolytopeStrictlyInside(aPolytope, aPolyhedron, -shadow.mPlanes[k]))
+            {
+                side[k] = -1;
+            }
+        }
+
+        for (int k = 0; k < 3; k++)
+        {
+            for (int j = k + 1; j < 3; j++)
+            {
+                if (side[k] != 0 && side[j] != 0 && side[k] != side[j])
+                {
+                    return FACE_AVOIDS;
+                }
+            }
+        }
+
+        if (side[0] != 0 && side[1] != 0 && side[2] != 0)
+        {
+            return FACE_BLOCKS;
+        }
+        return FACE_UNKNOWN;
+    }
+
+    template <class P, class S>
+    void VisibilitySequentialSolver<P, S>::filterUnreachableFaces(const std::map<const SilhouetteMeshFace *, FaceShadow> &shadows,
+                                                                  PluckerPolyhedron<P> *aPolyhedron,
+                                                                  PluckerPolytope<P> *beam,
+                                                                  std::vector<SilhouetteEdge> &edges)
+    {
+        mUnreachableFaces.clear();
+
+        if (shadows.empty() || beam == nullptr)
+        {
+            return;
+        }
+
+        for (const auto &shadow : shadows)
+        {
+            if (cellAgainstFace(beam, aPolyhedron, shadow.second) == FACE_AVOIDS)
+            {
+                mUnreachableFaces.insert(shadow.first);
+            }
+        }
+
+        if (mUnreachableFaces.empty())
+        {
+            return;
+        }
+
+        const size_t edgesBefore = edges.size();
+        edges.erase(std::remove_if(edges.begin(), edges.end(),
+                                   [this](const SilhouetteEdge &anEdge)
+                                   {
+                                       return mUnreachableFaces.find(anEdge.mFace) != mUnreachableFaces.end();
+                                   }),
+                    edges.end());
+
+        HelperStatisticCollector *statistic = VisibilitySolver<P, S>::mQuery->getStatistic();
+        statistic->add(SILHOUETTE_FACE_REJECTED_COUNT, mUnreachableFaces.size());
+        statistic->add(SILHOUETTE_EDGE_DROPPED_COUNT, edgesBefore - edges.size());
+
+        V_TRACE("beam reaches none of " << mUnreachableFaces.size() << " silhouette faces: "
+                                        << edgesBefore << " edges down to " << edges.size());
+    }
+
+    template <class P, class S>
     PolytopePositionType VisibilitySequentialSolver<P, S>::isBlockedBySilhouette(PluckerPolytope<P> *aPolytope,
                                                                   PluckerPolyhedron<P> *aPolyhedron,
                                                                   const Silhouette *aSilhouette)
@@ -197,6 +452,12 @@ namespace visilib
 
         for (const SilhouetteMeshFace &face : allFaces)
         {
+            /* A face the beam cannot reach is out of the question asked here, and its own
+            edges are still in the arrangement only as long as another face needs them. */
+            if (!mUnreachableFaces.empty() && mUnreachableFaces.find(&face) != mUnreachableFaces.end())
+            {
+                continue;
+            }
             if (MathGeometry::hitsTriangle<float>(ray, face.getVertex(0), face.getVertex(1), face.getVertex(2)))
             {
                 return BLOCKED;
@@ -209,7 +470,8 @@ namespace visilib
     PolytopePositionType VisibilitySequentialSolver<P, S>::classifyRelativeToSilhouette(PluckerPolytope<P> *aPolytope,
                                                                         PluckerPolyhedron<P> *aPolyhedron,
                                                                         const std::vector<SilhouetteEdge> &edges,
-                                                                        const Silhouette *aSilhouette)
+                                                                        const Silhouette *aSilhouette,
+                                                                        bool skipStraddleScan)
     {
         if (!aPolytope->containsRealLines())
         {
@@ -219,21 +481,30 @@ namespace visilib
 
         /* First pass: check whether the polytope straddles any silhouette hyperplane.
         A cell that crosses a hyperplane must be split before we can classify it —
-        only a fully one-sided cell has a well-defined representative line. */
+        only a fully one-sided cell has a well-defined representative line.
+
+        The split pass leaves no cell straddling the occluder's planes: a child is born on
+        one side of the plane that cut it, inherits from its parent the sides it was already
+        on, and the pass carries every survivor through the planes still to come. Asked from
+        just out of a pass run to its end, the scan below re-reads what the splitting proved
+        plane by plane, and is skipped. */
 
         bool straddled = false;
         V_TRACE("classify " << aPolytope << " against " << edges.size() << " edges");
-        for (auto &myEdge : edges)
+        if (!skipStraddleScan)
         {
-            size_t myPolyhedronFace = myEdge.mHyperPlaneIndex;
-            V_ASSERT(myPolyhedronFace != 0);
-            P myHyperplane = aPolyhedron->get(myPolyhedronFace);
-            auto myResult = MathPredicates::getRelativePosition(aPolytope, aPolyhedron, myHyperplane, mTolerance);
-            V_TRACE("facet " << myPolyhedronFace << ": " << myResult);
-            if (myResult == ON_BOTH_SIDES)
+            for (auto &myEdge : edges)
             {
-                straddled = true;
-                break;
+                size_t myPolyhedronFace = myEdge.mHyperPlaneIndex;
+                V_ASSERT(myPolyhedronFace != 0);
+                P myHyperplane = aPolyhedron->get(myPolyhedronFace);
+                auto myResult = MathPredicates::getRelativePosition(aPolytope, aPolyhedron, myHyperplane, mTolerance);
+                V_TRACE("facet " << myPolyhedronFace << ": " << myResult);
+                if (myResult == ON_BOTH_SIDES)
+                {
+                    straddled = true;
+                    break;
+                }
             }
         }
 
@@ -254,18 +525,47 @@ namespace visilib
     template <class P, class S>
     void VisibilitySequentialSolver<P, S>::splitWithAllSilhouetteEdges(std::vector<int> &workingArray,
                                                                        std::unordered_set<PluckerPolytope<P> *> &toDelete,
-                                                                       const std::vector<SilhouetteEdge> &edges)
+                                                                       const std::vector<SilhouetteEdge> &edges,
+                                                                       const std::map<const SilhouetteMeshFace *, FaceShadow> &shadows,
+                                                                       bool &earlyBlocked)
     {
         PluckerPolytopeComplex<P> *complex = VisibilitySolver<P, S>::mQuery->getComplex();
         PluckerPolyhedron<P> *myPolyhedron = reinterpret_cast<PluckerPolyhedron<P> *>(VisibilitySolver<P, S>::mQuery->getComplex()->getPolyhedron());
          V_TRACE("Preparing to split polytopes with " << edges.size() << " silhouette edges");
-         
-        for (const SilhouetteEdge &myVisibilitySilhouetteEdge : edges)
+
+        earlyBlocked = false;
+
+        /* The pass walks the edges grouped by face when the shadows are there: the three
+        planes of a face then come one after the other, and a cell dies at the third of them
+        instead of living through the pass to be buried by the classification one by one.
+        Without shadows, the edges are taken as they were given. */
+
+        std::vector<size_t> orderedEdges(edges.size());
+        for (size_t e = 0; e < orderedEdges.size(); e++)
+        {
+            orderedEdges[e] = e;
+        }
+
+        if (!shadows.empty())
+        {
+            std::sort(orderedEdges.begin(), orderedEdges.end(),
+                      [&edges](size_t a, size_t b)
+                      {
+                          if (edges[a].mFace != edges[b].mFace)
+                          {
+                              return std::less<const SilhouetteMeshFace *>()(edges[a].mFace, edges[b].mFace);
+                          }
+                          return a < b;
+                      });
+        }
+
+        for (size_t orderedIndex = 0; orderedIndex < orderedEdges.size(); orderedIndex++)
         {
              if (VisibilitySolver<P, S>::isTimedOut())
             {
                 return;
             }
+            const SilhouetteEdge &myVisibilitySilhouetteEdge = edges[orderedEdges[orderedIndex]];
             SilhouetteMeshFace *face = myVisibilitySilhouetteEdge.mFace;
 
             V_ASSERT(myVisibilitySilhouetteEdge.mIsActive);
@@ -292,6 +592,13 @@ namespace visilib
                 if (VisibilitySolver<P, S>::isTimedOut())
                 {
                     return;
+                }
+
+                if (workingArray[i] < 0)
+                {
+                    /* A slot retired by the pruning below: the polytope it held is gone and
+                    the remaining edges have nothing left to cut there. */
+                    continue;
                 }
 
                 PluckerPolytope<P> *myPolytopeToSplit = complex->getPolytope(workingArray[i]);
@@ -382,6 +689,28 @@ namespace visilib
                     delete myPolytopeRight;
                     myPolytopeRight = nullptr;
                     V_TRACE("Delete left and right:" << myPolytopeLeft << " " << myPolytopeRight);
+
+                    /* The cell was not split by this edge: it lies on one side of it, and one
+                    side of a plane of its face is one side of the three asked for. Uniform on
+                    them, every line it holds hits that face: it is blocked, and it goes now,
+                    before the edges still to come have carved anything else out of it. It is
+                    the verdict the classification after the pass would reach, taken as soon as
+                    it is provable — with a dense occluder the difference between an answer and
+                    an arrangement that never ends. */
+
+                    if (myResult != ON_BOUNDARY && !shadows.empty())
+                    {
+                        auto shadow = shadows.find(face);
+                        if (shadow != shadows.end() && cellAgainstFace(myPolytopeToSplit, myPolyhedron, shadow->second) == FACE_BLOCKS)
+                        {
+                            V_TRACE("polytope at slot " << workingArray[i] << " lies in the shadow of one face: blocked");
+                            VisibilitySolver<P, S>::mQuery->getStatistic()->inc(POLYTOPE_SHADOW_BLOCKED_COUNT);
+                            toDelete.insert(myPolytopeToSplit);
+                            complex->setPolytope(workingArray[i], NULL);
+                            workingArray[i] = -1;
+                            earlyBlocked = true;
+                        }
+                    }
                   
                 }
             }
@@ -434,6 +763,7 @@ namespace visilib
     template <class P, class S>
     void VisibilitySequentialSolver<P, S>::treatIntersectedPolytopes(
         const std::vector<SilhouetteEdge> &edges,
+        const std::map<const SilhouetteMeshFace *, FaceShadow> &shadows,
         PluckerPolytopeComplex<P> *complex,
         PluckerPolyhedron<P> *myPolyhedron,
         const std::vector<int> &intersectedPolytopes,
@@ -462,9 +792,18 @@ namespace visilib
 
             V_TRACE("before splitWithAllSilhouetteEdges, working array size: " << workingArray.size());
 
-            splitWithAllSilhouetteEdges(workingArray, toDelete, edges);
+            bool earlyBlocked = false;
+            splitWithAllSilhouetteEdges(workingArray, toDelete, edges, shadows, earlyBlocked);
 
-            bool atLeastOneNewPolytopeIsBlocked = false;
+            /* The survivors of a pass run to its end are on one side of every plane of the
+            occluder: the classification below asks them that question no more. A pass given
+            up on mid-way has not visited the planes after the one it stopped at, and its
+            cells are scanned as any others would be. */
+            const bool splitPassRanToTheEnd = !VisibilitySolver<P, S>::isTimedOut();
+
+            /* A cell the pass buried in a face shadow is a new blocked polytope of this
+            occluder: the verdict is taken, and the pass counts as one that found blockage. */
+            bool atLeastOneNewPolytopeIsBlocked = earlyBlocked;
 
             V_TRACE("after splitWithAllSilhouetteEdges, working array size: " << workingArray.size());
 
@@ -490,7 +829,7 @@ namespace visilib
                 myPolytopeToBlock->computeEdgesIntersectingQuadric(myPolyhedron, mTolerance);
 
                 V_TRACE("classifyRelativeToSilhouette for polytope " << myPolytopeToBlock << " at index " << myPolytopeToBlockIndex);
-                PolytopePositionType position = classifyRelativeToSilhouette(myPolytopeToBlock, myPolyhedron, edges, aSilhouette);
+                PolytopePositionType position = classifyRelativeToSilhouette(myPolytopeToBlock, myPolyhedron, edges, aSilhouette, splitPassRanToTheEnd);
 
                 if (position == BLOCKED)
                 {
@@ -551,11 +890,23 @@ namespace visilib
             myOccluders[(*iter)->getGeometryId()].push_back(*iter);
         }
 
+        /* The beam, kept whole: the cell the complex starts from is the set of lines through
+        the two query polygons, and every cell the pass will cut is a piece of it. Held aside,
+        it answers what a silhouette face can ever mean to this query, before the arrangement
+        has been taken apart and the question could not be asked again. */
+
+        PluckerPolytope<P> *beam = nullptr;
+        if (complex->getPolytopeCount() > 0)
+        {
+            beam = new PluckerPolytope<P>(*complex->getPolytope(0));
+        }
+
         for (auto occluder = myOccluders.begin(); occluder != myOccluders.end(); occluder++)
         {
             if (VisibilitySolver<P, S>::isTimedOut())
             {
                 V_TRACE("FAILURE: time budget over");
+                delete beam;
                 return FAILURE;
             }
 
@@ -598,13 +949,23 @@ namespace visilib
 
             createMissingHyperplanes(myPolyhedron, edges);
 
+            /* The faces this query can ever see, and the ones it cannot: proved against the
+            beam once their three planes exist, before any cell is cut. An unreachable face
+            goes with its three planes out of the arrangement, and out of the ray cast. */
+            std::map<const SilhouetteMeshFace *, FaceShadow> shadows;
+            collectFaceShadows(myPolyhedron, edges, shadows);
+            filterUnreachableFaces(shadows, myPolyhedron, beam, edges);
+
             std::vector<int> intersectedPolytopes;
             classifyAllPolytopes(edges, complex, myPolyhedron, intersectedPolytopes, mySilhouette);
 
-            treatIntersectedPolytopes(edges, complex, myPolyhedron, intersectedPolytopes, mySilhouette);
+            treatIntersectedPolytopes(edges, shadows, complex, myPolyhedron, intersectedPolytopes, mySilhouette);
 
             complex->repack();
         }
+
+        delete beam;
+        beam = nullptr;
         /* No conclusion before this: the loops above give up on an over budget query, and the
         work they left undone is not an answer. */
         if (VisibilitySolver<P, S>::isTimedOut())

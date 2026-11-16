@@ -61,6 +61,16 @@ namespace visilib
         REPRESENTATIVE_LINE_DIRECT_COUNT,
         REPRESENTATIVE_LINE_WALKED_COUNT,
         REPRESENTATIVE_LINE_REJECTED_COUNT,
+        /** @brief What the face pruning of the sequential solver gave up, and what it buried
+
+        A silhouette face is REJECTED when no line of the beam reaches it, and its three planes
+        then leave the arrangement with the edges DROPPED that only it carried. A polytope is
+        SHADOW BLOCKED when it was proved, inside the split pass and against one face, to hold
+        nothing but lines that hit that face: it is deleted there, rather than left to be carved
+        further and classified at the end of the pass. */
+        SILHOUETTE_FACE_REJECTED_COUNT,
+        SILHOUETTE_EDGE_DROPPED_COUNT,
+        POLYTOPE_SHADOW_BLOCKED_COUNT,
         COUNTER_LAST
     };
 
@@ -110,6 +120,15 @@ namespace visilib
         void inc(CounterType counter)
         {
             mCounts[counter]++;
+        }
+
+        /**@brief Add a whole batch to a tally
+
+        For the counts that are not one at a time: the edges an occluder gives up at once, the
+        faces it rejects at once. */
+        void add(CounterType counter, size_t amount)
+        {
+            mCounts[counter] += static_cast<int>(amount);
         }
 
         int get(CounterType counter) const
@@ -247,6 +266,13 @@ namespace visilib
                       << " (in cell " << mCounts[REPRESENTATIVE_LINE_DIRECT_COUNT]
                       << ", walked " << mCounts[REPRESENTATIVE_LINE_WALKED_COUNT]
                       << ", refused " << mCounts[REPRESENTATIVE_LINE_REJECTED_COUNT] << ")]" << std::endl;
+
+            if (mCounts[SILHOUETTE_FACE_REJECTED_COUNT] || mCounts[SILHOUETTE_EDGE_DROPPED_COUNT] || mCounts[POLYTOPE_SHADOW_BLOCKED_COUNT])
+            {
+                std::cout << "  [Beam cull:      " << mCounts[SILHOUETTE_FACE_REJECTED_COUNT] << " faces, "
+                          << mCounts[SILHOUETTE_EDGE_DROPPED_COUNT] << " edges, "
+                          << mCounts[POLYTOPE_SHADOW_BLOCKED_COUNT] << " cells buried]" << std::endl;
+            }
 
             if (mMeasuresSet[WORST_ACCEPTED_MARGIN])
             {
