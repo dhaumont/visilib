@@ -301,6 +301,12 @@ size_t DemoDebugVisualisationGl::display(HelperVisualDebugger * debugger, const 
     glColor3f(0.0f, 255.0f, 0.0f);
     DemoDebugVisualisationGl::drawLines(debugger->getExtremalStabbingLines());
 
+    /* the shadow discontinuity arcs traced on the receiver, as polylines already lifted off its
+    plane: magenta over the grey geometry, thicker than the helper lines to read as the result */
+    glLineWidth(2);
+    glColor3f(1.0f, 0.0f, 1.0f);
+    DemoDebugVisualisationGl::drawLines(debugger->getShadowDiscontinuityLines());
+
     glColor3f(0.0f, 0.0f, 255.0f);
     if (drawGeometryType == 1)
     {

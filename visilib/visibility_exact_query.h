@@ -269,6 +269,13 @@ namespace visilib
         */
         bool createInitialPolygons(const float* vertices0, size_t numVertices0, const float* vertices1, size_t numVertices1, bool normalization);
 
+        /**@brief Lift the traced shadow discontinuity arcs to 3D polylines and hand them to the debugger
+
+        Each arc is sampled with its own parameterization; the points are shifted a hair off the
+        receiver plane, towards the emitter, so the curve draws over the receiver rather than
+        z-fighting with it. A no-op when no debugger is attached. */
+        void exportShadowDiscontinuities();
+
         VisibilityExactQueryConfiguration mConfiguration;                     /**< @brief The configuration parameters of the query*/
         PluckerPolytopeComplex<P>* mComplex;                   /**< @brief The polytope complex encoding the occlusion tree*/
         GeometryOccluderSet* mScene;                                         /**< @brief The scene containing the triangle mesh occluders*/
@@ -471,7 +478,70 @@ namespace visilib
             delete solver;
         }
 
+        // the arcs are traced whatever the answer is: even a HIDDEN query has certified cells to show
+        exportShadowDiscontinuities();
+
         return result;
+    }
+
+    template<class P, class S>
+    void VisibilityExactQuery_<P, S>::exportShadowDiscontinuities()
+    {
+        if (mDebugger == nullptr || mShadowDiscontinuities.empty())
+        {
+            return;
+        }
+
+        const size_t cSamplesPerConic = 24;
+
+        // the unit normal of the receiver plane, turned towards the emitter: the curve lifts along it,
+        // a hair scaled to the receiver, so it draws over the plane it was traced on
+        MathVector3d receiverNormal = mQueryPolygon[1]->getPlane().getNormal();
+        double n2 = receiverNormal.dot(receiverNormal);
+        if (n2 <= 0.0)
+        {
+            return;
+        }
+
+        receiverNormal *= 1.0 / MathArithmetic<double>::getSqrt(n2);
+
+        MathVector3d gReceiver = MathGeometry::getGravityCenter(*mQueryPolygon[1]);
+        MathVector3d gSource = MathGeometry::getGravityCenter(*mQueryPolygon[0]);
+        if ((gSource - gReceiver).dot(receiverNormal) < 0.0)
+        {
+            receiverNormal *= -1.0;
+        }
+
+        double radius = 0.0;
+        for (size_t i = 0; i < mQueryPolygon[1]->getVertexCount(); i++)
+        {
+            MathVector3d d = mQueryPolygon[1]->getVertex(i) - gReceiver;
+            double r = d.getNorm();
+            if (r > radius)
+            {
+                radius = r;
+            }
+        }
+
+        MathVector3d lift = receiverNormal;
+        lift *= 1e-3 * radius;
+
+        for (size_t a = 0; a < mShadowDiscontinuities.size(); a++)
+        {
+            const ShadowDiscontinuityArc& arc = mShadowDiscontinuities[a];
+
+            const std::vector<MathVector2d> polyline = arc.toPolyline(arc.mType == ShadowDiscontinuityArc::SEGMENT ? 2 : cSamplesPerConic);
+
+            for (size_t i = 1; i < polyline.size(); i++)
+            {
+                MathVector3d p = arc.toPoint3D(polyline[i - 1]);
+                MathVector3d q = arc.toPoint3D(polyline[i]);
+                p += lift;
+                q += lift;
+
+                mDebugger->addShadowDiscontinuityLine(convert<MathVector3f>(p), convert<MathVector3f>(q));
+            }
+        }
     }
 
     template<class P, class S>
