@@ -25,6 +25,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include "math_combinatorial.h"
 #include "plucker_polytope.h"
 #include "plucker_polyhedron.h"
+#include "visibility_event_registry.h"
 
 namespace visilib
 {
@@ -34,7 +35,7 @@ namespace visilib
     class PluckerPolytopeBuilder
     {
     public:
-        PluckerPolytopeBuilder(bool normalization, S tolerance);
+        PluckerPolytopeBuilder(bool normalization, S tolerance, VisibilityEventRegistry* aRegistry = nullptr);
 
         /** @brief Create the minimal polytope following Mora et al. An extermal stabbing line is created for each vertex pair of polygon a and b.
         @param a: first source polygon
@@ -45,8 +46,12 @@ namespace visilib
         PluckerPolytope<P>* build(GeometryConvexPolygon& a, GeometryConvexPolygon& b, PluckerPolyhedron<P>* polyhedron);
 
     private:
-        /** @brief Add the edges of polygon a and b as hyperplanes of the polyhedron. The approximate normal is used when the polygon is degenerated */
-        void addSourcePolygonEdgesAsHyperplanes(PluckerPolyhedron<P>* aPolyhedron, const GeometryConvexPolygon& aPolygon, bool clockWise, const MathVector3d& approximateNormal);
+        /** @brief Add the edges of polygon a and b as hyperplanes of the polyhedron. The approximate normal is used when the polygon is degenerated.
+
+        @param aPolygonIndex: which of the two sources is being added (0 or 1): the registry records it on each edge
+        @param clockWise: the orientation the edges are given to the polyhedron with
+        @param approximateNormal: the direction used to pad a degenerated polygon up to a valid one; the padding edges are tagged synthetic in the registry, their vertices are construction artifacts */
+        void addSourcePolygonEdgesAsHyperplanes(PluckerPolyhedron<P>* aPolyhedron, const GeometryConvexPolygon& aPolygon, bool clockWise, const MathVector3d& approximateNormal, int aPolygonIndex);
 
         /** @brief Add the extremal stabbing lines of a and b as hyperplanes of the polyhedron */
         void addExtremalStabbingLines(PluckerPolytope<P>* polytope, GeometryConvexPolygon& a, GeometryConvexPolygon& b, PluckerPolyhedron<P>* polyhedron);
@@ -66,17 +71,19 @@ namespace visilib
 
         bool mNormalization;  /** < @brief Normalization activated or not*/
         S mTolerance;         /** < @brief Tolerance used to compute the intersection with the Plucker quadric */
+        VisibilityEventRegistry* mRegistry; /** < @brief Side table told which 3D edge carries each hyperplane added here, or null*/
     };
 
     template<class P, class S>
-    inline PluckerPolytopeBuilder<P, S>::PluckerPolytopeBuilder(bool aNormalization, S aTolerance)
+    inline PluckerPolytopeBuilder<P, S>::PluckerPolytopeBuilder(bool aNormalization, S aTolerance, VisibilityEventRegistry* aRegistry)
+        : mNormalization(aNormalization),
+        mTolerance(aTolerance),
+        mRegistry(aRegistry)
     {
-        mNormalization = aNormalization;
-        mTolerance = aTolerance;
     }
 
     template<class P, class S>
-    inline void PluckerPolytopeBuilder<P, S>::addSourcePolygonEdgesAsHyperplanes(PluckerPolyhedron<P>* aPolyhedron, const GeometryConvexPolygon& aPolygon, bool clockWise, const MathVector3d& approximateNormal)
+    inline void PluckerPolytopeBuilder<P, S>::addSourcePolygonEdgesAsHyperplanes(PluckerPolyhedron<P>* aPolyhedron, const GeometryConvexPolygon& aPolygon, bool clockWise, const MathVector3d& approximateNormal, int aPolygonIndex)
     {
         size_t n = aPolygon.getVertexCount();
         std::vector<MathVector3d> v;
@@ -123,6 +130,18 @@ namespace visilib
         }
         size_t count = v.size();
 
+        // which of the vertices above are the padding, not the source: an event vertex built on them is a construction artifact
+        bool synthetic[3] = { false, false, false };
+        if (n == 1)
+        {
+            synthetic[0] = true;
+            synthetic[2] = true;
+        }
+        else if (n == 2)
+        {
+            synthetic[0] = true;
+        }
+
         // Compute the oriented Plucker line representation of each edge and store it in Polyhedron
         for (size_t i = 0; i < count; i++)
         {
@@ -136,7 +155,20 @@ namespace visilib
 
                 V_ASSERT((MathPredicates::isNormalized(line, mTolerance)));
             }
-            aPolyhedron->add(line, ON_BOUNDARY, mNormalization, mTolerance);
+            size_t myIndex = aPolyhedron->add(line, ON_BOUNDARY, mNormalization, mTolerance);
+
+            if (mRegistry != nullptr)
+            {
+                HyperplaneEventInfo info;
+                info.mKind = HyperplaneEventInfo::SourceEdge;
+                info.mPolygonIndex = aPolygonIndex;
+                info.mEdgeIndex = i;
+                info.mTouchesSynthetic = (n < 3) && (synthetic[i % count] || synthetic[(i + 1) % count]);
+                info.mA = v1;
+                info.mB = v2;
+
+                mRegistry->registerHyperplane(myIndex, info);
+            }
         }
     }
 
@@ -218,8 +250,8 @@ namespace visilib
         MathVector3d ga = MathGeometry::getGravityCenter(a);
         MathVector3d gb = MathGeometry::getGravityCenter(b);
 
-        addSourcePolygonEdgesAsHyperplanes(aPolyhedron, a, true, gb - ga);
-        addSourcePolygonEdgesAsHyperplanes(aPolyhedron, b, false, ga - gb);
+        addSourcePolygonEdgesAsHyperplanes(aPolyhedron, a, true, gb - ga, 0);
+        addSourcePolygonEdgesAsHyperplanes(aPolyhedron, b, false, ga - gb, 1);
 
         if constexpr (MathPluckerCellTraits<P>::cAllLinesReal)
         {

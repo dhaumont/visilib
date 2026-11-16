@@ -32,6 +32,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include "plucker_polytope_splitter.h"
 #include "visibility_exact_query.h"
 #include "silhouette.h"
+#include "shadow_discontinuity_tracer.h"
 #include <fstream>
 #include <sstream>
 #include <map>
@@ -146,6 +147,18 @@ namespace visilib
                     V_LOG(debugOutput, "RAY: IS VISIBLE", occlusionTreeNodeSymbol);
 #endif
                     hasRay = true;
+
+                    // a validated witness line certifies this cell: trace its discontinuity arcs here too, the polytope may keep splitting and never return to the leaf branch
+                    if (!mDetectApertureOnly)
+                    {
+                        ShadowDiscontinuityTracer<P, S>::traceLeafPolytope(myPolyhedron, aPolytope,
+                                                                           VisibilitySolver<P, S>::mQuery->getEventRegistry(),
+                                                                           *VisibilitySolver<P, S>::mQuery->getQueryPolygon(0),
+                                                                           *VisibilitySolver<P, S>::mQuery->getQueryPolygon(1),
+                                                                           mTolerance,
+                                                                           VisibilitySolver<P, S>::mQuery->getShadowDiscontinuityArcs());
+                    }
+
                     aGlobalResult = VISIBLE;
                 if (mDetectApertureOnly)
                 {
@@ -224,6 +237,15 @@ namespace visilib
                     }
                     myPolyhedronFace = myPolyhedron->add(myHyperplane, ON_BOUNDARY, mNormalization, mTolerance);
                     myVisibilitySilhouetteEdge.mHyperPlaneIndex = myPolyhedronFace;
+
+                    HyperplaneEventInfo info;
+                    info.mKind = HyperplaneEventInfo::SilhouetteEdge;
+                    info.mEdgeIndex = myVisibilitySilhouetteEdge.mEdgeIndex;
+                    info.mFaceIndex = face->getFaceIndex();
+                    info.mGeometryId = mySilhouette->getGeometryId();
+                    info.mA = a;
+                    info.mB = b;
+                    VisibilitySolver<P, S>::mQuery->getEventRegistry().registerHyperplane(myPolyhedronFace, info);
                 }
 
                 P myHyperplane = myPolyhedron->get(myPolyhedronFace);
@@ -377,6 +399,15 @@ namespace visilib
                     V_LOG(debugOutput, "visible polytope found: exporting stabbing lines", occlusionTreeNodeSymbol);
 #endif
                     VisibilitySolver<P, S>::extractStabbingLines(myPolyhedron, aPolytope,mTolerance);
+
+                    // this cell is a certified aperture: trace its discontinuity arcs before the recursion unwinds and frees it
+                    ShadowDiscontinuityTracer<P, S>::traceLeafPolytope(myPolyhedron, aPolytope,
+                                                                       VisibilitySolver<P, S>::mQuery->getEventRegistry(),
+                                                                       *VisibilitySolver<P, S>::mQuery->getQueryPolygon(0),
+                                                                       *VisibilitySolver<P, S>::mQuery->getQueryPolygon(1),
+                                                                       mTolerance,
+                                                                       VisibilitySolver<P, S>::mQuery->getShadowDiscontinuityArcs());
+
                     aGlobalResult = VISIBLE;
                     if (mDetectApertureOnly) // Early stop - an aperture has been found
                     {

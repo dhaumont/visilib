@@ -43,6 +43,8 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include "visilib.h"
 #include "visilib_core.h"
 #include "silhouette_container_embree.h"
+#include "visibility_shadow_discontinuity.h"
+#include "visibility_event_registry.h"
 
 namespace visilib
 {
@@ -211,6 +213,27 @@ namespace visilib
             return mConfiguration;
         }
 
+        /**@brief Return the registry of hyperplane provenance, filled as the polyhedron is built and split */
+        VisibilityEventRegistry& getEventRegistry()
+        {
+            return mEventRegistry;
+        }
+
+        /**@brief Return the shadow discontinuity arcs traced on the receiver during the last query.
+
+        The arcs are appended as the solver certifies visible cells, so the set is complete only when
+        the solver visited every aperture (detectApertureOnly stops the trace at the first one). */
+        const std::vector<ShadowDiscontinuityArc>& getShadowDiscontinuityArcs() const
+        {
+            return mShadowDiscontinuities;
+        }
+
+        /**@brief Return the mutable set of traced arcs, so the solver can append to it */
+        std::vector<ShadowDiscontinuityArc>& getShadowDiscontinuityArcs()
+        {
+            return mShadowDiscontinuities;
+        }
+
         /**@brief Return the statistic collector */
         HelperStatisticCollector* getStatistic()
         {
@@ -260,6 +283,9 @@ namespace visilib
  //      std::unordered_map<VisibilitySilhouette*, std::unordered_set<PluckerPolytope<P>*>> mSilhouetteToPolytopeDictionary;
 
         SilhouetteContainer* mSilhouetteContainer;
+
+        VisibilityEventRegistry mEventRegistry;                       /**< @brief Provenance of each polyhedron hyperplane, filled as the cell is built and split*/
+        std::vector<ShadowDiscontinuityArc> mShadowDiscontinuities;   /**< @brief The discontinuity arcs traced on the receiver during the query*/
         /** @brief The links between the silhouettes and the polytopes*/
     //    std::unordered_map<PluckerPolytope<P>*, std::unordered_set<VisibilitySilhouette*>> mPolytopeToSilhouetteDictionary;
     };
@@ -380,6 +406,9 @@ namespace visilib
             mSilhouetteProcessor->attachVisualisationDebugger(mDebugger);
         }
 
+        // the arcs are per query; the registry is not reset, it grows with the polyhedron which lives across calls
+        mShadowDiscontinuities.clear();
+
         {
             HelperScopedTimer timerBuild(&mStatistic, POLYTOPE_BUILD);
             if (!createInitialPolygons(vertices0, numVertices0, vertices1, numVertices1, mConfiguration.hyperSphereNormalization))
@@ -411,7 +440,7 @@ namespace visilib
             {
                 HelperScopedTimer timerBuild(&mStatistic, POLYTOPE_BUILD);
 
-                PluckerPolytopeBuilder<P, S> builder(mConfiguration.hyperSphereNormalization, mTolerance);
+                PluckerPolytopeBuilder<P, S> builder(mConfiguration.hyperSphereNormalization, mTolerance, &mEventRegistry);
                 PluckerPolytope<P>* myPolytope = builder.build(*mQueryPolygon[0], *mQueryPolygon[1], getComplex()->getPolyhedron());
                 getComplex()->appendPolytope(myPolytope);
             }

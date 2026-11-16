@@ -65,6 +65,9 @@ set(VisibilitySrc
     visibility_aperture_finder.h
     visibility_exact_query.h
 	visibility_ray.h
+    visibility_event_registry.h
+    visibility_shadow_discontinuity.h
+    shadow_discontinuity_tracer.h
     )
 
 set(SilhouetteSrc

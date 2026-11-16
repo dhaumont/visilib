@@ -37,6 +37,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include "plucker_polytope_splitter.h"
 #include "visibility_exact_query.h"
 #include "silhouette.h"
+#include "shadow_discontinuity_tracer.h"
 #include <fstream>
 #include <sstream>
 #include <map>
@@ -215,6 +216,14 @@ namespace visilib
                 }
                 myPolyhedronFace = aPolyhedron->add(myHyperplane, ON_BOUNDARY, mNormalization, mTolerance);
                 myVisibilitySilhouetteEdge.mHyperPlaneIndex = myPolyhedronFace;
+
+                HyperplaneEventInfo info;
+                info.mKind = HyperplaneEventInfo::SilhouetteEdge;
+                info.mEdgeIndex = myVisibilitySilhouetteEdge.mEdgeIndex;
+                info.mFaceIndex = face->getFaceIndex();
+                info.mA = a;
+                info.mB = b;
+                VisibilitySolver<P, S>::mQuery->getEventRegistry().registerHyperplane(myPolyhedronFace, info);
             }
         }
     }
@@ -1001,6 +1010,15 @@ namespace visilib
             }
 
             VisibilitySolver<P, S>::extractStabbingLines(myPolyhedron, myPolytope, mTolerance);
+
+            // the cell survived the whole silhouette set and holds a sight line: trace its discontinuity arcs
+            ShadowDiscontinuityTracer<P, S>::traceLeafPolytope(myPolyhedron, myPolytope,
+                                                               VisibilitySolver<P, S>::mQuery->getEventRegistry(),
+                                                               *VisibilitySolver<P, S>::mQuery->getQueryPolygon(0),
+                                                               *VisibilitySolver<P, S>::mQuery->getQueryPolygon(1),
+                                                               mTolerance,
+                                                               VisibilitySolver<P, S>::mQuery->getShadowDiscontinuityArcs());
+
             validated = true;
         }
 
