@@ -96,11 +96,11 @@ namespace visilib
         V_LOG(debugOutput, "Resolve internal ", occlusionTreeNodeSymbol);
         aPolytope->outputProperties(debugOutput, myPolyhedron);
 #endif
-        if (aDepth > 2000)
+        if (aDepth > VisibilitySolver<P, S>::mQuery->getConfiguration().maximumRecursionDepth)
         {
-            std::cerr << "Overflow detected: more than 200 recursive calls...." << std::endl;
+            std::cerr << "Overflow detected: more than " << VisibilitySolver<P, S>::mQuery->getConfiguration().maximumRecursionDepth << " recursive calls...." << std::endl;
 #ifdef OUTPUT_DEBUG_FILE
-            V_LOG(debugOutput, "RESULT FAILURE: Overflow detected : more than 2000 recursive calls....", occlusionTreeNodeSymbol);
+            V_LOG(debugOutput, "RESULT FAILURE: Overflow detected : more than " + std::to_string(VisibilitySolver<P, S>::mQuery->getConfiguration().maximumRecursionDepth) + " recursive calls....", occlusionTreeNodeSymbol);
 #endif
             aGlobalResult = FAILURE;
             return FAILURE;

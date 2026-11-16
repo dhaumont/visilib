@@ -74,6 +74,7 @@ namespace visilib
             confidenceValue = 0.99;
             displaySplitOccurence = 10000;
             directionalLight = false;
+            maximumRecursionDepth = 2000;
         }
 
         VisibilityExactQueryConfiguration(const VisibilityExactQueryConfiguration& other)
@@ -90,6 +91,7 @@ namespace visilib
             confidenceValue = other.confidenceValue;
             displaySplitOccurence = other.displaySplitOccurence;
             directionalLight = other.directionalLight;
+            maximumRecursionDepth = other.maximumRecursionDepth;
         }
 
         bool silhouetteOptimization;                  /**< @brief Use silhouette optimization*/
@@ -104,6 +106,7 @@ namespace visilib
         double confidenceValue;
         int displaySplitOccurence;                        /**< @brief The split count periodicity for which the statistics are displayed*/
         bool directionalLight;                            /**< @brief Solve the query for a directional light, whose rays are all parallel to the line joining the two source centers*/
+        int maximumRecursionDepth;                        /**< @brief Recursion depth beyond which the aperture finder reports an overflow and fails the query*/
     };
 
 
