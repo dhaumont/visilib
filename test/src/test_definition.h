@@ -26,6 +26,7 @@ bool testConfiguration(bool& retflag);
 bool VisibilityTest(std::string&);
 bool DirectionalVisibilityTest(std::string&);
 bool SolverConsistencyTest(std::string&);
+bool SolverFatRayTest(std::string&);
 bool SolverEdgeCases(std::string&);
 bool SolverDegenerateTests(std::string&);
 bool SolverModelTests(std::string&);

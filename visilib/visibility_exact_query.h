@@ -536,6 +536,17 @@ namespace visilib
     {
         const bool thin = (radiusAtStart == 0.0 && radiusAtEnd == 0.0);
 
+        /* Early stop traces no fat ray: it stops at the first aperture it can prove, and the
+        body a wide cast searches with is the whole cell — the very thing it declined to
+        examine. A wide cast reaching here is a caller that asked the finder for work it is
+        switched off to do, so the beam is refused rather than traced: the answer stays the
+        thin one, which is all early stop ever meant to have. */
+        if (!thin && mConfiguration.detectApertureOnly)
+        {
+            V_ASSERT(false);
+            return false;
+        }
+
         MathVector3d myBegin = aBegin;
         MathVector3d myDir = anEnd - aBegin;
         double myMax = myDir.normalize();

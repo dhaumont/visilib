@@ -61,6 +61,7 @@ const TestDefinition cTests[] =
     { "VisibilityTest", &VisibilityTest },
     { "DirectionalVisibilityTest", &DirectionalVisibilityTest },
     { "SolverConsistencyTest", &SolverConsistencyTest },
+    { "SolverFatRayTest", &SolverFatRayTest },
     { "SolverEdgeCases", &SolverEdgeCases },
     { "SolverDegenerateTests", &SolverDegenerateTests },
     { "SolverModelTests", &SolverModelTests },

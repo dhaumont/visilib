@@ -219,6 +219,16 @@ namespace visilib
         mExtremalStabbingLineInformation.vertexCount = 0;
         mExtremalStabbingLineInformation.vertexArray = nullptr;
 
+        /* The tallies, the times and the measures are of the query that ran, not of the
+        debugger that outlived it. The query merges its own statistics into these maps at its
+        end, and a map it chooses not to write — a statistic that records work which did not
+        happen is left out — would otherwise keep showing what some earlier query did: the
+        client that reuses one debugger would be told the fat rays of its last run were
+        traced in this one. */
+        mCounters.clear();
+        mTimings.clear();
+        mMeasures.clear();
+
         /* A query clears the debugger before it starts, and the budget is a query long one,
         so the clock is set back here rather than left running from whenever the debugger was
         built. */

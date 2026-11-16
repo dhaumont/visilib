@@ -30,6 +30,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include <iterator>
 #include <limits>
 #include <utility>
+#include <map>
 
 #include "../demo/demo_helper.h"
 #include "test_definition.h"
@@ -823,5 +824,204 @@ bool SolverPrecisionTests(std::string& errorMessage)
     }
 
     std::cout << "SolverPrecisionTests SUCCESS" << std::endl;
+    return true;
+}
+
+namespace
+{
+    /** @brief What one run of the fat-ray test brings back: the answer, and the wide casts */
+    struct FatRayOutcome
+    {
+        VisibilityResult mAnswer = UNKNOWN;
+        int mFatCasts = 0;
+        int mFatFaces = 0;
+    };
+
+    /** @brief Run one slot configuration through one solver in one early-stop mode.
+
+    The slot is the scene the beam capsule was made for: the two walls stand one third apart
+    with an aperture between them, and a source pair wide enough to see past the aperture sends
+    its representative line through the gap — the thin cast goes out the other side having found
+    nothing, while the cell does contain lines that hit the walls. The occluders of such a cell
+    can only be collected by a cast of the body that holds the whole cell, so what the statistics
+    say about wide casts is what this test reads.
+
+    A client that keeps one debugger and asks several queries of it is the way the statistics are
+    really read, so a run may be handed the debugger to report into rather than build its own. */
+    FatRayOutcome runSlotQuery(const DemoConfiguration::SCENE_TYPE scene,
+                               const VisibilityExactQueryConfiguration::SolverType solver,
+                               const bool detectApertureOnly,
+                               HelperVisualDebugger* sharedDebugger = nullptr)
+    {
+        DemoConfiguration configuration;
+        configuration.sceneIndex = scene;
+        configuration.vertexCount0 = 3;
+        configuration.vertexCount1 = 3;
+        configuration.scaling0 = 2.0f;
+        configuration.scaling1 = 2.0f;
+        configuration.detectApertureOnly = detectApertureOnly;
+
+        std::vector<float> v0;
+        std::vector<float> v1;
+
+        DemoHelper::generatePolygon(v0, configuration.vertexCount0, configuration.scaling0, configuration.phi - cSourceHalfTurn, configuration.globalScaling);
+        DemoHelper::generatePolygon(v1, configuration.vertexCount1, configuration.scaling1, configuration.phi, configuration.globalScaling);
+
+        HelperTriangleMeshContainer* meshContainer = DemoHelper::createScene(configuration.sceneIndex, configuration.globalScaling);
+        V_ASSERT(meshContainer != nullptr);
+
+        GeometryOccluderSet* occluderSet = DemoHelper::createOccluderSet(meshContainer);
+
+        VisibilityExactQueryConfiguration query;
+        query.silhouetteOptimization = configuration.silhouetteOptimisation;
+        query.hyperSphereNormalization = configuration.normalization;
+        query.optimisedRepresentativeLine = configuration.optimisedRepresentativeLine;
+        query.directionalLight = configuration.directionalLight;
+        query.precision = configuration.precisionType;
+        query.solverType = solver;
+        query.detectApertureOnly = detectApertureOnly;
+        query.tolerance = configuration.tolerance;
+        query.confidenceValue = configuration.confidenceValue;
+        query.displaySplitOccurence = std::numeric_limits<int>::max();
+
+        const double side = 2.0 * (configuration.scaling0 > configuration.scaling1 ? configuration.scaling0 : configuration.scaling1);
+        const double aperture = configuration.minimumApertureSize;
+        query.minimumNormalizedApertureSize = (aperture * aperture) / (side * side);
+
+        HelperVisualDebugger localDebugger;
+        HelperVisualDebugger& debugger = sharedDebugger != nullptr ? *sharedDebugger : localDebugger;
+
+        debugger.getTimeout().setMaximumDuration(cDefaultQueryBudgetSeconds);
+        debugger.setDisplayStatistics(false);
+
+        srand(0);
+
+        FatRayOutcome outcome;
+        outcome.mAnswer = visilib::areVisible(occluderSet, &v0[0], v0.size() / 3, &v1[0], v1.size() / 3, query, &debugger);
+
+        /* The two counters are of the map only when a cast was made, which is how a mode that
+        never casts reads as nought. */
+        const std::map<std::string, int>& counters = debugger.getCounters();
+        const std::map<std::string, int>::const_iterator casts = counters.find("  fat casts");
+        const std::map<std::string, int>::const_iterator faces = counters.find("  fat faces");
+        if (casts != counters.end())
+        {
+            outcome.mFatCasts = casts->second;
+        }
+        if (faces != counters.end())
+        {
+            outcome.mFatFaces = faces->second;
+        }
+
+        delete occluderSet;
+        delete meshContainer;
+
+        return outcome;
+    }
+
+    void displayFatRayLine(const char* label, const FatRayOutcome& outcome)
+    {
+        std::cout << "    " << std::left << std::setw(34) << label
+                  << DemoConfiguration::toStr(outcome.mAnswer)
+                  << "  wide casts: " << outcome.mFatCasts
+                  << ", faces found: " << outcome.mFatFaces << std::endl;
+    }
+}
+
+bool SolverFatRayTest(std::string& errorMessage)
+{
+    std::cout << "SolverFatRayTest" << std::endl;
+
+    const VisibilityExactQueryConfiguration::SolverType cFinder = VisibilityExactQueryConfiguration::EXACT_APERTURE_FINDER;
+    const VisibilityExactQueryConfiguration::SolverType cSequential = VisibilityExactQueryConfiguration::EXACT_SEQUENTIAL_SOLVER;
+
+    const FatRayOutcome sequentialFull = runSlotQuery(DemoConfiguration::SLOT_OFF_AXIS_01, cSequential, false);
+    const FatRayOutcome finderFull = runSlotQuery(DemoConfiguration::SLOT_OFF_AXIS_01, cFinder, false);
+    const FatRayOutcome finderEarly = runSlotQuery(DemoConfiguration::SLOT_OFF_AXIS_01, cFinder, true);
+    const FatRayOutcome sequentialEarly = runSlotQuery(DemoConfiguration::SLOT_OFF_AXIS_01, cSequential, true);
+
+    displayFatRayLine("finder, full visibility", finderFull);
+    displayFatRayLine("finder, early stop", finderEarly);
+    displayFatRayLine("sequential, full visibility", sequentialFull);
+    displayFatRayLine("sequential, early stop", sequentialEarly);
+
+    std::vector<std::string> failures;
+
+    /* Early stop stops at the aperture it proved: the body a wide cast searches with is the
+    whole cell, which is what it declined to examine. No mode of no solver traces one. */
+    if (finderEarly.mFatCasts != 0 || sequentialEarly.mFatCasts != 0)
+    {
+        failures.push_back("a fat ray was traced with early stop on");
+    }
+
+    /* The full search of the slot must widen its cast, and the widening must find the walls the
+    thin line passed by: nought faces would mean the beam went missing, and the cell would be
+    subdivided blind again. */
+    if (finderFull.mFatCasts == 0)
+    {
+        failures.push_back("the finder never cast wide on the slot");
+    }
+    if (finderFull.mFatFaces == 0)
+    {
+        failures.push_back("the wide cast found no face the thin line missed");
+    }
+
+    /* And the answer, which is what the widening was for: the finder sees the slot the way the
+    complete-by-construction solver does, and stopping early does not change what is true. */
+    if (finderFull.mAnswer != sequentialFull.mAnswer)
+    {
+        failures.push_back("the finder and the sequential solver disagree on the slot");
+    }
+    if (finderEarly.mAnswer != finderFull.mAnswer || sequentialEarly.mAnswer != sequentialFull.mAnswer)
+    {
+        failures.push_back("early stop changed the answer");
+    }
+
+    /* A statistic that records work which did not happen is left out of the report rather than
+    written as nought, which makes the report of a query only as wide as the query was. That is
+    worth an honest reading, so the same debugger is asked twice here: the fat casts of the full
+    run must not be what the early stop run reports. */
+    {
+        HelperVisualDebugger reused;
+
+        const FatRayOutcome fullOnShared = runSlotQuery(DemoConfiguration::SLOT_OFF_AXIS_01, cFinder, false, &reused);
+        const bool reportedByFull = reused.getCounters().count("  fat casts") != 0;
+
+        runSlotQuery(DemoConfiguration::SLOT_OFF_AXIS_01, cFinder, true, &reused);
+        const std::map<std::string, int>& afterEarly = reused.getCounters();
+
+        displayFatRayLine("shared debugger, after full run", fullOnShared);
+        std::cout << "    " << std::left << std::setw(34) << "shared debugger, after early run"
+                  << (afterEarly.count("  fat casts") == 0 ? "reports no wide cast" : "still reports the wide cast of the previous query")
+                  << std::endl;
+
+        if (!reportedByFull)
+        {
+            failures.push_back("the full run reported no fat cast in the shared debugger");
+        }
+        if (afterEarly.count("  fat casts") != 0 || afterEarly.count("  fat faces") != 0)
+        {
+            failures.push_back("the early stop run reported the fat casts of the previous query");
+        }
+    }
+
+    if (!failures.empty())
+    {
+        std::ostringstream message;
+        for (size_t i = 0; i < failures.size(); i++)
+        {
+            if (i != 0)
+            {
+                message << "; ";
+            }
+            message << failures[i];
+        }
+        errorMessage = message.str();
+
+        std::cout << "SolverFatRayTest FAILED: " << errorMessage << std::endl;
+        return false;
+    }
+
+    std::cout << "SolverFatRayTest SUCCESS" << std::endl;
     return true;
 }
