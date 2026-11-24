@@ -205,7 +205,7 @@ size_t DemoDebugVisualisationGl::drawMesh(const GeometryTriangleMeshDescription 
     return aMesh.faceCount;
 }
 
-size_t DemoDebugVisualisationGl::display(HelperVisualDebugger * debugger, const visilib::HelperTriangleMeshContainer & scene, const std::vector<float> & v0, const std::vector<float> & v1, VisibilityResult result, int drawGeometryType, float aApertureSize)
+size_t DemoDebugVisualisationGl::display(HelperVisualDebugger * debugger, const visilib::HelperTriangleMeshContainer & scene, const std::vector<float> & v0, const std::vector<float> & v1, VisibilityResult result, const DemoDisplayOptions& options, float aApertureSize)
 {
 #ifdef USE_GLUT
 
@@ -233,15 +233,21 @@ size_t DemoDebugVisualisationGl::display(HelperVisualDebugger * debugger, const 
 
     glLineWidth(3);
 
-    DemoDebugVisualisationGl::drawLines(debugger->getRemovedEdges());
+    if (options.removedEdges)
+    {
+        DemoDebugVisualisationGl::drawLines(debugger->getRemovedEdges());
+    }
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     glColor3f(0.9f, 0.9f, 0.9f);
 
-    DemoDebugVisualisationGl::drawTriangles(debugger->getRemovedTriangles());
+    if (options.removedTriangles)
+    {
+        DemoDebugVisualisationGl::drawTriangles(debugger->getRemovedTriangles());
+    }
 
-    if (drawGeometryType < 2)
+    if (options.scene)
     {
         glLineWidth(2);
 
@@ -268,13 +274,13 @@ size_t DemoDebugVisualisationGl::display(HelperVisualDebugger * debugger, const 
     case HIDDEN:glColor3f(0.2f, 0.2f, 0.8f); break;
     }
 
-    if (drawGeometryType < 3)
+    if (options.cullSourceBackFaces)
     {
-        glDisable(GL_CULL_FACE);
+        glEnable(GL_CULL_FACE);
     }
     else
     {
-       glEnable(GL_CULL_FACE);
+        glDisable(GL_CULL_FACE);
     }
     DemoDebugVisualisationGl::drawPolygon(v0);
     DemoDebugVisualisationGl::drawPolygon(v1);
@@ -295,21 +301,35 @@ size_t DemoDebugVisualisationGl::display(HelperVisualDebugger * debugger, const 
     DemoDebugVisualisationGl::drawPolygonPoints(v1);
 
     glLineWidth(1);
-    glColor3f(0.0f, 255.0f, 255.0f);
-    DemoDebugVisualisationGl::drawLines(debugger->getStabbingLines());
-
-    glColor3f(0.0f, 255.0f, 0.0f);
-    DemoDebugVisualisationGl::drawLines(debugger->getExtremalStabbingLines());
-
-    glLineWidth(2);
-    glColor3f(1.0f, 0.0f, 1.0f);
-    DemoDebugVisualisationGl::drawLines(debugger->getShadowDiscontinuities());
-    glLineWidth(1);
-
-    glColor3f(0.0f, 0.0f, 255.0f);
-    if (drawGeometryType == 1)
+    if (options.stabbingLines)
     {
+        glColor3f(0.0f, 255.0f, 255.0f);
+        DemoDebugVisualisationGl::drawLines(debugger->getStabbingLines());
+    }
+
+    if (options.extremalStabbingLines)
+    {
+        glColor3f(0.0f, 255.0f, 0.0f);
+        DemoDebugVisualisationGl::drawLines(debugger->getExtremalStabbingLines());
+    }
+
+    if (options.shadowDiscontinuities)
+    {
+        glLineWidth(2);
+        glColor3f(1.0f, 0.0f, 1.0f);
+        DemoDebugVisualisationGl::drawLines(debugger->getShadowDiscontinuities());
+        glLineWidth(1);
+    }
+
+    if (options.samplingLines)
+    {
+        glColor3f(0.0f, 0.0f, 255.0f);
         DemoDebugVisualisationGl::drawLines(debugger->getSamplingLines());
+    }
+
+    if (!options.apertures)
+    {
+        return 0;
     }
 
     glColor3f(255.0f, 0.0f, 0.0f);

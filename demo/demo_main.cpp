@@ -466,13 +466,18 @@ namespace visilibDemo
                     initScene(mDemoConfiguration.sceneIndex);
                 }
 
-                if (ImGui::Button("change geometry mode")) {
-                    drawGeometryType++;
-                    drawGeometryType = drawGeometryType % 4;
-                    forceDisplay = true;
+                if (ImGui::CollapsingHeader("Display", ImGuiTreeNodeFlags_DefaultOpen))
+                {
+                    ImGui::Checkbox("scene", &mDisplayOptions.scene);
+                    ImGui::Checkbox("removed edges", &mDisplayOptions.removedEdges);
+                    ImGui::Checkbox("removed triangles", &mDisplayOptions.removedTriangles);
+                    ImGui::Checkbox("stabbing lines", &mDisplayOptions.stabbingLines);
+                    ImGui::Checkbox("extremal stabbing lines", &mDisplayOptions.extremalStabbingLines);
+                    ImGui::Checkbox("sampling lines", &mDisplayOptions.samplingLines);
+                    ImGui::Checkbox("show shadow discontinuities", &mDisplayOptions.shadowDiscontinuities);
+                    ImGui::Checkbox("apertures", &mDisplayOptions.apertures);
+                    ImGui::Checkbox("cull source back faces", &mDisplayOptions.cullSourceBackFaces);
                 }
-                ImGui::SameLine();
-                ImGui::Text("%i", drawGeometryType);
 
                 if (ImGui::Button("step")) {
                 //    step = true;
@@ -530,7 +535,7 @@ namespace visilibDemo
 
         void display()
         {
-            DemoDebugVisualisationGl::display(debugger, *meshContainer, v0, v1, result, drawGeometryType,mDemoConfiguration.minimumApertureSize * mDemoConfiguration.globalScaling);
+            DemoDebugVisualisationGl::display(debugger, *meshContainer, v0, v1, result, mDisplayOptions, mDemoConfiguration.minimumApertureSize * mDemoConfiguration.globalScaling);
         }
 
         void displaySettings()
@@ -568,7 +573,6 @@ namespace visilibDemo
             std::cout << "  o: open config | pick one of the files of the test case folder" << std::endl;
 
             std::cout << "  space: start/pause animation" << std::endl;
-            std::cout << "  Enter: show/hide geometry" << std::endl;
 
             std::cout << "  h: write this help" << std::endl;
         }
@@ -728,11 +732,6 @@ namespace visilibDemo
             case 32:
                 show_demo_window = !show_demo_window;
                 break;
-
-            case 13:
-                drawGeometryType++;
-                drawGeometryType = drawGeometryType % 4;
-                break;
             }
         }
     private:
@@ -747,7 +746,7 @@ namespace visilibDemo
         DemoConfiguration mDemoConfiguration;
         bool forceDisplay = true;
         bool animated = false;
-        int drawGeometryType = 0;
+        DemoDisplayOptions mDisplayOptions;
         int active_source = 0;
     };
 }

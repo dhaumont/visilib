@@ -26,6 +26,20 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 
 namespace visilibDemo
 {
+    /* Which of the data a query collected are drawn, each one switched on its own in the interface. */
+    struct DemoDisplayOptions
+    {
+        bool scene = true;                    /* the occluders, wireframe and filled */
+        bool removedEdges = false;            /* the occluder edges the solver split with */
+        bool removedTriangles = false;        /* the occluder triangles the solver processed */
+        bool stabbingLines = false;           /* the stabbing lines of the visible cells */
+        bool extremalStabbingLines = false;   /* the extremal stabbing lines of the visible cells */
+        bool samplingLines = false;           /* the lines cast to collect the occluders */
+        bool shadowDiscontinuities = true;    /* the shadow discontinuities traced on the receiver */
+        bool apertures = false;               /* the minimum aperture size, around each source */
+        bool cullSourceBackFaces = false;     /* draw the query polygons from their front side only */
+    };
+
     class DemoDebugVisualisationGl
     {
     public:
@@ -39,6 +53,6 @@ namespace visilibDemo
         static size_t drawLines(const visilib::GeometryTriangleMeshDescription& info);
         static size_t drawTriangles(const visilib::GeometryTriangleMeshDescription& info);
 
-        static size_t display(visilib::HelperVisualDebugger* debugger, const visilib::HelperTriangleMeshContainer& aScene, const std::vector<float>& v0, const std::vector<float>& v1, visilib::VisibilityResult result, int drawGeometryType, float aApertureSize);
+        static size_t display(visilib::HelperVisualDebugger* debugger, const visilib::HelperTriangleMeshContainer& aScene, const std::vector<float>& v0, const std::vector<float>& v1, visilib::VisibilityResult result, const DemoDisplayOptions& options, float aApertureSize);
     };
 }
