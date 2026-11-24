@@ -22,6 +22,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include "visilib_core.h"
 #include "visilib.h"
 #include "visibility_exact_query.h"
+#include "shadow_receiver.h"
 #include "geometry_convex_polygon.h"
 #include "geometry_occluder_set.h"
 
@@ -47,26 +48,9 @@ inline void configureArithmeticPrecision()
     S::set_default_precision(MathArithmetic<S>::bitsCount());
 }
 
-inline VisibilityResult visilib::areVisible(GeometryOccluderSet* scene, const float* vertices0, size_t numVertices0, const float* vertices1, size_t numVertices1,
-    const VisibilityExactQueryConfiguration& configuration, HelperVisualDebugger* debugger)
+/* The query of the arithmetic and of the line family the configuration asks for. */
+inline VisibilityExactQuery* createExactQuery(GeometryOccluderSet* scene, const VisibilityExactQueryConfiguration& configuration)
 {
-    if (vertices0 == 0 || vertices1 == 0)
-    {
-        std::cerr << "Error: invalid number of vertices" << std::endl;
-        return FAILURE;
-    }
-
-    if (scene == nullptr || dynamic_cast<GeometryOccluderSet*>(scene) == nullptr)
-    {
-        std::cerr << "Error: invalid scene" << std::endl;
-        return FAILURE;
-    }
-    if (vertices0 == nullptr || vertices1 == nullptr)
-    {
-        std::cerr << "Error: invalid vertex array" << std::endl;
-        return FAILURE;
-    }
-
     VisibilityExactQuery* query = nullptr;
 
     if (configuration.directionalLight)
@@ -175,6 +159,32 @@ inline VisibilityResult visilib::areVisible(GeometryOccluderSet* scene, const fl
         break;
     }
 
+    return query;
+}
+
+/* Run one query, and hand back its shadow discontinuities when someArcs is given. */
+inline VisibilityResult runExactQuery(GeometryOccluderSet* scene, const float* vertices0, size_t numVertices0, const float* vertices1, size_t numVertices1,
+    const VisibilityExactQueryConfiguration& configuration, HelperVisualDebugger* debugger, std::vector<ShadowDiscontinuityArc>* someArcs)
+{
+    if (vertices0 == 0 || vertices1 == 0)
+    {
+        std::cerr << "Error: invalid number of vertices" << std::endl;
+        return FAILURE;
+    }
+
+    if (scene == nullptr || dynamic_cast<GeometryOccluderSet*>(scene) == nullptr)
+    {
+        std::cerr << "Error: invalid scene" << std::endl;
+        return FAILURE;
+    }
+    if (vertices0 == nullptr || vertices1 == nullptr)
+    {
+        std::cerr << "Error: invalid vertex array" << std::endl;
+        return FAILURE;
+    }
+
+    VisibilityExactQuery* query = createExactQuery(scene, configuration);
+
     query->attachVisualisationDebugger(debugger);
 
     VisibilityResult result = query->arePolygonsVisible(vertices0, numVertices0, vertices1, numVertices1);
@@ -199,7 +209,41 @@ inline VisibilityResult visilib::areVisible(GeometryOccluderSet* scene, const fl
             }
         }
     }
+    if (someArcs != nullptr)
+    {
+        *someArcs = query->getShadowDiscontinuities();
+    }
     delete query;
 
     return result;
+}
+
+inline VisibilityResult visilib::areVisible(GeometryOccluderSet* scene, const float* vertices0, size_t numVertices0, const float* vertices1, size_t numVertices1,
+    const VisibilityExactQueryConfiguration& configuration, HelperVisualDebugger* debugger)
+{
+    return runExactQuery(scene, vertices0, numVertices0, vertices1, numVertices1, configuration, debugger, nullptr);
+}
+
+inline VisibilityResult visilib::computeShadowDiscontinuities(GeometryOccluderSet* scene, const float* lightVertices, size_t numLightVertices,
+    const float* receiverVertices, size_t numReceiverVertices, std::vector<ShadowDiscontinuityArc>& arcs,
+    const VisibilityExactQueryConfiguration& configuration, HelperVisualDebugger* debugger)
+{
+    /* Every visible cell holds a part of the discontinuities: the query must not stop at the first one, and only the
+    aperture finder builds them. */
+    VisibilityExactQueryConfiguration shadowConfiguration(configuration);
+    shadowConfiguration.computeShadowDiscontinuities = true;
+    shadowConfiguration.detectApertureOnly = false;
+    shadowConfiguration.solverType = VisibilityExactQueryConfiguration::EXACT_APERTURE_FINDER;
+
+    arcs.clear();
+    if (configuration.infiniteReceiver)
+    {
+        std::vector<float> receiver;
+        if (scene != nullptr && lightVertices != nullptr && receiverVertices != nullptr
+            && ShadowReceiver::computeInfiniteReceiver(scene, lightVertices, numLightVertices, receiverVertices, numReceiverVertices, configuration.directionalLight, receiver))
+        {
+            return runExactQuery(scene, lightVertices, numLightVertices, &receiver[0], receiver.size() / 3, shadowConfiguration, debugger, &arcs);
+        }
+    }
+    return runExactQuery(scene, lightVertices, numLightVertices, receiverVertices, numReceiverVertices, shadowConfiguration, debugger, &arcs);
 }

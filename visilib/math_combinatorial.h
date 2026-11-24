@@ -36,6 +36,13 @@ namespace visilib
         static void initFacets(const std::vector<size_t>& aFacetsDescription1, const std::vector<size_t>& aFacetsDescription2, size_t anHyperplane, std::vector<size_t>& aResultFacetsDescription, size_t n = 3);
         static void initFacets(const std::vector<size_t>& aFacetsDescription1, const std::vector<size_t>& aFacetsDescription2, std::vector<size_t>& result);
         static bool hasFacet(const std::vector<size_t>& facets, size_t aFace);
+
+        /** @brief Call aFunction on every subset of k elements of aFacetsDescription, in lexicographic order of positions.
+
+        The subsets keep the order of the input: a sorted description gives sorted subsets. Nothing is called when k is
+        zero or greater than the size of the description.*/
+        template<class F>
+        static void forEachSubset(const std::vector<size_t>& aFacetsDescription, size_t k, F aFunction);
     };
 
     /** @brief Determine if the intersection of the facets lists of the two Plucker Points have at least n common elements.
@@ -128,5 +135,47 @@ namespace visilib
         V_ASSERT(std::is_sorted(aFacetsDescription.begin(), aFacetsDescription.end()));
 
         return std::binary_search(aFacetsDescription.begin(), aFacetsDescription.end(), aFace);;
+    }
+    template<class F>
+    inline void MathCombinatorial::forEachSubset(const std::vector<size_t>& aFacetsDescription, size_t k, F aFunction)
+    {
+        const size_t n = aFacetsDescription.size();
+        if (k == 0 || k > n)
+        {
+            return;
+        }
+
+        // positions[i] is the index, in the description, of the i-th element of the current subset
+        std::vector<size_t> positions(k);
+        for (size_t i = 0; i < k; i++)
+        {
+            positions[i] = i;
+        }
+
+        std::vector<size_t> subset(k);
+        while (true)
+        {
+            for (size_t i = 0; i < k; i++)
+            {
+                subset[i] = aFacetsDescription[positions[i]];
+            }
+            aFunction(subset);
+
+            // advance the rightmost position that can still move
+            size_t i = k;
+            while (i > 0 && positions[i - 1] == n - k + (i - 1))
+            {
+                i--;
+            }
+            if (i == 0)
+            {
+                return;
+            }
+            positions[i - 1]++;
+            for (size_t j = i; j < k; j++)
+            {
+                positions[j] = positions[j - 1] + 1;
+            }
+        }
     }
 }

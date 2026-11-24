@@ -104,6 +104,10 @@ namespace visilibDemo
         configuration, not of the scene: the same walls, the same squares, and the
         query answers for the sun instead of the lamp. */
         bool directionalLight = false;
+        /* Trace the shadow discontinuities of the light (the first source) on the receiver (the second one), and
+        whether on the whole plane of the receiver. Interface switches only, not part of a test case file. */
+        bool shadowDiscontinuities = false;
+        bool infiniteReceiver = false;
         /* Which of the two procedures finds the representative line of a cell. It is deliberately not part of a
         test case file, and so not in its name either: it is there to be switched in the interface and watched,
         not to be pinned down as the data of a case. The tests run the optimised one, which the library default

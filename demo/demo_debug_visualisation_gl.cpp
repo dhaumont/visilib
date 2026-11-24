@@ -301,6 +301,11 @@ size_t DemoDebugVisualisationGl::display(HelperVisualDebugger * debugger, const 
     glColor3f(0.0f, 255.0f, 0.0f);
     DemoDebugVisualisationGl::drawLines(debugger->getExtremalStabbingLines());
 
+    glLineWidth(2);
+    glColor3f(1.0f, 0.0f, 1.0f);
+    DemoDebugVisualisationGl::drawLines(debugger->getShadowDiscontinuities());
+    glLineWidth(1);
+
     glColor3f(0.0f, 0.0f, 255.0f);
     if (drawGeometryType == 1)
     {

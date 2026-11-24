@@ -57,6 +57,9 @@ namespace visilib
         /** @brief Add extreaml stabbing line of a polytope, in 3D space */
         void addExtremalStabbingLine(const MathVector3f& aBegin, const MathVector3f& anEnd);
 
+        /** @brief Add a piece of a shadow discontinuity traced on the receiver, in 3D space */
+        void addShadowDiscontinuity(const MathVector3f& aBegin, const MathVector3f& anEnd);
+
         /** @brief Add an occluder triangle that has been processed*/
         void addRemovedTriangle(const MathVector3f& a1, const MathVector3f& a2, const MathVector3f& a3);
 
@@ -71,6 +74,9 @@ namespace visilib
 
         /** @brief Return a mesh containing the sampling lines for visualization purposes*/
         const GeometryTriangleMeshDescription& getSamplingLines() const;
+
+        /** @brief Return a mesh containing the pieces of the shadow discontinuities for visualization purposes*/
+        const GeometryTriangleMeshDescription& getShadowDiscontinuities() const;
 
         /** @brief Return a mesh containing the removed edges for visualization purposes*/
         const GeometryTriangleMeshDescription& getRemovedEdges() const;
@@ -108,12 +114,14 @@ namespace visilib
         std::vector<MathVector3f> mRemovedTriangleArray; /** <@brief The array of triangles that have been processed*/
         std::vector<MathVector3f> mStabbingLineArray;    /** <@brief The array of stabbing lines that have been processed*/
         std::vector<MathVector3f> mSamplingLineArray;   /** <@brief The array of sampling lines that have been processed*/
+        std::vector<MathVector3f> mShadowDiscontinuityArray;     /** <@brief The array of the pieces of the shadow discontinuities*/
         std::vector<MathVector3f> mExtremalStabbingLineArray;   /** <@brief The array of extremal stabbbing lines that have been processed*/
 
         GeometryTriangleMeshDescription mSplittingEdgeInformation;     /** <@brief The mesh containing the removed edges for visualization purposes*/
         GeometryTriangleMeshDescription mRemovedTriangleInformation;   /** <@brief The mesh containing the removed triangles for visualization purposes*/
         GeometryTriangleMeshDescription mStabbingLineInformation;      /** <@brief The mesh containing the removed stabbing lines for visualization purposes*/
         GeometryTriangleMeshDescription mSamplingLineInformation;      /** <@brief The mesh containing the removed sampling lines for visualization purposes*/
+        GeometryTriangleMeshDescription mShadowDiscontinuityInformation;    /** <@brief The mesh containing the shadow discontinuities for visualization purposes*/
         GeometryTriangleMeshDescription mExtremalStabbingLineInformation;   /** <@brief The mesh containing the extremal stabbing lines for visualization purposes*/
 
         std::map<std::string, int>    mCounters; /** <@brief The counters for the different types of information stored in the debugger*/
@@ -172,6 +180,20 @@ namespace visilib
         mSamplingLineInformation.vertexArray = &mSamplingLineArray[0];
     }
 
+    inline void HelperVisualDebugger::addShadowDiscontinuity(const MathVector3f& aBegin, const MathVector3f& anEnd)
+    {
+        mShadowDiscontinuityArray.push_back(aBegin);
+        mShadowDiscontinuityArray.push_back(anEnd);
+
+        mShadowDiscontinuityInformation.vertexCount = mShadowDiscontinuityArray.size();
+        mShadowDiscontinuityInformation.vertexArray = &mShadowDiscontinuityArray[0];
+    }
+
+    inline const GeometryTriangleMeshDescription& HelperVisualDebugger::getShadowDiscontinuities() const
+    {
+        return mShadowDiscontinuityInformation;
+    }
+
     inline void HelperVisualDebugger::addExtremalStabbingLine(const MathVector3f& aBegin, const MathVector3f& anEnd)
     {
         mExtremalStabbingLineArray.push_back(aBegin);
@@ -203,6 +225,7 @@ namespace visilib
         mStabbingLineArray.clear();
         mSamplingLineArray.clear();
         mExtremalStabbingLineArray.clear();
+        mShadowDiscontinuityArray.clear();
 
         mSplittingEdgeInformation.vertexCount = 0;
         mSplittingEdgeInformation.vertexArray = nullptr;
@@ -218,6 +241,8 @@ namespace visilib
 
         mExtremalStabbingLineInformation.vertexCount = 0;
         mExtremalStabbingLineInformation.vertexArray = nullptr;
+        mShadowDiscontinuityInformation.vertexCount = 0;
+        mShadowDiscontinuityInformation.vertexArray = nullptr;
 
         /* The tallies, the times and the measures are of the query that ran, not of the
         debugger that outlived it. The query merges its own statistics into these maps at its

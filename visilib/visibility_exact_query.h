@@ -43,6 +43,9 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include "visilib.h"
 #include "visilib_core.h"
 #include "silhouette_container_embree.h"
+#include "shadow_discontinuity_extractor.h"
+#include "visibility_event.h"
+#include "visibility_event_registry.h"
 
 namespace visilib
 {
@@ -79,6 +82,16 @@ namespace visilib
         Not a pure virtual: a query that measures nothing has nothing to say about it, and an
         implementation written before the question existed is not made wrong by it being asked. */
         virtual void getMeasures(std::map<std::string, double> & /*measures*/) {}
+
+        /**@brief Return the shadow discontinuities traced on the receiver (query polygon 1) by the light (query polygon 0)
+        during the last query. Empty unless VisibilityExactQueryConfiguration::computeShadowDiscontinuities is set.*/
+        const std::vector<ShadowDiscontinuityArc>& getShadowDiscontinuities() const
+        {
+            return mShadowDiscontinuities;
+        }
+
+    protected:
+        std::vector<ShadowDiscontinuityArc> mShadowDiscontinuities;   /**< @brief The discontinuity arcs of the last query*/
     };
 
 
@@ -94,6 +107,38 @@ namespace visilib
         VisibilityExactQuery_(GeometryOccluderSet* aScene, const VisibilityExactQueryConfiguration& aConfiguration, S tolerance);
 
         virtual ~VisibilityExactQuery_();
+
+        /**@brief Whether the query gathers the shadow discontinuities of its visible cells*/
+        bool isComputingShadowDiscontinuities() const
+        {
+            return mShadowExtractor != nullptr;
+        }
+
+        /**@brief Record that the hyperplane anIndex of the polyhedron carries the occluder edge [a, b]*/
+        void registerOccluderEdge(size_t anIndex, const MathVector3d& a, const MathVector3d& b)
+        {
+            if (mShadowExtractor == nullptr)
+            {
+                return;
+            }
+            VisibilityFeature feature;
+            feature.mKind = VisibilityFeature::OCCLUDER_EDGE;
+            feature.mEndpoints[0] = a;
+            feature.mEndpoints[1] = b;
+            feature.mRealEndpoint[0] = true;
+            feature.mRealEndpoint[1] = true;
+            feature.mSynthetic = false;
+            mEventRegistry.registerHyperplane(anIndex, feature);
+        }
+
+        /**@brief Gather the shadow discontinuities of a cell certified visible. The cell must be alive.*/
+        void addVisibleCell(PluckerPolyhedron<P>* aPolyhedron, PluckerPolytope<P>* aPolytope)
+        {
+            if (mShadowExtractor != nullptr)
+            {
+                mShadowExtractor->addVisibleCell(aPolyhedron, aPolytope, mTolerance);
+            }
+        }
 
         /**@brief Return the source polygons at the given index */
         GeometryConvexPolygon* getQueryPolygon(size_t i)
@@ -260,6 +305,9 @@ namespace visilib
  //      std::unordered_map<VisibilitySilhouette*, std::unordered_set<PluckerPolytope<P>*>> mSilhouetteToPolytopeDictionary;
 
         SilhouetteContainer* mSilhouetteContainer;
+
+        VisibilityEventRegistry mEventRegistry;                          /**< @brief The edges the hyperplanes of the polyhedron carry*/
+        ShadowDiscontinuityExtractor<P, S>* mShadowExtractor;            /**< @brief The gathering of the shadow discontinuities, during a query that computes them*/
         /** @brief The links between the silhouettes and the polytopes*/
     //    std::unordered_map<PluckerPolytope<P>*, std::unordered_set<VisibilitySilhouette*>> mPolytopeToSilhouetteDictionary;
     };
@@ -268,7 +316,8 @@ namespace visilib
     VisibilityExactQuery_<P, S>::VisibilityExactQuery_(GeometryOccluderSet * aScene, const VisibilityExactQueryConfiguration & aConfiguration, S aTolerance)
         : mScene(aScene),
         mConfiguration(aConfiguration),
-        mDebugger(nullptr)
+        mDebugger(nullptr),
+        mShadowExtractor(nullptr)
     {
         mComplex = new PluckerPolytopeComplex<P>();
 
@@ -302,6 +351,7 @@ namespace visilib
         delete mQueryPolygon[0];
         delete mQueryPolygon[1];
         delete mSilhouetteContainer;
+        delete mShadowExtractor;
      }
 
     template<class P, class S>
@@ -389,6 +439,28 @@ namespace visilib
             }
         }
 
+        mShadowDiscontinuities.clear();
+        mEventRegistry.clear();
+        delete mShadowExtractor;
+        mShadowExtractor = nullptr;
+        if (mConfiguration.computeShadowDiscontinuities)
+        {
+            /* The shadows are traced on the plane of the receiver: a point or a segment has none. The discontinuities are
+            read from every visible cell, which only the aperture finder in its complete mode produces. */
+            if (mQueryPolygon[1]->getVertexCount() < 3)
+            {
+                std::cerr << "Shadow discontinuities: the receiver (query polygon 1) must be a polygon" << std::endl;
+            }
+            else if (mConfiguration.solverType != VisibilityExactQueryConfiguration::EXACT_APERTURE_FINDER || mConfiguration.detectApertureOnly)
+            {
+                std::cerr << "Shadow discontinuities: the aperture finder with detectApertureOnly off is required" << std::endl;
+            }
+            else
+            {
+                mShadowExtractor = new ShadowDiscontinuityExtractor<P, S>(&mEventRegistry, *mQueryPolygon[0], *mQueryPolygon[1]);
+            }
+        }
+
         if (mQueryPolygon[0]->getVertexCount() == 1 && mQueryPolygon[1]->getVertexCount() == 1)
         {
             std::set<SilhouetteMeshFace*> intersectedFaces;
@@ -411,7 +483,7 @@ namespace visilib
             {
                 HelperScopedTimer timerBuild(&mStatistic, POLYTOPE_BUILD);
 
-                PluckerPolytopeBuilder<P, S> builder(mConfiguration.hyperSphereNormalization, mTolerance);
+                PluckerPolytopeBuilder<P, S> builder(mConfiguration.hyperSphereNormalization, mTolerance, mShadowExtractor != nullptr ? &mEventRegistry : nullptr);
                 PluckerPolytope<P>* myPolytope = builder.build(*mQueryPolygon[0], *mQueryPolygon[1], getComplex()->getPolyhedron());
                 getComplex()->appendPolytope(myPolytope);
             }
@@ -440,6 +512,34 @@ namespace visilib
             result = solver->resolve();
           
             delete solver;
+        }
+
+        if (mShadowExtractor != nullptr)
+        {
+            mShadowExtractor->getArcs(mShadowDiscontinuities);
+
+            if (mDebugger != nullptr)
+            {
+                /* Each arc as a polyline sampled along its family, lifted off the receiver plane by a hair
+                towards the light, so that it is drawn over the receiver rather than in it. */
+                const double lift = 1e-3 * (mQueryPolygon[1]->getVertex(0) - MathGeometry::getGravityCenter(*mQueryPolygon[1])).getNorm();
+                for (const ShadowDiscontinuityArc& arc : mShadowDiscontinuities)
+                {
+                    MathVector3d offset = arc.mFrame.getNormal() * lift;
+                    if (arc.mFrame.getSignedDistance(MathGeometry::getGravityCenter(*mQueryPolygon[0])) < 0.0)
+                    {
+                        offset *= -1.0;
+                    }
+                    const std::vector<MathVector2d> polyline = arc.toPolyline(arc.mType == ShadowDiscontinuityArc::CONIC ? 32 : 2);
+                    for (size_t i = 1; i < polyline.size(); i++)
+                    {
+                        mDebugger->addShadowDiscontinuity(convert<MathVector3f>(arc.toPoint3D(polyline[i - 1]) + offset),
+                                                          convert<MathVector3f>(arc.toPoint3D(polyline[i]) + offset));
+                    }
+                }
+            }
+            delete mShadowExtractor;
+            mShadowExtractor = nullptr;
         }
 
         return result;
@@ -528,7 +628,7 @@ namespace visilib
     template<class P, class S>
     bool VisibilityExactQuery_<P, S>::isOccluded(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron, const std::vector <Silhouette*> & aSilhouettes, const std::vector<P> & polytopeLines)
     {
-        return SilhouetteContainer::isOccluded(polytope, polyhedron, aSilhouettes,polytopeLines,mTolerance);
+        return SilhouetteContainer::isOccluded(polytope, polyhedron, aSilhouettes, polytopeLines, mTolerance, mConfiguration.computeShadowDiscontinuities);
     }
 
     template<class P, class S>

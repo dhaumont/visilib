@@ -522,44 +522,13 @@ namespace visilib
         S b = F.dot(v1);
         S c = v1.dot(v1);
 
+        // the points v1 + t F of the quadric: a t^2 + 2 b t + c = 0
         std::vector<S> ts;
-
-        if (a <= tolerance && a >= -tolerance)
-        {//a==0
-            if (b <= tolerance && b >= -tolerance)
-            {//b==0
-                return false;
-            }
-
-            ts.push_back(-c / (2 * b));
-        }
-        else
+        if (MathArithmetic<S>::solveHalfQuadratic(a, b, c, tolerance, ts) == 0)
         {
-            S b_2 = b * b;
-            if (a * a + b_2 + c * c <= tolerance)
-            {
-                return false;
-            }
-            S delta = b_2 - a * c;
-            if (delta <= -tolerance)
-            {
-                return false; // delta < 0: no root
-            }
-            if (delta <= tolerance)
-            {
-                // delta is 0, single root
-                ts.push_back(-b / a);
-            }
-            else
-            {
-                //general case: delta is positive, two roots
-                S sqrt_delta = MathArithmetic<S>::getSqrt(delta);
-                V_ASSERT(MathArithmetic<S>::getAbs(a) >= tolerance);
-
-                ts.push_back((-b + sqrt_delta) / a);
-                ts.push_back((-b - sqrt_delta) / a);
-            }
+            return false;
         }
+
         for (size_t i = 0; i < ts.size(); i++)
         {
             S t = ts[i];
@@ -568,24 +537,7 @@ namespace visilib
             {
                 if (newtonRaphson)
                 {
-                    S at, b2;
-                    b2 = 2 * b;
-                    S fxn = (a * t * t + b2 * t + c);
-
-                    int iter = 0;
-
-                    // Newton - Raphson iteration scheme : xn + 1 = xn - f(xn) / f'(xn)
-                    //f (t)	 = a t*t + 2 b t + c
-                    //f'(t)  = 2 at + 2b
-                    const S toleranceLocal(1e-18);
-                    while (MathArithmetic<S>::getAbs(fxn) >= toleranceLocal && iter < 20)
-                    {
-                        at = a * t;
-                        fxn = (at * t + b2 * t + c);
-                        S fdxn = (2 * at + b2);
-                        t = t - fxn / fdxn;
-                        iter++;
-                    }
+                    t = MathArithmetic<S>::refineHalfQuadraticRoot(a, b, c, t, S(1e-18));
                 }
                 if (t >= -tolerance && t <= 1 + tolerance)
                 {

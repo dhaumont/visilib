@@ -58,6 +58,7 @@ const TestDefinition cTests[] =
     { "MathCombinatorialTest", &MathCombinatorialTest },
     { "MathPluckerParallelTest", &MathPluckerParallelTest },
     { "MathBeamCapsuleTest", &MathBeamCapsuleTest },
+    { "MathShadowGeometryTest", &MathShadowGeometryTest },
     { "VisibilityTest", &VisibilityTest },
     { "DirectionalVisibilityTest", &DirectionalVisibilityTest },
     { "SolverConsistencyTest", &SolverConsistencyTest },
@@ -65,7 +66,8 @@ const TestDefinition cTests[] =
     { "SolverEdgeCases", &SolverEdgeCases },
     { "SolverDegenerateTests", &SolverDegenerateTests },
     { "SolverModelTests", &SolverModelTests },
-    { "SolverPrecisionTests", &SolverPrecisionTests }
+    { "SolverPrecisionTests", &SolverPrecisionTests },
+    { "ShadowDiscontinuityTest", &ShadowDiscontinuityTest }
 };
 
 static void printUsage(const char* program)

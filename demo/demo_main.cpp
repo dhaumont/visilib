@@ -146,7 +146,17 @@ namespace visilibDemo
 #endif
 
 
-            result = visilib::areVisible(occluderSet, &v0[0], v0.size() / 3, &v1[0], v1.size() / 3, config, debugger);
+            if (mDemoConfiguration.shadowDiscontinuities)
+            {
+                config.infiniteReceiver = mDemoConfiguration.infiniteReceiver;
+                std::vector<visilib::ShadowDiscontinuityArc> arcs;
+                result = visilib::computeShadowDiscontinuities(occluderSet, &v0[0], v0.size() / 3, &v1[0], v1.size() / 3, arcs, config, debugger);
+                std::cout << "Shadow discontinuities: " << arcs.size() << " arcs" << std::endl;
+            }
+            else
+            {
+                result = visilib::areVisible(occluderSet, &v0[0], v0.size() / 3, &v1[0], v1.size() / 3, config, debugger);
+            }
         }
 
         void animate()
@@ -301,6 +311,11 @@ namespace visilibDemo
                 forceDisplay |= ImGui::Checkbox("silhouette optimisation", &mDemoConfiguration.silhouetteOptimisation);
                 forceDisplay |= ImGui::Checkbox("normalization", &mDemoConfiguration.normalization);
                 forceDisplay |= ImGui::Checkbox("directional light", &mDemoConfiguration.directionalLight);
+                forceDisplay |= ImGui::Checkbox("shadow discontinuities", &mDemoConfiguration.shadowDiscontinuities);
+                if (mDemoConfiguration.shadowDiscontinuities)
+                {
+                    forceDisplay |= ImGui::Checkbox("infinite receiver", &mDemoConfiguration.infiniteReceiver);
+                }
                 forceDisplay |= ImGui::Checkbox("optimised representative line", &mDemoConfiguration.optimisedRepresentativeLine);
 
                 const char* solver_type[] = { "Aperture", "Sequential", "MontCarlo" };

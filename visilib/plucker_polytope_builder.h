@@ -25,6 +25,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include "math_combinatorial.h"
 #include "plucker_polytope.h"
 #include "plucker_polyhedron.h"
+#include "visibility_event_registry.h"
 
 namespace visilib
 {
@@ -34,7 +35,9 @@ namespace visilib
     class PluckerPolytopeBuilder
     {
     public:
-        PluckerPolytopeBuilder(bool normalization, S tolerance);
+        /** @brief A builder of the minimal polytope. When aRegistry is given, the edges of the two polygons are recorded in it as the
+        features their hyperplanes carry: the first polygon as the light, the second as the receiver.*/
+        PluckerPolytopeBuilder(bool normalization, S tolerance, VisibilityEventRegistry* aRegistry = nullptr);
 
         /** @brief Create the minimal polytope following Mora et al. An extermal stabbing line is created for each vertex pair of polygon a and b.
         @param a: first source polygon
@@ -46,7 +49,7 @@ namespace visilib
 
     private:
         /** @brief Add the edges of polygon a and b as hyperplanes of the polyhedron. The approximate normal is used when the polygon is degenerated */
-        void addSourcePolygonEdgesAsHyperplanes(PluckerPolyhedron<P>* aPolyhedron, const GeometryConvexPolygon& aPolygon, bool clockWise, const MathVector3d& approximateNormal);
+        void addSourcePolygonEdgesAsHyperplanes(PluckerPolyhedron<P>* aPolyhedron, const GeometryConvexPolygon& aPolygon, bool clockWise, const MathVector3d& approximateNormal, VisibilityFeature::Kind aKind);
 
         /** @brief Add the extremal stabbing lines of a and b as hyperplanes of the polyhedron */
         void addExtremalStabbingLines(PluckerPolytope<P>* polytope, GeometryConvexPolygon& a, GeometryConvexPolygon& b, PluckerPolyhedron<P>* polyhedron);
@@ -66,20 +69,24 @@ namespace visilib
 
         bool mNormalization;  /** < @brief Normalization activated or not*/
         S mTolerance;         /** < @brief Tolerance used to compute the intersection with the Plucker quadric */
+        VisibilityEventRegistry* mRegistry; /** < @brief Where the edges of the polygons are recorded, if any*/
     };
 
     template<class P, class S>
-    inline PluckerPolytopeBuilder<P, S>::PluckerPolytopeBuilder(bool aNormalization, S aTolerance)
+    inline PluckerPolytopeBuilder<P, S>::PluckerPolytopeBuilder(bool aNormalization, S aTolerance, VisibilityEventRegistry* aRegistry)
     {
         mNormalization = aNormalization;
         mTolerance = aTolerance;
+        mRegistry = aRegistry;
     }
 
     template<class P, class S>
-    inline void PluckerPolytopeBuilder<P, S>::addSourcePolygonEdgesAsHyperplanes(PluckerPolyhedron<P>* aPolyhedron, const GeometryConvexPolygon& aPolygon, bool clockWise, const MathVector3d& approximateNormal)
+    inline void PluckerPolytopeBuilder<P, S>::addSourcePolygonEdgesAsHyperplanes(PluckerPolyhedron<P>* aPolyhedron, const GeometryConvexPolygon& aPolygon, bool clockWise, const MathVector3d& approximateNormal, VisibilityFeature::Kind aKind)
     {
         size_t n = aPolygon.getVertexCount();
         std::vector<MathVector3d> v;
+        // which vertices are geometry: the padding of a degenerated polygon is not (v[1] always is, v[2] for a segment)
+        std::vector<bool> isReal;
 
         if (n < 3)
         {
@@ -115,11 +122,13 @@ namespace visilib
             e1 *= edge.getNorm();
 
             v[0] = (v[1] + v[2]) * 0.5 + e1;
+            isReal = { false, true, n == 2 };
         }
         else
         {
             // manage the case of a regular convex polygon
             v = aPolygon.getVertices();
+            isReal.assign(v.size(), true);
         }
         size_t count = v.size();
 
@@ -136,7 +145,20 @@ namespace visilib
 
                 V_ASSERT((MathPredicates::isNormalized(line, mTolerance)));
             }
-            aPolyhedron->add(line, ON_BOUNDARY, mNormalization, mTolerance);
+            const size_t index = aPolyhedron->add(line, ON_BOUNDARY, mNormalization, mTolerance);
+
+            if (mRegistry != nullptr)
+            {
+                VisibilityFeature feature;
+                feature.mKind = aKind;
+                feature.mEndpoints[0] = v1;
+                feature.mEndpoints[1] = v2;
+                feature.mRealEndpoint[0] = isReal[i % count];
+                feature.mRealEndpoint[1] = isReal[(i + 1) % count];
+                // the only real edge of a padded polygon joins its two real vertices
+                feature.mSynthetic = !(feature.mRealEndpoint[0] && feature.mRealEndpoint[1]);
+                mRegistry->registerHyperplane(index, feature);
+            }
         }
     }
 
@@ -218,8 +240,8 @@ namespace visilib
         MathVector3d ga = MathGeometry::getGravityCenter(a);
         MathVector3d gb = MathGeometry::getGravityCenter(b);
 
-        addSourcePolygonEdgesAsHyperplanes(aPolyhedron, a, true, gb - ga);
-        addSourcePolygonEdgesAsHyperplanes(aPolyhedron, b, false, ga - gb);
+        addSourcePolygonEdgesAsHyperplanes(aPolyhedron, a, true, gb - ga, VisibilityFeature::LIGHT_EDGE);
+        addSourcePolygonEdgesAsHyperplanes(aPolyhedron, b, false, ga - gb, VisibilityFeature::RECEIVER_EDGE);
 
         if constexpr (MathPluckerCellTraits<P>::cAllLinesReal)
         {

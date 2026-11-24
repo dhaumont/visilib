@@ -174,6 +174,61 @@ namespace visilib
             return mDirection.dot(p2.mLocation) + mLocation.dot(p2.mDirection);
         }
 
+        /** @brief The line through aPoint with the direction aDirection (the location part is aPoint x aDirection).*/
+        static MathPlucker6<S> fromPointAndDirection(const MathVector3_<S>& aPoint, const MathVector3_<S>& aDirection)
+        {
+            MathPlucker6<S> result;
+            result.mDirection = aDirection;
+            result.mLocation = MathVector3_<S>::cross(aPoint, aDirection);
+            return result;
+        }
+
+        /** @brief A point of the line: the foot of the perpendicular from the origin, (d x m) / |d|^2. The line must have a direction.*/
+        MathVector3_<S> getClosestPointToOrigin() const
+        {
+            MathVector3_<S> p = MathVector3_<S>::cross(mDirection, mLocation);
+            p /= mDirection.getSquaredNorm();
+            return p;
+        }
+
+        /** @brief Whether the two lines meet at a finite point.
+
+        The Klein form (dot) vanishes for coplanar lines. Parallel lines are coplanar but meet at infinity: their
+        direction cross product vanishes as well, and they are reported as not meeting. The Klein form is compared
+        relatively, to the product of the direction and location norms, so that the test does not depend on the scale
+        of the coordinates.*/
+        bool meets(const MathPlucker6<S>& other, const S& tolerance) const
+        {
+            const MathVector3_<S> n = MathVector3_<S>::cross(mDirection, other.mDirection);
+            const S scale = mDirection.getSquaredNorm() * other.mDirection.getSquaredNorm();
+            if (n.getSquaredNorm() <= tolerance * scale)
+            {
+                return false;
+            }
+            const S klein = dot(other);
+            const S kleinScale = mDirection.getNorm() * other.mLocation.getNorm() + mLocation.getNorm() * other.mDirection.getNorm() + n.getNorm();
+            return MathArithmetic<S>::getAbs(klein) <= tolerance * kleinScale;
+        }
+
+        /** @brief The point where the two lines meet, or false when they are parallel.
+
+        With p a point of this line, the meeting point p + lambda d satisfies (p + lambda d) x d' = m', so that
+        lambda (d x d') = m' - p x d', solved in the least square sense along n = d x d'. The point is only meaningful
+        when the lines meet (see meets): for skew lines it is the point of this line closest to the other one along n.*/
+        bool getMeetingPoint(const MathPlucker6<S>& other, MathVector3_<S>& aPoint, const S& tolerance) const
+        {
+            const MathVector3_<S> n = MathVector3_<S>::cross(mDirection, other.mDirection);
+            const S nn = n.getSquaredNorm();
+            if (nn <= tolerance * mDirection.getSquaredNorm() * other.mDirection.getSquaredNorm())
+            {
+                return false;
+            }
+            const MathVector3_<S> p = getClosestPointToOrigin();
+            const S lambda = (other.mLocation - MathVector3_<S>::cross(p, other.mDirection)).dot(n) / nn;
+            aPoint = p + mDirection * lambda;
+            return true;
+        }
+
         /** @brief Compute the ordinary scalar product of the two points in the six dimensional Plucker space
 
         This is not the Klein form that dot gives, which vanishes exactly for the pairs of lines meeting: taken

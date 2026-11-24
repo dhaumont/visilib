@@ -64,7 +64,7 @@ namespace visilib
         MathVector2_& operator *= (S f) { x *= f;  y *= f; return *this; }
         MathVector2_& operator /= (S f) { x /= f;  y /= f; return *this; }
 
-        MathVector2_ operator * (S f) { return MathVector2_(x * f, y * f); }
+        MathVector2_ operator * (S f) const { return MathVector2_(x * f, y * f); }
         MathVector2_ operator -(const MathVector2_& v) const { return MathVector2_(x - v.x, y - v.y); }
         MathVector2_ operator +(const MathVector2_ & v) const { return MathVector2_(x + v.x, y + v.y); }
 
@@ -91,6 +91,10 @@ namespace visilib
         }
 
         static MathVector3_<S> cross(const MathVector2_ & v1, const MathVector2_ & v2);
+
+        /** @brief The homogeneous line through the points a and b: the coefficients l with l . (u, v, 1) = 0 on the line,
+        that is the cross product of (a, 1) and (b, 1).*/
+        static MathVector3_<S> getHomogeneousLine(const MathVector2_ & a, const MathVector2_ & b);
 
         S normalize()
         {
@@ -146,5 +150,11 @@ namespace visilib
     MathVector3_<S> MathVector2_<S>::cross(const MathVector2_ & v1, const MathVector2_ & v2)
     {
         return MathVector3_<S>(0, 0, v1.x * v2.y - v1.y * v2.x);
+    }
+
+    template<class S>
+    MathVector3_<S> MathVector2_<S>::getHomogeneousLine(const MathVector2_ & a, const MathVector2_ & b)
+    {
+        return MathVector3_<S>(a.y - b.y, b.x - a.x, a.x * b.y - a.y * b.x);
     }
 }

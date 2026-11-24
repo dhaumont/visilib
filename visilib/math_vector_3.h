@@ -58,7 +58,7 @@ namespace visilib
         MathVector3_& operator *= (S f) { x *= f;  y *= f; z *= f; return *this; }
         MathVector3_& operator /= (S f) { x /= f;  y /= f; z /= f; return *this; }
 
-        MathVector3_ operator * (S f) { return MathVector3_(x * f, y * f, z * f); }
+        MathVector3_ operator * (S f) const { return MathVector3_(x * f, y * f, z * f); }
         MathVector3_ operator -(const MathVector3_& v) const { return MathVector3_(x - v.x, y - v.y, z - v.z); }
         MathVector3_ operator +(const MathVector3_ & v) const { return MathVector3_(x + v.x, y + v.y, z + v.z); }
 

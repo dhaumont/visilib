@@ -75,6 +75,8 @@ namespace visilib
             displaySplitOccurence = 10000;
             directionalLight = false;
             maximumRecursionDepth = 2000;
+            computeShadowDiscontinuities = false;
+            infiniteReceiver = false;
         }
 
         VisibilityExactQueryConfiguration(const VisibilityExactQueryConfiguration& other)
@@ -92,6 +94,8 @@ namespace visilib
             displaySplitOccurence = other.displaySplitOccurence;
             directionalLight = other.directionalLight;
             maximumRecursionDepth = other.maximumRecursionDepth;
+            computeShadowDiscontinuities = other.computeShadowDiscontinuities;
+            infiniteReceiver = other.infiniteReceiver;
         }
 
         bool silhouetteOptimization;                  /**< @brief Use silhouette optimization*/
@@ -107,6 +111,8 @@ namespace visilib
         int displaySplitOccurence;                        /**< @brief The split count periodicity for which the statistics are displayed*/
         bool directionalLight;                            /**< @brief Solve the query for a directional light, whose rays are all parallel to the line joining the two source centers*/
         int maximumRecursionDepth;                        /**< @brief Recursion depth beyond which the aperture finder reports an overflow and fails the query*/
+        bool computeShadowDiscontinuities;                /**< @brief Trace the shadow discontinuities of the light (polygon 0) on the receiver (polygon 1): needs the aperture finder with detectApertureOnly off (see computeShadowDiscontinuities)*/
+        bool infiniteReceiver;                            /**< @brief Trace the shadows on the whole plane of the receiver, not only inside the receiver polygon (see computeShadowDiscontinuities)*/
     };
 
 
@@ -133,6 +139,34 @@ namespace visilib
 
     VisibilityResult areVisible(GeometryOccluderSet* scene,
                                 const float* vertices0, size_t numVertices0, const float* vertices1, size_t numVertices1,
+                                const VisibilityExactQueryConfiguration& configuration = VisibilityExactQueryConfiguration(),
+                                HelperVisualDebugger* debugger = nullptr);
+
+    struct ShadowDiscontinuityArc;
+
+    /**< @brief Compute the discontinuities of the shadow a light casts on a receiver plane through the occluders of a scene
+
+    The light is the first convex primitive and the receiver the second one, a polygon: the discontinuities are the curves
+    of its plane where the part of the light seen from a point changes in nature, the traces of the critical lines that
+    touch the occluders. Each arc is a VE event (a vertex and an edge, traced as a segment) or an EEE event (three edges,
+    traced as a conic arc), in the coordinates of the receiver frame (see ShadowDiscontinuityArc). The configuration is
+    used as given, except that the aperture finder runs without early stop, which the extraction needs. With
+    configuration.infiniteReceiver, the shadows are traced on the whole plane of the receiver: the receiver polygon only
+    gives the plane, and is replaced by a polygon of that plane holding every shadow the occluders cast on it (an
+    unbounded shadow is followed ten sizes of the scene away).
+    @param scene: a scene containing the occluders
+    @param lightVertices: a pointer to the vertices of the light
+    @param numLightVertices: the number of vertices of the light (1 for a point light, 2 for a linear light)
+    @param receiverVertices: a pointer to the vertices of the receiver polygon
+    @param numReceiverVertices: the number of vertices of the receiver polygon (at least 3)
+    @param arcs: the discontinuity arcs, replaced by those of the query
+    @param configuration: configuration parameters of the query  (optional)
+    @param debugger: container for debug information during computation (optional)
+    @return: the mutual visibility of the light and of the receiver
+    */
+    VisibilityResult computeShadowDiscontinuities(GeometryOccluderSet* scene,
+                                const float* lightVertices, size_t numLightVertices, const float* receiverVertices, size_t numReceiverVertices,
+                                std::vector<ShadowDiscontinuityArc>& arcs,
                                 const VisibilityExactQueryConfiguration& configuration = VisibilityExactQueryConfiguration(),
                                 HelperVisualDebugger* debugger = nullptr);
 

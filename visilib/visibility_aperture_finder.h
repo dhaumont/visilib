@@ -224,6 +224,7 @@ namespace visilib
                     }
                     myPolyhedronFace = myPolyhedron->add(myHyperplane, ON_BOUNDARY, mNormalization, mTolerance);
                     myVisibilitySilhouetteEdge.mHyperPlaneIndex = myPolyhedronFace;
+                    VisibilitySolver<P, S>::mQuery->registerOccluderEdge(myPolyhedronFace, a, b);
                 }
 
                 P myHyperplane = myPolyhedron->get(myPolyhedronFace);
@@ -377,6 +378,7 @@ namespace visilib
                     V_LOG(debugOutput, "visible polytope found: exporting stabbing lines", occlusionTreeNodeSymbol);
 #endif
                     VisibilitySolver<P, S>::extractStabbingLines(myPolyhedron, aPolytope,mTolerance);
+                    VisibilitySolver<P, S>::mQuery->addVisibleCell(myPolyhedron, aPolytope);
                     aGlobalResult = VISIBLE;
                     if (mDetectApertureOnly) // Early stop - an aperture has been found
                     {

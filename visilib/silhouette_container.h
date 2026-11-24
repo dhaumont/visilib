@@ -111,7 +111,7 @@ public:
     }
 
     template<class P, class S>
-    static bool isOccluded(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron, const std::vector <Silhouette*>& aSilhouettes, const std::vector<P>& polytopeLines, S myTolerance)
+    static bool isOccluded(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron, const std::vector <Silhouette*>& aSilhouettes, const std::vector<P>& polytopeLines, S myTolerance, bool aStrict = false)
     {
         for (auto iter = aSilhouettes.begin(); iter != aSilhouettes.end(); iter++)
         {
@@ -120,7 +120,16 @@ public:
 
             if (s->getAvailableEdgeCount() == 0)
             {
-                bool allAreBlocked = true;
+                /* Only the negative child of a split pushes its edge as processed: an edge the cell went to the
+                positive side of, or that never crossed the cell, is deactivated without being recorded. The cell
+                is behind the silhouette only when it lies on the negative side of every one of its edges, so a
+                silhouette with an edge left unrecorded proves nothing: the lines may pass beyond that edge.
+
+                The strict reading is what a complete partition of the visible lines needs (the shadow
+                discontinuities): the loose one also drops cells whose representative line is visible. It is
+                kept for the plain queries, whose answer it does not change in the test suites, and which the
+                strict one slows down (more cells are explored before they are concluded). */
+                bool allAreBlocked = aStrict ? (!edgesProcessed.empty() && edgesProcessed.size() == s->getEdges().size()) : true;
 
                 for (size_t edgeIndex : edgesProcessed)
                 {

@@ -184,6 +184,15 @@ namespace visilib
         has to lie in as well, and is what the flat flag tells of: behind such a plane there is no interior to reach.*/
         template<class S> size_t getCellFacets(PluckerPolyhedron<P>* polyhedron, const S & tolerance, std::vector<CellFacet>& facets, bool& flat);
 
+        /** @brief  Collect, among the planes of someCandidates, those the polytope lies on one side of (or in), with that side
+
+        The planes tight on a vertex are not all the planes the cell lies behind: a plane that cut an ancestor of the cell,
+        or an edge of a source, can leave every vertex strictly on one side, and the hyperplanes the cell records are only a
+        part of the facets of the convex hull of its vertices in the six dimensional space. Their intersection holds lines
+        the hull does not; any plane the cell lies behind is a valid bound of the hull, and adding them gives back the real
+        lines of the cell. The planes with vertices on both sides are left out.*/
+        template<class S, class I> size_t getCellFacets(PluckerPolyhedron<P>* polyhedron, const S & tolerance, const I& someCandidates, std::vector<CellFacet>& facets, bool& flat);
+
         /** @brief Add a silhouette to the polyptope */
         void addSilhouette(Silhouette* silhouette)
         {
@@ -676,13 +685,19 @@ namespace visilib
     template<class P> template<class S>
     size_t PluckerPolytope<P>::getCellFacets(PluckerPolyhedron<P>* polyhedron, const S & tolerance, std::vector<CellFacet>& facets, bool& flat)
     {
-        facets.clear();
-        flat = false;
-
         std::set<size_t> myFacetIndices;
         getFacets(myFacetIndices, polyhedron);
 
-        for (auto index = myFacetIndices.begin(); index != myFacetIndices.end(); index++)
+        return getCellFacets(polyhedron, tolerance, myFacetIndices, facets, flat);
+    }
+
+    template<class P> template<class S, class I>
+    size_t PluckerPolytope<P>::getCellFacets(PluckerPolyhedron<P>* polyhedron, const S & tolerance, const I& someCandidates, std::vector<CellFacet>& facets, bool& flat)
+    {
+        facets.clear();
+        flat = false;
+
+        for (auto index = someCandidates.begin(); index != someCandidates.end(); index++)
         {
             const P plane = polyhedron->get(*index);
 

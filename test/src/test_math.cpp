@@ -26,6 +26,9 @@ space are caught in a circle of includes otherwise. */
 #include "visilib.h"
 
 #include "math_combinatorial.h"
+#include "math_conic_2.h"
+#include "math_frame_3.h"
+#include "math_polynomial.h"
 
 #include "math_plucker_parallel_6.h"
 #include "plucker_polytope_builder.h"
@@ -585,4 +588,166 @@ bool MathBeamCapsuleTest(std::string& )
     std::cout << "MathBeamCapsuleTest SUCCESS" << std::endl;
 
     return true;
+}
+
+/* The geometry the shadow discontinuities are traced with: the subsets of a facets description, the roots
+of a quadratic, the meeting point of two lines, the frame of a plane and the conic swept by the transversals
+of three lines. */
+bool MathShadowGeometryTest(std::string&)
+{
+#define SHADOW_CHECK(condition) if (!(condition)) { std::cout << "Error in line " << __LINE__ << ": " #condition << std::endl; return false; }
+
+	{//MathCombinatorial::forEachSubset
+		std::vector<std::vector<size_t>> subsets;
+		MathCombinatorial::forEachSubset(std::vector<size_t>{ 2, 5, 7, 9 }, 3, [&](const std::vector<size_t>& s) { subsets.push_back(s); });
+		SHADOW_CHECK(subsets.size() == 4);
+		SHADOW_CHECK((subsets[0] == std::vector<size_t>{ 2, 5, 7 }));
+		SHADOW_CHECK((subsets[1] == std::vector<size_t>{ 2, 5, 9 }));
+		SHADOW_CHECK((subsets[2] == std::vector<size_t>{ 2, 7, 9 }));
+		SHADOW_CHECK((subsets[3] == std::vector<size_t>{ 5, 7, 9 }));
+
+		size_t count = 0;
+		MathCombinatorial::forEachSubset(std::vector<size_t>{ 1, 2, 3, 4, 5, 6 }, 3, [&](const std::vector<size_t>&) { count++; });
+		SHADOW_CHECK(count == 20);
+
+		count = 0;
+		MathCombinatorial::forEachSubset(std::vector<size_t>{ 1, 2 }, 3, [&](const std::vector<size_t>&) { count++; });
+		SHADOW_CHECK(count == 0);
+		MathCombinatorial::forEachSubset(std::vector<size_t>{ 1, 2 }, 0, [&](const std::vector<size_t>&) { count++; });
+		SHADOW_CHECK(count == 0);
+	}
+
+	{//MathArithmetic::solveHalfQuadratic: a t^2 + 2 b t + c
+		const double tol = 1e-12;
+		std::vector<double> roots;
+		// (t - 1)(t - 3) = t^2 - 4 t + 3
+		SHADOW_CHECK(MathArithmetic<double>::solveHalfQuadratic(1.0, -2.0, 3.0, tol, roots) == 2);
+		std::sort(roots.begin(), roots.end());
+		SHADOW_CHECK(std::fabs(roots[0] - 1.0) < 1e-12 && std::fabs(roots[1] - 3.0) < 1e-12);
+
+		roots.clear();
+		// (t - 2)^2 = t^2 - 4 t + 4: one double root
+		SHADOW_CHECK(MathArithmetic<double>::solveHalfQuadratic(1.0, -2.0, 4.0, tol, roots) == 1);
+		SHADOW_CHECK(std::fabs(roots[0] - 2.0) < 1e-12);
+
+		roots.clear();
+		// t^2 + 1: no real root
+		SHADOW_CHECK(MathArithmetic<double>::solveHalfQuadratic(1.0, 0.0, 1.0, tol, roots) == 0);
+
+		roots.clear();
+		// linear: 2 * 3 t - 6 = 0
+		SHADOW_CHECK(MathArithmetic<double>::solveHalfQuadratic(0.0, 3.0, -6.0, tol, roots) == 1);
+		SHADOW_CHECK(std::fabs(roots[0] - 1.0) < 1e-12);
+
+		double t = MathArithmetic<double>::refineHalfQuadraticRoot(1.0, -2.0, 3.0, 1.1, 1e-15);
+		SHADOW_CHECK(std::fabs(t - 1.0) < 1e-12);
+	}
+
+	{//MathPolynomial::findRoots
+		// (t - 0.1)(t - 0.5)(t - 0.9) = t^3 - 1.5 t^2 + 0.59 t - 0.045
+		std::vector<double> roots;
+		MathPolynomiald({ -0.045, 0.59, -1.5, 1.0 }).findRoots(0.0, 1.0, 1e-12, roots);
+		SHADOW_CHECK(roots.size() == 3);
+		SHADOW_CHECK(std::fabs(roots[0] - 0.1) < 1e-12 && std::fabs(roots[1] - 0.5) < 1e-12 && std::fabs(roots[2] - 0.9) < 1e-12);
+
+		// only the roots in the interval
+		roots.clear();
+		MathPolynomiald({ -0.045, 0.59, -1.5, 1.0 }).findRoots(0.3, 1.0, 1e-12, roots);
+		SHADOW_CHECK(roots.size() == 2);
+
+		// a double root at a critical point: (t - 0.5)^2 (t + 1)
+		roots.clear();
+		MathPolynomiald({ 0.25, -0.75, 0.0, 1.0 }).findRoots(0.0, 1.0, 1e-12, roots);
+		SHADOW_CHECK(roots.size() == 1 && std::fabs(roots[0] - 0.5) < 1e-6);
+
+		// a null leading coefficient lowers the degree; a null polynomial has no root
+		roots.clear();
+		MathPolynomiald({ -0.5, 1.0, 0.0, 0.0 }).findRoots(0.0, 1.0, 1e-12, roots);
+		SHADOW_CHECK(roots.size() == 1 && std::fabs(roots[0] - 0.5) < 1e-12);
+		roots.clear();
+		MathPolynomiald({ 0.0, 0.0 }).findRoots(0.0, 1.0, 1e-12, roots);
+		SHADOW_CHECK(roots.empty());
+	}
+
+	{//MathPlucker6::meets / getMeetingPoint
+		const MathVector3d p(1.0, 2.0, 3.0);
+		MathPlucker6d l1(p, p + MathVector3d(1.0, 0.5, 0.0));
+		MathPlucker6d l2(p + MathVector3d(0.0, -1.0, 2.0), p);
+		MathPlucker6d skew(MathVector3d(0.0, 0.0, 10.0), MathVector3d(0.0, 1.0, 10.0));
+		MathPlucker6d parallel(p + MathVector3d(0.0, 0.0, 1.0), p + MathVector3d(1.0, 0.5, 1.0));
+
+		SHADOW_CHECK(l1.meets(l2, 1e-9));
+		SHADOW_CHECK(!l1.meets(skew, 1e-9));
+		SHADOW_CHECK(!l1.meets(parallel, 1e-9));
+
+		MathVector3d meeting;
+		SHADOW_CHECK(l1.getMeetingPoint(l2, meeting, 1e-12));
+		SHADOW_CHECK((meeting - p).getNorm() < 1e-9);
+		SHADOW_CHECK(!l1.getMeetingPoint(parallel, meeting, 1e-12));
+
+		MathPlucker6d l3 = MathPlucker6d::fromPointAndDirection(p, MathVector3d(1.0, 0.5, 0.0));
+		SHADOW_CHECK((l3.getDirection() - l1.getDirection()).getNorm() < 1e-12);
+		SHADOW_CHECK((l3.getLocation() - l1.getLocation()).getNorm() < 1e-12);
+	}
+
+	{//MathFrame3
+		MathFrame3d frame(MathVector3d(1.0, 1.0, 2.0), MathVector3d(0.0, 0.0, 3.0), MathVector3d(1.0, 1.0, 1.0));
+		SHADOW_CHECK(std::fabs(frame.getAxisU().getNorm() - 1.0) < 1e-12);
+		SHADOW_CHECK(std::fabs(frame.getAxisU().dot(frame.getNormal())) < 1e-12);
+		SHADOW_CHECK((MathVector3d::cross(frame.getAxisU(), frame.getAxisV()) - frame.getNormal()).getNorm() < 1e-12);
+
+		const MathVector2d uv(0.3, -1.7);
+		const MathVector3d world = frame.toWorld(uv);
+		SHADOW_CHECK(std::fabs(frame.getSignedDistance(world)) < 1e-12);
+		SHADOW_CHECK((frame.toLocal(world) - uv).getNorm() < 1e-12);
+
+		const MathPlane3d plane = frame.getPlane();
+		SHADOW_CHECK(std::fabs(plane.mNormal.dot(world) + plane.d) < 1e-12);
+	}
+
+	{//MathConic2::fromTransversalsOfThreeLines
+		// three skew lines, and their transversals: every transversal crosses the plane z = 0 on the conic
+		const MathVector3d a[3] = { MathVector3d(0.0, 0.0, 1.0), MathVector3d(0.0, 0.0, 2.0), MathVector3d(0.3, 0.2, 3.0) };
+		const MathVector3d d[3] = { MathVector3d(1.0, 0.0, 0.0), MathVector3d(0.0, 1.0, 0.0), MathVector3d(1.0, 1.0, 0.2) };
+		MathPlucker6d lines[3];
+		for (int i = 0; i < 3; i++)
+		{
+			lines[i] = MathPlucker6d::fromPointAndDirection(a[i], d[i]);
+		}
+		MathFrame3d frame(MathVector3d(0.1, -0.2, 0.0), MathVector3d(0.0, 0.0, 1.0), MathVector3d(1.0, 0.2, 0.0));
+		MathConic2d conic = MathConic2d::fromTransversalsOfThreeLines(lines, frame);
+		SHADOW_CHECK(!conic.isLinear(1e-9));
+
+		size_t tested = 0;
+		for (double t = -2.0; t <= 2.0; t += 0.25)
+		{
+			// the transversal through a(t) on line 0: it meets line 2 where line 2 crosses the plane (a(t), line 1)
+			const MathVector3d at = a[0] + d[0] * t;
+			MathVector3d normal = MathVector3d::cross(d[1], a[1] - at);
+			const double denominator = normal.dot(d[2]);
+			if (std::fabs(denominator) < 1e-9)
+			{
+				continue;
+			}
+			const double s = normal.dot(at - a[2]) / denominator;
+			const MathVector3d ct = a[2] + d[2] * s;
+			const MathVector3d direction = ct - at;
+			if (std::fabs(direction.z) < 1e-9)
+			{
+				continue;
+			}
+			const MathVector3d onPlane = at - direction * (at.z / direction.z);
+
+			const MathPlucker6d transversal(at, ct);
+			SHADOW_CHECK(std::fabs(transversal.dot(lines[1])) < 1e-9);
+			SHADOW_CHECK(conic.getAlgebraicDistance(frame.toLocal(onPlane)) < 1e-9);
+			tested++;
+		}
+		SHADOW_CHECK(tested > 8);
+
+		// a point away from the regulus is not on the conic
+		SHADOW_CHECK(conic.getAlgebraicDistance(MathVector2d(10.0, -7.0)) > 1e-3);
+	}
+#undef SHADOW_CHECK
+	return true;
 }

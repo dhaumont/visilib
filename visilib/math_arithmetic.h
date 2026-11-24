@@ -74,6 +74,15 @@ namespace visilib
 
         static double to_double(S a);
         static S getRandom();
+
+        /** @brief Append the real roots of a t^2 + 2 b t + c = 0 to roots (the half coefficient b keeps the discriminant b^2 - a c).
+
+        Coefficients within the tolerance of zero are taken as zero: a vanishing a leaves the linear root -c / 2b, a vanishing
+        discriminant the double root -b / a, appended once. Return the number of roots appended (0, 1 or 2). */
+        static size_t solveHalfQuadratic(const S& a, const S& b, const S& c, const S& tolerance, std::vector<S>& roots);
+
+        /** @brief Polish a root t of a t^2 + 2 b t + c = 0 by Newton-Raphson iterations, until the value is below aResidual.*/
+        static S refineHalfQuadraticRoot(const S& a, const S& b, const S& c, S t, const S& aResidual, int maxIterations = 20);
     };
     template <> inline int MathArithmetic<double>::validDecimalsCount()  { return std::numeric_limits<double>::digits10 + 1; }
     template <> inline int MathArithmetic<float>::validDecimalsCount()  { return std::numeric_limits<float>::digits10 + 1; }
@@ -380,6 +389,63 @@ namespace visilib
     inline S MathArithmetic<S>::getRandom()
     {
         return (S)rand() / (S)(RAND_MAX);
+    }
+
+    template<class S>
+    inline size_t MathArithmetic<S>::solveHalfQuadratic(const S& a, const S& b, const S& c, const S& tolerance, std::vector<S>& roots)
+    {
+        const size_t initialSize = roots.size();
+
+        if (a <= tolerance && a >= -tolerance)
+        {
+            if (b <= tolerance && b >= -tolerance)
+            {
+                return 0;
+            }
+            roots.push_back(-c / (2 * b));
+            return 1;
+        }
+
+        S b_2 = b * b;
+        if (a * a + b_2 + c * c <= tolerance)
+        {
+            return 0;
+        }
+
+        S delta = b_2 - a * c;
+        if (delta <= -tolerance)
+        {
+            return 0;
+        }
+        if (delta <= tolerance)
+        {
+            roots.push_back(-b / a);
+        }
+        else
+        {
+            S sqrt_delta = getSqrt(delta);
+            roots.push_back((-b + sqrt_delta) / a);
+            roots.push_back((-b - sqrt_delta) / a);
+        }
+        return roots.size() - initialSize;
+    }
+
+    template<class S>
+    inline S MathArithmetic<S>::refineHalfQuadraticRoot(const S& a, const S& b, const S& c, S t, const S& aResidual, int maxIterations)
+    {
+        // Newton-Raphson: t <- t - f(t) / f'(t), with f(t) = a t^2 + 2 b t + c and f'(t) = 2 a t + 2 b
+        const S b2 = 2 * b;
+        S fxn = a * t * t + b2 * t + c;
+        int iter = 0;
+        while (getAbs(fxn) >= aResidual && iter < maxIterations)
+        {
+            S at = a * t;
+            fxn = at * t + b2 * t + c;
+            S fdxn = 2 * at + b2;
+            t = t - fxn / fdxn;
+            iter++;
+        }
+        return t;
     }
 
 }
