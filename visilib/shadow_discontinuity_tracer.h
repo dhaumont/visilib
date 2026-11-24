@@ -98,6 +98,7 @@ namespace visilib
 
     private:
         /** @brief The receiver plane frame: a point, two orthonormal directions (e1 x e2 = normal) and the plane normal*/
+        //:DENIS: Move this to a real class and replace the GeometryconvexPolygon::mMnormal by a Frame
         struct ReceiverFrame
         {
             MathVector3d mOrigin;
@@ -109,6 +110,7 @@ namespace visilib
         };
 
         // the homogeneous cross of two points of the plane coordinates: the line through them, l . (u, v, 1) = 0
+        //:DENIS: Move this to Math class
         static MathVector3d homogeneousCross(const MathVector2d& a, const MathVector2d& b)
         {
             return MathVector3d(a.y - b.y, b.x - a.x, a.x * b.y - a.y * b.x);
@@ -121,6 +123,7 @@ namespace visilib
         }
 
         // the roots of a x^2 + b x + c, kept inside [lo, hi]
+        //:DENIS: Move this to Math. This is already implemented, share the code
         static void solveQuadratic(double a, double b, double c, double lo, double hi, std::vector<double>& roots)
         {
             double scale = std::max(std::fabs(a), std::max(std::fabs(b), std::fabs(c)));
@@ -307,6 +310,8 @@ namespace visilib
           A u^2 + B u v + C v^2 + D u + E v + F = 0
 
         normalized by the greatest coefficient. */
+
+        //:DENIS: Create a conic class, move this code in the conic class
         static bool buildConic(const MathVector3d u[3], const MathVector3d m[3], const ReceiverFrame& frame, double coeffs[6])
         {
             // A[i] is the matrix of x -> x x u_i ; b[i] = -m_i
@@ -506,6 +511,7 @@ namespace visilib
                     continue;
                 }
 
+                //:DENIS: extract to a function to combinatorial. What about eee that have more events ? It can be a subset also (have N common facets)
                 bool sameFacets = true;
                 for (size_t i = 0; i < candidate.mFacetCount && sameFacets; i++)
                 {
@@ -543,6 +549,8 @@ namespace visilib
         by eventParameterAt, and the ranges between them tested by their middle point. The pieces keep
         the implicit form and the parameterization of the raw arc: only the endpoints and the
         parameter range change. */
+
+        //DENIS: Allow to project on an infinite plane (no boundary) - no clipping
         static void clipAndEmit(const ShadowDiscontinuityArc& raw,
                                 const std::vector<MathVector2d>& polygon,
                                 const ReceiverFrame& frame,
@@ -666,6 +674,10 @@ namespace visilib
         }
 
         /** @brief Whether two lines meet at a finite point, read on the Klein form with a relative tolerance.
+
+        //:DENIS: move to HPlucker6 computation section
+        //:DENIS: See if we already have this code. Try to find it on the internet
+        //:DENIS: Why in double only ? What not in P ?
 
         The Klein form vanishes for coplanar pairs, and parallel lines are coplanar: they meet at
         infinity, not at an event vertex, so the direction cross product must not vanish as well.
@@ -813,6 +825,7 @@ namespace visilib
             arc.mT0 = 0.0;
             arc.mT1 = 1.0;
 
+            //:DENIS: Inplement a directional light source class
             if constexpr (MathPluckerCellTraits<P>::cAllLinesReal)
             {
                 /* Directional light: the edge runs on the shadow line of one carrier edge, and the
@@ -869,6 +882,7 @@ namespace visilib
                 continue;
             }
 
+            //:DENIS: Extract this to a VE function
             if (meetCount == 1)
             {
                 // a VE event: the swath is the plane of the meeting vertex and the remaining line
@@ -922,6 +936,8 @@ namespace visilib
             }
             else
             {
+
+               //:DENIS: Extract this to a EEE function
                 // an EEE event: the transversals sweep a regulus, its conic on the receiver plane
                 double coeffs[6];
                 if (!buildConic(dStored, mStored, frame, coeffs))

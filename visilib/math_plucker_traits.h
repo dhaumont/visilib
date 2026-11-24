@@ -38,6 +38,7 @@ namespace visilib
     cAllLinesReal tells whether every value of the class is a real line, which is what
     makes the quadric corrections of the general space nullities on such a family. */
 
+    //:DENIS: Add here the other constants we are using (g)
     template<class P>
     struct MathPluckerCellTraits
     {

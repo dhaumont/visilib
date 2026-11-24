@@ -52,12 +52,15 @@ namespace visilib
     struct ShadowDiscontinuityArc
     {
         /** @brief v * s, without disturbing the members: the vector product by a scalar of MathVector3_ is a non const member.*/
+        //:DENIS: move to mathVector3d class
         static MathVector3d scale(MathVector3d v, double s)
         {
             v *= s;
             return v;
         }
 
+        
+        // :DENIS: Create a parent class ShadowDiscontinuityArc and derive two clases: ShadpwDiscontinuitySegment and ShadowDicontimuitiyConic
         enum Type
         {
             SEGMENT,    /**< @brief Straight trace: the swath is a plane (VE event, or directional light)*/
@@ -69,9 +72,11 @@ namespace visilib
         MathVector2d mP0;       /**< @brief Endpoints of the arc, in receiver plane coordinates*/
         MathVector2d mP1;
 
+        //:DENIS: split between the classes
         double mLine[3];        /**< @brief SEGMENT: implicit form l . (u, v, 1) = 0*/
         double mConic[6];       /**< @brief CONIC: implicit form A u^2 + B u v + C v^2 + D u + E v + F = 0*/
 
+        //:DENIS: we can have more than 3 facets
         size_t mFacets[3];      /**< @brief The polyhedron indices of the hyperplanes carrying the family*/
         size_t mFacetCount;
         bool mHasOccluderFacet; /**< @brief True when at least one facet is an occluder silhouette edge: only such arcs are shadow boundaries*/
@@ -86,12 +91,14 @@ namespace visilib
         double mT1;
 
         /** @brief Project a 3D point of the receiver plane onto the (u, v) basis*/
+        //:DENIS: Move to  the base classs of MathGeometry
         MathVector2d toPoint2D(const MathVector3d& aPoint3D) const
         {
             MathVector3d d = aPoint3D - mOrigin;
             return MathVector2d(d.dot(mE1), d.dot(mE2));
         }
 
+         //:DENIS: Move to  the base classs of MathGeometry
         /** @brief Lift a 2D point of the receiver plane coordinates to 3D*/
         MathVector3d toPoint3D(const MathVector2d& aPoint2D) const
         {
