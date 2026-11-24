@@ -127,7 +127,6 @@ It allows to test the different library options interactively, by pressing the *
 | w | write config | Store the current settings to `config_<n>.json` |
 | o | open config | Load `config_<n>.json` and rebuild the scene from it |
 |space| start/pause sources animation | When animation is started, the source polygons will perform a rotation around the scene |
-|Enter| show/hide geometry | For debugging purpose, allow to change the representation of the scene and of the query polygons |
 |h| display help | Display the list of keys and their effect |
 
 

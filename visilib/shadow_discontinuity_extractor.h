@@ -107,7 +107,8 @@ namespace visilib
             facets.reserve(cellFacets.size());
             for (const auto& f : cellFacets)
             {
-                facets.push_back(ShadowCellFacet{ f.direction, f.location, f.sign });
+                const size_t id = mRegistry->getFeatureId(f.index);
+                facets.push_back(ShadowCellFacet{ f.direction, f.location, f.sign, id == VisibilityEventRegistry::cNoFeature ? VisibilityEventRegistry::cNoFeature : mRegistry->getGroupId(id) });
             }
 
             // the directional family: its rays all have the direction of any vertex of the cell
@@ -153,7 +154,19 @@ namespace visilib
 
                 if constexpr (MathPluckerCellTraits<P>::cAllLinesReal)
                 {
-                    addDirectionalEvent(features[0], rayDirection, facets);
+                    const size_t group = mRegistry->getGroupId(features[0]);
+                    std::vector<ShadowCellFacet> others;
+                    for (const ShadowCellFacet& facet : facets)
+                    {
+                        if (facet.mGroup != group)
+                        {
+                            others.push_back(facet);
+                        }
+                    }
+                    for (size_t piece : mRegistry->getCollinearFeatures(features[0]))
+                    {
+                        addDirectionalEvent(piece, rayDirection, others);
+                    }
                 }
                 else
                 {
@@ -214,7 +227,57 @@ namespace visilib
         /** @brief The key of an event: its kind, then the ids and coordinates that make its family.*/
         typedef std::vector<double> EventKey;
 
+        /** @brief Read the event of three facets on every piece of their lines.
+
+        A facet carries a line, and the edges of that line (its collinear group) are all pieces of the boundary the
+        facet stands for: the event is read for each choice of one piece per facet, the clipping keeping the lines that
+        lean on the piece itself. Two facets on the same line are one constraint, not two: their lines meet along all
+        of it, and the triple is not an event.*/
         void addEvent(const std::vector<size_t>& someFeatures, const std::vector<ShadowCellFacet>& someFacets)
+        {
+            size_t group[3];
+            for (int i = 0; i < 3; i++)
+            {
+                if (mRegistry->getFeature(someFeatures[i]).mFlat)
+                {
+                    return; // an edge inside a flat region of an occluder: the lines leaning on it cross the occluder
+                }
+                group[i] = mRegistry->getGroupId(someFeatures[i]);
+            }
+            if (group[0] == group[1] || group[0] == group[2] || group[1] == group[2])
+            {
+                return;
+            }
+
+            /* The lines of the event lie on the hyperplanes of its own lines: on the three facets, and on the hyperplanes
+            of the other pieces of the same lines, which only the rounding of the coordinates keeps from being the same
+            planes. Clipping the family by them would read that rounding as a side: they are left out. */
+            std::vector<ShadowCellFacet> facets;
+            facets.reserve(someFacets.size());
+            for (const ShadowCellFacet& facet : someFacets)
+            {
+                if (facet.mGroup != group[0] && facet.mGroup != group[1] && facet.mGroup != group[2])
+                {
+                    facets.push_back(facet);
+                }
+            }
+
+            for (size_t a : mRegistry->getCollinearFeatures(someFeatures[0]))
+            {
+                for (size_t b : mRegistry->getCollinearFeatures(someFeatures[1]))
+                {
+                    for (size_t c : mRegistry->getCollinearFeatures(someFeatures[2]))
+                    {
+                        // the event of the pieces, identified by their ids in a canonical order
+                        std::vector<size_t> pieces = { a, b, c };
+                        std::sort(pieces.begin(), pieces.end());
+                        addSegmentEvent(pieces, facets);
+                    }
+                }
+            }
+        }
+
+        void addSegmentEvent(const std::vector<size_t>& someFeatures, const std::vector<ShadowCellFacet>& someFacets)
         {
             const VisibilityFeature* f[3];
             for (int i = 0; i < 3; i++)
@@ -335,7 +398,7 @@ namespace visilib
         void addDirectionalEvent(size_t aFeature, const MathVector3d& aRayDirection, const std::vector<ShadowCellFacet>& someFacets)
         {
             const VisibilityFeature& feature = mRegistry->getFeature(aFeature);
-            if (feature.mKind != VisibilityFeature::OCCLUDER_EDGE)
+            if (feature.mKind != VisibilityFeature::OCCLUDER_EDGE || feature.mFlat)
             {
                 return; // the rays along the outline of the light or of the receiver
             }
@@ -379,9 +442,9 @@ namespace visilib
             {
                 return false;
             }
-            if ((arc.mEndpoints[0] - arc.mEndpoints[1]).getNorm() <= 1e-12 * (1.0 + arc.mEndpoints[0].getNorm()))
+            if (t1 - t0 < cMinimumRange || (arc.mEndpoints[0] - arc.mEndpoints[1]).getNorm() <= 1e-12 * (1.0 + arc.mEndpoints[0].getNorm()))
             {
-                return false; // the family shrinks to a single line on the receiver
+                return false; // the family shrinks to a single line on the receiver: a point, not a curve
             }
 
             arc.mLineCoefficients = MathVector2d::getHomogeneousLine(arc.mEndpoints[0], arc.mEndpoints[1]);
@@ -397,6 +460,7 @@ namespace visilib
             return true;
         }
 
+        static constexpr double cMinimumRange = 1e-6; /**< @brief The range of the parameter, along an edge of unit length, under which an arc is a point*/
         static constexpr double cTolerance = 1e-9; /**< @brief How far outside a facet, as a distance, a line is still taken as in*/
 
         const VisibilityEventRegistry* mRegistry;

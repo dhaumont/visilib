@@ -40,6 +40,7 @@ namespace visilib
         MathVector3d mDirection;
         MathVector3d mLocation;
         double mSign;
+        size_t mGroup;  /**< @brief The collinear group of the edge the hyperplane carries (see VisibilityEventRegistry), or -1*/
     };
 
     /** @brief A one parameter family of lines, the critical lines of a visibility event, and the part of it a cell holds.

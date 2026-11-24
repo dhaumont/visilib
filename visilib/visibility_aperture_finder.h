@@ -60,6 +60,27 @@ namespace visilib
         VisibilityResult resolveInternal(VisibilityResult& aGlobalResult, PluckerPolytope<P>* aPolytope, const std::string& occlusionTreeNodeSymbol, const std::vector<Silhouette*>& anOccluders, const std::vector<P>& aPolytopeLines, int depth);
         void resize(size_t myInitiaLineCount, PluckerPolyhedron<P>* myPolyhedron, PluckerPolytope<P>* aPolytope);
 
+        /** @brief Whether the edge anEdgeIndex of aFace joins it to a coplanar neighbour: an edge inside a flat region is a
+        silhouette for no viewpoint. The faces of a mesh are stored in one array, indexed by their face index, which is
+        where the neighbour is found from the face.*/
+        static bool isFlatEdge(const SilhouetteMeshFace* aFace, size_t anEdgeIndex)
+        {
+            const int neighbour = aFace->getNeighbours(anEdgeIndex);
+            if (neighbour < 0)
+            {
+                return false;
+            }
+            const SilhouetteMeshFace* other = aFace - aFace->getFaceIndex() + neighbour;
+            auto normal = [](const SilhouetteMeshFace* f)
+            {
+                const MathVector3d v0 = convert<MathVector3d>(f->getVertex(0));
+                return MathVector3d::cross(convert<MathVector3d>(f->getVertex(1)) - v0, convert<MathVector3d>(f->getVertex(2)) - v0);
+            };
+            const MathVector3d n0 = normal(aFace);
+            const MathVector3d n1 = normal(other);
+            return MathVector3d::cross(n0, n1).getNorm() <= 1e-6 * n0.getNorm() * n1.getNorm();
+        }
+
 
         bool mNormalization;
         bool mDetectApertureOnly;
@@ -138,7 +159,16 @@ namespace visilib
 #ifdef OUTPUT_DEBUG_FILE
                 V_LOG(debugOutput, "RAY REJECTED (INVALID)", occlusionTreeNodeSymbol);
 #endif
-                return HIDDEN;
+                if (!VisibilitySolver<P, S>::mQuery->isComputingShadowDiscontinuities())
+                {
+                    return HIDDEN;
+                }
+                /* No line of the cell could be cast, which says nothing of the lines it holds: the shadow
+                discontinuities need every visible cell, so the cell is not dropped but split further by the edges
+                of all the silhouettes, without the occluders a ray would have narrowed them to. Its leaves are
+                certified one by one. */
+                myOccluders.clear();
+                polytopeLines.clear();
             }
             else if (result == 0)
             {
@@ -224,7 +254,10 @@ namespace visilib
                     }
                     myPolyhedronFace = myPolyhedron->add(myHyperplane, ON_BOUNDARY, mNormalization, mTolerance);
                     myVisibilitySilhouetteEdge.mHyperPlaneIndex = myPolyhedronFace;
-                    VisibilitySolver<P, S>::mQuery->registerOccluderEdge(myPolyhedronFace, a, b);
+                    if (VisibilitySolver<P, S>::mQuery->isComputingShadowDiscontinuities())
+                    {
+                        VisibilitySolver<P, S>::mQuery->registerOccluderEdge(myPolyhedronFace, a, b, isFlatEdge(face, myVisibilitySilhouetteEdge.mEdgeIndex));
+                    }
                 }
 
                 P myHyperplane = myPolyhedron->get(myPolyhedronFace);
@@ -260,15 +293,17 @@ namespace visilib
 #ifdef OUTPUT_DEBUG_FILE
                     V_LOG(debugOutput, "SPLIT SUCCESS ->recurse on Left and right childs", occlusionTreeNodeSymbol);
 #endif
-                    auto position = MathPredicates::getVertexPlaneRelativePosition(myHyperplane, polytopeLines[0], mTolerance);
+                    // without a line of the cell (see the invalid ray above), the occluders are collected again on each side
+                    auto position = polytopeLines.empty() ? ON_BOUNDARY : MathPredicates::getVertexPlaneRelativePosition(myHyperplane, polytopeLines[0], mTolerance);
+                    const bool canReuse = !polytopeLines.empty();
 
                     // left split
-                    reuseOccluders.push_back(position != ON_POSITIVE_SIDE);
+                    reuseOccluders.push_back(canReuse && position != ON_POSITIVE_SIDE);
                     myPolytopes.push_back(myPolytopeLeft);
                     postFix.push_back("L");
 
                     // right split
-                    reuseOccluders.push_back(position != ON_NEGATIVE_SIDE);
+                    reuseOccluders.push_back(canReuse && position != ON_NEGATIVE_SIDE);
                     myPolytopes.push_back(myPolytopeRight);
                     postFix.push_back("R");
                 }

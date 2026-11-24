@@ -114,8 +114,8 @@ namespace visilib
             return mShadowExtractor != nullptr;
         }
 
-        /**@brief Record that the hyperplane anIndex of the polyhedron carries the occluder edge [a, b]*/
-        void registerOccluderEdge(size_t anIndex, const MathVector3d& a, const MathVector3d& b)
+        /**@brief Record that the hyperplane anIndex of the polyhedron carries the occluder edge [a, b], aFlat when it joins two coplanar faces*/
+        void registerOccluderEdge(size_t anIndex, const MathVector3d& a, const MathVector3d& b, bool aFlat)
         {
             if (mShadowExtractor == nullptr)
             {
@@ -128,6 +128,7 @@ namespace visilib
             feature.mRealEndpoint[0] = true;
             feature.mRealEndpoint[1] = true;
             feature.mSynthetic = false;
+            feature.mFlat = aFlat;
             mEventRegistry.registerHyperplane(anIndex, feature);
         }
 
@@ -463,6 +464,17 @@ namespace visilib
 
         if (mQueryPolygon[0]->getVertexCount() == 1 && mQueryPolygon[1]->getVertexCount() == 1)
         {
+            /* The rays are cast against the silhouette container: it has to be filled first, or the segment
+            meets nothing and every pair of points is answered visible. */
+            {
+                HelperScopedTimer timer(getStatistic(), SILHOUETTE_PROCESSING);
+                mSilhouetteProcessor->init(*mQueryPolygon[0], *mQueryPolygon[1]);
+                extractAllSilhouettes();
+            }
+            {
+                HelperScopedTimer timer(getStatistic(), RAY_INTERSECTION);
+                mSilhouetteContainer->prepare();
+            }
             std::set<SilhouetteMeshFace*> intersectedFaces;
             result = findSceneIntersection(mQueryPolygon[0]->getVertex(0), mQueryPolygon[1]->getVertex(0), intersectedFaces) ? HIDDEN : VISIBLE;
         }

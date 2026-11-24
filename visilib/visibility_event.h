@@ -48,6 +48,7 @@ namespace visilib
         MathVector3d mEndpoints[2];     /**< @brief The two endpoints of the edge*/
         bool mRealEndpoint[2];          /**< @brief Whether each endpoint is a vertex of the geometry, false for the padding of a degenerated polygon*/
         bool mSynthetic;                /**< @brief Whether the edge itself is padding: its points other than the real endpoints are not geometry*/
+        bool mFlat = false;             /**< @brief Whether the edge joins two coplanar faces: it is a silhouette for no viewpoint, and makes no event*/
 
         /** @brief The index (0 or 1) of the real endpoint shared with another feature, -1 if none: the vertex of a VE event.*/
         int getSharedRealEndpoint(const VisibilityFeature& other) const
