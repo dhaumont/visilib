@@ -37,7 +37,7 @@ namespace visilib
     public:
         /** @brief A builder of the minimal polytope. When aRegistry is given, the edges of the two polygons are recorded in it as the
         features their hyperplanes carry: the first polygon as the light, the second as the receiver.*/
-        PluckerPolytopeBuilder(bool normalization, S tolerance, VisibilityEventRegistry* aRegistry = nullptr);
+        PluckerPolytopeBuilder(bool normalization, S tolerance, VisibilityEventRegistry* aRegistry = nullptr, const MathIntegerGrid& aGrid = MathIntegerGrid());
 
         /** @brief Create the minimal polytope following Mora et al. An extermal stabbing line is created for each vertex pair of polygon a and b.
         @param a: first source polygon
@@ -70,10 +70,21 @@ namespace visilib
         bool mNormalization;  /** < @brief Normalization activated or not*/
         S mTolerance;         /** < @brief Tolerance used to compute the intersection with the Plucker quadric */
         VisibilityEventRegistry* mRegistry; /** < @brief Where the edges of the polygons are recorded, if any*/
+        MathIntegerGrid mGrid;              /** < @brief The grid the polygons are snapped to: the lines through its points get exact predicates*/
+
+        /** @brief Record in the polyhedron that the point anIndex is the line from a to b, when both are grid points*/
+        void setInputLine(PluckerPolyhedron<P>* aPolyhedron, size_t anIndex, const MathVector3d& a, const MathVector3d& b)
+        {
+            if (mGrid.isOnGrid(a) && mGrid.isOnGrid(b))
+            {
+                aPolyhedron->setInputLine(anIndex, mGrid.toInteger(a), mGrid.toInteger(b));
+            }
+        }
     };
 
     template<class P, class S>
-    inline PluckerPolytopeBuilder<P, S>::PluckerPolytopeBuilder(bool aNormalization, S aTolerance, VisibilityEventRegistry* aRegistry)
+    inline PluckerPolytopeBuilder<P, S>::PluckerPolytopeBuilder(bool aNormalization, S aTolerance, VisibilityEventRegistry* aRegistry, const MathIntegerGrid& aGrid)
+        : mGrid(aGrid)
     {
         mNormalization = aNormalization;
         mTolerance = aTolerance;
@@ -146,6 +157,14 @@ namespace visilib
                 V_ASSERT((MathPredicates::isNormalized(line, mTolerance)));
             }
             const size_t index = aPolyhedron->add(line, ON_BOUNDARY, mNormalization, mTolerance);
+            if (clockWise)
+            {
+                setInputLine(aPolyhedron, index, v1, v2);
+            }
+            else
+            {
+                setInputLine(aPolyhedron, index, v2, v1);
+            }
 
             if (mRegistry != nullptr)
             {
@@ -208,6 +227,7 @@ namespace visilib
 
                 polytope->addExtremalStabbingLine(myStabbingLine);
                 size_t vertexIndex = aPolyhedron->add(myStabbingLine, ON_BOUNDARY, mNormalization, mTolerance);
+                setInputLine(aPolyhedron, vertexIndex, v1, v2);
 
                 if (count2 > 2)
                 {

@@ -85,9 +85,11 @@ namespace visilib
         known without computing anything. It is found on it NUMERICALLY when it is not, yet the value falls within
         the tolerance: an accidental incidence, or a rounding the tolerance absorbed. A hyperplane is MERGED when the
         line it carries is already a hyperplane of the polyhedron (a shared or collinear edge), and an edge is
-        COLLAPSED when its two vertices were merged into one. */
+        COLLAPSED when its two vertices were merged into one. An EXACT decision is the side of a vertex read with the integer
+        predicates, the vertex and the hyperplane being both lines through grid points. */
         INCIDENCE_COMBINATORIAL_COUNT,
         INCIDENCE_NUMERIC_BOUNDARY_COUNT,
+        INCIDENCE_EXACT_COUNT,
         HYPERPLANE_MERGED_COUNT,
         COLLAPSED_EDGE_MERGED_COUNT,
         COUNTER_LAST
@@ -260,6 +262,7 @@ namespace visilib
             }
             counts["Incidences combinatorial"] = mCounts[INCIDENCE_COMBINATORIAL_COUNT];
             counts["Incidences numeric"] = mCounts[INCIDENCE_NUMERIC_BOUNDARY_COUNT];
+            counts["Exact decisions"] = mCounts[INCIDENCE_EXACT_COUNT];
             counts["Hyperplanes merged"] = mCounts[HYPERPLANE_MERGED_COUNT];
             counts["Collapsed edges merged"] = mCounts[COLLAPSED_EDGE_MERGED_COUNT];
         }
@@ -312,7 +315,8 @@ namespace visilib
             }
 
             std::cout << "  [Incidences:     " << mCounts[INCIDENCE_COMBINATORIAL_COUNT] << " combinatorial, "
-                      << mCounts[INCIDENCE_NUMERIC_BOUNDARY_COUNT] << " numeric]" << std::endl
+                      << mCounts[INCIDENCE_NUMERIC_BOUNDARY_COUNT] << " numeric, "
+                      << mCounts[INCIDENCE_EXACT_COUNT] << " exact decisions]" << std::endl
                       << "  [Merged:         " << mCounts[HYPERPLANE_MERGED_COUNT] << " hyperplanes, "
                       << mCounts[COLLAPSED_EDGE_MERGED_COUNT] << " collapsed edges]" << std::endl;
 

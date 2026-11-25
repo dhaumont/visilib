@@ -108,6 +108,12 @@ namespace visilib
 
         virtual ~VisibilityExactQuery_();
 
+        /**@brief The grid the geometry of the query is snapped to (not valid without the integer predicates)*/
+        const MathIntegerGrid& getGrid() const
+        {
+            return mScene->getGrid();
+        }
+
         /**@brief Whether the query gathers the shadow discontinuities of its visible cells*/
         bool isComputingShadowDiscontinuities() const
         {
@@ -431,6 +437,31 @@ namespace visilib
             mSilhouetteProcessor->attachVisualisationDebugger(mDebugger);
         }
 
+        /* With the integer predicates, the occluders and the two polygons are snapped to one grid holding them all, with
+        room to spare: the predicates between the lines through their vertices are then exact (MathIntegerPredicates).
+        Without, the occluders read the geometry of the caller again. */
+        std::vector<float> mySnapped0;
+        std::vector<float> mySnapped1;
+        if (mConfiguration.integerPredicates)
+        {
+            double myExtent = mScene->getExtent();
+            for (size_t i = 0; i < 3 * numVertices0; i++) myExtent = std::max(myExtent, std::fabs(double(vertices0[i])));
+            for (size_t i = 0; i < 3 * numVertices1; i++) myExtent = std::max(myExtent, std::fabs(double(vertices1[i])));
+            const MathIntegerGrid myGrid(2.0 * myExtent);
+            mScene->setGrid(myGrid);
+
+            mySnapped0.assign(vertices0, vertices0 + 3 * numVertices0);
+            mySnapped1.assign(vertices1, vertices1 + 3 * numVertices1);
+            for (float& c : mySnapped0) c = myGrid.snap(c);
+            for (float& c : mySnapped1) c = myGrid.snap(c);
+            vertices0 = &mySnapped0[0];
+            vertices1 = &mySnapped1[0];
+        }
+        else
+        {
+            mScene->setGrid(MathIntegerGrid());
+        }
+
         {
             HelperScopedTimer timerBuild(&mStatistic, POLYTOPE_BUILD);
             if (!createInitialPolygons(vertices0, numVertices0, vertices1, numVertices1, mConfiguration.hyperSphereNormalization))
@@ -495,7 +526,7 @@ namespace visilib
             {
                 HelperScopedTimer timerBuild(&mStatistic, POLYTOPE_BUILD);
 
-                PluckerPolytopeBuilder<P, S> builder(mConfiguration.hyperSphereNormalization, mTolerance, mShadowExtractor != nullptr ? &mEventRegistry : nullptr);
+                PluckerPolytopeBuilder<P, S> builder(mConfiguration.hyperSphereNormalization, mTolerance, mShadowExtractor != nullptr ? &mEventRegistry : nullptr, mScene->getGrid());
                 PluckerPolytope<P>* myPolytope = builder.build(*mQueryPolygon[0], *mQueryPolygon[1], getComplex()->getPolyhedron());
                 getComplex()->appendPolytope(myPolytope);
             }

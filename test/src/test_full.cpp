@@ -60,6 +60,7 @@ const TestDefinition cTests[] =
     { "MathBeamCapsuleTest", &MathBeamCapsuleTest },
     { "MathShadowGeometryTest", &MathShadowGeometryTest },
     { "MathIncidenceTest", &MathIncidenceTest },
+    { "MathIntegerPredicateTest", &MathIntegerPredicateTest },
     { "VisibilityTest", &VisibilityTest },
     { "DirectionalVisibilityTest", &DirectionalVisibilityTest },
     { "SolverConsistencyTest", &SolverConsistencyTest },

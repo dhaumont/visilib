@@ -123,6 +123,9 @@ namespace
             ok = false;
         }
 
+        // the reference reads the geometry the query used: snapped to its grid when the integer predicates were on
+        for (float& c : v0) c = occluderSet->getGrid().snap(c);
+        for (float& c : v1) c = occluderSet->getGrid().snap(c);
         GeometryConvexPolygon light(&v0[0], v0.size() / 3);
         GeometryConvexPolygon receiver(&v1[0], v1.size() / 3);
         const double tolerance = 1e-6 * c.mReceiverSize;
@@ -271,7 +274,7 @@ namespace
     triangle are cut in collinear pieces), make none. The check goes both ways: the traces of the reference are covered
     by the arcs (nothing missing), and the arcs lie on the traces of the reference (nothing spurious). The samples close
     to the boundary of the receiver are left out: a trace along that boundary is a coincidence of the geometry. */
-    bool checkPlanarOccluder(DemoConfiguration::SCENE_TYPE aScene, float aPhi, bool aSilhouetteOptimization, std::string& message)
+    bool checkPlanarOccluder(DemoConfiguration::SCENE_TYPE aScene, float aPhi, bool aSilhouetteOptimization, bool anIntegerPredicates, std::string& message)
     {
         const float lightSize = 0.1f;
         const float receiverSize = 0.3f;
@@ -285,6 +288,7 @@ namespace
         VisibilityExactQueryConfiguration config;
         config.precision = VisibilityExactQueryConfiguration::DOUBLE;
         config.silhouetteOptimization = aSilhouetteOptimization;
+        config.integerPredicates = anIntegerPredicates;
 
         HelperVisualDebugger debugger;
         debugger.getTimeout().setMaximumDuration(60.0);
@@ -293,6 +297,8 @@ namespace
         std::vector<ShadowDiscontinuityArc> arcs;
         computeShadowDiscontinuities(occluderSet, &v0[0], 3, &v1[0], 3, arcs, config, &debugger);
 
+        for (float& c : v0) c = occluderSet->getGrid().snap(c);
+        for (float& c : v1) c = occluderSet->getGrid().snap(c);
         GeometryConvexPolygon light(&v0[0], 3);
         GeometryConvexPolygon receiver(&v1[0], 3);
         const MathPlane3d receiverPlane = receiver.getPlane();
@@ -487,6 +493,7 @@ namespace
         const bool ok = expected > 0 && missing == 0 && spurious == 0;
         std::ostringstream out;
         out << DemoConfiguration::sceneName(aScene) << " phi=" << aPhi << " silhouette=" << (aSilhouetteOptimization ? "on" : "off")
+            << (anIntegerPredicates ? " integer" : "")
             << ": arcs=" << arcs.size() << " missing " << missing << "/" << expected << " spurious " << spurious << "/" << samples << (ok ? " OK" : " FAILED");
         std::cout << "  " << out.str() << std::endl;
         if (!ok)
@@ -537,7 +544,11 @@ bool ShadowDiscontinuityTest(std::string& message)
         {
             for (bool silhouette : { false, true })
             {
-                ok = checkPlanarOccluder(scene, phi, silhouette, message) && ok;
+                // the same reference with the geometry snapped to the integer grid and the exact predicates
+                for (bool integer : { false, true })
+                {
+                    ok = checkPlanarOccluder(scene, phi, silhouette, integer, message) && ok;
+                }
             }
         }
     }

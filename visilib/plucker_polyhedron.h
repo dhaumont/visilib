@@ -21,9 +21,11 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #pragma once
 
 #include <algorithm>
+#include <array>
 #include <vector>
 
 #include "geometry_position_type.h"
+#include "math_integer_predicates.h"
 #include "math_combinatorial.h"
 #include "math_plucker_6.h"
 #include "math_plucker_parallel_6.h"
@@ -98,6 +100,39 @@ namespace visilib
         */
         template<class S> size_t addHyperplane(const P& aLine, bool aNormalization, S tolerance, int& anOrientation, bool& hasMerged);
 
+        /**@brief Record that the point anIndex is the line through the grid points a and b, oriented from a to b (the line
+        MathPlucker6(a, b), up to a positive scale): its predicates with the other lines through grid points are then
+        exact (MathIntegerPredicates::kleinSign).*/
+        void setInputLine(size_t anIndex, const MathIntegerPoint& a, const MathIntegerPoint& b)
+        {
+            mInputLines[anIndex] = { a, b };
+            mHasInputLine[anIndex] = 1;
+        }
+
+        /**@brief Whether the point anIndex is a line through two grid points, and which (see setInputLine)*/
+        bool getInputLine(size_t anIndex, MathIntegerPoint& a, MathIntegerPoint& b) const
+        {
+            if (!mHasInputLine[anIndex])
+            {
+                return false;
+            }
+            a = mInputLines[anIndex][0];
+            b = mInputLines[anIndex][1];
+            return true;
+        }
+
+        /**@brief The exact sign of the Klein product of two points of the polyhedron that are both lines through grid points:
+        +1, -1, or 0 when the lines are coplanar. Return false, leaving aSign, when one of them is not such a line.*/
+        bool getExactSign(size_t aPlane, size_t aPoint, int& aSign) const
+        {
+            if (aPlane >= mHasInputLine.size() || aPoint >= mHasInputLine.size() || !mHasInputLine[aPlane] || !mHasInputLine[aPoint])
+            {
+                return false;
+            }
+            aSign = MathIntegerPredicates::kleinSign(mInputLines[aPlane][0], mInputLines[aPlane][1], mInputLines[aPoint][0], mInputLines[aPoint][1]);
+            return true;
+        }
+
         /**@brief Return the facet description of a point*/
         std::vector<size_t>& getFacetsDescription(size_t v)
         {
@@ -145,6 +180,8 @@ namespace visilib
         std::vector<P> mLines;                                        /** < @brief The list of Plucker points (Plucker vertices and hyperplanes). */
         std::vector<GeometryPositionType> mQuadricRelativePositions;  /** < @brief The relative position of the Plucker point relative to the Plucker quadric*/
         std::vector<bool> mNormalizations;                            /** < @brief The normalization status of each Plucker point*/
+        std::vector<std::array<MathIntegerPoint, 2>> mInputLines;     /** < @brief The grid points of each point that is a line through two of them*/
+        std::vector<char> mHasInputLine;                              /** < @brief Whether each point is a line through two grid points*/
         std::vector<size_t> mMergeableHyperplanes;                    /** < @brief The hyperplanes added with addHyperplane, candidates for a merge*/
         std::vector<std::vector<size_t> > mFacetsDescription;          /** < @brief The facet description (list of all the hyperplanes intersecting at that point) of each Plucker point mLines*/
     };
@@ -159,6 +196,8 @@ namespace visilib
         mQuadricRelativePositions.push_back(aPosition);
         mNormalizations.push_back(aNormalization);
         mFacetsDescription.push_back(std::vector<size_t>());
+        mInputLines.push_back({ MathIntegerPoint{ 0, 0, 0 }, MathIntegerPoint{ 0, 0, 0 } });
+        mHasInputLine.push_back(0);
         return mLines.size() - 1;
     }
 
@@ -191,6 +230,8 @@ namespace visilib
                                                    [size](size_t index) { return index >= size; }),
                                     mMergeableHyperplanes.end());
         mLines.resize(size);
+        mInputLines.resize(size);
+        mHasInputLine.resize(size);
         mQuadricRelativePositions.resize(size);
         mNormalizations.resize(size);
         mFacetsDescription.resize(size);

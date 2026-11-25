@@ -77,6 +77,7 @@ namespace visilib
             maximumRecursionDepth = 2000;
             computeShadowDiscontinuities = false;
             infiniteReceiver = false;
+            integerPredicates = false;
         }
 
         VisibilityExactQueryConfiguration(const VisibilityExactQueryConfiguration& other)
@@ -96,6 +97,7 @@ namespace visilib
             maximumRecursionDepth = other.maximumRecursionDepth;
             computeShadowDiscontinuities = other.computeShadowDiscontinuities;
             infiniteReceiver = other.infiniteReceiver;
+            integerPredicates = other.integerPredicates;
         }
 
         bool silhouetteOptimization;                  /**< @brief Use silhouette optimization*/
@@ -113,6 +115,7 @@ namespace visilib
         int maximumRecursionDepth;                        /**< @brief Recursion depth beyond which the aperture finder reports an overflow and fails the query*/
         bool computeShadowDiscontinuities;                /**< @brief Trace the shadow discontinuities of the light (polygon 0) on the receiver (polygon 1): needs the aperture finder with detectApertureOnly off (see computeShadowDiscontinuities)*/
         bool infiniteReceiver;                            /**< @brief Trace the shadows on the whole plane of the receiver, not only inside the receiver polygon (see computeShadowDiscontinuities)*/
+        bool integerPredicates;                           /**< @brief Snap the occluders and the query polygons to an integer grid (MathIntegerGrid), so that the predicates between the input lines are exact: the geometry moves by at most half a step of the grid, about 2^-24 of the size of the scene*/
     };
 
 

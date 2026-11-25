@@ -224,6 +224,14 @@ namespace visilib
                 {
                     VisibilitySolver<P, S>::mQuery->getStatistic()->inc(HYPERPLANE_MERGED_COUNT);
                 }
+                else
+                {
+                    const MathIntegerGrid& myGrid = VisibilitySolver<P, S>::mQuery->getGrid();
+                    if (myGrid.isOnGrid(a) && myGrid.isOnGrid(b))
+                    {
+                        aPolyhedron->setInputLine(myPolyhedronFace, myGrid.toInteger(a), myGrid.toInteger(b));
+                    }
+                }
             }
         }
     }

@@ -29,6 +29,7 @@ space are caught in a circle of includes otherwise. */
 #include "math_conic_2.h"
 #include "math_frame_3.h"
 #include "math_polynomial.h"
+#include "math_integer_predicates.h"
 
 #include "math_plucker_parallel_6.h"
 #include "plucker_polytope_builder.h"
@@ -877,5 +878,84 @@ bool MathIncidenceTest(std::string&)
 		delete polytope;
 	}
 #undef INCIDENCE_CHECK
+	return true;
+}
+
+/* The exact predicates on the points of an integer grid: the 128 bit products, the snapping, the orientation of four
+points, and its agreement with the Klein product of the Plucker lines through them. */
+bool MathIntegerPredicateTest(std::string&)
+{
+#define INTEGER_CHECK(condition) if (!(condition)) { std::cout << "Error in line " << __LINE__ << ": " #condition << std::endl; return false; }
+
+	{//MathInt128
+		const int64_t big = int64_t(1) << 62;
+		INTEGER_CHECK(MathInt128::multiply(big, big).sign() == 1);
+		INTEGER_CHECK(MathInt128::multiply(big, -big).sign() == -1);
+		INTEGER_CHECK((MathInt128::multiply(big, big) - MathInt128::multiply(big, big)).sign() == 0);
+		// 2^124 - (2^124 - 1): the difference is in the lowest bit
+		const MathInt128 a = MathInt128::multiply(big, big);
+		const MathInt128 b = MathInt128::multiply(big, big) - MathInt128(1);
+		INTEGER_CHECK((a - b).sign() == 1);
+		INTEGER_CHECK((b - a).sign() == -1);
+		INTEGER_CHECK((MathInt128::multiply(-3, 5) + MathInt128(15)).sign() == 0);
+	}
+
+	{//MathIntegerGrid
+		MathIntegerGrid grid(3.0);
+		INTEGER_CHECK(grid.isValid());
+		INTEGER_CHECK(grid.getExtent() >= 3.0 && grid.getExtent() < 6.0 + 1e-12);
+		const MathVector3f p(0.123456789f, -2.5f, 1e-9f);
+		const MathVector3f q = grid.snap(p);
+		INTEGER_CHECK(grid.isOnGrid(q));
+		// the floats of ordinary magnitude are already on the grid: only the tiny ones move
+		INTEGER_CHECK(q.x == p.x && q.y == p.y);
+		INTEGER_CHECK(q.z != p.z && std::fabs(q.z - p.z) <= 0.5 * grid.getStep());
+		INTEGER_CHECK(std::fabs(q.x - p.x) <= 0.5 * grid.getStep() && std::fabs(q.z - p.z) <= 0.5 * grid.getStep());
+		INTEGER_CHECK(!grid.isOnGrid(MathVector3d(0.1 * grid.getStep(), 0.0, 0.0)));
+		INTEGER_CHECK(!grid.isOnGrid(MathVector3d(4.0 * grid.getExtent(), 0.0, 0.0)));
+		const MathIntegerPoint i = grid.toInteger(q);
+		INTEGER_CHECK(double(i.y) * grid.getStep() == double(q.y));
+		INTEGER_CHECK(!MathIntegerGrid().isValid());
+	}
+
+	{//orient3d, kleinSign and areCollinear
+		MathIntegerGrid grid(1.0);
+		srand(7);
+		auto randomPoint = [&]()
+		{
+			return grid.snap(MathVector3f(float(rand()) / RAND_MAX * 2.0f - 1.0f, float(rand()) / RAND_MAX * 2.0f - 1.0f, float(rand()) / RAND_MAX * 2.0f - 1.0f));
+		};
+		size_t compared = 0;
+		for (int k = 0; k < 2000; k++)
+		{
+			const MathVector3f a = randomPoint(), b = randomPoint(), c = randomPoint(), d = randomPoint();
+			const MathIntegerPoint ia = grid.toInteger(a), ib = grid.toInteger(b), ic = grid.toInteger(c), id = grid.toInteger(d);
+
+			// the Klein product of the two lines, in double: its sign must be the exact one whenever it is clearly away from zero
+			const double klein = MathPlucker6d(convert<MathVector3d>(a), convert<MathVector3d>(b)).dot(MathPlucker6d(convert<MathVector3d>(c), convert<MathVector3d>(d)));
+			if (std::fabs(klein) > 1e-9)
+			{
+				INTEGER_CHECK(MathIntegerPredicates::kleinSign(ia, ib, ic, id) == (klein > 0 ? 1 : -1));
+				compared++;
+			}
+
+			// a fourth point built in the plane of the three first, exactly: the orientation is exactly zero
+			const MathIntegerPoint planar{ ia.x + 2 * (ib.x - ia.x) - 3 * (ic.x - ia.x), ia.y + 2 * (ib.y - ia.y) - 3 * (ic.y - ia.y), ia.z + 2 * (ib.z - ia.z) - 3 * (ic.z - ia.z) };
+			INTEGER_CHECK(MathIntegerPredicates::orient3d(ia, ib, ic, planar) == 0);
+
+			// a third point on the line of the two first
+			const MathIntegerPoint aligned{ ia.x + 5 * (ib.x - ia.x), ia.y + 5 * (ib.y - ia.y), ia.z + 5 * (ib.z - ia.z) };
+			INTEGER_CHECK(MathIntegerPredicates::areCollinear(ia, ib, aligned));
+			INTEGER_CHECK(MathIntegerPredicates::orient3d(ia, ib, aligned, id) == 0);
+		}
+		INTEGER_CHECK(compared > 1900);
+
+		// the largest grid coordinates: the products reach the top of the 128 bits without overflow
+		const int64_t m = (int64_t(1) << (MathIntegerGrid::cBits - 1));
+		const MathIntegerPoint o{ -m, -m, -m }, x{ m, -m, -m }, y{ -m, m, -m }, z{ -m, -m, m };
+		INTEGER_CHECK(MathIntegerPredicates::orient3d(o, x, y, z) == 1);
+		INTEGER_CHECK(MathIntegerPredicates::orient3d(o, y, x, z) == -1);
+	}
+#undef INTEGER_CHECK
 	return true;
 }

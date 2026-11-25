@@ -277,7 +277,17 @@ namespace visilib
             int v = *iter;
 
             GeometryPositionType position = ON_BOUNDARY;
-            if (aPlaneIndex == cNoPlaneIndex || !MathCombinatorial::hasFacet(aPolyhedron->getFacetsDescription(v), aPlaneIndex))
+            int exactSign = 0;
+            if (aPlaneIndex != cNoPlaneIndex && MathCombinatorial::hasFacet(aPolyhedron->getFacetsDescription(v), aPlaneIndex))
+            {
+                // a facet of the vertex: on it by construction
+            }
+            else if (aPlaneIndex != cNoPlaneIndex && aPolyhedron->getExactSign(aPlaneIndex, v, exactSign))
+            {
+                // two lines through grid points: the exact side
+                position = exactSign > 0 ? ON_POSITIVE_SIDE : (exactSign < 0 ? ON_NEGATIVE_SIDE : ON_BOUNDARY);
+            }
+            else
             {
                 S result = aPlane.dot(aPolyhedron->get(v));
                 position = MathPredicates::getRelativePosition(result, tolerance);

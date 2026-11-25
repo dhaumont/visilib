@@ -261,6 +261,14 @@ namespace visilib
                     {
                         VisibilitySolver<P, S>::mQuery->getStatistic()->inc(HYPERPLANE_MERGED_COUNT);
                     }
+                    else
+                    {
+                        const MathIntegerGrid& myGrid = VisibilitySolver<P, S>::mQuery->getGrid();
+                        if (myGrid.isOnGrid(a) && myGrid.isOnGrid(b))
+                        {
+                            myPolyhedron->setInputLine(myPolyhedronFace, myGrid.toInteger(a), myGrid.toInteger(b));
+                        }
+                    }
                     if (VisibilitySolver<P, S>::mQuery->isComputingShadowDiscontinuities())
                     {
                         VisibilitySolver<P, S>::mQuery->registerOccluderEdge(myPolyhedronFace, a, b, isFlatEdge(face, myVisibilitySilhouetteEdge.mEdgeIndex));

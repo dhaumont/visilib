@@ -102,11 +102,27 @@ namespace visilib
                     else
                     {
                         result = aPlane.dot(aPolyhedron->get(a));
-                        position = MathPredicates::getRelativePosition(result, tolerance);
-                        V_ASSERT(position == MathPredicates::getVertexPlaneRelativePosition(aPlane, aPolyhedron->get(a), tolerance));
-                        if (position == ON_BOUNDARY && aStatistic != nullptr)
+
+                        /* A vertex and a hyperplane that are both lines through grid points: the side is the exact sign of
+                        their Klein product, and a zero is a true incidence. The rounded value is kept for the
+                        interpolation only. The other vertices are classified numerically. */
+                        int exactSign = 0;
+                        if (aPolyhedron->getExactSign(aPlaneID, a, exactSign))
                         {
-                            aStatistic->inc(INCIDENCE_NUMERIC_BOUNDARY_COUNT);
+                            position = exactSign > 0 ? ON_POSITIVE_SIDE : (exactSign < 0 ? ON_NEGATIVE_SIDE : ON_BOUNDARY);
+                            if (aStatistic != nullptr)
+                            {
+                                aStatistic->inc(INCIDENCE_EXACT_COUNT);
+                            }
+                        }
+                        else
+                        {
+                            position = MathPredicates::getRelativePosition(result, tolerance);
+                            V_ASSERT(position == MathPredicates::getVertexPlaneRelativePosition(aPlane, aPolyhedron->get(a), tolerance));
+                            if (position == ON_BOUNDARY && aStatistic != nullptr)
+                            {
+                                aStatistic->inc(INCIDENCE_NUMERIC_BOUNDARY_COUNT);
+                            }
                         }
                     }
 

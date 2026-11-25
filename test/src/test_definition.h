@@ -24,6 +24,7 @@ bool MathPluckerParallelTest(std::string&);
 bool MathBeamCapsuleTest(std::string&);
 bool MathShadowGeometryTest(std::string&);
 bool MathIncidenceTest(std::string&);
+bool MathIntegerPredicateTest(std::string&);
 bool testConfiguration(bool& retflag);
 bool VisibilityTest(std::string&);
 bool DirectionalVisibilityTest(std::string&);

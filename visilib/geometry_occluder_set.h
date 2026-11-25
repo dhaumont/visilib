@@ -20,6 +20,8 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 
 #pragma once
 
+#include <algorithm>
+#include <cmath>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -28,6 +30,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include "silhouette_mesh_face.h"
 #include "geometry_ray.h"
 #include "math_geometry.h"
+#include "math_integer_predicates.h"
 
 namespace visilib
 {
@@ -70,6 +73,21 @@ namespace visilib
         */
         void setOccluderConnectedFaces(GeometryDiscreteMeshDescription* mesh, std::vector<SilhouetteMeshFace>& aFaces);
 
+        /** @brief Snap the vertices of the occluders to aGrid, or restore them when the grid is not valid.
+
+        The meshes of the caller are left untouched: the occluder set keeps snapped copies of their vertices, and its
+        faces read their vertices there. The copies are made again only when the grid changes.*/
+        void setGrid(const MathIntegerGrid& aGrid);
+
+        /** @brief The grid the vertices are snapped to (not valid when they are not)*/
+        const MathIntegerGrid& getGrid() const
+        {
+            return mGrid;
+        }
+
+        /** @brief The largest absolute value of the coordinates of the occluders, as given by the caller*/
+        double getExtent();
+
         ~GeometryOccluderSet()
         {
             for (auto iter : mConnectedFacesCache)
@@ -110,6 +128,31 @@ namespace visilib
         std::unordered_map<size_t, size_t> mLastHit;
         std::vector<GeometryDiscreteMeshDescription*> mOccluders;
         std::vector<GeometryAABB> mBoundingBoxes;
+
+        /** @brief The vertex array the faces of an occluder read: the snapped copy when there is a grid*/
+        const float* getVertexArray(size_t geometryId) const
+        {
+            return mGrid.isValid() ? &mSnappedVertices[geometryId][0] : mOccluders[geometryId]->vertexArray;
+        }
+
+        /** @brief Point the cached faces of an occluder to the vertex array they have to read*/
+        void pointFaces(size_t geometryId)
+        {
+            if (mConnectedFacesCache[geometryId] == nullptr)
+            {
+                return;
+            }
+            GeometryDiscreteMeshDescription* mesh = mOccluders[geometryId];
+            std::vector<SilhouetteMeshFace>& faces = *mConnectedFacesCache[geometryId];
+            for (size_t i = 0; i < mesh->faceCount; i++)
+            {
+                faces[i].setGeometry(mesh, i, getVertexArray(geometryId));
+            }
+        }
+
+        MathIntegerGrid mGrid;                               /**< @brief The grid the vertices are snapped to*/
+        std::vector<std::vector<float>> mSnappedVertices;    /**< @brief The snapped copies of the vertices, by occluder*/
+        double mExtent = -1.0;                               /**< @brief The largest absolute coordinate, computed once*/
     };
 
     inline std::vector<SilhouetteMeshFace>* GeometryOccluderSet::getOccluderConnectedFaces(size_t geometryId)
@@ -123,6 +166,10 @@ namespace visilib
             myFaces = new std::vector<SilhouetteMeshFace>();
             extractConnectedMeshFaces(mesh, *myFaces);
             mConnectedFacesCache[geometryId] = myFaces;
+            if (mGrid.isValid())
+            {
+                pointFaces(geometryId);
+            }
         }
         return mConnectedFacesCache[geometryId];
     }
@@ -132,9 +179,7 @@ namespace visilib
         //remove the clipping performed if any
         for (size_t geometryId = 0; geometryId < mConnectedFacesCache.size(); geometryId++)
         {
-            GeometryDiscreteMeshDescription* mesh = mOccluders[geometryId];
-
-            setOccluderConnectedFaces(mesh, *mConnectedFacesCache[geometryId]);
+            pointFaces(geometryId);
         }
     }
 
@@ -206,6 +251,48 @@ namespace visilib
             MathVector3f myMin, myMax;
             MathArithmetic<float>::getMinMax(myTriangleMesh->vertexArray, myTriangleMesh->vertexCount, myMin, myMax);
             mBoundingBoxes.push_back(GeometryAABB(myMin, myMax));
+        }
+    }
+    inline double GeometryOccluderSet::getExtent()
+    {
+        if (mExtent < 0.0)
+        {
+            mExtent = 0.0;
+            for (GeometryDiscreteMeshDescription* mesh : mOccluders)
+            {
+                for (size_t i = 0; i < 3 * mesh->vertexCount; i++)
+                {
+                    mExtent = std::max(mExtent, std::fabs(double(mesh->vertexArray[i])));
+                }
+            }
+        }
+        return mExtent;
+    }
+
+    inline void GeometryOccluderSet::setGrid(const MathIntegerGrid& aGrid)
+    {
+        if (aGrid.isValid() == mGrid.isValid() && aGrid.getStep() == mGrid.getStep())
+        {
+            return;
+        }
+        mGrid = aGrid;
+        mSnappedVertices.clear();
+        if (mGrid.isValid())
+        {
+            mSnappedVertices.resize(mOccluders.size());
+            for (size_t id = 0; id < mOccluders.size(); id++)
+            {
+                const GeometryDiscreteMeshDescription* mesh = mOccluders[id];
+                mSnappedVertices[id].resize(3 * mesh->vertexCount);
+                for (size_t i = 0; i < 3 * mesh->vertexCount; i++)
+                {
+                    mSnappedVertices[id][i] = mGrid.snap(mesh->vertexArray[i]);
+                }
+            }
+        }
+        for (size_t id = 0; id < mOccluders.size(); id++)
+        {
+            pointFaces(id);
         }
     }
 }
