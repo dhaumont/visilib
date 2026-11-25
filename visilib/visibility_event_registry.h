@@ -59,7 +59,11 @@ namespace visilib
         /** @brief Record that the hyperplane anIndex carries aFeature. Return the feature id.*/
         size_t registerHyperplane(size_t anIndex, const VisibilityFeature& aFeature)
         {
-            const size_t id = getOrCreateFeature(aFeature);
+            /* A hyperplane registered again carries another edge of the same line (the polyhedron merged them): the
+            edge joins the collinear group of the hyperplane, whatever the collinearity test would say of it. */
+            auto existing = mFeatureOfHyperplane.find(anIndex);
+            const size_t group = existing == mFeatureOfHyperplane.end() ? cNoFeature : mGroupOfFeature[existing->second];
+            const size_t id = getOrCreateFeature(aFeature, group);
             if (mFeatureOfHyperplane.insert(std::make_pair(anIndex, id)).second)
             {
                 mHyperplanes.push_back(anIndex);
@@ -120,7 +124,7 @@ namespace visilib
             return EdgeKey{ double(aFeature.mKind), first.x, first.y, first.z, second.x, second.y, second.z };
         }
 
-        size_t getOrCreateFeature(const VisibilityFeature& aFeature)
+        size_t getOrCreateFeature(const VisibilityFeature& aFeature, size_t aGroup = cNoFeature)
         {
             const EdgeKey key = makeKey(aFeature);
             auto iter = mFeatureOfEdge.find(key);
@@ -133,8 +137,8 @@ namespace visilib
             mFeatureOfEdge[key] = id;
 
             // the group of the edges on its line: only the occluder edges are gathered, those of the sources stay alone
-            size_t group = mGroups.size();
-            if (aFeature.mKind == VisibilityFeature::OCCLUDER_EDGE)
+            size_t group = aGroup == cNoFeature ? mGroups.size() : aGroup;
+            if (aGroup == cNoFeature && aFeature.mKind == VisibilityFeature::OCCLUDER_EDGE)
             {
                 for (size_t other = 0; other < id; other++)
                 {

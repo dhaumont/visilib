@@ -141,7 +141,7 @@ public:
 
                     for (auto line : polytopeLines)
                     {
-                        GeometryPositionType position = MathPredicates::getVertexPlaneRelativePosition(myHyperplane, line, myTolerance);
+                        GeometryPositionType position = silhouetteEdge.getEdgeSide(MathPredicates::getVertexPlaneRelativePosition(myHyperplane, line, myTolerance));
                         if (position != ON_NEGATIVE_SIDE)
                         {
                             allAreBlocked = false;

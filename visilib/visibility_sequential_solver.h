@@ -213,8 +213,17 @@ namespace visilib
                 {
                     myHyperplane = myHyperplane.getNormalized();
                 }
-                myPolyhedronFace = aPolyhedron->add(myHyperplane, ON_BOUNDARY, mNormalization, mTolerance);
+                /* The sides of a silhouette edge are calibrated from its stored hyperplane wherever this solver reads
+                them (see collectFaceShadows), so a hyperplane merged the other way needs no sign here. */
+                int myOrientation = 1;
+                bool hasMerged = false;
+                myPolyhedronFace = aPolyhedron->addHyperplane(myHyperplane, mNormalization, mTolerance, myOrientation, hasMerged);
                 myVisibilitySilhouetteEdge.mHyperPlaneIndex = myPolyhedronFace;
+                myVisibilitySilhouetteEdge.mHyperPlaneSign = myOrientation;
+                if (hasMerged)
+                {
+                    VisibilitySolver<P, S>::mQuery->getStatistic()->inc(HYPERPLANE_MERGED_COUNT);
+                }
             }
         }
     }
@@ -498,7 +507,7 @@ namespace visilib
                 size_t myPolyhedronFace = myEdge.mHyperPlaneIndex;
                 V_ASSERT(myPolyhedronFace != 0);
                 P myHyperplane = aPolyhedron->get(myPolyhedronFace);
-                auto myResult = MathPredicates::getRelativePosition(aPolytope, aPolyhedron, myHyperplane, mTolerance);
+                auto myResult = MathPredicates::getRelativePosition(aPolytope, aPolyhedron, myHyperplane, mTolerance, myPolyhedronFace);
                 V_TRACE("facet " << myPolyhedronFace << ": " << myResult);
                 if (myResult == ON_BOTH_SIDES)
                 {
@@ -612,7 +621,7 @@ namespace visilib
                     HelperScopedTimer timer(VisibilitySolver<P, S>::mQuery->getStatistic(), POLYTOPE_SPLIT);
                     VisibilitySolver<P, S>::mQuery->getStatistic()->inc(POLYTOPE_SPLIT_COUNT);
 
-                    myResult = PluckerPolytopeSplitter<P, S>::split(myPolyhedron, myHyperplane, myPolytopeToSplit, myPolytopeLeft, myPolytopeRight, myPolyhedronFace, mNormalization, mTolerance);
+                    myResult = PluckerPolytopeSplitter<P, S>::split(myPolyhedron, myHyperplane, myPolytopeToSplit, myPolytopeLeft, myPolytopeRight, myPolyhedronFace, mNormalization, mTolerance, VisibilitySolver<P, S>::mQuery->getStatistic());
 
                     if (VisibilitySolver<P, S>::mQuery->getStatistic()->hasToDisplaySplitCount())
                     {
@@ -625,8 +634,8 @@ namespace visilib
          
                 if (myResult == ON_BOTH_SIDES)
                 {
-                    V_ASSERT(MathPredicates::getRelativePosition(myPolytopeLeft, myPolyhedron, myHyperplane, mTolerance) == ON_NEGATIVE_SIDE);
-                    V_ASSERT(MathPredicates::getRelativePosition(myPolytopeRight, myPolyhedron, myHyperplane, mTolerance) == ON_POSITIVE_SIDE);
+                    V_ASSERT(MathPredicates::getRelativePosition(myPolytopeLeft, myPolyhedron, myHyperplane, mTolerance, myPolyhedronFace) == ON_NEGATIVE_SIDE);
+                    V_ASSERT(MathPredicates::getRelativePosition(myPolytopeRight, myPolyhedron, myHyperplane, mTolerance, myPolyhedronFace) == ON_POSITIVE_SIDE);
                     size_t size_before = complex->getPolytopeCount();
 
                     myPolytopeLeft->computeEdgesIntersectingQuadric(myPolyhedron, mTolerance);
@@ -683,7 +692,7 @@ namespace visilib
                 }
                 else
                 {
-                    V_ASSERT(MathPredicates::getRelativePosition(myPolytopeToSplit, myPolyhedron, myHyperplane, mTolerance) == myResult);
+                    V_ASSERT(MathPredicates::getRelativePosition(myPolytopeToSplit, myPolyhedron, myHyperplane, mTolerance, myPolyhedronFace) == myResult);
                     delete myPolytopeLeft;
                     myPolytopeLeft = nullptr;
                     delete myPolytopeRight;

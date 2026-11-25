@@ -252,8 +252,15 @@ namespace visilib
                     {
                         myHyperplane = myHyperplane.getNormalized();
                     }
-                    myPolyhedronFace = myPolyhedron->add(myHyperplane, ON_BOUNDARY, mNormalization, mTolerance);
+                    int myOrientation = 1;
+                    bool hasMerged = false;
+                    myPolyhedronFace = myPolyhedron->addHyperplane(myHyperplane, mNormalization, mTolerance, myOrientation, hasMerged);
                     myVisibilitySilhouetteEdge.mHyperPlaneIndex = myPolyhedronFace;
+                    myVisibilitySilhouetteEdge.mHyperPlaneSign = myOrientation;
+                    if (hasMerged)
+                    {
+                        VisibilitySolver<P, S>::mQuery->getStatistic()->inc(HYPERPLANE_MERGED_COUNT);
+                    }
                     if (VisibilitySolver<P, S>::mQuery->isComputingShadowDiscontinuities())
                     {
                         VisibilitySolver<P, S>::mQuery->registerOccluderEdge(myPolyhedronFace, a, b, isFlatEdge(face, myVisibilitySilhouetteEdge.mEdgeIndex));
@@ -274,7 +281,7 @@ namespace visilib
 #ifdef OUTPUT_DEBUG_FILE
                     V_LOG(debugOutput, "PERFORM THE SPLIT", occlusionTreeNodeSymbol);
 #endif
-                    myResult = PluckerPolytopeSplitter<P, S>::split(myPolyhedron, myHyperplane, aPolytope, myPolytopeLeft, myPolytopeRight, myPolyhedronFace, mNormalization, mTolerance);
+                    myResult = PluckerPolytopeSplitter<P, S>::split(myPolyhedron, myHyperplane, aPolytope, myPolytopeLeft, myPolytopeRight, myPolyhedronFace, mNormalization, mTolerance, VisibilitySolver<P, S>::mQuery->getStatistic());
 
                     if (VisibilitySolver<P, S>::mQuery->getStatistic()->hasToDisplaySplitCount())
                     {
@@ -323,7 +330,11 @@ namespace visilib
                 {
                     bool hasBeenAdded = false;
 
-                    if (myResult == ON_BOTH_SIDES && i == 0 || myResult == ON_NEGATIVE_SIDE)
+                    /* The edge is processed in the child lying on its negative side: the left child (the negative side of
+                    the hyperplane) for an edge with the orientation of its hyperplane, the right one for an edge merged
+                    the other way. */
+                    const GeometryPositionType myChildSide = myResult == ON_BOTH_SIDES ? (i == 0 ? ON_NEGATIVE_SIDE : ON_POSITIVE_SIDE) : myResult;
+                    if (myVisibilitySilhouetteEdge.getEdgeSide(myChildSide) == ON_NEGATIVE_SIDE)
                     {
                         mySilhouette->pushEdgeProcessed(mySilhouetteEdgeIndex);
                         hasBeenAdded = true;

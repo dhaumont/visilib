@@ -47,12 +47,13 @@ namespace visilib
         @param tolerance: a tolerance to determine  wheter a point lies on the splitting hyperplane or not
         @param aLeft: the resulting splitted polytope at the negative side of the hyperplane (must be instanciated before calling the function)
         @param aRight: the resulting splitted polytope at the positive side of the hyperplane  (must be instanciated before calling the function)
+        @param aStatistic: where the incidences and the merges are counted (optional)
        */
-        static GeometryPositionType split(PluckerPolyhedron<P>* polyhedron, const P& aPlane, PluckerPolytope<P>* aPolytope, PluckerPolytope<P>* aLeft, PluckerPolytope<P>* aRight, size_t aPlaneId, bool anormalization, S tolerance);
+        static GeometryPositionType split(PluckerPolyhedron<P>* polyhedron, const P& aPlane, PluckerPolytope<P>* aPolytope, PluckerPolytope<P>* aLeft, PluckerPolytope<P>* aRight, size_t aPlaneId, bool anormalization, S tolerance, HelperStatisticCollector* aStatistic = nullptr);
     };
 
     template<class P, class S>
-    inline GeometryPositionType PluckerPolytopeSplitter<P, S>::split(PluckerPolyhedron<P>* aPolyhedron, const P& aPlane, PluckerPolytope<P>* aPolytope, PluckerPolytope<P>* aLeft, PluckerPolytope<P>* aRight, size_t aPlaneID, bool normalization, S tolerance)
+    inline GeometryPositionType PluckerPolytopeSplitter<P, S>::split(PluckerPolyhedron<P>* aPolyhedron, const P& aPlane, PluckerPolytope<P>* aPolytope, PluckerPolytope<P>* aLeft, PluckerPolytope<P>* aRight, size_t aPlaneID, bool normalization, S tolerance, HelperStatisticCollector* aStatistic)
     {
         bool hasPointOnTheLeft = false;
         bool hasPointOnTheRight = false;
@@ -86,9 +87,28 @@ namespace visilib
                 {
                     myVertices.insert(a);
 
-                    S result = aPlane.dot(aPolyhedron->get(a));
-                    GeometryPositionType position = MathPredicates::getRelativePosition(result, tolerance);
-                    V_ASSERT(position == MathPredicates::getVertexPlaneRelativePosition(aPlane, aPolyhedron->get(a), tolerance));
+                    /* A vertex the splitting hyperplane is already a facet of lies on it by construction: the answer is
+                    read from its facet description, and the rounded value of the product, which may stand a little
+                    off zero, is never used for it. Only the other vertices are classified numerically. */
+                    S result(0);
+                    GeometryPositionType position = ON_BOUNDARY;
+                    if (MathCombinatorial::hasFacet(aPolyhedron->getFacetsDescription(a), aPlaneID))
+                    {
+                        if (aStatistic != nullptr)
+                        {
+                            aStatistic->inc(INCIDENCE_COMBINATORIAL_COUNT);
+                        }
+                    }
+                    else
+                    {
+                        result = aPlane.dot(aPolyhedron->get(a));
+                        position = MathPredicates::getRelativePosition(result, tolerance);
+                        V_ASSERT(position == MathPredicates::getVertexPlaneRelativePosition(aPlane, aPolyhedron->get(a), tolerance));
+                        if (position == ON_BOUNDARY && aStatistic != nullptr)
+                        {
+                            aStatistic->inc(INCIDENCE_NUMERIC_BOUNDARY_COUNT);
+                        }
+                    }
 
                     myArrayOfPlanePosition.insert(std::pair<size_t, S>(a, result));
 
@@ -287,8 +307,8 @@ namespace visilib
             }
         }
 
-        aLeft->removeCollapsedEdges(aPolyhedron,tolerance);
-        aRight->removeCollapsedEdges(aPolyhedron,tolerance);
+        aLeft->removeCollapsedEdges(aPolyhedron, tolerance, aStatistic);
+        aRight->removeCollapsedEdges(aPolyhedron, tolerance, aStatistic);
         V_ASSERT(aLeft->getEdgeCount() > 0);
         V_ASSERT(aRight->getEdgeCount() > 0);
         //V_ASSERT(aLeft->isValid(aPolyhedron, normalization,tolerance));

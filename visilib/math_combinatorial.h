@@ -92,8 +92,9 @@ namespace visilib
         V_ASSERT(std::is_sorted(result.begin(), result.end()));
     }
 
-    /** @brief Initialize a new facets description result from the two input facets description aFacetsDescription1 an aFacetsDescription1 of two given vertices
-    The resulting facets description is a sorted list of facets, containing the intersection set of the two input facets descriptions list and the additional facet anHyperplane.
+    /** @brief Initialize the facets description of a vertex merging two vertices found at the same place (a collapsed edge)
+    The resulting facets description is the sorted union of the two input facets descriptions: the merged vertex lies on
+    every hyperplane either of them lay on, and the facets they share are kept once.
     Remark: the precondition is that the input facets list are sorted .*/
 
     inline void MathCombinatorial::initFacets(const std::vector<size_t>& aFacetsDescription1, const std::vector<size_t>& aFacetsDescription2, std::vector<size_t>& result)
@@ -114,6 +115,8 @@ namespace visilib
             }
             else
             {
+                // a facet of both vertices: the merged vertex lies on it too
+                result.push_back(aFacetsDescription1[i]);
                 i++;j++;
             }
         }

@@ -87,6 +87,17 @@ namespace visilib
         */
         template<class S> size_t add(const P& aLine, GeometryPositionType aPosition, bool aNormalization, S tolerance);
 
+        /**@brief Add a hyperplane, or return the hyperplane already added with addHyperplane that carries the same line
+        (proportional, see MathPredicates::getProportionality).
+
+        A mesh edge seen from two silhouettes, or the collinear pieces of a subdivided side, carry the same line: added
+        twice, it would be two hyperplanes of the same plane, and a vertex lying on one would only be found on the other
+        by the numerical test, if at all. Merged, the incidence is known from the facet descriptions.
+        @param anOrientation: +1 when the returned hyperplane has the orientation of aLine, -1 when it is opposite
+        @param hasMerged: whether an existing hyperplane was returned
+        */
+        template<class S> size_t addHyperplane(const P& aLine, bool aNormalization, S tolerance, int& anOrientation, bool& hasMerged);
+
         /**@brief Return the facet description of a point*/
         std::vector<size_t>& getFacetsDescription(size_t v)
         {
@@ -134,6 +145,7 @@ namespace visilib
         std::vector<P> mLines;                                        /** < @brief The list of Plucker points (Plucker vertices and hyperplanes). */
         std::vector<GeometryPositionType> mQuadricRelativePositions;  /** < @brief The relative position of the Plucker point relative to the Plucker quadric*/
         std::vector<bool> mNormalizations;                            /** < @brief The normalization status of each Plucker point*/
+        std::vector<size_t> mMergeableHyperplanes;                    /** < @brief The hyperplanes added with addHyperplane, candidates for a merge*/
         std::vector<std::vector<size_t> > mFacetsDescription;          /** < @brief The facet description (list of all the hyperplanes intersecting at that point) of each Plucker point mLines*/
     };
 
@@ -151,8 +163,33 @@ namespace visilib
     }
 
     template<class P>
+    template<class S>
+    size_t PluckerPolyhedron<P>::addHyperplane(const P& aLine, bool aNormalization, S tolerance, int& anOrientation, bool& hasMerged)
+    {
+        for (size_t index : mMergeableHyperplanes)
+        {
+            const int orientation = MathPredicates::getProportionality(mLines[index], aLine, tolerance);
+            if (orientation != 0)
+            {
+                anOrientation = orientation;
+                hasMerged = true;
+                return index;
+            }
+        }
+        const size_t index = add(aLine, ON_BOUNDARY, aNormalization, tolerance);
+        mMergeableHyperplanes.push_back(index);
+        anOrientation = 1;
+        hasMerged = false;
+        return index;
+    }
+
+    template<class P>
     void PluckerPolyhedron<P>::resize(size_t size)
     {
+        // the hyperplanes removed with the points are no longer candidates for a merge
+        mMergeableHyperplanes.erase(std::remove_if(mMergeableHyperplanes.begin(), mMergeableHyperplanes.end(),
+                                                   [size](size_t index) { return index >= size; }),
+                                    mMergeableHyperplanes.end());
         mLines.resize(size);
         mQuadricRelativePositions.resize(size);
         mNormalizations.resize(size);

@@ -125,7 +125,7 @@ namespace visilib
         @param S: the tolerance against which the length of the edges is tested
         */
 
-        template<class S> bool removeCollapsedEdges(PluckerPolyhedron<P>* polyhedron, S Tolerance);
+        template<class S> bool removeCollapsedEdges(PluckerPolyhedron<P>* polyhedron, S Tolerance, HelperStatisticCollector* aStatistic = nullptr);
 
 
         /** @brief Compute the extremal stabbing lines of the polytope*/
@@ -366,7 +366,7 @@ namespace visilib
 
         }
     template<class P> template<class S>
-    bool PluckerPolytope<P>::removeCollapsedEdges(PluckerPolyhedron<P>* polyhedron, S tolerance)
+    bool PluckerPolytope<P>::removeCollapsedEdges(PluckerPolyhedron<P>* polyhedron, S tolerance, HelperStatisticCollector* aStatistic)
     {
         std::vector<int> myEdgesTable;
         std::vector<int> myMergeTable;
@@ -421,6 +421,10 @@ namespace visilib
             int merge_right = myMergeTable[i+1];
             if (merge_left!=merge_right)
             {
+                if (aStatistic != nullptr)
+                {
+                    aStatistic->inc(COLLAPSED_EDGE_MERGED_COUNT);
+                }
                 for (int j=0; j<myEdgesTable.size();j++)
                 {
                     if (myEdgesTable[j] == merge_right)
@@ -701,7 +705,7 @@ namespace visilib
         {
             const P plane = polyhedron->get(*index);
 
-            const GeometryPositionType position = MathPredicates::getRelativePosition(this, polyhedron, plane, tolerance);
+            const GeometryPositionType position = MathPredicates::getRelativePosition(this, polyhedron, plane, tolerance, size_t(*index));
 
             /* The cell lies on one side of its own facets, and the side is read from its vertices. A plane the whole
             cell lies in is kept too, as an equality: a line that leaves it is outside the cell, however well it

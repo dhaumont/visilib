@@ -79,6 +79,17 @@ namespace visilib
         the scene faces it reached — the occluders the thin line would have missed. */
         FAT_RAY_CAST_COUNT,
         FAT_RAY_FACE_COUNT,
+        /** @brief How the incidences of the vertices with the hyperplanes were decided
+
+        A vertex lies on a hyperplane COMBINATORIALLY when the hyperplane is in its facet description: the answer is
+        known without computing anything. It is found on it NUMERICALLY when it is not, yet the value falls within
+        the tolerance: an accidental incidence, or a rounding the tolerance absorbed. A hyperplane is MERGED when the
+        line it carries is already a hyperplane of the polyhedron (a shared or collinear edge), and an edge is
+        COLLAPSED when its two vertices were merged into one. */
+        INCIDENCE_COMBINATORIAL_COUNT,
+        INCIDENCE_NUMERIC_BOUNDARY_COUNT,
+        HYPERPLANE_MERGED_COUNT,
+        COLLAPSED_EDGE_MERGED_COUNT,
         COUNTER_LAST
     };
 
@@ -247,6 +258,10 @@ namespace visilib
                 counts["  fat casts"] = mCounts[FAT_RAY_CAST_COUNT];
                 counts["  fat faces"] = mCounts[FAT_RAY_FACE_COUNT];
             }
+            counts["Incidences combinatorial"] = mCounts[INCIDENCE_COMBINATORIAL_COUNT];
+            counts["Incidences numeric"] = mCounts[INCIDENCE_NUMERIC_BOUNDARY_COUNT];
+            counts["Hyperplanes merged"] = mCounts[HYPERPLANE_MERGED_COUNT];
+            counts["Collapsed edges merged"] = mCounts[COLLAPSED_EDGE_MERGED_COUNT];
         }
 
         /**@brief The real valued statistics, of which only the smallest seen is kept
@@ -295,6 +310,11 @@ namespace visilib
                 std::cout << "  [Fat ray:        " << mCounts[FAT_RAY_CAST_COUNT] << " wide casts, "
                           << mCounts[FAT_RAY_FACE_COUNT] << " faces found beyond the thin line]" << std::endl;
             }
+
+            std::cout << "  [Incidences:     " << mCounts[INCIDENCE_COMBINATORIAL_COUNT] << " combinatorial, "
+                      << mCounts[INCIDENCE_NUMERIC_BOUNDARY_COUNT] << " numeric]" << std::endl
+                      << "  [Merged:         " << mCounts[HYPERPLANE_MERGED_COUNT] << " hyperplanes, "
+                      << mCounts[COLLAPSED_EDGE_MERGED_COUNT] << " collapsed edges]" << std::endl;
 
             if (mMeasuresSet[WORST_ACCEPTED_MARGIN])
             {

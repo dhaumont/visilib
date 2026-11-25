@@ -751,3 +751,131 @@ bool MathShadowGeometryTest(std::string&)
 #undef SHADOW_CHECK
 	return true;
 }
+
+/* The incidences of the vertices with the hyperplanes, decided from the facet descriptions, and the merge of the
+hyperplanes carrying the same line. */
+bool MathIncidenceTest(std::string&)
+{
+#define INCIDENCE_CHECK(condition) if (!(condition)) { std::cout << "Error in line " << __LINE__ << ": " #condition << std::endl; return false; }
+	const double tolerance = MathArithmetic<double>::Tolerance();
+
+	{//MathCombinatorial::initFacets of a merge: the union of the two descriptions
+		std::vector<size_t> result;
+		MathCombinatorial::initFacets(std::vector<size_t>{ 1, 2, 5 }, std::vector<size_t>{ 2, 3, 5 }, result);
+		INCIDENCE_CHECK((result == std::vector<size_t>{ 1, 2, 3, 5 }));
+
+		result.clear();
+		MathCombinatorial::initFacets(std::vector<size_t>{ 4, 7 }, std::vector<size_t>{ 4, 7 }, result);
+		INCIDENCE_CHECK((result == std::vector<size_t>{ 4, 7 }));
+	}
+
+	{//MathPredicates::getProportionality
+		const MathPlucker6d a(MathVector3d(0.1, 0.2, 0.3), MathVector3d(1.0, -0.5, 2.0));
+		const MathPlucker6d other(MathVector3d(0.1, 0.2, 0.3), MathVector3d(1.0, -0.5, 2.1));
+		INCIDENCE_CHECK(MathPredicates::getProportionality(a, a * 3.0, tolerance) == 1);
+		INCIDENCE_CHECK(MathPredicates::getProportionality(a, a * -2.0, tolerance) == -1);
+		INCIDENCE_CHECK(MathPredicates::getProportionality(a, other, tolerance) == 0);
+
+		// a rounding far below the tolerance is the same plane, a difference above it is not
+		MathPlucker6d nearly = a * 2.0;
+		nearly += MathPlucker6d(1e-15, -1e-15, 0.0, 0.0, 1e-15, 0.0);
+		INCIDENCE_CHECK(MathPredicates::getProportionality(a, nearly, tolerance) == 1);
+		MathPlucker6d apart = a;
+		apart += MathPlucker6d(0.0, 1e-6, 0.0, 0.0, 0.0, 0.0);
+		INCIDENCE_CHECK(MathPredicates::getProportionality(a, apart, tolerance) == 0);
+	}
+
+	{//PluckerPolyhedron::addHyperplane: the same line, either way, is merged; another line is not
+		PluckerPolyhedron<MathPlucker6d> polyhedron;
+		const MathPlucker6d a(MathVector3d(0.0, 0.0, 0.0), MathVector3d(1.0, 0.0, 0.0));
+		const MathPlucker6d collinear(MathVector3d(3.0, 0.0, 0.0), MathVector3d(2.0, 0.0, 0.0)); // same line, the other way
+		const MathPlucker6d other(MathVector3d(0.0, 1.0, 0.0), MathVector3d(1.0, 1.0, 0.0));
+
+		int orientation = 0;
+		bool merged = true;
+		const size_t first = polyhedron.addHyperplane(a, false, tolerance, orientation, merged);
+		INCIDENCE_CHECK(!merged && orientation == 1);
+
+		const size_t second = polyhedron.addHyperplane(collinear, false, tolerance, orientation, merged);
+		INCIDENCE_CHECK(merged && second == first && orientation == -1);
+
+		const size_t third = polyhedron.addHyperplane(other, false, tolerance, orientation, merged);
+		INCIDENCE_CHECK(!merged && third != first && orientation == 1);
+
+		// a plain add is never a candidate for a merge
+		const size_t plain = polyhedron.add(other * 5.0, ON_BOUNDARY, false, tolerance);
+		INCIDENCE_CHECK(polyhedron.addHyperplane(other, false, tolerance, orientation, merged) == third && plain != third);
+	}
+
+	{//SilhouetteEdge: a side of an edge merged the other way is the opposite side of its hyperplane
+		SilhouetteEdge edge(nullptr, 0, 0);
+		INCIDENCE_CHECK(edge.getEdgeSide(ON_NEGATIVE_SIDE) == ON_NEGATIVE_SIDE);
+		edge.mHyperPlaneSign = -1;
+		INCIDENCE_CHECK(edge.getEdgeSide(ON_NEGATIVE_SIDE) == ON_POSITIVE_SIDE);
+		INCIDENCE_CHECK(edge.getEdgeSide(ON_POSITIVE_SIDE) == ON_NEGATIVE_SIDE);
+		INCIDENCE_CHECK(edge.getEdgeSide(ON_BOUNDARY) == ON_BOUNDARY);
+		INCIDENCE_CHECK(edge.getEdgeSide(ON_BOTH_SIDES) == ON_BOTH_SIDES);
+	}
+
+	{//the splitter reads the incidence of a vertex with one of its facets from its description
+		// two triangles facing each other: the initial cell, whose vertices lie on the edges of the two sources
+		const float light[] = { -1.0f, 0.0f, 0.3f, -1.0f, 0.26f, -0.15f, -1.0f, -0.26f, -0.15f };
+		const float receiver[] = { 1.0f, 0.0f, 0.3f, 1.0f, -0.26f, -0.15f, 1.0f, 0.26f, -0.15f };
+		GeometryConvexPolygon a(light, 3);
+		GeometryConvexPolygon b(receiver, 3);
+
+		PluckerPolyhedron<MathPlucker6d> polyhedron;
+		PluckerPolytopeBuilder<MathPlucker6d, double> builder(false, tolerance);
+		PluckerPolytope<MathPlucker6d>* polytope = builder.build(a, b, &polyhedron);
+		INCIDENCE_CHECK(polytope->getEdgeCount() > 0);
+
+		// the hyperplane of the first edge of the light, a facet of the cell, read with an error a thousand times the
+		// tolerance: the vertices lying on it must still be found on it, and the cell on one side, unsplit
+		/* An error that separates two vertices of the facet: with u1, u2 the two vertices on the unit sphere, the swap of
+		u1 - u2 gives a Klein product with a vertex v equal to (u1 - u2) . v, positive on the first and negative on the
+		second (Cauchy-Schwarz). */
+		std::vector<size_t> incident;
+		for (size_t vertex : polytope->getVertices())
+		{
+			if (MathCombinatorial::hasFacet(polyhedron.getFacetsDescription(vertex), 0))
+			{
+				incident.push_back(vertex);
+			}
+		}
+		INCIDENCE_CHECK(incident.size() >= 2);
+		const MathPlucker6d u1 = polyhedron.get(incident[0]).getNormalized();
+		const MathPlucker6d u2 = polyhedron.get(incident[1]).getNormalized();
+		MathPlucker6d plane = polyhedron.get(0);
+		plane += (u1 - u2).quadricGradient() * 1e-8;
+
+		// the error must put the incident vertices on both sides numerically, or the check below proves nothing
+		bool hasNegative = false;
+		bool hasPositive = false;
+		for (size_t vertex : polytope->getVertices())
+		{
+			if (MathCombinatorial::hasFacet(polyhedron.getFacetsDescription(vertex), 0))
+			{
+				const GeometryPositionType numeric = MathPredicates::getVertexPlaneRelativePosition(plane, polyhedron.get(vertex), tolerance);
+				hasNegative |= numeric == ON_NEGATIVE_SIDE;
+				hasPositive |= numeric == ON_POSITIVE_SIDE;
+			}
+		}
+		INCIDENCE_CHECK(hasNegative && hasPositive);
+
+		const size_t pointsBefore = polyhedron.getLinesCount();
+		PluckerPolytope<MathPlucker6d>* left = new PluckerPolytope<MathPlucker6d>();
+		PluckerPolytope<MathPlucker6d>* right = new PluckerPolytope<MathPlucker6d>();
+		HelperStatisticCollector statistic;
+		const GeometryPositionType result = PluckerPolytopeSplitter<MathPlucker6d, double>::split(&polyhedron, plane, polytope, left, right, 0, false, tolerance, &statistic);
+
+		INCIDENCE_CHECK(result != ON_BOTH_SIDES);
+		INCIDENCE_CHECK(polyhedron.getLinesCount() == pointsBefore);
+		INCIDENCE_CHECK(statistic.get(INCIDENCE_COMBINATORIAL_COUNT) > 0);
+
+		delete left;
+		delete right;
+		delete polytope;
+	}
+#undef INCIDENCE_CHECK
+	return true;
+}

@@ -22,6 +22,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 
 #include <unordered_set>
 #include <fstream>
+#include "geometry_position_type.h"
 #include "math_plucker_6.h"
 
 namespace visilib
@@ -45,16 +46,31 @@ namespace visilib
             : mEdgeIndex(anEdgeIndex),
             mFace(aFace),
             mHyperPlaneIndex(anHyperplaneIndex),
+            mHyperPlaneSign(1),
             mScore(-1.0),
             mIsActive(true)
         {
         }
 
         size_t mHyperPlaneIndex;
+        /** @brief The orientation of the edge relative to its hyperplane: -1 when the hyperplane was merged with one
+        carrying the same line the other way (see PluckerPolyhedron::addHyperplane). A side of the edge is the side of the
+        hyperplane times this sign.*/
+        int mHyperPlaneSign;
         SilhouetteMeshFace* mFace;
         size_t mEdgeIndex;
         double mScore;
         bool mIsActive;
+
+        /** @brief The side of the edge, read from a side of its hyperplane*/
+        GeometryPositionType getEdgeSide(GeometryPositionType aHyperplaneSide) const
+        {
+            if (mHyperPlaneSign > 0 || aHyperplaneSide == ON_BOUNDARY || aHyperplaneSide == ON_BOTH_SIDES)
+            {
+                return aHyperplaneSide;
+            }
+            return aHyperplaneSide == ON_NEGATIVE_SIDE ? ON_POSITIVE_SIDE : ON_NEGATIVE_SIDE;
+        }
     };
 
 
