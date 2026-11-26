@@ -20,9 +20,11 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 
 #include <string>
 #include <iostream>
+#include <sstream>
 
 #include "../demo/demo_helper.h"
 #include "test_definition.h"
+#include "test_image.h"
 
 using namespace visilib;
 using namespace visilibDemo;
@@ -51,7 +53,16 @@ bool testConfiguration(const DemoConfiguration& configuration, VisibilityResult 
     debugger.setDisplayStatistics(false);
 
     auto result = visilib::areVisible(occluderSet, &v0[0], v0.size() / 3, &v1[0], v1.size() / 3, config, &debugger);
-  
+
+    if (testImagesEnabled())
+    {
+        std::ostringstream label;
+        label << configuration.vertexCount0 << "_" << configuration.vertexCount1 << "_precision" << int(config.precision)
+              << "_scaling" << configuration.globalScaling << "_normalization" << int(config.normalization)
+              << (config.silhouetteOptimization ? "_silhouette" : "");
+        writeTestImage(label.str(), occluderSet, v0, v1, result, debugger.getTimeout().isOver(), config.detectApertureOnly, debugger);
+    }
+
     return (result == expected);
 }
 
@@ -158,7 +169,7 @@ namespace
     /* One query of the directional pipeline: two unit squares facing each other along
     x, their centers giving the direction of the light, solved by one of the two
     exact solvers. */
-    VisibilityResult runDirectionalQuery(GeometryOccluderSet* scene, VisibilityExactQueryConfiguration::SolverType solverType)
+    VisibilityResult runDirectionalQuery(GeometryOccluderSet* scene, VisibilityExactQueryConfiguration::SolverType solverType, const std::string& name)
     {
         std::vector<float> v0 = { 0, -1, -1, 0, 1, -1, 0, 1, 1, 0, -1, 1 };
         std::vector<float> v1 = { 2, -1, -1, 2, -1, 1, 2, 1, 1, 2, 1, -1 };
@@ -173,7 +184,10 @@ namespace
         debugger.getTimeout().setMaximumDuration(queryBudgetSeconds());
         debugger.setDisplayStatistics(false);
 
-        return visilib::areVisible(scene, &v0[0], v0.size() / 3, &v1[0], v1.size() / 3, config, &debugger);
+        const VisibilityResult answer = visilib::areVisible(scene, &v0[0], v0.size() / 3, &v1[0], v1.size() / 3, config, &debugger);
+        writeTestImage(name + (solverType == VisibilityExactQueryConfiguration::EXACT_SEQUENTIAL_SOLVER ? "_sequential" : "_aperture"),
+                       scene, v0, v1, answer, debugger.getTimeout().isOver(), config.detectApertureOnly, debugger);
+        return answer;
     }
 
     bool checkDirectionalCase(const char* name, const std::vector<HelperTriangleMesh*>& walls, VisibilityResult expected)
@@ -188,7 +202,7 @@ namespace
         for (auto solverType : solvers)
         {
             GeometryOccluderSet* scene = createWallScene(walls);
-            const VisibilityResult answer = runDirectionalQuery(scene, solverType);
+            const VisibilityResult answer = runDirectionalQuery(scene, solverType, name);
 
             if (answer != expected)
             {

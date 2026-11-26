@@ -23,6 +23,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include <iostream>
 
 #include "test_definition.h"
+#include "test_image.h"
 
 /* The arguments select the suites by name, then the variant numbers of the solver sweeps, and
 NO_TIMEOUT lifts the time budget:
@@ -44,6 +45,15 @@ The budget, 2.0s for the small scenes and 10.0s for the models of demo/data, sto
 has stopped being interesting; NO_TIMEOUT lifts it, which is how a variant reported as TIMEOUT gets
 looked at. */
 const char* const cNoTimeoutArgument = "NO_TIMEOUT";
+
+/* The images of the queries are not a choice about the tests either:
+
+    visilibTest ShadowDiscontinuityTest IMAGES             one SVG per query, in test_images/ShadowDiscontinuityTest
+    visilibTest Solver 12,14 IMAGES=/tmp/images            of the variants 12 and 14, in /tmp/images/<suite>
+
+Each image shows the sources, the occluders, the stabbing line of an early stop and the shadow
+discontinuities, with the answer of the query (see test_image.h). */
+const char* const cImagesArgument = "IMAGES";
 
 typedef bool (*TestFunction)(std::string&);
 
@@ -76,7 +86,7 @@ const TestDefinition cTests[] =
 
 static void printUsage(const char* program)
 {
-    std::cout << "usage: " << program << " [filter] [ids] [NO_TIMEOUT] [-l] [-h]" << std::endl
+    std::cout << "usage: " << program << " [filter] [ids] [NO_TIMEOUT] [IMAGES[=dir]] [-l] [-h]" << std::endl
               << "  runs the test suites of the library, one line of result per test" << std::endl
               << "  filter   substring of a test name, e.g. '" << program << " Solver'" << std::endl
               << "  ids      comma separated variant numbers to run, e.g. '12,14,15'," << std::endl
@@ -85,6 +95,9 @@ static void printUsage(const char* program)
               << "  NO_TIMEOUT" << std::endl
               << "           run the queries without a time budget, so that a variant which" << std::endl
               << "           reports TIMEOUT is answered instead of cut short" << std::endl
+              << "  IMAGES[=dir]" << std::endl
+              << "           write one SVG image per query (sources, occluders, stabbing line," << std::endl
+              << "           shadow discontinuities and answer) in dir/<suite>, test_images by default" << std::endl
               << "  -l       list the available tests and exit" << std::endl
               << "  -h       print this message and exit" << std::endl << "  tests:" << std::endl;
 
@@ -103,6 +116,13 @@ int main(int argc, char** argv)
 
     for (int i = 1; i < argc; i++)
     {
+        const std::string argument = argv[i];
+        if (argument == cImagesArgument || argument.rfind(std::string(cImagesArgument) + "=", 0) == 0)
+        {
+            enableTestImages(argument.size() > std::string(cImagesArgument).size() ? argument.substr(std::string(cImagesArgument).size() + 1) : std::string());
+            continue;
+        }
+
         if (std::string(argv[i]) == cNoTimeoutArgument)
         {
             disableQueryBudget();
@@ -154,6 +174,7 @@ int main(int argc, char** argv)
         }
 
         selectedCount++;
+        setTestImageSuite(cTests[i].mName);
 
         std::string errorMessage;
 

@@ -26,6 +26,7 @@ set(Tests
     ./src/test_visibility.cpp
     ./src/test_solvers.cpp
     ./src/test_shadow.cpp
+    ./src/test_image.cpp
     ../demo/demo_helper.cpp
 )
 

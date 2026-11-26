@@ -34,6 +34,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 
 #include "../demo/demo_helper.h"
 #include "test_definition.h"
+#include "test_image.h"
 
 #include "geometry_convex_polygon.h"
 #include "geometry_occluder_set.h"
@@ -126,7 +127,7 @@ namespace
     
     VisibilityResult solveWith(GeometryOccluderSet* occluderSet, const std::vector<float>& v0, const std::vector<float>& v1,
                                const DemoConfiguration& configuration, VisibilityExactQueryConfiguration::SolverType solverType,
-                               double timeoutSeconds, bool& budgetExhausted)
+                               double timeoutSeconds, bool& budgetExhausted, const std::string& label, std::string& imagePath)
     {
         VisibilityExactQueryConfiguration query;
         query.detectApertureOnly = configuration.detectApertureOnly;
@@ -149,6 +150,8 @@ namespace
         const VisibilityResult result = visilib::areVisible(occluderSet, &v0[0], v0.size() / 3, &v1[0], v1.size() / 3, query, &debugger);
 
          budgetExhausted = debugger.getTimeout().isOver();
+
+        imagePath = writeTestImage(label, occluderSet, v0, v1, result, budgetExhausted, query.detectApertureOnly, debugger, false);
 
         return result;
     }
@@ -500,8 +503,10 @@ namespace
 
          bool budgetExhausted = false;
 
+        std::string imagePath;
         const auto start = std::chrono::steady_clock::now();
-        outcome.mAnswer = solveWith(occluderSet, v0, v1, settings, sweepVariant.mSolver, queryBudgetSeconds(), budgetExhausted);
+        outcome.mAnswer = solveWith(occluderSet, v0, v1, settings, sweepVariant.mSolver, queryBudgetSeconds(), budgetExhausted,
+                                    "#" + std::to_string(variantId) + "_" + DemoConfiguration::sceneName(settings.sceneIndex) + "_" + description, imagePath);
         const long elapsedMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
 
         outcome.mDescription += " (" + std::to_string(elapsedMs) + "ms)";
@@ -519,6 +524,7 @@ namespace
         }
      
         outcome.display();   
+        printTestImage(imagePath, outcome.mAnswer, budgetExhausted);
         results.append(outcome);
   
         delete occluderSet;
@@ -898,6 +904,8 @@ namespace
 
         FatRayOutcome outcome;
         outcome.mAnswer = visilib::areVisible(occluderSet, &v0[0], v0.size() / 3, &v1[0], v1.size() / 3, query, &debugger);
+        writeTestImage(std::string(DemoConfiguration::sceneName(scene)) + (solver == VisibilityExactQueryConfiguration::EXACT_SEQUENTIAL_SOLVER ? "_sequential" : "_aperture")
+                       + (detectApertureOnly ? "_earlyStop" : ""), occluderSet, v0, v1, outcome.mAnswer, debugger.getTimeout().isOver(), detectApertureOnly, debugger);
 
         /* The two counters are of the map only when a cast was made, which is how a mode that
         never casts reads as nought. */

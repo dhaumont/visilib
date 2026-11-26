@@ -32,6 +32,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include "visibility_event.h"
 #include "../demo/demo_helper.h"
 #include "test_definition.h"
+#include "test_image.h"
 
 using namespace visilib;
 using namespace visilibDemo;
@@ -110,6 +111,7 @@ namespace
         std::ostringstream out;
         out << DemoConfiguration::sceneName(c.mScene) << " light=" << c.mLightVertices << (c.mDirectional ? " directional" : "")
             << " size=" << c.mLightSize << "/" << c.mReceiverSize << (c.mInfinite ? " infinite" : "") << ": ";
+        writeTestImage(out.str(), occluderSet, v0, v1, result, debugger.getTimeout().isOver(), false, debugger);
 
         bool ok = true;
         if (result == FAILURE || result == UNKNOWN)
@@ -296,7 +298,14 @@ namespace
         debugger.setDisplayStatistics(false);
 
         std::vector<ShadowDiscontinuityArc> arcs;
-        computeShadowDiscontinuities(occluderSet, &v0[0], 3, &v1[0], 3, arcs, config, &debugger);
+        const VisibilityResult result = computeShadowDiscontinuities(occluderSet, &v0[0], 3, &v1[0], 3, arcs, config, &debugger);
+        if (testImagesEnabled())
+        {
+            std::ostringstream label;
+            label << DemoConfiguration::sceneName(aScene) << "_phi" << aPhi << (aSilhouetteOptimization ? "_silhouette" : "")
+                  << (anIntegerPredicates ? "_integer" : "") << (aPrecision == VisibilityExactQueryConfiguration::DOUBLE ? "" : "_exact");
+            writeTestImage(label.str(), occluderSet, v0, v1, result, debugger.getTimeout().isOver(), false, debugger);
+        }
 
         for (float& c : v0) c = occluderSet->getGrid().snap(c);
         for (float& c : v1) c = occluderSet->getGrid().snap(c);
