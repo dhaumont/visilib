@@ -38,7 +38,7 @@ bool testConfiguration(const DemoConfiguration& configuration, VisibilityResult 
 
     VisibilityExactQueryConfiguration config;
     config.silhouetteOptimization = true;
-    config.hyperSphereNormalization = configuration.normalization;
+    config.normalization = configuration.normalization;
     config.precision = configuration.precisionType;
     config.detectApertureOnly = false;
 
@@ -70,7 +70,7 @@ bool VisibilityTest(std::string& )
 #endif
     std::vector<float> globalScalings = {0.05f, 0.1f, 1.f, 5.0f };
     std::vector<size_t> vertexCount = { 1,2,3,5,7,9,11 };
-    std::vector<bool> normalizations = { true,false };
+    std::vector<NormalizationType> normalizations = { HYPERSPHERE_NORMALIZATION, NO_NORMALIZATION, CHART_NORMALIZATION };
     std::vector<float> phis = { 0.0};
     std::vector<bool> silhouetteOptimization = {true,false};
     bool result = true;

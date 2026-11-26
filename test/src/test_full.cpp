@@ -61,6 +61,7 @@ const TestDefinition cTests[] =
     { "MathShadowGeometryTest", &MathShadowGeometryTest },
     { "MathIncidenceTest", &MathIncidenceTest },
     { "MathIntegerPredicateTest", &MathIntegerPredicateTest },
+    { "MathNormalizationTest", &MathNormalizationTest },
     { "VisibilityTest", &VisibilityTest },
     { "DirectionalVisibilityTest", &DirectionalVisibilityTest },
     { "SolverConsistencyTest", &SolverConsistencyTest },

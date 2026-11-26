@@ -716,7 +716,7 @@ void DemoConfiguration::displaySettings()
 
     std::cout << "  [Early stop: " << getStatusString(detectApertureOnly) << "]";
     std::cout << "[Silhouette: " << getStatusString(silhouetteOptimisation) << "]";
-    std::cout << "[Normalization: " << getStatusString(normalization) << "]";
+    std::cout << "[Normalization: " << normalizationName(normalization) << "]";
     std::cout << "[Light: " << (directionalLight ? "DIRECTIONAL" : "POINT") << "]";
     std::cout << "[Rep. line: " << (optimisedRepresentativeLine ? "OPTIMISED" : "GRAVITY CENTER") << "]";
     std::cout << "[SolverType: " << toStr(solverType)<< "]";
@@ -735,7 +735,7 @@ namespace
     a newer build of the demo. */
     const char* const cConfigKeys[] = {
         "vertexCount0", "vertexCount1", "silhouetteOptimisation", "detectApertureOnly",
-        "normalization", "scaling", "scaling0", "scaling1", "phi", "eta", "sceneIndex", "globalScaling",
+        "normalization", "normalizationType", "scaling", "scaling0", "scaling1", "phi", "eta", "sceneIndex", "globalScaling",
         "precisionType", "solverType", "tolerance", "minimumApertureSize", "confidenceValue",
         "expected", "directionalLight"
 #if EMBREE
@@ -934,7 +934,7 @@ std::string DemoConfiguration::jsonString() const
     root["vertexCount1"] = vertexCount1;
     root["silhouetteOptimisation"] = silhouetteOptimisation;
     root["detectApertureOnly"] = detectApertureOnly;
-    root["normalization"] = normalization;
+    root["normalizationType"] = int(normalization);
     root["scaling0"] = asJsonNumber(scaling0);
     root["scaling1"] = asJsonNumber(scaling1);
 
@@ -1041,7 +1041,7 @@ std::string DemoConfiguration::caseFileName() const
         << "__eta" << fileNameTag(eta)
         << "__gs" << fileNameTag(globalScaling)
         << "__f" << (silhouetteOptimisation ? "1" : "0")
-                 << (normalization ? "1" : "0")
+                 << int(normalization)
                  << (detectApertureOnly ? "1" : "0")
         << "__" << DemoHelper::precisionTag(precisionType)
         << "__" << solverTag(solverType)
@@ -1113,7 +1113,26 @@ void DemoConfiguration::readConfig(const std::string& filename)
     readCount(root, "vertexCount1", vertexCount1);
     readBool(root, "silhouetteOptimisation", silhouetteOptimisation);
     readBool(root, "detectApertureOnly", detectApertureOnly);
-    readBool(root, "normalization", normalization);
+    /* The normalization was a flag, the hypersphere or nothing, before the chart joined them: a file of that time
+    still says which of the two it was. */
+    bool myHyperSphere = false;
+    if (root.contains("normalization"))
+    {
+        readBool(root, "normalization", myHyperSphere);
+        normalization = myHyperSphere ? HYPERSPHERE_NORMALIZATION : NO_NORMALIZATION;
+    }
+    if (root.contains("normalizationType") && root["normalizationType"].is_number_integer())
+    {
+        const int myType = root["normalizationType"].get<int>();
+        if (myType >= int(NO_NORMALIZATION) && myType <= int(CHART_NORMALIZATION))
+        {
+            normalization = NormalizationType(myType);
+        }
+        else
+        {
+            std::cerr << "config: unknown normalizationType " << myType << ", kept " << normalizationName(normalization) << std::endl;
+        }
+    }
     readBool(root, "directionalLight", directionalLight);
 
     /* A file of before the per-source sizes gives one "scaling" to the two of them: it
@@ -1232,7 +1251,7 @@ void DemoConfiguration::displaySummary()
     std::string method = toStr(solverType);
     std::cout << method << " [SceneIndex : " << sceneIndex << ", scaling: " << globalScaling << std::endl;
     std::cout << ", v0: " << vertexCount0 << ", vv1: " << vertexCount1 << "; phi:" << phi;
-    std::cout << "; precision: "<< toStr(precisionType) <<"; tolerance:" << tolerance << "] ";
+    std::cout << "; precision: "<< toStr(precisionType) <<"; tolerance:" << tolerance << "; normalization: " << normalizationName(normalization) << "] ";
 }
 
 #if EMBREE

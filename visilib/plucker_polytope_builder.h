@@ -24,6 +24,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include "geometry_convex_polygon.h"
 #include "math_combinatorial.h"
 #include "plucker_polytope.h"
+#include "math_plucker_normalization.h"
 #include "plucker_polyhedron.h"
 #include "visibility_event_registry.h"
 
@@ -37,7 +38,7 @@ namespace visilib
     public:
         /** @brief A builder of the minimal polytope. When aRegistry is given, the edges of the two polygons are recorded in it as the
         features their hyperplanes carry: the first polygon as the light, the second as the receiver.*/
-        PluckerPolytopeBuilder(bool normalization, S tolerance, VisibilityEventRegistry* aRegistry = nullptr, const MathIntegerGrid& aGrid = MathIntegerGrid());
+        PluckerPolytopeBuilder(const MathPluckerNormalization<P, S>& aNormalization, S tolerance, VisibilityEventRegistry* aRegistry = nullptr, const MathIntegerGrid& aGrid = MathIntegerGrid());
 
         /** @brief Create the minimal polytope following Mora et al. An extermal stabbing line is created for each vertex pair of polygon a and b.
         @param a: first source polygon
@@ -67,7 +68,7 @@ namespace visilib
         /** @brief Create the edges from the facets representation to obtain the polytope skeleton*/
         void addEdges(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* aPolyhedron);
 
-        bool mNormalization;  /** < @brief Normalization activated or not*/
+        MathPluckerNormalization<P, S> mNormalization;  /** < @brief How the points and the hyperplanes are normalized*/
         S mTolerance;         /** < @brief Tolerance used to compute the intersection with the Plucker quadric */
         VisibilityEventRegistry* mRegistry; /** < @brief Where the edges of the polygons are recorded, if any*/
         MathIntegerGrid mGrid;              /** < @brief The grid the polygons are snapped to: the lines through its points get exact predicates*/
@@ -83,7 +84,7 @@ namespace visilib
     };
 
     template<class P, class S>
-    inline PluckerPolytopeBuilder<P, S>::PluckerPolytopeBuilder(bool aNormalization, S aTolerance, VisibilityEventRegistry* aRegistry, const MathIntegerGrid& aGrid)
+    inline PluckerPolytopeBuilder<P, S>::PluckerPolytopeBuilder(const MathPluckerNormalization<P, S>& aNormalization, S aTolerance, VisibilityEventRegistry* aRegistry, const MathIntegerGrid& aGrid)
         : mGrid(aGrid)
     {
         mNormalization = aNormalization;
@@ -150,13 +151,8 @@ namespace visilib
             const MathVector3d& v2 = v[(i + 1) % count];
 
             P  line = clockWise ? MathGeometry::createEdgeFromPoints<P>(v1, v2) : MathGeometry::createEdgeFromPoints<P>(v2, v1);
-            if (mNormalization)
-            {
-                line = line.getNormalized();
-
-                V_ASSERT((MathPredicates::isNormalized(line, mTolerance)));
-            }
-            const size_t index = aPolyhedron->add(line, ON_BOUNDARY, mNormalization, mTolerance);
+            line = mNormalization.normalizeHyperplane(line);
+            const size_t index = aPolyhedron->add(line, ON_BOUNDARY, mNormalization.isUnitNorm(), mTolerance);
             if (clockWise)
             {
                 setInputLine(aPolyhedron, index, v1, v2);
@@ -220,13 +216,10 @@ namespace visilib
                 const MathVector3d& v1 = a.getVertex(i);
                 const MathVector3d& v2 = b.getVertex(j);
                 P  myStabbingLine(v1, v2);
-                if (mNormalization)
-                {
-                    myStabbingLine = myStabbingLine.getNormalized();
-                }
+                myStabbingLine = mNormalization.normalizePoint(myStabbingLine);
 
                 polytope->addExtremalStabbingLine(myStabbingLine);
-                size_t vertexIndex = aPolyhedron->add(myStabbingLine, ON_BOUNDARY, mNormalization, mTolerance);
+                size_t vertexIndex = aPolyhedron->add(myStabbingLine, ON_BOUNDARY, mNormalization.isUnitNorm(), mTolerance);
                 setInputLine(aPolyhedron, vertexIndex, v1, v2);
 
                 if (count2 > 2)
@@ -282,7 +275,7 @@ namespace visilib
         }
 
         myPolytope->computeEdgesIntersectingQuadric(aPolyhedron, mTolerance);
-        V_ASSERT(myPolytope->isValid(aPolyhedron, mNormalization, mTolerance));
+        V_ASSERT(myPolytope->isValid(aPolyhedron, mNormalization.isUnitNorm(), mTolerance));
 
         return myPolytope;
     }
@@ -400,7 +393,7 @@ namespace visilib
             }
             V_ASSERT(!facets.empty());
 
-            size_t vertexIndex = aPolyhedron->add(cell[i], ON_BOUNDARY, mNormalization, mTolerance);
+            size_t vertexIndex = aPolyhedron->add(cell[i], ON_BOUNDARY, mNormalization.isUnitNorm(), mTolerance);
             aPolyhedron->initFacetsDescription(vertexIndex, facets);
 
             // The vertices of the family are real rays themselves, the extremal

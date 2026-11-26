@@ -31,6 +31,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include "math_geometry.h"
 #include "math_predicates.h"
 #include "math_plucker_2.h"
+#include "math_plucker_normalization.h"
 #include "math_vector_3.h"
 #include "plucker_polytope.h"
 #include "plucker_polytope_builder.h"
@@ -107,6 +108,12 @@ namespace visilib
         VisibilityExactQuery_(GeometryOccluderSet* aScene, const VisibilityExactQueryConfiguration& aConfiguration, S tolerance);
 
         virtual ~VisibilityExactQuery_();
+
+        /**@brief How the Plucker points of the query are normalized (set once the query polygons are built)*/
+        const MathPluckerNormalization<P, S>& getNormalization() const
+        {
+            return mNormalization;
+        }
 
         /**@brief The grid the geometry of the query is snapped to (not valid without the integer predicates)*/
         const MathIntegerGrid& getGrid() const
@@ -307,6 +314,7 @@ namespace visilib
         SilhouetteProcessor* mSilhouetteProcessor;   /**< @brief The silhouette processor for silhouette optimization heuristic*/
 
         S mTolerance;                                           /**< @brief The tolerance parameter used during computation*/
+        MathPluckerNormalization<P, S> mNormalization;          /**< @brief How the Plucker points of the query are normalized*/
         MathVector3d mApproximateNormal;
         /** @brief The links between the polytopes and the silhouettes*/
  //      std::unordered_map<VisibilitySilhouette*, std::unordered_set<PluckerPolytope<P>*>> mSilhouetteToPolytopeDictionary;
@@ -464,11 +472,32 @@ namespace visilib
 
         {
             HelperScopedTimer timerBuild(&mStatistic, POLYTOPE_BUILD);
-            if (!createInitialPolygons(vertices0, numVertices0, vertices1, numVertices1, mConfiguration.hyperSphereNormalization))
+            if (!createInitialPolygons(vertices0, numVertices0, vertices1, numVertices1, mConfiguration.normalization != NO_NORMALIZATION))
             {
                 std::cout << "Polygon initialization error" << std::endl;
                 return FAILURE;
             }
+        }
+
+        /* The normalization of the points of the query. The chart needs the source and the receiver well apart: each one
+        lies on the positive side of the plane of the other after the clipping, and the chart normal is the one of the
+        two planes the other polygon stands further from. A chart too thin to be trusted falls back to the hypersphere. */
+        {
+            NormalizationType myType = mConfiguration.normalization;
+            MathVector3_<S> myChartNormal = MathVector3_<S>::Zero();
+            if (myType == CHART_NORMALIZATION)
+            {
+                double myMargin = 0.0;
+                myChartNormal = MathPluckerNormalization<P, S>::computeChartNormal(*mQueryPolygon[0], *mQueryPolygon[1], myMargin);
+                const double mySeparation = (MathGeometry::getGravityCenter(*mQueryPolygon[1]) - MathGeometry::getGravityCenter(*mQueryPolygon[0])).getNorm();
+                if (!(myMargin > 1e-6 * mySeparation))
+                {
+                    std::cerr << "Chart normalization: the source and the receiver are too close to their planes (margin " << myMargin
+                              << "), falling back to the hypersphere" << std::endl;
+                    myType = HYPERSPHERE_NORMALIZATION;
+                }
+            }
+            mNormalization = MathPluckerNormalization<P, S>(myType, myChartNormal);
         }
 
         mShadowDiscontinuities.clear();
@@ -526,7 +555,7 @@ namespace visilib
             {
                 HelperScopedTimer timerBuild(&mStatistic, POLYTOPE_BUILD);
 
-                PluckerPolytopeBuilder<P, S> builder(mConfiguration.hyperSphereNormalization, mTolerance, mShadowExtractor != nullptr ? &mEventRegistry : nullptr, mScene->getGrid());
+                PluckerPolytopeBuilder<P, S> builder(mNormalization, mTolerance, mShadowExtractor != nullptr ? &mEventRegistry : nullptr, mScene->getGrid());
                 PluckerPolytope<P>* myPolytope = builder.build(*mQueryPolygon[0], *mQueryPolygon[1], getComplex()->getPolyhedron());
                 getComplex()->appendPolytope(myPolytope);
             }
@@ -535,7 +564,7 @@ namespace visilib
             switch (mConfiguration.solverType)
             {
                 case VisibilityExactQueryConfiguration::EXACT_APERTURE_FINDER:
-                    solver = new VisibilityApertureFinder<P, S>(this, mConfiguration.hyperSphereNormalization, mTolerance, mConfiguration.detectApertureOnly);
+                    solver = new VisibilityApertureFinder<P, S>(this, mNormalization, mTolerance, mConfiguration.detectApertureOnly);
                 break;
 
                 case VisibilityExactQueryConfiguration::MONTE_CARLO:
@@ -545,7 +574,7 @@ namespace visilib
                                        mConfiguration.confidenceValue);
                 break;                
                 case VisibilityExactQueryConfiguration::EXACT_SEQUENTIAL_SOLVER:
-                    solver = new VisibilitySequentialSolver<P, S>(this, mConfiguration.hyperSphereNormalization, mTolerance, mConfiguration.detectApertureOnly);
+                    solver = new VisibilitySequentialSolver<P, S>(this, mNormalization, mTolerance, mConfiguration.detectApertureOnly);
                 break;
             }
             if (mDebugger != nullptr)
@@ -804,8 +833,7 @@ namespace visilib
 
         P myRepresentativeLine = myRepresentative.line;
 
-        if (mConfiguration.hyperSphereNormalization)
-            myRepresentativeLine = myRepresentativeLine.getNormalized();
+        myRepresentativeLine = mNormalization.normalizePoint(myRepresentativeLine);
 
         polytopeLines.push_back(myRepresentativeLine);
         aPolytope->setRepresentativeLine(myRepresentativeLine);
@@ -1034,8 +1062,7 @@ namespace visilib
 
         P myRepresentativeLine = myRepresentative.line;
 
-        if (mConfiguration.hyperSphereNormalization)
-            myRepresentativeLine = myRepresentativeLine.getNormalized();
+        myRepresentativeLine = mNormalization.normalizePoint(myRepresentativeLine);
 
         /* A leaf is certified visible from a line that is a real line of the cell: one outside of it says nothing,
         and saying so here keeps the answer short of a wrong one. */

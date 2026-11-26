@@ -97,7 +97,17 @@ namespace visilibDemo
         bool silhouetteOptimisation = true;
         VisibilityExactQueryConfiguration::PrecisionType precisionType = VisibilityExactQueryConfiguration::DOUBLE;
         bool detectApertureOnly = false;
-        bool normalization = false;
+        NormalizationType normalization = NO_NORMALIZATION;
+
+        static const char* normalizationName(NormalizationType aType)
+        {
+            switch (aType)
+            {
+            case HYPERSPHERE_NORMALIZATION: return "HYPERSPHERE";
+            case CHART_NORMALIZATION: return "CHART";
+            default: return "NONE";
+            }
+        }
         /* The directional light: the rays all run parallel to the line joining the
         centers of the two query polygons, and the solver works on the screen of that
         family rather than the full six dimensional space. It is a light of the

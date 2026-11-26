@@ -118,7 +118,7 @@ namespace visilibDemo
         {
             VisibilityExactQueryConfiguration config;
             config.silhouetteOptimization = mDemoConfiguration.silhouetteOptimisation;
-            config.hyperSphereNormalization = mDemoConfiguration.normalization;
+            config.normalization = mDemoConfiguration.normalization;
             config.optimisedRepresentativeLine = mDemoConfiguration.optimisedRepresentativeLine;
             config.directionalLight = mDemoConfiguration.directionalLight;
             config.precision = mDemoConfiguration.precisionType;
@@ -309,7 +309,15 @@ namespace visilibDemo
                 ImGui::Begin("Visilib 1.0. Demo application");
 
                 forceDisplay |= ImGui::Checkbox("silhouette optimisation", &mDemoConfiguration.silhouetteOptimisation);
-                forceDisplay |= ImGui::Checkbox("normalization", &mDemoConfiguration.normalization);
+                {
+                    const char* normalization_items[] = { "None", "Hypersphere", "Chart" };
+                    int normalization = int(mDemoConfiguration.normalization);
+                    if (ImGui::Combo("Normalization", &normalization, normalization_items, IM_ARRAYSIZE(normalization_items)))
+                    {
+                        mDemoConfiguration.normalization = NormalizationType(normalization);
+                        forceDisplay = true;
+                    }
+                }
                 forceDisplay |= ImGui::Checkbox("directional light", &mDemoConfiguration.directionalLight);
                 forceDisplay |= ImGui::Checkbox("shadow discontinuities", &mDemoConfiguration.shadowDiscontinuities);
                 if (mDemoConfiguration.shadowDiscontinuities)
@@ -559,7 +567,7 @@ namespace visilibDemo
 
             std::cout << "  a: enable/disable aggressive" << std::endl;
 
-            std::cout << "  n: enable/disable Plucker normalization" << std::endl;
+            std::cout << "  n: cycle the Plucker normalization (none, hypersphere, chart)" << std::endl;
 
             std::cout << "  r: enable/disable the optimised representative line" << std::endl;
             
@@ -718,7 +726,7 @@ namespace visilibDemo
                 break;
 
             case 'n':
-                mDemoConfiguration.normalization = !mDemoConfiguration.normalization;
+                mDemoConfiguration.normalization = NormalizationType((int(mDemoConfiguration.normalization) + 1) % 3);
 
                 forceDisplay = true;
                 break;

@@ -30,6 +30,7 @@ space are caught in a circle of includes otherwise. */
 #include "math_frame_3.h"
 #include "math_polynomial.h"
 #include "math_integer_predicates.h"
+#include "math_plucker_normalization.h"
 
 #include "math_plucker_parallel_6.h"
 #include "plucker_polytope_builder.h"
@@ -314,7 +315,7 @@ namespace
             GeometryConvexPolygon b(squareB, 4);
 
             ParallelPolyhedron polyhedron;
-            PluckerPolytopeBuilder<ParallelLine, double> builder(false, tolerance);
+            PluckerPolytopeBuilder<ParallelLine, double> builder(MathPluckerNormalization<ParallelLine, double>(), tolerance);
             ParallelPolytope* polytope = builder.build(a, b, &polyhedron);
 
             if (polytope->getVertices().size() != 4) return fail(__LINE__);
@@ -335,7 +336,7 @@ namespace
             GeometryConvexPolygon b(squareS, 4);
 
             ParallelPolyhedron polyhedron;
-            PluckerPolytopeBuilder<ParallelLine, double> builder(false, tolerance);
+            PluckerPolytopeBuilder<ParallelLine, double> builder(MathPluckerNormalization<ParallelLine, double>(), tolerance);
             ParallelPolytope* polytope = builder.build(a, b, &polyhedron);
 
             if (polytope->getVertices().size() != 4) return fail(__LINE__);
@@ -352,7 +353,7 @@ namespace
             GeometryConvexPolygon b(barB, 4);
 
             ParallelPolyhedron polyhedron;
-            PluckerPolytopeBuilder<ParallelLine, double> builder(false, tolerance);
+            PluckerPolytopeBuilder<ParallelLine, double> builder(MathPluckerNormalization<ParallelLine, double>(), tolerance);
             ParallelPolytope* polytope = builder.build(a, b, &polyhedron);
 
             if (polytope->getVertices().size() != 4) return fail(__LINE__);
@@ -369,7 +370,7 @@ namespace
             ParallelPolytope* left = new ParallelPolytope();
             ParallelPolytope* right = new ParallelPolytope();
 
-            const GeometryPositionType position = PluckerPolytopeSplitter<ParallelLine, double>::split(&polyhedron, silPlane, polytope, left, right, silIndex, false, tolerance);
+            const GeometryPositionType position = PluckerPolytopeSplitter<ParallelLine, double>::split(&polyhedron, silPlane, polytope, left, right, silIndex, MathPluckerNormalization<ParallelLine, double>(), tolerance);
             if (position != ON_BOTH_SIDES) return fail(__LINE__);
 
             left->computeEdgesIntersectingQuadric(&polyhedron, tolerance);
@@ -826,7 +827,7 @@ bool MathIncidenceTest(std::string&)
 		GeometryConvexPolygon b(receiver, 3);
 
 		PluckerPolyhedron<MathPlucker6d> polyhedron;
-		PluckerPolytopeBuilder<MathPlucker6d, double> builder(false, tolerance);
+		PluckerPolytopeBuilder<MathPlucker6d, double> builder(MathPluckerNormalization<MathPlucker6d, double>(), tolerance);
 		PluckerPolytope<MathPlucker6d>* polytope = builder.build(a, b, &polyhedron);
 		INCIDENCE_CHECK(polytope->getEdgeCount() > 0);
 
@@ -867,7 +868,7 @@ bool MathIncidenceTest(std::string&)
 		PluckerPolytope<MathPlucker6d>* left = new PluckerPolytope<MathPlucker6d>();
 		PluckerPolytope<MathPlucker6d>* right = new PluckerPolytope<MathPlucker6d>();
 		HelperStatisticCollector statistic;
-		const GeometryPositionType result = PluckerPolytopeSplitter<MathPlucker6d, double>::split(&polyhedron, plane, polytope, left, right, 0, false, tolerance, &statistic);
+		const GeometryPositionType result = PluckerPolytopeSplitter<MathPlucker6d, double>::split(&polyhedron, plane, polytope, left, right, 0, MathPluckerNormalization<MathPlucker6d, double>(), tolerance, &statistic);
 
 		INCIDENCE_CHECK(result != ON_BOTH_SIDES);
 		INCIDENCE_CHECK(polyhedron.getLinesCount() == pointsBefore);
@@ -957,5 +958,111 @@ bool MathIntegerPredicateTest(std::string&)
 		INTEGER_CHECK(MathIntegerPredicates::orient3d(o, y, x, z) == -1);
 	}
 #undef INTEGER_CHECK
+	return true;
+}
+
+/* The three normalizations of the Plucker points: none, the unit hypersphere, and the chart of the source and the
+receiver. A normalization multiplies a point by a positive factor of its own, so no Klein sign may change; the chart
+puts the lines from the source to the receiver, and their positive combinations, at l = 1, and scales the hyperplanes
+by a power of two. */
+bool MathNormalizationTest(std::string&)
+{
+#define NORMALIZATION_CHECK(condition) if (!(condition)) { std::cout << "Error in line " << __LINE__ << ": " #condition << std::endl; return false; }
+	typedef MathPluckerNormalization<MathPlucker6d, double> Normalization;
+
+	// a light and a receiver facing each other, slightly tilted: the receiver on the positive side of the light plane
+	const float light[] = { -1.0f, 0.0f, 0.3f, -1.1f, 0.26f, -0.15f, -0.9f, -0.26f, -0.15f };
+	const float receiver[] = { 1.0f, 0.0f, 0.3f, 1.2f, -0.26f, -0.15f, 0.9f, 0.26f, -0.15f };
+	GeometryConvexPolygon a(light, 3);
+	GeometryConvexPolygon b(receiver, 3);
+	if (a.getPlane().dot(b.getVertex(0)) < 0.0)
+	{
+		// the windings decide the planes: turn them so that each polygon faces the other, as the query does
+		a = GeometryConvexPolygon(std::vector<MathVector3d>{ a.getVertex(0), a.getVertex(2), a.getVertex(1) });
+	}
+	if (b.getPlane().dot(a.getVertex(0)) < 0.0)
+	{
+		b = GeometryConvexPolygon(std::vector<MathVector3d>{ b.getVertex(0), b.getVertex(2), b.getVertex(1) });
+	}
+
+	double margin = 0.0;
+	const MathVector3d chartNormal = Normalization::computeChartNormal(a, b, margin);
+	NORMALIZATION_CHECK(margin > 0.5);
+	NORMALIZATION_CHECK(std::fabs(chartNormal.getNorm() - 1.0) < 1e-12);
+
+	const Normalization none(NO_NORMALIZATION, chartNormal);
+	const Normalization sphere(HYPERSPHERE_NORMALIZATION, chartNormal);
+	const Normalization chart(CHART_NORMALIZATION, chartNormal);
+	const Normalization* modes[3] = { &none, &sphere, &chart };
+
+	{//the stabbing lines and their positive combinations land in the chart
+		for (int i = 0; i < 3; i++)
+		{
+			for (int j = 0; j < 3; j++)
+			{
+				const MathPlucker6d line(a.getVertex(i), b.getVertex(j));
+				NORMALIZATION_CHECK(chart.getChartValue(line) > 0.0);
+				const MathPlucker6d inChart = chart.normalizePoint(line);
+				NORMALIZATION_CHECK(std::fabs(chart.getChartValue(inChart) - 1.0) < 1e-12);
+
+				const MathPlucker6d other = chart.normalizePoint(MathPlucker6d(a.getVertex((i + 1) % 3), b.getVertex((j + 2) % 3)));
+				const MathPlucker6d combination = inChart * 0.3 + other * 0.7;
+				NORMALIZATION_CHECK(std::fabs(chart.getChartValue(combination) - 1.0) < 1e-12);
+			}
+		}
+	}
+
+	{//a reversed line keeps its orientation: divided by |l|, not by l
+		const MathPlucker6d forward(a.getVertex(0), b.getVertex(1));
+		const MathPlucker6d backward(b.getVertex(1), a.getVertex(0));
+		const MathPlucker6d edge(MathVector3d(0.0, -0.3, 0.1), MathVector3d(0.1, 0.4, -0.2));
+		const MathPlucker6d forwardInChart = chart.normalizePoint(forward);
+		const MathPlucker6d backwardInChart = chart.normalizePoint(backward);
+		NORMALIZATION_CHECK(chart.getChartValue(backwardInChart) < 0.0);
+		NORMALIZATION_CHECK((forwardInChart.dot(edge) > 0.0) == (forward.dot(edge) > 0.0));
+		NORMALIZATION_CHECK((backwardInChart.dot(edge) > 0.0) == (backward.dot(edge) > 0.0));
+	}
+
+	{//the hyperplanes are scaled by a power of two: exactly, and their largest coordinate in [0.5, 1)
+		const MathPlucker6d edge(MathVector3d(0.123, -4.56, 7.89), MathVector3d(-3.21, 6.54, -0.987));
+		const MathPlucker6d scaled = chart.normalizeHyperplane(edge);
+		const double c[6] = { scaled.getDirection().x, scaled.getDirection().y, scaled.getDirection().z, scaled.getLocation().x, scaled.getLocation().y, scaled.getLocation().z };
+		const double o[6] = { edge.getDirection().x, edge.getDirection().y, edge.getDirection().z, edge.getLocation().x, edge.getLocation().y, edge.getLocation().z };
+		double largest = 0.0;
+		for (double v : c) largest = std::fmax(largest, std::fabs(v));
+		NORMALIZATION_CHECK(largest >= 0.5 && largest < 1.0);
+		const double ratio = c[0] / o[0];
+		int exponent = 0;
+		NORMALIZATION_CHECK(std::frexp(ratio, &exponent) == 0.5);
+		for (int k = 0; k < 6; k++)
+		{
+			NORMALIZATION_CHECK(c[k] == o[k] * ratio); // exact: no rounding
+		}
+		// an edge parallel to the chart plane, which has no chart value, is a hyperplane like any other
+		const MathPlucker6d parallel = MathPlucker6d::fromPointAndDirection(MathVector3d(0.0, 0.2, 0.1), MathVector3d::cross(chartNormal, MathVector3d(0.0, 0.0, 1.0)));
+		NORMALIZATION_CHECK(std::fabs(chart.getChartValue(parallel)) < 1e-12);
+		NORMALIZATION_CHECK(chart.normalizeHyperplane(parallel).getDirection().getNorm() > 0.0);
+	}
+
+	{//no Klein sign depends on the mode
+		srand(11);
+		auto randomPoint = []() { return MathVector3d(rand() / (double)RAND_MAX - 0.5, rand() / (double)RAND_MAX - 0.5, rand() / (double)RAND_MAX - 0.5); };
+		for (int k = 0; k < 500; k++)
+		{
+			const MathPlucker6d line(a.getVertex(k % 3) + randomPoint() * 0.1, b.getVertex((k + 1) % 3) + randomPoint() * 0.1);
+			const MathPlucker6d edge(randomPoint(), randomPoint());
+			const double reference = line.dot(edge);
+			if (std::fabs(reference) < 1e-9)
+			{
+				continue;
+			}
+			for (const Normalization* mode : modes)
+			{
+				const double value = mode->normalizePoint(line).dot(mode->normalizeHyperplane(edge));
+				NORMALIZATION_CHECK((value > 0.0) == (reference > 0.0));
+			}
+		}
+	}
+#undef NORMALIZATION_CHECK
 	return true;
 }

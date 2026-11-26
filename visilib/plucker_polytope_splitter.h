@@ -22,6 +22,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 
 #include <unordered_map>
 #include "geometry_position_type.h"
+#include "math_plucker_normalization.h"
 #include "math_predicates.h"
 #include "math_geometry.h"
 #include "math_combinatorial.h"
@@ -43,17 +44,17 @@ namespace visilib
         @param aPlane: the splitting hyperplane equation
         @param aPolytope: the input polytope
         @param aPlaneId: the hyperplane facet number (index of the hyperplane in the polyhedron)
-        @param aNormalization: boolean to perform a normalization or not
+        @param aNormalization: how the new vertices are normalized
         @param tolerance: a tolerance to determine  wheter a point lies on the splitting hyperplane or not
         @param aLeft: the resulting splitted polytope at the negative side of the hyperplane (must be instanciated before calling the function)
         @param aRight: the resulting splitted polytope at the positive side of the hyperplane  (must be instanciated before calling the function)
         @param aStatistic: where the incidences and the merges are counted (optional)
        */
-        static GeometryPositionType split(PluckerPolyhedron<P>* polyhedron, const P& aPlane, PluckerPolytope<P>* aPolytope, PluckerPolytope<P>* aLeft, PluckerPolytope<P>* aRight, size_t aPlaneId, bool anormalization, S tolerance, HelperStatisticCollector* aStatistic = nullptr);
+        static GeometryPositionType split(PluckerPolyhedron<P>* polyhedron, const P& aPlane, PluckerPolytope<P>* aPolytope, PluckerPolytope<P>* aLeft, PluckerPolytope<P>* aRight, size_t aPlaneId, const MathPluckerNormalization<P, S>& aNormalization, S tolerance, HelperStatisticCollector* aStatistic = nullptr);
     };
 
     template<class P, class S>
-    inline GeometryPositionType PluckerPolytopeSplitter<P, S>::split(PluckerPolyhedron<P>* aPolyhedron, const P& aPlane, PluckerPolytope<P>* aPolytope, PluckerPolytope<P>* aLeft, PluckerPolytope<P>* aRight, size_t aPlaneID, bool normalization, S tolerance, HelperStatisticCollector* aStatistic)
+    inline GeometryPositionType PluckerPolytopeSplitter<P, S>::split(PluckerPolyhedron<P>* aPolyhedron, const P& aPlane, PluckerPolytope<P>* aPolytope, PluckerPolytope<P>* aLeft, PluckerPolytope<P>* aRight, size_t aPlaneID, const MathPluckerNormalization<P, S>& normalization, S tolerance, HelperStatisticCollector* aStatistic)
     {
         bool hasPointOnTheLeft = false;
         bool hasPointOnTheRight = false;
@@ -261,12 +262,9 @@ namespace visilib
 
                     // Compute vertex position, at the intersection of the edge and the splitting hyperplane
                     P  myIntersection = MathGeometry::interpolate(myArrayOfPlanePosition[myI1], myArrayOfPlanePosition[myI2], aPolyhedron->get(myI1), aPolyhedron->get(myI2), tolerance);
-                    if (normalization)
-                    {
-                        myIntersection = myIntersection.getNormalized();
-                    }
+                    myIntersection = normalization.normalizePoint(myIntersection);
 
-                    size_t vertexIndex = aPolyhedron->add(myIntersection, MathPredicates::getQuadricRelativePosition(myIntersection, tolerance), normalization, tolerance);
+                    size_t vertexIndex = aPolyhedron->add(myIntersection, MathPredicates::getQuadricRelativePosition(myIntersection, tolerance), normalization.isUnitNorm(), tolerance);
 
                     // Prepare for new edges creation
                     myQueryList.push_back(vertexIndex);
@@ -327,8 +325,8 @@ namespace visilib
         aRight->removeCollapsedEdges(aPolyhedron, tolerance, aStatistic);
         V_ASSERT(aLeft->getEdgeCount() > 0);
         V_ASSERT(aRight->getEdgeCount() > 0);
-        //V_ASSERT(aLeft->isValid(aPolyhedron, normalization,tolerance));
-        //V_ASSERT(aRight->isValid(aPolyhedron, normalization,tolerance));
+        //V_ASSERT(aLeft->isValid(aPolyhedron, normalization.isUnitNorm(), tolerance));
+        //V_ASSERT(aRight->isValid(aPolyhedron, normalization.isUnitNorm(), tolerance));
 
         return ON_BOTH_SIDES;
     }

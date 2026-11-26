@@ -130,7 +130,7 @@ namespace
     {
         VisibilityExactQueryConfiguration query;
         query.detectApertureOnly = configuration.detectApertureOnly;
-        query.hyperSphereNormalization = configuration.normalization;
+        query.normalization = configuration.normalization;
         query.silhouetteOptimization = configuration.silhouetteOptimisation;
         query.precision = configuration.precisionType;
         query.tolerance = configuration.tolerance;
@@ -874,7 +874,7 @@ namespace
 
         VisibilityExactQueryConfiguration query;
         query.silhouetteOptimization = configuration.silhouetteOptimisation;
-        query.hyperSphereNormalization = configuration.normalization;
+        query.normalization = configuration.normalization;
         query.optimisedRepresentativeLine = configuration.optimisedRepresentativeLine;
         query.directionalLight = configuration.directionalLight;
         query.precision = configuration.precisionType;

@@ -83,7 +83,7 @@ namespace visilib
     {
     public:
         VisibilitySequentialSolver(VisibilityExactQuery_<P, S> *aSolver,
-                                   bool normalization,
+                                   const MathPluckerNormalization<P, S>& normalization,
                                    S tolerance,
                                    bool detectApertureOnly);
 
@@ -162,7 +162,7 @@ namespace visilib
             const std::vector<int> &intersectedPolytopes,
             const Silhouette *aSilhouette);
 
-        bool mNormalization;
+        MathPluckerNormalization<P, S> mNormalization;
         bool mDetectApertureOnly;
         bool mOptimisedRepresentativeLine;   /**< @brief Whether the representative line of a cell is looked for inside it, or taken from the gravity center*/
         S mTolerance;
@@ -175,7 +175,7 @@ namespace visilib
     };
 
     template <class P, class S>
-    VisibilitySequentialSolver<P, S>::VisibilitySequentialSolver(VisibilityExactQuery_<P, S> *mQuery, bool normalization, S tolerance, bool detectApertureOnly)
+    VisibilitySequentialSolver<P, S>::VisibilitySequentialSolver(VisibilityExactQuery_<P, S> *mQuery, const MathPluckerNormalization<P, S>& normalization, S tolerance, bool detectApertureOnly)
         : VisibilitySolver<P, S>(mQuery),
           mNormalization(normalization),
           mTolerance(tolerance),
@@ -209,15 +209,12 @@ namespace visilib
                 MathVector3d b = convert<MathVector3d>(face->getVertex(edge.y));
 
                 P myHyperplane = MathGeometry::createEdgeFromPoints<P>(a, b);
-                if (mNormalization)
-                {
-                    myHyperplane = myHyperplane.getNormalized();
-                }
+                myHyperplane = mNormalization.normalizeHyperplane(myHyperplane);
                 /* The sides of a silhouette edge are calibrated from its stored hyperplane wherever this solver reads
                 them (see collectFaceShadows), so a hyperplane merged the other way needs no sign here. */
                 int myOrientation = 1;
                 bool hasMerged = false;
-                myPolyhedronFace = aPolyhedron->addHyperplane(myHyperplane, mNormalization, mTolerance, myOrientation, hasMerged);
+                myPolyhedronFace = aPolyhedron->addHyperplane(myHyperplane, mNormalization.isUnitNorm(), mTolerance, myOrientation, hasMerged);
                 myVisibilitySilhouetteEdge.mHyperPlaneIndex = myPolyhedronFace;
                 myVisibilitySilhouetteEdge.mHyperPlaneSign = myOrientation;
                 if (hasMerged)
@@ -280,10 +277,9 @@ namespace visilib
             MathVector3d testPoint = convert<MathVector3d>(MathVector3f(centroid.x + normal.x, centroid.y + normal.y, centroid.z + normal.z));
             MathVector3d testOrigin = convert<MathVector3d>(MathVector3f(centroid.x - normal.x, centroid.y - normal.y, centroid.z - normal.z));
             P testLine = MathGeometry::createEdgeFromPoints<P>(testOrigin, testPoint);
-            if (mNormalization)
-            {
-                testLine = testLine.getNormalized();
-            }
+            /* A line across the face, read only by its sign against the planes of the face: it is scaled like the
+            hyperplanes, by a positive factor, whatever the chart. */
+            testLine = mNormalization.normalizeHyperplane(testLine);
 
             FaceShadow shadow;
             shadow.mFace = face;

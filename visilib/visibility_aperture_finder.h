@@ -51,7 +51,7 @@ namespace visilib
     {
     public:
         VisibilityApertureFinder(VisibilityExactQuery_<P, S>* aSolver,
-            bool normalization,
+            const MathPluckerNormalization<P, S>& normalization,
             S tolerance,
             bool detectApertureOnly);
 
@@ -82,13 +82,13 @@ namespace visilib
         }
 
 
-        bool mNormalization;
+        MathPluckerNormalization<P, S> mNormalization;
         bool mDetectApertureOnly;
         S mTolerance;
     };
 
     template<class P, class S>
-    VisibilityApertureFinder<P, S>::VisibilityApertureFinder(VisibilityExactQuery_<P, S>* mQuery, bool normalization, S tolerance, bool detectApertureOnly)
+    VisibilityApertureFinder<P, S>::VisibilityApertureFinder(VisibilityExactQuery_<P, S>* mQuery, const MathPluckerNormalization<P, S>& normalization, S tolerance, bool detectApertureOnly)
         : VisibilitySolver<P, S>(mQuery),
         mNormalization(normalization),
         mTolerance(tolerance),
@@ -146,7 +146,7 @@ namespace visilib
             return HIDDEN;
         }
 
-        V_ASSERT(aPolytope->isValid(myPolyhedron, mNormalization, mTolerance));
+        V_ASSERT(aPolytope->isValid(myPolyhedron, mNormalization.isUnitNorm(), mTolerance));
 
         bool hasRay = false;
         std::vector<Silhouette*> myOccluders = anOccluders;
@@ -248,13 +248,10 @@ namespace visilib
                 if (myPolyhedronFace == 0)
                 {
                     P myHyperplane = MathGeometry::createEdgeFromPoints<P>(a, b);
-                    if (mNormalization)
-                    {
-                        myHyperplane = myHyperplane.getNormalized();
-                    }
+                    myHyperplane = mNormalization.normalizeHyperplane(myHyperplane);
                     int myOrientation = 1;
                     bool hasMerged = false;
-                    myPolyhedronFace = myPolyhedron->addHyperplane(myHyperplane, mNormalization, mTolerance, myOrientation, hasMerged);
+                    myPolyhedronFace = myPolyhedron->addHyperplane(myHyperplane, mNormalization.isUnitNorm(), mTolerance, myOrientation, hasMerged);
                     myVisibilitySilhouetteEdge.mHyperPlaneIndex = myPolyhedronFace;
                     myVisibilitySilhouetteEdge.mHyperPlaneSign = myOrientation;
                     if (hasMerged)

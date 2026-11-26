@@ -26,6 +26,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include "geometry_occluder_set.h"
 #include "helper_timeout.h"
 #include "helper_visual_debugger.h"
+#include "math_plucker_normalization_type.h"
 
 
 namespace visilib
@@ -63,7 +64,7 @@ namespace visilib
         VisibilityExactQueryConfiguration()
         {
             silhouetteOptimization = true;
-            hyperSphereNormalization = false;
+            normalization = NO_NORMALIZATION;
             optimisedRepresentativeLine = true;
             precision = DOUBLE;
             detectApertureOnly = true;
@@ -83,7 +84,7 @@ namespace visilib
         VisibilityExactQueryConfiguration(const VisibilityExactQueryConfiguration& other)
         {
             silhouetteOptimization = other.silhouetteOptimization;
-            hyperSphereNormalization = other.hyperSphereNormalization;
+            normalization = other.normalization;
             optimisedRepresentativeLine = other.optimisedRepresentativeLine;
             precision = other.precision;
             detectApertureOnly = other.detectApertureOnly;
@@ -101,7 +102,7 @@ namespace visilib
         }
 
         bool silhouetteOptimization;                  /**< @brief Use silhouette optimization*/
-        bool hyperSphereNormalization;                /**< @brief Normalize the Plucker point (projection on unit hypersphere)*/
+        NormalizationType normalization;              /**< @brief How the Plucker points are brought to a common scale: none, the unit hypersphere, or the chart of the source and the receiver (see MathPluckerNormalization)*/
         bool optimisedRepresentativeLine;
         PrecisionType precision;                      /**< @brief Arithmetic model precision t*/
         bool detectApertureOnly;                      /**< @brief Stop the query as soon as a visible line has been found*/
