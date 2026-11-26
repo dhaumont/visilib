@@ -21,6 +21,8 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #pragma once
 
 #include "math_combinatorial.h"
+#include "math_sos.h"
+#include <type_traits>
 #include "math_plucker_6.h"
 #include "geometry_position_type.h"
 
@@ -53,6 +55,12 @@ namespace visilib
         template <class P, class S> static GeometryPositionType getRelativePosition(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron, const P& aPlane, S tolerance, size_t aPlaneIndex = cNoPlaneIndex);
 
         static constexpr size_t cNoPlaneIndex = static_cast<size_t>(-1);
+
+        /** @brief With the symbolic perturbation of an exact arithmetic (see MathSoS), the side of the vertex v of the
+        hyperplane aPlane, perturbed when it is the polyhedron hyperplane aPlaneIndex: write it to aPosition and return
+        true. Return false, leaving aPosition, when the polyhedron does not carry the perturbation.*/
+        template <class P>
+        static bool getSymbolicSide(const PluckerPolyhedron<P>* aPolyhedron, const P& aPlane, size_t aPlaneIndex, size_t v, GeometryPositionType& aPosition);
 
         static GeometryPositionType getRelativePosition(const std::vector<MathVector3d>& points, const MathPlane3d& aPlane);
     };
@@ -282,6 +290,10 @@ namespace visilib
             {
                 // a facet of the vertex: on it by construction
             }
+            else if (getSymbolicSide(aPolyhedron, aPlane, aPlaneIndex, v, position))
+            {
+                // Simulation of Simplicity: the side in the perturbed scene
+            }
             else if (aPlaneIndex != cNoPlaneIndex && aPolyhedron->getExactSign(aPlaneIndex, v, exactSign))
             {
                 // two lines through grid points: the exact side
@@ -332,5 +344,29 @@ namespace visilib
         }
         V_ASSERT(0);
         return ON_BOTH_SIDES;
+    }
+    template <class P>
+    inline bool MathPredicates::getSymbolicSide(const PluckerPolyhedron<P>* aPolyhedron, const P& aPlane, size_t aPlaneIndex, size_t v, GeometryPositionType& aPosition)
+    {
+        typedef typename std::remove_cv<typename std::remove_reference<decltype(aPlane.getDirection().x)>::type>::type S;
+        if constexpr (MathSoSSupported<P, S>::value)
+        {
+            if (aPolyhedron->isSymbolic())
+            {
+                // the order 0 term is the stored point: it decides almost always, without building the symbolic point
+                const int leading = getExactSign(aPlane.dot(aPolyhedron->get(v)));
+                if (leading != 0)
+                {
+                    aPosition = leading > 0 ? ON_POSITIVE_SIDE : ON_NEGATIVE_SIDE;
+                    return true;
+                }
+                size_t order = 0;
+                const P* perturbation = aPlaneIndex == cNoPlaneIndex ? nullptr : aPolyhedron->getPerturbation(aPlaneIndex);
+                const int s = MathSoS<P, S>::sign(aPlane, perturbation, aPolyhedron->getSymbolicPoint(v), order);
+                aPosition = s > 0 ? ON_POSITIVE_SIDE : (s < 0 ? ON_NEGATIVE_SIDE : ON_BOUNDARY);
+                return true;
+            }
+        }
+        return false;
     }
 }

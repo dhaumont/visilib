@@ -26,6 +26,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 
 #include "geometry_position_type.h"
 #include "math_integer_predicates.h"
+#include "math_sos.h"
 #include "math_combinatorial.h"
 #include "math_plucker_6.h"
 #include "math_plucker_parallel_6.h"
@@ -109,6 +110,38 @@ namespace visilib
             mHasInputLine[anIndex] = 1;
         }
 
+        /**@brief Whether the points carry their symbolic perturbation (Simulation of Simplicity, see MathSoS): set for the
+        exact arithmetics, where every decision of the CSG is the sign of a polynomial of epsilon.*/
+        void setSymbolic(bool isSymbolic) { mIsSymbolic = isSymbolic; }
+        bool isSymbolic() const { return mIsSymbolic; }
+
+        /**@brief The symbolic point anIndex: the stored point and the higher terms of its perturbation*/
+        MathSymbolicPoint<P> getSymbolicPoint(size_t anIndex) const
+        {
+            MathSymbolicPoint<P> result(mLines[anIndex]);
+            result.c.insert(result.c.end(), mHigherTerms[anIndex].begin(), mHigherTerms[anIndex].end());
+            return result;
+        }
+
+        /**@brief Record the higher terms of the symbolic point anIndex (its leading term is the stored point)*/
+        void setSymbolicPoint(size_t anIndex, const MathSymbolicPoint<P>& aPoint)
+        {
+            mHigherTerms[anIndex].assign(aPoint.c.begin() + 1, aPoint.c.end());
+        }
+
+        /**@brief Record the perturbation direction of the hyperplane anIndex*/
+        void setPerturbation(size_t anIndex, const P& aPerturbation)
+        {
+            mPerturbations[anIndex] = aPerturbation;
+            mHasPerturbation[anIndex] = 1;
+        }
+
+        /**@brief The perturbation direction of the hyperplane anIndex, null for a hyperplane that is not perturbed*/
+        const P* getPerturbation(size_t anIndex) const
+        {
+            return mHasPerturbation[anIndex] ? &mPerturbations[anIndex] : nullptr;
+        }
+
         /**@brief Whether the point anIndex is a line through two grid points, and which (see setInputLine)*/
         bool getInputLine(size_t anIndex, MathIntegerPoint& a, MathIntegerPoint& b) const
         {
@@ -182,7 +215,11 @@ namespace visilib
         std::vector<bool> mNormalizations;                            /** < @brief The normalization status of each Plucker point*/
         std::vector<std::array<MathIntegerPoint, 2>> mInputLines;     /** < @brief The grid points of each point that is a line through two of them*/
         std::vector<char> mHasInputLine;                              /** < @brief Whether each point is a line through two grid points*/
-        std::vector<size_t> mMergeableHyperplanes;                    /** < @brief The hyperplanes added with addHyperplane, candidates for a merge*/
+        std::vector<size_t> mMergeableHyperplanes;
+        bool mIsSymbolic = false;                                     /** < @brief Whether the points carry their symbolic perturbation*/
+        std::vector<std::vector<P>> mHigherTerms;                     /** < @brief The terms of epsilon of each point beyond the stored one*/
+        std::vector<P> mPerturbations;                                /** < @brief The perturbation direction of each perturbed hyperplane*/
+        std::vector<char> mHasPerturbation;                           /** < @brief Whether each hyperplane is perturbed*/                    /** < @brief The hyperplanes added with addHyperplane, candidates for a merge*/
         std::vector<std::vector<size_t> > mFacetsDescription;          /** < @brief The facet description (list of all the hyperplanes intersecting at that point) of each Plucker point mLines*/
     };
 
@@ -198,6 +235,9 @@ namespace visilib
         mFacetsDescription.push_back(std::vector<size_t>());
         mInputLines.push_back({ MathIntegerPoint{ 0, 0, 0 }, MathIntegerPoint{ 0, 0, 0 } });
         mHasInputLine.push_back(0);
+        mHigherTerms.push_back(std::vector<P>());
+        mPerturbations.push_back(aLine);
+        mHasPerturbation.push_back(0);
         return mLines.size() - 1;
     }
 
@@ -232,6 +272,9 @@ namespace visilib
         mLines.resize(size);
         mInputLines.resize(size);
         mHasInputLine.resize(size);
+        mHigherTerms.resize(size);
+        mPerturbations.resize(size);
+        mHasPerturbation.resize(size);
         mQuadricRelativePositions.resize(size);
         mNormalizations.resize(size);
         mFacetsDescription.resize(size);

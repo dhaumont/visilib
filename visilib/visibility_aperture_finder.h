@@ -136,7 +136,7 @@ namespace visilib
         }
         {
             HelperScopedTimer timer(VisibilitySolver<P, S>::mQuery->getStatistic(), STABBING_LINE_EXTRACTION);
-            aPolytope->computeEdgesIntersectingQuadric(myPolyhedron, mTolerance);
+            aPolytope->computeEdgesIntersectingQuadric(myPolyhedron, mTolerance, VisibilitySolver<P, S>::mQuery->getStatistic());
         }
         if (!aPolytope->containsRealLines())
         {
@@ -264,6 +264,14 @@ namespace visilib
                         if (myGrid.isOnGrid(a) && myGrid.isOnGrid(b))
                         {
                             myPolyhedron->setInputLine(myPolyhedronFace, myGrid.toInteger(a), myGrid.toInteger(b));
+                        }
+                        // the symbolic perturbation of the new hyperplane (Simulation of Simplicity, exact arithmetic)
+                        if constexpr (MathSoSSupported<P, S>::value)
+                        {
+                            if (myPolyhedron->isSymbolic())
+                            {
+                                myPolyhedron->setPerturbation(myPolyhedronFace, MathSoS<P, S>::perturbationOf(myPolyhedronFace));
+                            }
                         }
                     }
                     if (VisibilitySolver<P, S>::mQuery->isComputingShadowDiscontinuities())

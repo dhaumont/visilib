@@ -228,6 +228,14 @@ namespace visilib
                     {
                         aPolyhedron->setInputLine(myPolyhedronFace, myGrid.toInteger(a), myGrid.toInteger(b));
                     }
+                    // the symbolic perturbation of the new hyperplane (Simulation of Simplicity, exact arithmetic)
+                    if constexpr (MathSoSSupported<P, S>::value)
+                    {
+                        if (aPolyhedron->isSymbolic())
+                        {
+                            aPolyhedron->setPerturbation(myPolyhedronFace, MathSoS<P, S>::perturbationOf(myPolyhedronFace));
+                        }
+                    }
                 }
             }
         }

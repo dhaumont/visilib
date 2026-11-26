@@ -31,6 +31,7 @@ space are caught in a circle of includes otherwise. */
 #include "math_polynomial.h"
 #include "math_integer_predicates.h"
 #include "math_plucker_normalization.h"
+#include "math_sos.h"
 
 #include "math_plucker_parallel_6.h"
 #include "plucker_polytope_builder.h"
@@ -1064,5 +1065,158 @@ bool MathNormalizationTest(std::string&)
 		}
 	}
 #undef NORMALIZATION_CHECK
+	return true;
+}
+
+/* Simulation of Simplicity in GMP rational: every sign of the perturbed scene is exact and never zero unless the
+incidence is structural, the constructions carry their terms of epsilon, and a split by a hyperplane exactly through
+vertices of the cell stays consistent. */
+bool MathSimulationOfSimplicityTest(std::string&)
+{
+#ifdef ENABLE_GMP
+#define SOS_CHECK(condition) if (!(condition)) { std::cout << "Error in line " << __LINE__ << ": " #condition << std::endl; return false; }
+	typedef MathGmpRational Q;
+	typedef MathPlucker6<Q> L;
+	typedef MathSoS<L, Q> SoS;
+	const Q tolerance = MathArithmetic<Q>::Tolerance();
+	auto point = [](double x, double y, double z) { return MathVector3d(x, y, z); };
+
+	{//the perturbation directions: deterministic, never null, different from one index to the next
+		for (size_t i = 0; i < 200; i++)
+		{
+			SOS_CHECK(!SoS::isZero(SoS::perturbationOf(i)));
+			SOS_CHECK(SoS::isZero(SoS::perturbationOf(i) - SoS::perturbationOf(i)));
+		}
+		size_t different = 0;
+		for (size_t i = 0; i + 1 < 200; i++)
+		{
+			different += SoS::isZero(SoS::perturbationOf(i) - SoS::perturbationOf(i + 1)) ? 0 : 1;
+		}
+		SOS_CHECK(different == 199);
+	}
+
+	// a vertex: the line through a and b; a hyperplane through a meets it, exactly
+	const MathVector3d a = point(-1.0, 0.25, 0.5), b = point(1.0, -0.5, 0.125), c = point(0.5, 2.0, -1.0);
+	const L vertexLine(a, b);
+	const L plane(a, c);
+	const L u = SoS::perturbationOf(42);
+	SOS_CHECK(getExactSign(plane.dot(vertexLine)) == 0);
+
+	{//an accidental zero is broken at order 1, the same way every time; a structural one is a residual
+		size_t order = 0;
+		const int s1 = SoS::sign(plane, &u, MathSymbolicPoint<L>(vertexLine), order);
+		SOS_CHECK(s1 != 0 && order == 1);
+		const int s2 = SoS::sign(plane, &u, MathSymbolicPoint<L>(vertexLine), order);
+		SOS_CHECK(s2 == s1);
+		// the same plane unperturbed: nothing breaks the tie
+		SOS_CHECK(SoS::sign(plane, nullptr, MathSymbolicPoint<L>(vertexLine), order) == 0 && order == SoS::cOrder + 1);
+	}
+
+	{//a crossing at an end whose value vanishes at order 0: the leading term is that end, the point another one
+		size_t order = 0;
+		const int sEnd = SoS::sign(plane, &u, MathSymbolicPoint<L>(vertexLine), order);
+		// the other end: a line strictly on the other side of the plane, at order 0
+		const L candidates[4] = { L(point(-1.0, 0.75, -0.5), point(1.0, 0.5, 0.5)), L(point(1.0, 0.5, 0.5), point(-1.0, 0.75, -0.5)),
+		                          L(point(-1.0, -0.75, 0.5), point(1.0, 0.25, -0.5)), L(point(1.0, 0.25, -0.5), point(-1.0, -0.75, 0.5)) };
+		L other = candidates[0];
+		for (const L& candidate : candidates)
+		{
+			if (getExactSign(plane.dot(candidate)) == -sEnd)
+			{
+				other = candidate;
+				break;
+			}
+		}
+		const int sOther = SoS::sign(plane, &u, MathSymbolicPoint<L>(other), order);
+		SOS_CHECK(sEnd != 0 && sOther != 0);
+		SOS_CHECK(sEnd != sOther); // the edge crosses the perturbed plane: the case under test
+		{
+			const MathSymbolicPoint<L> negative(sEnd < 0 ? vertexLine : other);
+			const MathSymbolicPoint<L> positive(sEnd < 0 ? other : vertexLine);
+			const MathSymbolicPoint<L> crossing = SoS::crossing(plane, &u, negative, positive);
+			// the leading term is a positive multiple of the end on the plane
+			SOS_CHECK(MathPredicates::getProportionality(crossing.leading(), vertexLine, Q(0)) == 1);
+			SOS_CHECK(!SoS::areEqual(crossing, MathSymbolicPoint<L>(vertexLine)));
+			SOS_CHECK(crossing.size() > 1);
+			// it lies on the perturbed plane: every coefficient of the plane at the crossing vanishes
+			SOS_CHECK(SoS::sign(plane, &u, crossing, order) == 0);
+		}
+	}
+
+	{//the quadric: a line is real by construction (a residual), an interpolated point of two skew lines is not
+		size_t order = 0;
+		SOS_CHECK(SoS::quadricSign(MathSymbolicPoint<L>(vertexLine), order) == 0);
+		const L skew(point(0.0, 1.0, 0.0), point(0.0, 1.0, 1.0));
+		SOS_CHECK(getExactSign(vertexLine.dot(skew)) != 0);
+		SOS_CHECK(SoS::quadricSign(MathSymbolicPoint<L>(vertexLine + skew), order) != 0);
+	}
+
+	{//the exact quadric crossing of an edge agrees with the double one on generic edges
+		srand(5);
+		auto r = []() { return rand() / (double)RAND_MAX - 0.5; };
+		size_t compared = 0;
+		for (int k = 0; k < 400; k++)
+		{
+			const MathVector3d p0 = point(r(), r(), r()), p1 = point(r(), r(), r()), p2 = point(r(), r(), r()), p3 = point(r(), r(), r());
+			const L v1 = L(p0, p1) + L(p2, p3) * Q(r());
+			const L v2 = L(p1, p2) + L(p3, p0) * Q(r());
+			size_t order = 0;
+			const int q1 = SoS::quadricSign(MathSymbolicPoint<L>(v1), order);
+			const int q2 = SoS::quadricSign(MathSymbolicPoint<L>(v2), order);
+			const GeometryPositionType e1 = q1 > 0 ? ON_POSITIVE_SIDE : ON_NEGATIVE_SIDE;
+			const GeometryPositionType e2 = q2 > 0 ? ON_POSITIVE_SIDE : ON_NEGATIVE_SIDE;
+			bool tangent = false;
+			const bool exact = SoS::edgeCrossesQuadric(v1, v2, e1, e2, tangent);
+			const MathPlucker6d d1 = convert<MathPlucker6d>(v1), d2 = convert<MathPlucker6d>(v2);
+			const bool approximate = MathGeometry::hasPluckerEdgeWithQuadricIntersection(d1, d2, e1, e2, 1e-12);
+			SOS_CHECK(!tangent);
+			SOS_CHECK(exact == approximate);
+			compared++;
+		}
+		SOS_CHECK(compared == 400);
+	}
+
+	{//a split of the initial cell by a perturbed hyperplane exactly through one of its vertices
+		const float light[] = { -1.0f, 0.0f, 0.25f, -1.0f, 0.25f, -0.125f, -1.0f, -0.25f, -0.125f };
+		const float receiver[] = { 1.0f, 0.0f, 0.25f, 1.0f, -0.25f, -0.125f, 1.0f, 0.25f, -0.125f };
+		GeometryConvexPolygon lightPolygon(light, 3);
+		GeometryConvexPolygon receiverPolygon(receiver, 3);
+
+		PluckerPolyhedron<L> polyhedron;
+		PluckerPolytopeBuilder<L, Q> builder(MathPluckerNormalization<L, Q>(), tolerance);
+		PluckerPolytope<L>* polytope = builder.build(lightPolygon, receiverPolygon, &polyhedron);
+		polyhedron.setSymbolic(true);
+
+		// a silhouette line through the first light vertex and the interior of the receiver: it meets every VV line of that vertex
+		const MathVector3d through = convert<MathVector3d>(lightPolygon.getVertex(0));
+		const L silhouette(through, point(0.0, 0.0, 0.125)); // it reaches the receiver at (1, 0, 0), inside
+		int orientation = 0;
+		bool merged = false;
+		const size_t index = polyhedron.addHyperplane(silhouette, false, tolerance, orientation, merged);
+		polyhedron.setPerturbation(index, SoS::perturbationOf(index));
+
+		HelperStatisticCollector statistic;
+		PluckerPolytope<L>* left = new PluckerPolytope<L>();
+		PluckerPolytope<L>* right = new PluckerPolytope<L>();
+		const GeometryPositionType result = PluckerPolytopeSplitter<L, Q>::split(&polyhedron, silhouette, polytope, left, right, index, MathPluckerNormalization<L, Q>(), tolerance, &statistic);
+
+		SOS_CHECK(statistic.get(SOS_TIE_BREAK_COUNT) > 0);     // the vertices of the light vertex were on the plane, exactly
+		SOS_CHECK(statistic.get(SOS_RESIDUAL_COUNT) == 0);     // and the perturbation decided them all
+		SOS_CHECK(statistic.get(INCIDENCE_NUMERIC_BOUNDARY_COUNT) == 0);
+		SOS_CHECK(result == ON_BOTH_SIDES); // the plane goes through the cell: the split under test
+		{
+			// each child on its side of the perturbed plane, every vertex strictly or by its facets
+			for (PluckerPolytope<L>* child : { left, right })
+			{
+				const GeometryPositionType side = MathPredicates::getRelativePosition(child, &polyhedron, silhouette, tolerance, index);
+				SOS_CHECK(side == (child == left ? ON_NEGATIVE_SIDE : ON_POSITIVE_SIDE));
+			}
+		}
+		delete left;
+		delete right;
+		delete polytope;
+	}
+#undef SOS_CHECK
+#endif
 	return true;
 }

@@ -133,7 +133,7 @@ namespace visilib
 
 
         /** @brief Compute the list of edges intersecting the Plucker quadric*/
-        template<class S> void computeEdgesIntersectingQuadric(PluckerPolyhedron<P>* aPolyhedron, S Tolerance);
+        template<class S> void computeEdgesIntersectingQuadric(PluckerPolyhedron<P>* aPolyhedron, S Tolerance, HelperStatisticCollector* aStatistic = nullptr);
 
 
         /** @brief Convert all the extremal stabbing lines to 3D space.
@@ -379,8 +379,22 @@ namespace visilib
             const P& v1 = polyhedron->get(i1);
             const P& v2 = polyhedron->get(i2);
 
+            /* With the symbolic perturbation, an edge collapses only between two points equal in every term of epsilon:
+            an edge epsilon long joins two different points of the perturbed scene, and merging them would change the
+            combinatorics the perturbation keeps consistent. */
+            bool collapsed = false;
+            if constexpr (MathSoSSupported<P, S>::value)
+            {
+                collapsed = polyhedron->isSymbolic()
+                    ? MathSoS<P, S>::areEqual(polyhedron->getSymbolicPoint(i1), polyhedron->getSymbolicPoint(i2))
+                    : MathPredicates::isEdgeCollapsed(v1, v2, tolerance);
+            }
+            else
+            {
+                collapsed = MathPredicates::isEdgeCollapsed(v1, v2, tolerance);
+            }
 
-            if (MathPredicates::isEdgeCollapsed(v1, v2, tolerance))
+            if (collapsed)
             {
                 V_TRACE("collapsed edge dected: " << v1-v2 << "; tolerance: "<< 0.5 *tolerance);
                 myMergeTable.push_back(i1);
@@ -638,7 +652,7 @@ namespace visilib
     }
 
     template<class P> template<class S>
-    void PluckerPolytope<P>::computeEdgesIntersectingQuadric(PluckerPolyhedron<P>* polyhedron, S tolerance)
+    void PluckerPolytope<P>::computeEdgesIntersectingQuadric(PluckerPolyhedron<P>* polyhedron, S tolerance, HelperStatisticCollector* aStatistic)
     {
         //Only compute if the function has not been called already
         if (mEdgesIntersectingQuadric.empty())
@@ -658,7 +672,31 @@ namespace visilib
                     const P& v2 = polyhedron->get(iter->second);
                     GeometryPositionType p1 = polyhedron->getQuadricRelativePosition(iter->first);
                     GeometryPositionType p2 = polyhedron->getQuadricRelativePosition(iter->second);
-                    if (MathGeometry::hasPluckerEdgeWithQuadricIntersection(v1, v2, p1, p2, tolerance))
+                    /* With the symbolic perturbation the positions of the ends are exact, and so is the decision: the
+                    signs of the quadric at the ends, and the exact comparisons of the apex of the quadratic. A tangency
+                    is one real line and no interior. */
+                    bool crosses = false;
+                    if constexpr (MathSoSSupported<P, S>::value)
+                    {
+                        if (polyhedron->isSymbolic())
+                        {
+                            bool tangent = false;
+                            crosses = MathSoS<P, S>::edgeCrossesQuadric(v1, v2, p1, p2, tangent);
+                            if (tangent && aStatistic != nullptr)
+                            {
+                                aStatistic->inc(SOS_TANGENCY_COUNT);
+                            }
+                        }
+                        else
+                        {
+                            crosses = MathGeometry::hasPluckerEdgeWithQuadricIntersection(v1, v2, p1, p2, tolerance);
+                        }
+                    }
+                    else
+                    {
+                        crosses = MathGeometry::hasPluckerEdgeWithQuadricIntersection(v1, v2, p1, p2, tolerance);
+                    }
+                    if (crosses)
                     {
                         mEdgesIntersectingQuadric.insert(*iter);
                     }

@@ -25,6 +25,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 
 #include "math_arithmetic.h"
 #include "math_plucker_normalization_type.h"
+#include "math_sos.h"
 #include "math_vector_3.h"
 
 namespace visilib
@@ -81,23 +82,43 @@ namespace visilib
         from the source to the receiver is) gets the power of two scale of the hyperplanes instead.*/
         P normalizePoint(const P& aPoint) const
         {
+            if (mType == HYPERSPHERE_NORMALIZATION)
+            {
+                return aPoint.getNormalized();
+            }
+            return aPoint * getPointScale(aPoint);
+        }
+
+        /** @brief The positive factor normalizePoint multiplies a point by, for NONE and CHART (1 for NONE).*/
+        S getPointScale(const P& aPoint) const
+        {
             switch (mType)
             {
             case HYPERSPHERE_NORMALIZATION:
-                return aPoint.getNormalized();
+                return S(1) / MathArithmetic<S>::getSqrt(aPoint.getDirection().getSquaredNorm() + aPoint.getLocation().getSquaredNorm());
             case CHART_NORMALIZATION:
             {
-                const S value = getChartValue(aPoint);
-                const S magnitude = MathArithmetic<S>::getAbs(value);
+                const S magnitude = MathArithmetic<S>::getAbs(getChartValue(aPoint));
                 if (!(magnitude > MathArithmetic<S>::Tolerance()))
                 {
-                    return scaleByPowerOfTwo(aPoint);
+                    return powerOfTwoScale(aPoint);
                 }
-                return aPoint * (S(1) / magnitude);
+                return S(1) / magnitude;
             }
             default:
-                return aPoint;
+                return S(1);
             }
+        }
+
+        /** @brief Normalize a symbolic point (see MathSoS): every term is multiplied by the factor of its leading term,
+        which is one positive factor for the whole polynomial, the same projective point.*/
+        void normalizeSymbolic(MathSymbolicPoint<P>& aPoint) const
+        {
+            if (mType == NO_NORMALIZATION)
+            {
+                return;
+            }
+            aPoint.scale(getPointScale(aPoint.leading()));
         }
 
         /** @brief Normalize a hyperplane, the line of an edge.*/
@@ -120,6 +141,12 @@ namespace visilib
         exponent changes.*/
         static P scaleByPowerOfTwo(const P& aPoint)
         {
+            return aPoint * powerOfTwoScale(aPoint);
+        }
+
+        /** @brief The power of two bringing the largest absolute coordinate of a point to [0.5, 1) (1 for a null point)*/
+        static S powerOfTwoScale(const P& aPoint)
+        {
             const MathVector3_<S>& d = aPoint.getDirection();
             const MathVector3_<S>& m = aPoint.getLocation();
             const double c[6] = { MathArithmetic<S>::to_double(d.x), MathArithmetic<S>::to_double(d.y), MathArithmetic<S>::to_double(d.z),
@@ -131,11 +158,11 @@ namespace visilib
             }
             if (!(largest > 0.0) || !std::isfinite(largest))
             {
-                return aPoint;
+                return S(1);
             }
             int exponent = 0;
             std::frexp(largest, &exponent);
-            return aPoint * S(std::ldexp(1.0, -exponent));
+            return S(std::ldexp(1.0, -exponent));
         }
 
         /** @brief The chart normal for a source and a receiver: a unit vector n such that (b - a) . n > 0 for every a of

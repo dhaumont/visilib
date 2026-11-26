@@ -274,7 +274,8 @@ namespace
     triangle are cut in collinear pieces), make none. The check goes both ways: the traces of the reference are covered
     by the arcs (nothing missing), and the arcs lie on the traces of the reference (nothing spurious). The samples close
     to the boundary of the receiver are left out: a trace along that boundary is a coincidence of the geometry. */
-    bool checkPlanarOccluder(DemoConfiguration::SCENE_TYPE aScene, float aPhi, bool aSilhouetteOptimization, bool anIntegerPredicates, std::string& message)
+    bool checkPlanarOccluder(DemoConfiguration::SCENE_TYPE aScene, float aPhi, bool aSilhouetteOptimization, bool anIntegerPredicates,
+                             VisibilityExactQueryConfiguration::PrecisionType aPrecision, std::string& message)
     {
         const float lightSize = 0.1f;
         const float receiverSize = 0.3f;
@@ -286,7 +287,7 @@ namespace
         GeometryOccluderSet* occluderSet = DemoHelper::createOccluderSet(meshContainer);
 
         VisibilityExactQueryConfiguration config;
-        config.precision = VisibilityExactQueryConfiguration::DOUBLE;
+        config.precision = aPrecision;
         config.silhouetteOptimization = aSilhouetteOptimization;
         config.integerPredicates = anIntegerPredicates;
 
@@ -493,7 +494,7 @@ namespace
         const bool ok = expected > 0 && missing == 0 && spurious == 0;
         std::ostringstream out;
         out << DemoConfiguration::sceneName(aScene) << " phi=" << aPhi << " silhouette=" << (aSilhouetteOptimization ? "on" : "off")
-            << (anIntegerPredicates ? " integer" : "")
+            << (anIntegerPredicates ? " integer" : "") << (aPrecision == VisibilityExactQueryConfiguration::DOUBLE ? "" : " exact")
             << ": arcs=" << arcs.size() << " missing " << missing << "/" << expected << " spurious " << spurious << "/" << samples << (ok ? " OK" : " FAILED");
         std::cout << "  " << out.str() << std::endl;
         if (!ok)
@@ -547,8 +548,12 @@ bool ShadowDiscontinuityTest(std::string& message)
                 // the same reference with the geometry snapped to the integer grid and the exact predicates
                 for (bool integer : { false, true })
                 {
-                    ok = checkPlanarOccluder(scene, phi, silhouette, integer, message) && ok;
+                    ok = checkPlanarOccluder(scene, phi, silhouette, integer, VisibilityExactQueryConfiguration::DOUBLE, message) && ok;
                 }
+#ifdef ENABLE_GMP
+                // in GMP rational, every decision of the CSG is exact and its ties are broken by the simulation of simplicity
+                ok = checkPlanarOccluder(scene, phi, silhouette, false, VisibilityExactQueryConfiguration::GMP_RATIONAL, message) && ok;
+#endif
             }
         }
     }

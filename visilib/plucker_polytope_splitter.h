@@ -51,6 +51,80 @@ namespace visilib
         @param aStatistic: where the incidences and the merges are counted (optional)
        */
         static GeometryPositionType split(PluckerPolyhedron<P>* polyhedron, const P& aPlane, PluckerPolytope<P>* aPolytope, PluckerPolytope<P>* aLeft, PluckerPolytope<P>* aRight, size_t aPlaneId, const MathPluckerNormalization<P, S>& aNormalization, S tolerance, HelperStatisticCollector* aStatistic = nullptr);
+
+    private:
+        /** @brief Whether two vertices are the same point: within the tolerance, or, with the symbolic perturbation, equal
+        in every term of epsilon (an edge only epsilon long joins two different points and is kept).*/
+        static bool areSameVertex(const PluckerPolyhedron<P>* aPolyhedron, size_t a, size_t b, S tolerance)
+        {
+            if constexpr (MathSoSSupported<P, S>::value)
+            {
+                if (aPolyhedron->isSymbolic())
+                {
+                    return MathSoS<P, S>::areEqual(aPolyhedron->getSymbolicPoint(a), aPolyhedron->getSymbolicPoint(b));
+                }
+            }
+            return MathPredicates::isEdgeCollapsed(aPolyhedron->get(a), aPolyhedron->get(b), tolerance);
+        }
+
+        /** @brief Whether the polyhedron carries the symbolic perturbation (only ever for an exact arithmetic)*/
+        static bool isSymbolic(const PluckerPolyhedron<P>* aPolyhedron)
+        {
+            if constexpr (MathSoSSupported<P, S>::value)
+            {
+                return aPolyhedron->isSymbolic();
+            }
+            return false;
+        }
+
+        /** @brief The side of the vertex aVertex of the perturbed hyperplane aPlaneID (see MathSoS::sign)*/
+        static GeometryPositionType symbolicSide(const PluckerPolyhedron<P>* aPolyhedron, const P& aPlane, size_t aPlaneID, size_t aVertex, HelperStatisticCollector* aStatistic)
+        {
+            if constexpr (MathSoSSupported<P, S>::value)
+            {
+                // the order 0 term is the stored point: it decides almost always, without building the symbolic point
+                const int leading = getExactSign(aPlane.dot(aPolyhedron->get(aVertex)));
+                if (leading != 0)
+                {
+                    return leading > 0 ? ON_POSITIVE_SIDE : ON_NEGATIVE_SIDE;
+                }
+                size_t order = 0;
+                const int s = MathSoS<P, S>::sign(aPlane, aPolyhedron->getPerturbation(aPlaneID), aPolyhedron->getSymbolicPoint(aVertex), order);
+                if (aStatistic != nullptr)
+                {
+                    if (s == 0)
+                    {
+                        aStatistic->inc(SOS_RESIDUAL_COUNT);
+                    }
+                    else if (order > 0)
+                    {
+                        aStatistic->inc(SOS_TIE_BREAK_COUNT);
+                    }
+                }
+                return s > 0 ? ON_POSITIVE_SIDE : (s < 0 ? ON_NEGATIVE_SIDE : ON_BOUNDARY);
+            }
+            return ON_BOUNDARY;
+        }
+
+        /** @brief Build, normalize and add the vertex where the edge from aNegative to aPositive crosses the perturbed
+        hyperplane aPlaneID; its side of the quadric is the sign of its symbolic quadric. Return its index.*/
+        static size_t addSymbolicCrossing(PluckerPolyhedron<P>* aPolyhedron, const P& aPlane, size_t aPlaneID, size_t aNegative, size_t aPositive,
+                                          const MathPluckerNormalization<P, S>& aNormalization, S tolerance)
+        {
+            if constexpr (MathSoSSupported<P, S>::value)
+            {
+                MathSymbolicPoint<P> crossing = MathSoS<P, S>::crossing(aPlane, aPolyhedron->getPerturbation(aPlaneID),
+                                                                         aPolyhedron->getSymbolicPoint(aNegative), aPolyhedron->getSymbolicPoint(aPositive));
+                aNormalization.normalizeSymbolic(crossing);
+                size_t order = 0;
+                const int q = MathSoS<P, S>::quadricSign(crossing, order);
+                const GeometryPositionType quadric = q > 0 ? ON_POSITIVE_SIDE : (q < 0 ? ON_NEGATIVE_SIDE : ON_BOUNDARY);
+                const size_t index = aPolyhedron->add(crossing.leading(), quadric, aNormalization.isUnitNorm(), tolerance);
+                aPolyhedron->setSymbolicPoint(index, crossing);
+                return index;
+            }
+            return 0;
+        }
     };
 
     template<class P, class S>
@@ -99,6 +173,13 @@ namespace visilib
                         {
                             aStatistic->inc(INCIDENCE_COMBINATORIAL_COUNT);
                         }
+                    }
+                    else if (isSymbolic(aPolyhedron))
+                    {
+                        /* Simulation of Simplicity: the side is the sign of the polynomial of epsilon of the perturbed
+                        hyperplane at the symbolic vertex. A polynomial vanishing to every order kept is an incidence by
+                        construction, answered like the recorded ones. */
+                        position = symbolicSide(aPolyhedron, aPlane, aPlaneID, a, aStatistic);
                     }
                     else
                     {
@@ -261,10 +342,19 @@ namespace visilib
                         continue;
 
                     // Compute vertex position, at the intersection of the edge and the splitting hyperplane
-                    P  myIntersection = MathGeometry::interpolate(myArrayOfPlanePosition[myI1], myArrayOfPlanePosition[myI2], aPolyhedron->get(myI1), aPolyhedron->get(myI2), tolerance);
-                    myIntersection = normalization.normalizePoint(myIntersection);
+                    size_t vertexIndex = 0;
+                    if (isSymbolic(aPolyhedron))
+                    {
+                        // the exact crossing of the perturbed hyperplane, carrying its terms of epsilon (myI1 is the negative end)
+                        vertexIndex = addSymbolicCrossing(aPolyhedron, aPlane, aPlaneID, myI1, myI2, normalization, tolerance);
+                    }
+                    else
+                    {
+                        P  myIntersection = MathGeometry::interpolate(myArrayOfPlanePosition[myI1], myArrayOfPlanePosition[myI2], aPolyhedron->get(myI1), aPolyhedron->get(myI2), tolerance);
+                        myIntersection = normalization.normalizePoint(myIntersection);
 
-                    size_t vertexIndex = aPolyhedron->add(myIntersection, MathPredicates::getQuadricRelativePosition(myIntersection, tolerance), normalization.isUnitNorm(), tolerance);
+                        vertexIndex = aPolyhedron->add(myIntersection, MathPredicates::getQuadricRelativePosition(myIntersection, tolerance), normalization.isUnitNorm(), tolerance);
+                    }
 
                     // Prepare for new edges creation
                     myQueryList.push_back(vertexIndex);
@@ -305,7 +395,7 @@ namespace visilib
                 if (MathCombinatorial::haveAtLeastNCommonFacets(facetsQm, facetsQn, MathPluckerCellTraits<P>::cCommonFacetsForEdge))
                 {
                     V_ASSERT(Qm != Qn);
-                    if (!MathPredicates::isEdgeCollapsed(aPolyhedron->get(Qn), aPolyhedron->get(Qm), tolerance))
+                    if (!areSameVertex(aPolyhedron, Qn, Qm, tolerance))
                     {
                         if (facetsQm.size() != facetsQn.size() || !std::equal(facetsQm.begin(), facetsQm.end(), facetsQn.begin()))
                         {

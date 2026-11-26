@@ -26,6 +26,7 @@ bool MathShadowGeometryTest(std::string&);
 bool MathIncidenceTest(std::string&);
 bool MathIntegerPredicateTest(std::string&);
 bool MathNormalizationTest(std::string&);
+bool MathSimulationOfSimplicityTest(std::string&);
 bool testConfiguration(bool& retflag);
 bool VisibilityTest(std::string&);
 bool DirectionalVisibilityTest(std::string&);

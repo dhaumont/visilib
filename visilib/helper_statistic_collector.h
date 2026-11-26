@@ -90,6 +90,12 @@ namespace visilib
         INCIDENCE_COMBINATORIAL_COUNT,
         INCIDENCE_NUMERIC_BOUNDARY_COUNT,
         INCIDENCE_EXACT_COUNT,
+        /** @brief Simulation of Simplicity (exact arithmetic): the sides decided by a term of epsilon beyond the leading
+        one (a TIE broken), the incidences found to every order kept (RESIDUAL, answered as incidences), and the edges
+        tangent to the quadric (one real line, no interior). */
+        SOS_TIE_BREAK_COUNT,
+        SOS_RESIDUAL_COUNT,
+        SOS_TANGENCY_COUNT,
         HYPERPLANE_MERGED_COUNT,
         COLLAPSED_EDGE_MERGED_COUNT,
         COUNTER_LAST
@@ -263,6 +269,9 @@ namespace visilib
             counts["Incidences combinatorial"] = mCounts[INCIDENCE_COMBINATORIAL_COUNT];
             counts["Incidences numeric"] = mCounts[INCIDENCE_NUMERIC_BOUNDARY_COUNT];
             counts["Exact decisions"] = mCounts[INCIDENCE_EXACT_COUNT];
+            counts["SoS ties broken"] = mCounts[SOS_TIE_BREAK_COUNT];
+            counts["SoS residuals"] = mCounts[SOS_RESIDUAL_COUNT];
+            counts["SoS tangencies"] = mCounts[SOS_TANGENCY_COUNT];
             counts["Hyperplanes merged"] = mCounts[HYPERPLANE_MERGED_COUNT];
             counts["Collapsed edges merged"] = mCounts[COLLAPSED_EDGE_MERGED_COUNT];
         }
@@ -319,6 +328,13 @@ namespace visilib
                       << mCounts[INCIDENCE_EXACT_COUNT] << " exact decisions]" << std::endl
                       << "  [Merged:         " << mCounts[HYPERPLANE_MERGED_COUNT] << " hyperplanes, "
                       << mCounts[COLLAPSED_EDGE_MERGED_COUNT] << " collapsed edges]" << std::endl;
+
+            if (mCounts[SOS_TIE_BREAK_COUNT] || mCounts[SOS_RESIDUAL_COUNT] || mCounts[SOS_TANGENCY_COUNT])
+            {
+                std::cout << "  [SoS:            " << mCounts[SOS_TIE_BREAK_COUNT] << " ties broken, "
+                          << mCounts[SOS_RESIDUAL_COUNT] << " residual incidences, "
+                          << mCounts[SOS_TANGENCY_COUNT] << " tangencies]" << std::endl;
+            }
 
             if (mMeasuresSet[WORST_ACCEPTED_MARGIN])
             {

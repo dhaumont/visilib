@@ -32,6 +32,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #include "math_predicates.h"
 #include "math_plucker_2.h"
 #include "math_plucker_normalization.h"
+#include "math_sos.h"
 #include "math_vector_3.h"
 #include "plucker_polytope.h"
 #include "plucker_polytope_builder.h"
@@ -482,8 +483,23 @@ namespace visilib
         /* The normalization of the points of the query. The chart needs the source and the receiver well apart: each one
         lies on the positive side of the plane of the other after the clipping, and the chart normal is the one of the
         two planes the other polygon stands further from. A chart too thin to be trusted falls back to the hypersphere. */
+        /* An exact arithmetic on the general lines decides every predicate of the CSG exactly, and breaks the ties by
+        Simulation of Simplicity (see MathSoS): the polyhedron carries the symbolic perturbation. The hypersphere needs
+        a square root, which leaves the rationals: the chart takes its place. */
+        bool mySymbolic = false;
+        if constexpr (MathSoSSupported<P, S>::value)
+        {
+            mySymbolic = true;
+        }
+        getComplex()->getPolyhedron()->setSymbolic(mySymbolic);
+
         {
             NormalizationType myType = mConfiguration.normalization;
+            if (mySymbolic && myType == HYPERSPHERE_NORMALIZATION)
+            {
+                std::cerr << "Simulation of Simplicity: the hypersphere normalization needs a square root, the chart is used instead" << std::endl;
+                myType = CHART_NORMALIZATION;
+            }
             MathVector3_<S> myChartNormal = MathVector3_<S>::Zero();
             if (myType == CHART_NORMALIZATION)
             {
@@ -492,9 +508,10 @@ namespace visilib
                 const double mySeparation = (MathGeometry::getGravityCenter(*mQueryPolygon[1]) - MathGeometry::getGravityCenter(*mQueryPolygon[0])).getNorm();
                 if (!(myMargin > 1e-6 * mySeparation))
                 {
+                    // the hypersphere, or nothing in the rationals of the symbolic perturbation
+                    myType = mySymbolic ? NO_NORMALIZATION : HYPERSPHERE_NORMALIZATION;
                     std::cerr << "Chart normalization: the source and the receiver are too close to their planes (margin " << myMargin
-                              << "), falling back to the hypersphere" << std::endl;
-                    myType = HYPERSPHERE_NORMALIZATION;
+                              << "), falling back to " << (mySymbolic ? "no normalization" : "the hypersphere") << std::endl;
                 }
             }
             mNormalization = MathPluckerNormalization<P, S>(myType, myChartNormal);
