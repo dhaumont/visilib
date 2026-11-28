@@ -22,6 +22,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 
 #include <algorithm>
 #include <array>
+#include <utility>
 #include <vector>
 
 #include "geometry_position_type.h"
@@ -215,6 +216,41 @@ namespace visilib
 
         void resize(size_t size);
 
+        /** @brief The side of the point aVertex of the hyperplane aPlane, when it has been recorded with setCachedSide:
+        write it to aPosition and return true.
+
+        The side of a vertex of a hyperplane is asked again and again, by every cell that holds them both (see
+        PluckerPolytope::getCellFacets), and in an exact arithmetic each answer can cost the exact value of the vertex.
+        The points of the polyhedron never change: the side is recorded once. The entries are keyed by the serial
+        numbers of the points, which are never reused, so that a point removed by resize leaves no stale entry.*/
+        bool getCachedSide(size_t aVertex, size_t aPlane, GeometryPositionType& aPosition) const
+        {
+            const unsigned long long serial = mSerials[aPlane];
+            for (const auto& entry : mSideCache[aVertex])
+            {
+                if (entry.first == serial)
+                {
+                    aPosition = GeometryPositionType(entry.second);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /** @brief Record the side of the point aVertex of the hyperplane aPlane (see getCachedSide).*/
+        void setCachedSide(size_t aVertex, size_t aPlane, GeometryPositionType aPosition)
+        {
+            mSideCache[aVertex].push_back(std::make_pair(mSerials[aPlane], static_cast<signed char>(aPosition)));
+        }
+
+        /** @brief A number that changes whenever the facet description of an existing point changes, or points are
+        removed: what was derived from the facet descriptions of a cell (its facets, its representative line, see
+        PluckerPolytope) is valid while it does not change.*/
+        unsigned long long getDescriptionVersion() const
+        {
+            return mDescriptionVersion;
+        }
+
     private:
         /**@brief Check that the vertex has a valid facet description
 
@@ -230,6 +266,10 @@ namespace visilib
         std::vector<size_t> mMergeableHyperplanes;
         bool mIsSymbolic = false;                                     /** < @brief Whether the points carry their symbolic perturbation*/
         std::vector<std::vector<P>> mHigherTerms;                     /** < @brief The terms of epsilon of each point beyond the stored one*/
+        std::vector<unsigned long long> mSerials;                     /** < @brief The serial number of each point, never reused (see getCachedSide)*/
+        unsigned long long mNextSerial = 0;                           /** < @brief The serial number of the next point*/
+        std::vector<std::vector<std::pair<unsigned long long, signed char>>> mSideCache; /** < @brief The sides of each point of the hyperplanes, by their serial number*/
+        unsigned long long mDescriptionVersion = 0;                   /** < @brief See getDescriptionVersion*/
         mutable std::vector<MathPlucker6d> mApproximations;           /** < @brief The double approximation of each point, once asked (see getApproximation)*/
         mutable std::vector<char> mHasApproximation;                  /** < @brief Whether the approximation of each point has been computed*/
         std::vector<P> mPerturbations;                                /** < @brief The perturbation direction of each perturbed hyperplane*/
@@ -250,6 +290,8 @@ namespace visilib
         mInputLines.push_back({ MathIntegerPoint{ 0, 0, 0 }, MathIntegerPoint{ 0, 0, 0 } });
         mHasInputLine.push_back(0);
         mHigherTerms.push_back(std::vector<P>());
+        mSerials.push_back(mNextSerial++);
+        mSideCache.push_back(std::vector<std::pair<unsigned long long, signed char>>());
         mApproximations.push_back(MathPlucker6d::Zero());
         mHasApproximation.push_back(0);
         mPerturbations.push_back(aLine);
@@ -289,6 +331,13 @@ namespace visilib
         mInputLines.resize(size);
         mHasInputLine.resize(size);
         mHigherTerms.resize(size);
+        while (mSerials.size() < size)
+        {
+            mSerials.push_back(mNextSerial++);
+        }
+        mSerials.resize(size);
+        mSideCache.resize(size);
+        mDescriptionVersion++;
         mApproximations.resize(size, MathPlucker6d::Zero());
         mHasApproximation.resize(size, 0);
         mPerturbations.resize(size);
@@ -312,6 +361,7 @@ namespace visilib
     void PluckerPolyhedron<P>::addToFacetsDescription(size_t aVertice, size_t aFace)
     {
         V_ASSERT(isValid(aVertice));
+        mDescriptionVersion++;
 
         size_t length = mFacetsDescription[aVertice].size();
 

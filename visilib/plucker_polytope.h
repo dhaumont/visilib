@@ -20,6 +20,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 
 #pragma once
 
+#include <memory>
 #include <set>
 #include <unordered_set>
 #include "math_plucker_6.h"
@@ -30,6 +31,8 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 
 namespace visilib
 {
+    template<class P> struct RepresentativeLine;
+
     template<class P>
     class PluckerPolyhedron;
 
@@ -202,24 +205,22 @@ namespace visilib
             }
         }
 
-        void setRepresentativeLine(P line)
-        {
-            mRepresentativeLine = line;
-        }
-
+        /** @brief The representative line found for the polytope (see MathGeometry::representativeLine), zero while none
+        is known for its current skeleton.*/
         P getRepresentativeLine() const
         {
-            return mRepresentativeLine;
+            return mCachedRepresentative ? mCachedRepresentative->line : P::Zero();
         }
 
-        void setRepresentativeLineMargin(double margin)
-        {
-            mRepresentativeLineMargin = margin;
-        }
+        /** @brief How far the representative line stands from the nearest facet of the polytope, in its own arithmetic,
+        -1 while none is known.
 
+        A representative line is what the search casts when it wants to know about a cell, and the margin is what says
+        how much room the cast has: a line of no margin was accepted as good as by luck, and is the one to look at when
+        the cast and the cell disagree. */
         double getRepresentativeLineMargin() const
         {
-            return mRepresentativeLineMargin;
+            return mCachedRepresentative ? mCachedRepresentative->margin : -1.0;
         }
 
         /** @brief Test if the polytope is valid (complete check)
@@ -228,7 +229,49 @@ namespace visilib
         */
         template<class S> bool isValid(PluckerPolyhedron<P>* polyhedron, bool normalization, S tolerance);
 
+        /** @brief The representative line found for the polytope in the polyhedron (see MathGeometry::representativeLine),
+        while the polytope and the facet descriptions of the polyhedron have not changed since: write it to aLine and
+        return true. It is the one representative line the polytope keeps (see getRepresentativeLine).
+
+        A cell is asked for its line several times (its occluders are collected, then it is validated as a leaf), and
+        the facets and the line are the costly part of each: they are kept rather than computed again.*/
+        bool getCachedRepresentativeLine(const PluckerPolyhedron<P>* polyhedron, bool optimised, RepresentativeLine<P>& aLine) const
+        {
+            if (!mCachedRepresentative || mCachedRepresentativePolyhedron != polyhedron || mCachedRepresentativeOptimised != optimised
+                || mCachedRepresentativeVersion != polyhedron->getDescriptionVersion())
+            {
+                return false;
+            }
+            aLine = *mCachedRepresentative;
+            return true;
+        }
+
+        /** @brief Keep the representative line found for the polytope (see getCachedRepresentativeLine).*/
+        void setCachedRepresentativeLine(const PluckerPolyhedron<P>* polyhedron, bool optimised, const RepresentativeLine<P>& aLine)
+        {
+            mCachedRepresentative = std::make_shared<RepresentativeLine<P>>(aLine);
+            mCachedRepresentativePolyhedron = polyhedron;
+            mCachedRepresentativeOptimised = optimised;
+            mCachedRepresentativeVersion = polyhedron->getDescriptionVersion();
+        }
+
     private:
+        /** @brief Forget what was derived from the skeleton: it has changed.*/
+        void invalidateCaches()
+        {
+            mHasCachedFacets = false;
+            mCachedRepresentative.reset();
+        }
+
+        std::vector<CellFacet> mCachedFacets;                            /** < @brief The facets of the cell (see getCellFacets), while valid*/
+        bool mCachedFlat = false;
+        bool mHasCachedFacets = false;
+        const void* mCachedFacetsPolyhedron = nullptr;
+        unsigned long long mCachedFacetsVersion = 0;
+        std::shared_ptr<RepresentativeLine<P>> mCachedRepresentative;    /** < @brief The representative line (see getCachedRepresentativeLine)*/
+        const void* mCachedRepresentativePolyhedron = nullptr;
+        bool mCachedRepresentativeOptimised = false;
+        unsigned long long mCachedRepresentativeVersion = 0;
 
         std::set<std::pair<size_t, size_t> > mEdges;                      /** < @brief The edges of the polytope, each edge is defined by the indices of the two vertices supporting it*/
         std::set<std::pair<size_t, size_t> > mEdgesProcessed;
@@ -238,19 +281,11 @@ namespace visilib
         std::unordered_set<size_t> mVertices;                            /** < @brief The indices of the vertices of the polytope*/
         std::vector<std::vector<size_t> > mExtremalStabbingLinesFacets;
         double mRadius;
-        P mRepresentativeLine;
-        /** @brief How far the line above stands from the nearest facet of the polytope, in its own arithmetic
-
-        A representative line is what the search casts when it wants to know about a cell, and the margin is
-        what says how much room the cast has: a line of no margin was accepted as good as by luck, and is the
-        one to look at when the cast and the cell disagree. */
-        double mRepresentativeLineMargin;
     };
 
     template<class P>
     PluckerPolytope<P>::PluckerPolytope()
-        :    mRadius(0),
-             mRepresentativeLineMargin(0.0)
+        :    mRadius(0)
     {
     }
 
@@ -262,6 +297,7 @@ namespace visilib
     template<class P>
     void PluckerPolytope<P>::addEdge(size_t aVertex0, size_t aVertex1, PluckerPolyhedron<P>* aPolyhedron)
     {
+        invalidateCaches();
         size_t min = aVertex0;
         size_t max = aVertex1;
         if (aVertex0 > aVertex1)
@@ -323,7 +359,7 @@ namespace visilib
         o << "Polytope ESL: " << mExtremalStabbingLines.size() << std::endl;
         o << "Polytope Edges: " << mEdges.size() << std::endl;
         o << "Polytope Vertices: " << mVertices.size() << std::endl;
-        o << "Polytope representative line margin: " << mRepresentativeLineMargin << std::endl;
+        o << "Polytope representative line margin: " << getRepresentativeLineMargin() << std::endl;
 
         if (polyhedron != nullptr)
         {
@@ -483,6 +519,7 @@ namespace visilib
         outputProperties(std::cout,polyhedron);
 #endif
         mEdges.clear();
+        invalidateCaches();
         for (int i=0; i<myEdgesTable.size();i+=2)
         {
             addEdge(myEdgesTable[i], myEdgesTable[i+1],polyhedron);
@@ -727,10 +764,26 @@ namespace visilib
     template<class P> template<class S>
     size_t PluckerPolytope<P>::getCellFacets(PluckerPolyhedron<P>* polyhedron, const S & tolerance, std::vector<CellFacet>& facets, bool& flat)
     {
+        /* The facets depend on the skeleton of the cell and on the facet descriptions of its vertices: kept while
+        neither changes (the tolerance is the one of the query).*/
+        if (mHasCachedFacets && mCachedFacetsPolyhedron == polyhedron && mCachedFacetsVersion == polyhedron->getDescriptionVersion())
+        {
+            facets = mCachedFacets;
+            flat = mCachedFlat;
+            return facets.size();
+        }
+
         std::set<size_t> myFacetIndices;
         getFacets(myFacetIndices, polyhedron);
 
-        return getCellFacets(polyhedron, tolerance, myFacetIndices, facets, flat);
+        const size_t count = getCellFacets(polyhedron, tolerance, myFacetIndices, facets, flat);
+
+        mCachedFacets = facets;
+        mCachedFlat = flat;
+        mHasCachedFacets = true;
+        mCachedFacetsPolyhedron = polyhedron;
+        mCachedFacetsVersion = polyhedron->getDescriptionVersion();
+        return count;
     }
 
     template<class P> template<class S, class I>
@@ -741,7 +794,8 @@ namespace visilib
 
         for (auto index = someCandidates.begin(); index != someCandidates.end(); index++)
         {
-            const P plane = polyhedron->get(*index);
+            // the hyperplane itself, not a copy: its sides are then recorded in the polyhedron (see getCachedSide)
+            const P& plane = polyhedron->get(*index);
 
             const GeometryPositionType position = MathPredicates::getRelativePosition(this, polyhedron, plane, tolerance, size_t(*index));
 

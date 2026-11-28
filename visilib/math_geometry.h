@@ -1239,7 +1239,13 @@ namespace visilib
     template<class P, class S>
     RepresentativeLine<P> MathGeometry::representativeLine(PluckerPolytope<P>* polytope, PluckerPolyhedron<P>* polyhedron, const S & tolerance, bool optimised, HelperStatisticCollector* statistics)
     {
-        RepresentativeLine<P> result = computeRepresentativeLine<P, S>(polytope, polyhedron, tolerance, optimised);
+        // a cell asked again, unchanged, gets the line it was given (see PluckerPolytope::getCachedRepresentativeLine)
+        RepresentativeLine<P> result;
+        if (!polytope->getCachedRepresentativeLine(polyhedron, optimised, result))
+        {
+            result = computeRepresentativeLine<P, S>(polytope, polyhedron, tolerance, optimised);
+            polytope->setCachedRepresentativeLine(polyhedron, optimised, result);
+        }
 
         if (statistics != nullptr)
         {

@@ -270,7 +270,10 @@ namespace
         if (polyhedron.get(0).dot(ray) >= -tolerance) return fail(__LINE__);
 
         ParallelPolytope polytope;
-        polytope.setRepresentativeLine(ray);
+        RepresentativeLine<ParallelLine> representative;
+        representative.line = ray;
+        polytope.setCachedRepresentativeLine(&polyhedron, true, representative);
+        if (polytope.getRepresentativeLine().getLocation() != ray.getLocation()) return fail(__LINE__);
         polytope.addExtremalStabbingLine(ray);
         if (polytope.getExtremalStabbingLinesCount() != 1) return fail(__LINE__);
         if (polytope.getExtremalStabbingLine(0).getLocation() != ray.getLocation()) return fail(__LINE__);

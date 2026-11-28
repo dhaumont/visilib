@@ -869,9 +869,8 @@ namespace visilib
 
         myRepresentativeLine = mNormalization.normalizePoint(myRepresentativeLine);
 
+        // the polytope keeps the line it was given (see PluckerPolytope::getRepresentativeLine)
         polytopeLines.push_back(myRepresentativeLine);
-        aPolytope->setRepresentativeLine(myRepresentativeLine);
-        aPolytope->setRepresentativeLineMargin(myRepresentative.margin);
 
         /* Which occluders a cell still has to be cut by is not to be read from a line lying outside of it: the cell
         is left alone, and the search comes back to it with a smaller one. */

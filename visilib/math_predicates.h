@@ -289,7 +289,12 @@ namespace visilib
         bool hasPointOnTheRight = false;
         bool hasPointOnBoundary = false;
 
-        auto myVertices = aPolytope->getVertices();
+        const auto& myVertices = aPolytope->getVertices();
+
+        /* In an exact arithmetic, the side of a vertex of a hyperplane of the polyhedron is recorded the first time it is
+        computed (see PluckerPolyhedron::getCachedSide): only when aPlane is that hyperplane itself, not a copy that
+        could differ from it.*/
+        const bool cached = MathIsExact<S>::value && aPlaneIndex != cNoPlaneIndex && &aPlane == &aPolyhedron->get(aPlaneIndex);
 
         for (auto iter = myVertices.begin(); iter != myVertices.end(); iter++)
         {
@@ -297,9 +302,16 @@ namespace visilib
 
             GeometryPositionType position = ON_BOUNDARY;
             int exactSign = 0;
+            bool known = false; // decided without computing: nothing to record
             if (aPlaneIndex != cNoPlaneIndex && MathCombinatorial::hasFacet(aPolyhedron->getFacetsDescription(v), aPlaneIndex))
             {
                 // a facet of the vertex: on it by construction
+                known = true;
+            }
+            else if (cached && aPolyhedron->getCachedSide(v, aPlaneIndex, position))
+            {
+                // recorded the first time it was computed
+                known = true;
             }
             else if (getSymbolicSide(aPolyhedron, aPlane, aPlaneIndex, v, position))
             {
@@ -315,6 +327,10 @@ namespace visilib
                 S result = aPlane.dot(aPolyhedron->get(v));
                 position = MathPredicates::getRelativePosition(result, tolerance);
                 V_ASSERT(position == MathPredicates::getVertexPlaneRelativePosition(aPlane, aPolyhedron->get(v), tolerance));
+            }
+            if (cached && !known)
+            {
+                aPolyhedron->setCachedSide(v, aPlaneIndex, position);
             }
            
             if (position == ON_NEGATIVE_SIDE)
