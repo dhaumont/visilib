@@ -1191,6 +1191,11 @@ const std::string DemoConfiguration::toStr(VisibilityExactQueryConfiguration::Pr
     case VisibilityExactQueryConfiguration::GMP_RATIONAL:
         stream << "GMP_RATIONAL; tol = " << MathArithmetic<MathGmpRational>::Tolerance();
         break;
+#if defined(ENABLE_MPFI)
+    case VisibilityExactQueryConfiguration::LAZY_RATIONAL:
+        stream << "LAZY_RATIONAL; tol = " << MathArithmetic<MathLazyRational>::Tolerance();
+        break;
+#endif
 
 #endif
 #ifdef ENABLE_MPFR
@@ -1265,6 +1270,7 @@ std::string DemoHelper::precisionTag(VisibilityExactQueryConfiguration::Precisio
     const std::string name = tolowerCopy(DemoConfiguration::toStr(precision));
 
     if (name.find("leda") != std::string::npos) return "LEDA";
+    if (name.find("lazy") != std::string::npos) return "LAZYQ";
     if (name.find("rational") != std::string::npos) return "GMPQ";
     if (name.find("gmp") != std::string::npos) return "GMPF";
     if (name.find("mpfr") != std::string::npos) return "MPFR";

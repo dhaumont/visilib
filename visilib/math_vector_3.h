@@ -182,6 +182,19 @@ namespace visilib
         return MathVector3_<MathGmpRational>(f.x, f.y, f.z);
     }
 #endif
+#if defined(ENABLE_GMP) && defined(ENABLE_MPFI)
+    template<>
+    inline MathVector3d convert(const MathVector3_<MathLazyRational>& f)
+    {
+        return MathVector3d(f.x.to_double(), f.y.to_double(), f.z.to_double());
+    }
+
+    template<>
+    inline MathVector3_<MathLazyRational> convert(const MathVector3d& f)
+    {
+        return MathVector3_<MathLazyRational>(f.x, f.y, f.z);
+    }
+#endif
 
 
 #if ENABLE_MPFR

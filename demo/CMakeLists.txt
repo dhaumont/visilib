@@ -50,6 +50,10 @@ include_directories( external/imgui )
 add_executable( ${VISILIB_DEMO_NAME}  ${Src})
 target_link_libraries(${VISILIB_DEMO_NAME} ${LIBS} )
 
+if (USE_MPFI)
+  target_link_libraries (${VISILIB_DEMO_NAME} ${MPFI_LIBRARY})
+endif()
+
 if (USE_MPFR)
   target_link_libraries (${VISILIB_DEMO_NAME} mpfr)
 endif()

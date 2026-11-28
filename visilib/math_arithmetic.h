@@ -385,6 +385,37 @@ namespace visilib
         return v.to_double();
     }
 #endif
+#if defined(ENABLE_GMP) && defined(ENABLE_MPFI)
+    /* The lazy exact rational: the values of GMP rational, decided by intervals first (see MathLazyRational).*/
+    template<> inline MathLazyRational MathArithmetic<MathLazyRational>::Tolerance()
+    {
+        return MathLazyRational(1e-200);
+    }
+    template <> inline int MathArithmetic<MathLazyRational>::bitsCount()
+    {
+        return 0;
+    }
+    template<>
+    inline MathLazyRational MathArithmetic<MathLazyRational>::getAbs(MathLazyRational s)
+    {
+        return s.abs();
+    }
+    template<>
+    inline MathLazyRational MathArithmetic<MathLazyRational>::getSqrt(MathLazyRational s)
+    {
+        return s.sqrt();
+    }
+    template<>
+    inline bool MathArithmetic<MathLazyRational>::isFinite(MathLazyRational s)
+    {
+        return s.isfinite();
+    }
+    template<>
+    inline double MathArithmetic<MathLazyRational>::to_double(const MathLazyRational& v)
+    {
+        return v.to_double();
+    }
+#endif
     template<class S>
     inline S MathArithmetic<S>::getRandom()
     {

@@ -49,6 +49,7 @@ set(MathSrc
     math_plane_3.h
     math_gmp_float.h
     math_gmp_rational.h
+    math_lazy_rational.h
     math_mpfr.h
     )
 

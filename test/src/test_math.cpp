@@ -20,6 +20,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 
 #include <string>
 #include <iostream>
+#include <cmath>
 
 /* The umbrella first, as every consumer of the library takes it: the headers of the
 space are caught in a circle of includes otherwise. */
@@ -1217,6 +1218,145 @@ bool MathSimulationOfSimplicityTest(std::string&)
 		delete polytope;
 	}
 #undef SOS_CHECK
+#endif
+	return true;
+}
+
+/* The lazy exact rational (MathLazyRational): the values of GMP rational, decided by intervals first.
+- random expressions, built in parallel in GMP rational: the double and MPFI intervals contain the exact value, the
+  exact value is the one of GMP rational, and the comparisons agree with it;
+- the exact zeros (cancellations) are decided by the exact stage;
+- a division by an interval holding zero, and an overflow of the double stage, are decided by the later stages;
+- a deep chain gets its exact value, which prunes its expression. */
+bool MathLazyRationalTest(std::string&)
+{
+#if defined(ENABLE_GMP) && defined(ENABLE_MPFI)
+#define LAZY_CHECK(condition) if (!(condition)) { std::cout << "Error in line " << __LINE__ << ": " #condition << std::endl; return false; }
+	typedef MathLazyRational L;
+	typedef MathGmpRational Q;
+
+	// -1, 0 or +1 as the rational q is below, equal to or above the double d (an infinity bounds everything)
+	auto compareToDouble = [](const Q& q, double d)
+	{
+		if (std::isinf(d)) return d > 0 ? -1 : 1;
+		mpq_t t;
+		mpq_init(t);
+		mpq_set_d(t, d);
+		const int c = mpq_cmp(q.v, t);
+		mpq_clear(t);
+		return c < 0 ? -1 : (c > 0 ? 1 : 0);
+	};
+	// the intervals of x contain q, read before the exact value of x is asked (it tightens them)
+	auto encloses = [&](const L& x, const Q& q)
+	{
+		if (compareToDouble(q, x.lower()) < 0 || compareToDouble(q, x.upper()) > 0) return false;
+		mpfi_t interval;
+		mpfi_init2(interval, L::cIntervalPrecision);
+		x.getInterval(interval);
+		const bool inside = mpfi_is_inside_q(q.v, interval) != 0;
+		mpfi_clear(interval);
+		return inside;
+	};
+
+	{//random expressions
+		srand(11);
+		auto leaf = [](L& x, Q& q)
+		{
+			const int kind = rand() % 3;
+			if (kind == 0)
+			{
+				const double d = (rand() / (double)RAND_MAX - 0.5) * std::pow(10.0, rand() % 7 - 3);
+				x = L(d);
+				q = Q(d);
+			}
+			else if (kind == 1)
+			{
+				q = Q(double(rand() % 19 - 9)) / Q(double(rand() % 7 + 1)); // a rational no double is
+				x = L(q);
+			}
+			else
+			{
+				const double d = double(rand() % 5 - 2);
+				x = L(d);
+				q = Q(d);
+			}
+		};
+		size_t checked = 0;
+		for (int trial = 0; trial < 300; trial++)
+		{
+			L x;
+			Q q;
+			leaf(x, q);
+			for (int step = 0; step < 40; step++)
+			{
+				L y;
+				Q r;
+				leaf(y, r);
+				switch (rand() % 5)
+				{
+				case 0: x = x + y; q = q + r; break;
+				case 1: x = x - y; q = q - r; break;
+				case 2: x = x * y; q = q * r; break;
+				case 3: if (mpq_sgn(r.v) != 0) { x = x / y; q = q / r; } break;
+				default: x = -x; q = -q; break;
+				}
+				LAZY_CHECK(encloses(x, q));
+				// a comparison with a fresh value, against the exact one
+				L z;
+				Q s;
+				leaf(z, s);
+				const int expected = mpq_cmp(q.v, s.v);
+				const int c = L::compare(x, z);
+				LAZY_CHECK(c == (expected < 0 ? -1 : (expected > 0 ? 1 : 0)));
+				checked++;
+			}
+			LAZY_CHECK(mpq_equal(x.exact().v, q.v) != 0);
+		}
+		LAZY_CHECK(checked == 300 * 40);
+	}
+
+	{//exact zeros are decided by the exact stage
+		const L a(0.1), b(Q(1.0) / Q(3.0)), c(Q(-2.0) / Q(7.0));
+		const size_t before = L::getStatistics().exactDecisions;
+		const L z = (a + b) - a - b;
+		LAZY_CHECK(z.sign() == 0);
+		const L w = a * b * c - c * (b * a);
+		LAZY_CHECK(w.sign() == 0);
+		LAZY_CHECK(L::getStatistics().exactDecisions >= before + 2);
+		// a value next to zero, beyond the double intervals, decided by the MPFI ones
+		const L tiny = (a + L(1e-30)) - a;
+		LAZY_CHECK(tiny.sign() > 0);
+	}
+
+	{//a division by an interval holding zero, an overflow
+		const L small = L(1e-300) * L(1e-300); // underflows: its double interval holds zero
+		LAZY_CHECK(small.lower() <= 0.0 && small.upper() >= 0.0);
+		const L huge = L(1.0) / small;
+		LAZY_CHECK(std::isinf(huge.upper()));
+		LAZY_CHECK(huge > L(1e300));
+		const L big = L(1e300) * L(1e300); // overflows
+		LAZY_CHECK(std::isinf(big.upper()));
+		LAZY_CHECK(big > L(1e308));
+		LAZY_CHECK(-big < L(-1e308));
+	}
+
+	{//a deep chain: its exact value is the one of GMP rational, and computing it prunes the expression
+		L x(Q(1.0) / Q(3.0));
+		Q q = Q(1.0) / Q(3.0);
+		const L step(0.75), shift(Q(1.0) / Q(5.0));
+		const Q stepQ(0.75), shiftQ = Q(1.0) / Q(5.0);
+		for (int i = 0; i < 2000; i++)
+		{
+			x = x * step + shift;
+			q = q * stepQ + shiftQ;
+		}
+		LAZY_CHECK(x.hasOperands());
+		LAZY_CHECK(encloses(x, q));
+		LAZY_CHECK(mpq_equal(x.exact().v, q.v) != 0);
+		LAZY_CHECK(!x.hasOperands());
+		LAZY_CHECK(encloses(x, q));
+	}
+#undef LAZY_CHECK
 #endif
 	return true;
 }

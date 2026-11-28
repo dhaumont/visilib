@@ -39,6 +39,10 @@ add_executable(visilibTest ${Tests})
 
 target_link_libraries(visilibTest ${LIBS})
 
+if (USE_MPFI)
+  target_link_libraries (visilibTest ${MPFI_LIBRARY})
+endif()
+
 if (USE_MPFR)
   target_link_libraries (visilibTest mpfr)
 endif()

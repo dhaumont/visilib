@@ -98,6 +98,12 @@ namespace visilib
         SOS_TANGENCY_COUNT,
         HYPERPLANE_MERGED_COUNT,
         COLLAPSED_EDGE_MERGED_COUNT,
+        /** @brief The lazy exact rational (LAZY_RATIONAL): the comparisons decided by the double intervals, by the MPFI
+        intervals and by the exact values, and the nodes whose exact value has been computed (see MathLazyRational).*/
+        LAZY_DOUBLE_DECISION_COUNT,
+        LAZY_INTERVAL_DECISION_COUNT,
+        LAZY_EXACT_DECISION_COUNT,
+        LAZY_EXACT_EVALUATION_COUNT,
         COUNTER_LAST
     };
 
@@ -274,6 +280,10 @@ namespace visilib
             counts["SoS tangencies"] = mCounts[SOS_TANGENCY_COUNT];
             counts["Hyperplanes merged"] = mCounts[HYPERPLANE_MERGED_COUNT];
             counts["Collapsed edges merged"] = mCounts[COLLAPSED_EDGE_MERGED_COUNT];
+            counts["Lazy double decisions"] = mCounts[LAZY_DOUBLE_DECISION_COUNT];
+            counts["Lazy interval decisions"] = mCounts[LAZY_INTERVAL_DECISION_COUNT];
+            counts["Lazy exact decisions"] = mCounts[LAZY_EXACT_DECISION_COUNT];
+            counts["Lazy exact evaluations"] = mCounts[LAZY_EXACT_EVALUATION_COUNT];
         }
 
         /**@brief The real valued statistics, of which only the smallest seen is kept
@@ -334,6 +344,14 @@ namespace visilib
                 std::cout << "  [SoS:            " << mCounts[SOS_TIE_BREAK_COUNT] << " ties broken, "
                           << mCounts[SOS_RESIDUAL_COUNT] << " residual incidences, "
                           << mCounts[SOS_TANGENCY_COUNT] << " tangencies]" << std::endl;
+            }
+
+            if (mCounts[LAZY_DOUBLE_DECISION_COUNT] || mCounts[LAZY_INTERVAL_DECISION_COUNT] || mCounts[LAZY_EXACT_DECISION_COUNT])
+            {
+                std::cout << "  [Lazy rational:  " << mCounts[LAZY_DOUBLE_DECISION_COUNT] << " double, "
+                          << mCounts[LAZY_INTERVAL_DECISION_COUNT] << " MPFI, "
+                          << mCounts[LAZY_EXACT_DECISION_COUNT] << " exact decisions, "
+                          << mCounts[LAZY_EXACT_EVALUATION_COUNT] << " exact evaluations]" << std::endl;
             }
 
             if (mMeasuresSet[WORST_ACCEPTED_MARGIN])

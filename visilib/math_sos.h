@@ -47,6 +47,30 @@ namespace visilib
         static constexpr bool value = true;
     };
 #endif
+#if defined(ENABLE_GMP) && defined(ENABLE_MPFI)
+    /* The lazy rational has the values of GMP rational: its comparisons are exact, only decided by intervals first.*/
+    template<>
+    struct MathIsExact<MathLazyRational>
+    {
+        static constexpr bool value = true;
+    };
+#endif
+
+    /** @brief Whether the double sign filter (MathSignFilter) applies to the arithmetic S: its conversion to double
+    must round the exact value once. The lazy rational converts to the middle of an interval, which can be wide, and
+    filters its comparisons itself.*/
+    template<class S>
+    struct MathHasSignFilter
+    {
+        static constexpr bool value = false;
+    };
+#ifdef ENABLE_GMP
+    template<>
+    struct MathHasSignFilter<MathGmpRational>
+    {
+        static constexpr bool value = true;
+    };
+#endif
 
     /** @brief Whether Simulation of Simplicity applies to the Plucker points P of the arithmetic S: an exact arithmetic,
     and the general lines (the directional family re-projects its moment after each sum, which a polynomial of epsilon

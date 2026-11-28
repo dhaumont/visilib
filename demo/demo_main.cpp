@@ -354,6 +354,9 @@ namespace visilibDemo
         #ifdef ENABLE_MPFR
                     , "MPFR"
         #endif
+        #if defined(ENABLE_GMP) && defined(ENABLE_MPFI)
+                    , "LAZY_RATIONAL"
+        #endif
                 };
                 int precisionType = mDemoConfiguration.precisionType;
                 forceDisplay |= ImGui::Combo("Precision", &precisionType, precision_items, IM_ARRAYSIZE(precision_items));

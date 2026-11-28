@@ -63,6 +63,13 @@ bool testConfiguration(const DemoConfiguration& configuration, VisibilityResult 
         writeTestImage(label.str(), occluderSet, v0, v1, result, debugger.getTimeout().isOver(), config.detectApertureOnly, debugger);
     }
 
+    if (result != expected)
+    {
+        // what the query said, and whether its time budget ran out, before the configuration is printed
+        std::cout << "  answered " << (result == VISIBLE ? "VISIBLE" : result == HIDDEN ? "HIDDEN" : result == FAILURE ? "FAILURE" : "UNKNOWN")
+                  << (debugger.getTimeout().isOver() ? " (time budget exhausted)" : "") << std::endl;
+    }
+
     return (result == expected);
 }
 
@@ -78,6 +85,9 @@ bool VisibilityTest(std::string& )
 #ifdef ENABLE_GMP
     precisions.push_back(VisibilityExactQueryConfiguration::GMP_FLOAT);
     precisions.push_back(VisibilityExactQueryConfiguration::GMP_RATIONAL);
+#endif
+#if defined(ENABLE_GMP) && defined(ENABLE_MPFI)
+    precisions.push_back(VisibilityExactQueryConfiguration::LAZY_RATIONAL);
 #endif
     std::vector<float> globalScalings = {0.05f, 0.1f, 1.f, 5.0f };
     std::vector<size_t> vertexCount = { 1,2,3,5,7,9,11 };
@@ -113,6 +123,7 @@ bool VisibilityTest(std::string& )
                                 configuration.scaling0 = 0.14;
                                 configuration.scaling1 = 0.14;
                                 configuration.silhouetteOptimisation = silhouette;
+                                configuration.precisionType = precision;
                                 std::stringstream ss;
                                 ss << v0 << "_" << v1 << ".obj";
 

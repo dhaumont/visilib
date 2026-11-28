@@ -438,6 +438,23 @@ namespace visilib
     {
         VisibilityResult result = UNKNOWN;
 
+#if defined(ENABLE_GMP) && defined(ENABLE_MPFI)
+        /* The lazy rational counts its decisions for the whole process: the query records what it added.*/
+        struct LazyStatisticScope
+        {
+            HelperStatisticCollector* statistic;
+            MathLazyRationalStatistics start;
+            ~LazyStatisticScope()
+            {
+                const MathLazyRationalStatistics& now = MathLazyRational::getStatistics();
+                statistic->add(LAZY_DOUBLE_DECISION_COUNT, now.doubleDecisions - start.doubleDecisions);
+                statistic->add(LAZY_INTERVAL_DECISION_COUNT, now.intervalDecisions - start.intervalDecisions);
+                statistic->add(LAZY_EXACT_DECISION_COUNT, now.exactDecisions - start.exactDecisions);
+                statistic->add(LAZY_EXACT_EVALUATION_COUNT, now.exactEvaluations - start.exactEvaluations);
+            }
+        } lazyStatistics{ &mStatistic, MathLazyRational::getStatistics() };
+#endif
+
         HelperScopedTimer timer(&mStatistic, VISIBILITY_QUERY);
 
         if (mDebugger != nullptr)

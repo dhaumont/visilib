@@ -425,6 +425,25 @@ namespace visilib
         return MathPlucker6<MathGmpRational>(a.x, a.y, a.z, b.x, b.y, b.z);
     }
 #endif
+#if defined(ENABLE_GMP) && defined(ENABLE_MPFI)
+    template<>
+    inline MathPlucker6d convert(const MathPlucker6<MathLazyRational>& f)
+    {
+        const MathVector3_<MathLazyRational>& a = f.getDirection();
+        const MathVector3_<MathLazyRational>& b = f.getLocation();
+
+        return MathPlucker6d(a.x.to_double(), a.y.to_double(), a.z.to_double(), b.x.to_double(), b.y.to_double(), b.z.to_double());
+    }
+
+    template<>
+    inline MathPlucker6<MathLazyRational> convert(const MathPlucker6d& f)
+    {
+        const MathVector3d& a = f.getDirection();
+        const MathVector3d& b = f.getLocation();
+
+        return MathPlucker6<MathLazyRational>(a.x, a.y, a.z, b.x, b.y, b.z);
+    }
+#endif
 
 #if ENABLE_MPFR
     template<>

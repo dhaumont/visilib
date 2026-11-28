@@ -84,10 +84,13 @@ namespace visilib
             {
                 // the order 0 term is the stored point: it decides almost always, without building the symbolic point, and
                 // its sign is almost always far enough from zero for the double approximations to tell it
-                const int filtered = MathSignFilter::sign(MathSignFilter::approximate(aPlane), aPolyhedron->getApproximation(aVertex));
-                if (filtered != 0)
+                if constexpr (MathHasSignFilter<S>::value)
                 {
-                    return filtered > 0 ? ON_POSITIVE_SIDE : ON_NEGATIVE_SIDE;
+                    const int filtered = MathSignFilter::sign(MathSignFilter::approximate(aPlane), aPolyhedron->getApproximation(aVertex));
+                    if (filtered != 0)
+                    {
+                        return filtered > 0 ? ON_POSITIVE_SIDE : ON_NEGATIVE_SIDE;
+                    }
                 }
                 const int leading = getExactSign(aPlane.dot(aPolyhedron->get(aVertex)));
                 if (leading != 0)

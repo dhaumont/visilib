@@ -559,8 +559,11 @@ bool ShadowDiscontinuityTest(std::string& message)
                 {
                     ok = checkPlanarOccluder(scene, phi, silhouette, integer, VisibilityExactQueryConfiguration::DOUBLE, message) && ok;
                 }
-#ifdef ENABLE_GMP
-                // in GMP rational, every decision of the CSG is exact and its ties are broken by the simulation of simplicity
+#if defined(ENABLE_GMP) && defined(ENABLE_MPFI)
+                // in exact arithmetic, every decision of the CSG is exact and its ties are broken by the simulation of
+                // simplicity: the lazy rational, which has the values of GMP rational, decided by intervals first
+                ok = checkPlanarOccluder(scene, phi, silhouette, false, VisibilityExactQueryConfiguration::LAZY_RATIONAL, message) && ok;
+#elif defined(ENABLE_GMP)
                 ok = checkPlanarOccluder(scene, phi, silhouette, false, VisibilityExactQueryConfiguration::GMP_RATIONAL, message) && ok;
 #endif
             }

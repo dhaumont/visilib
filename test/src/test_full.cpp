@@ -73,6 +73,7 @@ const TestDefinition cTests[] =
     { "MathIntegerPredicateTest", &MathIntegerPredicateTest },
     { "MathNormalizationTest", &MathNormalizationTest },
     { "MathSimulationOfSimplicityTest", &MathSimulationOfSimplicityTest },
+    { "MathLazyRationalTest", &MathLazyRationalTest },
     { "VisibilityTest", &VisibilityTest },
     { "DirectionalVisibilityTest", &DirectionalVisibilityTest },
     { "SolverConsistencyTest", &SolverConsistencyTest },

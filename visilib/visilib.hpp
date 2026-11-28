@@ -84,6 +84,14 @@ inline VisibilityExactQuery* createExactQuery(GeometryOccluderSet* scene, const 
                 getComputationTolerance<MathGmpRational>(configuration));
             break;
 #endif
+#if defined(ENABLE_GMP) && defined(ENABLE_MPFI)
+        case VisibilityExactQueryConfiguration::LAZY_RATIONAL:
+            query = new VisibilityExactQuery_<MathPluckerParallel6<MathLazyRational>, MathLazyRational>(
+                scene,
+                configuration,
+                getComputationTolerance<MathLazyRational>(configuration));
+            break;
+#endif
 #ifdef ENABLE_MPFR
         case VisibilityExactQueryConfiguration::MPFR:
             configureArithmeticPrecision<MathMpfr>();
@@ -132,6 +140,14 @@ inline VisibilityExactQuery* createExactQuery(GeometryOccluderSet* scene, const 
              scene,
              configuration,
              getComputationTolerance<MathGmpRational>(configuration));
+        break;
+#endif
+#if defined(ENABLE_GMP) && defined(ENABLE_MPFI)
+    case VisibilityExactQueryConfiguration::LAZY_RATIONAL:
+        query = new VisibilityExactQuery_<MathPlucker6<MathLazyRational>, MathLazyRational>(
+             scene,
+             configuration,
+             getComputationTolerance<MathLazyRational>(configuration));
         break;
 #endif
 #ifdef ENABLE_MPFR

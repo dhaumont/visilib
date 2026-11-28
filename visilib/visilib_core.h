@@ -32,6 +32,10 @@ typedef leda::real MathLedaReal;
 #include "math_gmp_rational.h"
 #endif
 
+#if defined(ENABLE_GMP) && defined(ENABLE_MPFI)
+#include "math_lazy_rational.h"
+#endif
+
 #ifdef ENABLE_MPFR
 #include "math_mpfr.h"
 #endif
