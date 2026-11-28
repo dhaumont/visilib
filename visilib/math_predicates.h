@@ -131,6 +131,17 @@ namespace visilib
     template <class P, class S>
     inline GeometryPositionType MathPredicates::getVertexPlaneRelativePosition(const P& plane, const P& point, S tolerance)
     {
+        if constexpr (MathSoSSupported<P, S>::value)
+        {
+            /* An exact arithmetic: the double approximations tell the sign when it is far from zero (see MathSignFilter),
+            above the tolerance (rounded up) under which the exact test calls it zero.*/
+            const double threshold = std::fabs(MathArithmetic<S>::to_double(tolerance)) * 1.01;
+            const int filtered = MathSignFilter::sign(MathSignFilter::approximate(plane), MathSignFilter::approximate(point), threshold);
+            if (filtered != 0)
+            {
+                return filtered > 0 ? ON_POSITIVE_SIDE : ON_NEGATIVE_SIDE;
+            }
+        }
         auto result = plane.dot(point);
         return getRelativePosition(result, tolerance);
     }
@@ -353,7 +364,14 @@ namespace visilib
         {
             if (aPolyhedron->isSymbolic())
             {
-                // the order 0 term is the stored point: it decides almost always, without building the symbolic point
+                // the order 0 term is the stored point: it decides almost always, without building the symbolic point, and
+                // its sign is almost always far enough from zero for the double approximations to tell it
+                const int filtered = MathSignFilter::sign(MathSignFilter::approximate(aPlane), aPolyhedron->getApproximation(v));
+                if (filtered != 0)
+                {
+                    aPosition = filtered > 0 ? ON_POSITIVE_SIDE : ON_NEGATIVE_SIDE;
+                    return true;
+                }
                 const int leading = getExactSign(aPlane.dot(aPolyhedron->get(v)));
                 if (leading != 0)
                 {

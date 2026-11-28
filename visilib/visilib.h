@@ -79,6 +79,7 @@ namespace visilib
             computeShadowDiscontinuities = false;
             infiniteReceiver = false;
             integerPredicates = false;
+            simulationOfSimplicity = true;
         }
 
         VisibilityExactQueryConfiguration(const VisibilityExactQueryConfiguration& other)
@@ -99,6 +100,7 @@ namespace visilib
             computeShadowDiscontinuities = other.computeShadowDiscontinuities;
             infiniteReceiver = other.infiniteReceiver;
             integerPredicates = other.integerPredicates;
+            simulationOfSimplicity = other.simulationOfSimplicity;
         }
 
         bool silhouetteOptimization;                  /**< @brief Use silhouette optimization*/
@@ -117,6 +119,7 @@ namespace visilib
         bool computeShadowDiscontinuities;                /**< @brief Trace the shadow discontinuities of the light (polygon 0) on the receiver (polygon 1): needs the aperture finder with detectApertureOnly off (see computeShadowDiscontinuities)*/
         bool infiniteReceiver;                            /**< @brief Trace the shadows on the whole plane of the receiver, not only inside the receiver polygon (see computeShadowDiscontinuities)*/
         bool integerPredicates;                           /**< @brief Snap the occluders and the query polygons to an integer grid (MathIntegerGrid), so that the predicates between the input lines are exact: the geometry moves by at most half a step of the grid, about 2^-24 of the size of the scene*/
+        bool simulationOfSimplicity;                      /**< @brief With an exact arithmetic (GMP_RATIONAL), decide the predicates of the CSG exactly and break their ties by Simulation of Simplicity (see MathSoS); off, the exact arithmetic still compares with the tolerance. Ignored by the other precisions and by a directional light*/
     };
 
 

@@ -21,6 +21,7 @@ along with Visilib. If not, see <http://www.gnu.org/licenses/>
 #pragma once
 
 #include <algorithm>
+#include <cmath>
 #include <cstdint>
 #include <type_traits>
 #include <vector>
@@ -54,6 +55,52 @@ namespace visilib
     struct MathSoSSupported
     {
         static constexpr bool value = MathIsExact<S>::value && std::is_same<P, MathPlucker6<S>>::value;
+    };
+
+    /** @brief A floating-point filter for the sign of the Plucker product of two exact points.
+
+    The exact coordinates of the deep vertices of the CSG grow to thousands of bits, and an exact product of them costs
+    far more than its sign is worth: almost every sign is far from zero. The filter computes the product of the double
+    approximations with a bound of its error, and tells the sign only when the bound cannot change it; otherwise (0)
+    the exact product decides. The bound:
+    - each coordinate is rounded once (mpq_get_d truncates: a relative error below 2^-52), or flushed to zero below
+      the normal range (an absolute error below 2^-1021);
+    - the six products and their sum in double add at most 7 roundings of 2^-53, relative to the sum of the absolute
+      products.
+    So |exact - computed| <= 16 * 2^-52 * sum |a_i| |b_j| + 2^-1000 * (sum |a_i| + sum |b_j|) * (1 + max), well inside
+    the bound below. Infinite or not-a-number approximations (a coordinate beyond the double range) decide nothing.*/
+    struct MathSignFilter
+    {
+        /** @brief The approximation of a point: its coordinates rounded to double.*/
+        template<class S>
+        static MathPlucker6d approximate(const MathPlucker6<S>& aPoint)
+        {
+            return convert<MathPlucker6d>(aPoint);
+        }
+
+        /** @brief The sign of the Plucker product of the exact points that a and b approximate, or 0 when the
+        approximations cannot tell it. With aThreshold, the sign is told only when the absolute value of the product is
+        also above it (a tolerance that calls the smaller values zero).*/
+        static int sign(const MathPlucker6d& a, const MathPlucker6d& b, double aThreshold = 0.0)
+        {
+            const double value = a.dot(b);
+            const MathVector3d& ad = a.getDirection();
+            const MathVector3d& al = a.getLocation();
+            const MathVector3d& bd = b.getDirection();
+            const MathVector3d& bl = b.getLocation();
+            const double magnitude = std::fabs(ad.x * bl.x) + std::fabs(ad.y * bl.y) + std::fabs(ad.z * bl.z)
+                                   + std::fabs(al.x * bd.x) + std::fabs(al.y * bd.y) + std::fabs(al.z * bd.z);
+            const double sizeA = std::fabs(ad.x) + std::fabs(ad.y) + std::fabs(ad.z) + std::fabs(al.x) + std::fabs(al.y) + std::fabs(al.z);
+            const double sizeB = std::fabs(bd.x) + std::fabs(bd.y) + std::fabs(bd.z) + std::fabs(bl.x) + std::fabs(bl.y) + std::fabs(bl.z);
+            // beyond the double range, or so small that the products underflow: the filter does not decide
+            if (!std::isfinite(value) || !std::isfinite(magnitude) || !std::isfinite(sizeA) || !std::isfinite(sizeB) || magnitude < 1.0e-250)
+            {
+                return 0;
+            }
+            const double bound = 4.0e-15 * magnitude + 1.0e-290 * (sizeA + sizeB) * (1.0 + sizeA + sizeB);
+            const double limit = bound + aThreshold;
+            return value > limit ? 1 : (value < -limit ? -1 : 0);
+        }
     };
 
     /** @brief The exact sign of a value: -1, 0 or +1*/

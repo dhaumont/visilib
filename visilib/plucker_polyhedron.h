@@ -123,6 +123,18 @@ namespace visilib
             return result;
         }
 
+        /**@brief The double approximation of the point anIndex, for the sign filter of the exact arithmetics (see
+        MathSignFilter): computed with its first use, and kept until the point is removed by resize.*/
+        const MathPlucker6d& getApproximation(size_t anIndex) const
+        {
+            if (!mHasApproximation[anIndex])
+            {
+                mApproximations[anIndex] = MathSignFilter::approximate(mLines[anIndex]);
+                mHasApproximation[anIndex] = 1;
+            }
+            return mApproximations[anIndex];
+        }
+
         /**@brief Record the higher terms of the symbolic point anIndex (its leading term is the stored point)*/
         void setSymbolicPoint(size_t anIndex, const MathSymbolicPoint<P>& aPoint)
         {
@@ -218,6 +230,8 @@ namespace visilib
         std::vector<size_t> mMergeableHyperplanes;
         bool mIsSymbolic = false;                                     /** < @brief Whether the points carry their symbolic perturbation*/
         std::vector<std::vector<P>> mHigherTerms;                     /** < @brief The terms of epsilon of each point beyond the stored one*/
+        mutable std::vector<MathPlucker6d> mApproximations;           /** < @brief The double approximation of each point, once asked (see getApproximation)*/
+        mutable std::vector<char> mHasApproximation;                  /** < @brief Whether the approximation of each point has been computed*/
         std::vector<P> mPerturbations;                                /** < @brief The perturbation direction of each perturbed hyperplane*/
         std::vector<char> mHasPerturbation;                           /** < @brief Whether each hyperplane is perturbed*/                    /** < @brief The hyperplanes added with addHyperplane, candidates for a merge*/
         std::vector<std::vector<size_t> > mFacetsDescription;          /** < @brief The facet description (list of all the hyperplanes intersecting at that point) of each Plucker point mLines*/
@@ -236,6 +250,8 @@ namespace visilib
         mInputLines.push_back({ MathIntegerPoint{ 0, 0, 0 }, MathIntegerPoint{ 0, 0, 0 } });
         mHasInputLine.push_back(0);
         mHigherTerms.push_back(std::vector<P>());
+        mApproximations.push_back(MathPlucker6d::Zero());
+        mHasApproximation.push_back(0);
         mPerturbations.push_back(aLine);
         mHasPerturbation.push_back(0);
         return mLines.size() - 1;
@@ -273,6 +289,8 @@ namespace visilib
         mInputLines.resize(size);
         mHasInputLine.resize(size);
         mHigherTerms.resize(size);
+        mApproximations.resize(size, MathPlucker6d::Zero());
+        mHasApproximation.resize(size, 0);
         mPerturbations.resize(size);
         mHasPerturbation.resize(size);
         mQuadricRelativePositions.resize(size);

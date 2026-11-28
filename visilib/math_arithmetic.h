@@ -72,7 +72,7 @@ namespace visilib
         /** @brief Test is a vector is finite (not containing NaN).*/
         static bool isFinite(MathVector3_<S> a);
 
-        static double to_double(S a);
+        static double to_double(const S& a);
         static S getRandom();
 
         /** @brief Append the real roots of a t^2 + 2 b t + c = 0 to roots (the half coefficient b keeps the discriminant b^2 - a c).
@@ -349,38 +349,38 @@ namespace visilib
     }
 
     template<>
-    inline double MathArithmetic<float>::to_double(float v)
+    inline double MathArithmetic<float>::to_double(const float& v)
     {
         return double(v);
     }
 
     template<>
-    inline double MathArithmetic<double>::to_double(double v)
+    inline double MathArithmetic<double>::to_double(const double& v)
     {
         return v;
     }
 #ifdef ENABLE_LEDA
     template<>
-    inline double MathArithmetic<MathLedaReal>::to_double(MathLedaReal v)
+    inline double MathArithmetic<MathLedaReal>::to_double(const MathLedaReal& v)
     {
         return v.to_double();
     }
 #endif
 #ifdef ENABLE_MPFR
     template<>
-    inline double MathArithmetic<MathMpfr>::to_double(MathMpfr v)
+    inline double MathArithmetic<MathMpfr>::to_double(const MathMpfr& v)
     {
         return v.to_double();
     }
 #endif
 #ifdef ENABLE_GMP
     template<>
-    inline double MathArithmetic<MathGmpFloat>::to_double(MathGmpFloat v)
+    inline double MathArithmetic<MathGmpFloat>::to_double(const MathGmpFloat& v)
     {
         return v.to_double();
     }
     template<>
-    inline double MathArithmetic<MathGmpRational>::to_double(MathGmpRational v)
+    inline double MathArithmetic<MathGmpRational>::to_double(const MathGmpRational& v)
     {
         return v.to_double();
     }

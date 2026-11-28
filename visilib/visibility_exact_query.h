@@ -489,7 +489,7 @@ namespace visilib
         bool mySymbolic = false;
         if constexpr (MathSoSSupported<P, S>::value)
         {
-            mySymbolic = true;
+            mySymbolic = mConfiguration.simulationOfSimplicity;
         }
         getComplex()->getPolyhedron()->setSymbolic(mySymbolic);
 

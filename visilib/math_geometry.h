@@ -1358,10 +1358,25 @@ namespace visilib
         P myGravityCenterImaginary = P::Zero();
         auto myVertices = polytope->getVertices();
 
-        for (auto iter = myVertices.begin(); iter != myVertices.end(); iter++)
+        if constexpr (MathSoSSupported<P, S>::value)
         {
-            size_t v = *iter;
-            myGravityCenterImaginary += polyhedron->get(v);
+            /* An exact arithmetic: the deep vertices carry thousands of bits, and their exact sum, every one of its
+            products after, costs far more than a candidate is worth. The center is summed from the double
+            approximations and taken back exactly: the line it gives is still checked exactly in the cell below.*/
+            MathPlucker6d myCenter = MathPlucker6d::Zero();
+            for (auto iter = myVertices.begin(); iter != myVertices.end(); iter++)
+            {
+                myCenter += polyhedron->getApproximation(*iter);
+            }
+            myGravityCenterImaginary = convert<P>(myCenter);
+        }
+        else
+        {
+            for (auto iter = myVertices.begin(); iter != myVertices.end(); iter++)
+            {
+                size_t v = *iter;
+                myGravityCenterImaginary += polyhedron->get(v);
+            }
         }
 
         P myGravityCenterReal = getProjectionOnQuadric<P, S>(myGravityCenterImaginary);
